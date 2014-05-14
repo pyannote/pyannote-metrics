@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2014 CNRS (Hervé BREDIN - http://herve.niderb.fr)
+# Copyright (c) 2012-2014 CNRS (Hervé BREDIN - http://herve.niderb.fr)
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,3 +28,5 @@ from __future__ import unicode_literals
 from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
+
+from base import f_measure
