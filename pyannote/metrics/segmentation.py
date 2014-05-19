@@ -12,8 +12,8 @@
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -28,16 +28,17 @@ from __future__ import unicode_literals
 from base import BaseMetric
 from pyannote.core import Annotation
 
-PTY_NAME = 'segmentation purity'
-CVG_NAME = 'segmentation coverage'
-TOTAL = 'total'
-INTER = 'intersection' 
+PURITY_NAME = 'segmentation purity'
+COVERAGE_NAME = 'segmentation coverage'
+PTY_CVG_TOTAL = 'total duration'
+PTY_CVG_INTER = 'intersection duration'
+
 
 class SegmentationCoverage(BaseMetric):
     """Segmentation coverage
 
-    >>> from pyannote import Timeline, Segment
-    >>> from pyannote.metric.segmentation import SegmentationCoverage
+    >>> from pyannote.core import Timeline, Segment
+    >>> from pyannote.metrics.segmentation import SegmentationCoverage
     >>> cvg = SegmentationCoverage()
 
     >>> reference = Timeline()
@@ -59,11 +60,11 @@ class SegmentationCoverage(BaseMetric):
 
     @classmethod
     def metric_name(cls):
-        return CVG_NAME
+        return COVERAGE_NAME
 
     @classmethod
     def metric_components(cls):
-        return [TOTAL, INTER]
+        return [PTY_CVG_TOTAL, PTY_CVG_INTER]
 
     def _get_details(self, reference, hypothesis, **kwargs):
 
@@ -79,38 +80,39 @@ class SegmentationCoverage(BaseMetric):
         duration = 0.
         intersection = 0.
         for r, h in reference.co_iter(hypothesis):
-        
+
             if r != prev_r:
-                detail[TOTAL] += duration
-                detail[INTER] += intersection
-        
+                detail[PTY_CVG_TOTAL] += duration
+                detail[PTY_CVG_INTER] += intersection
+
                 duration = r.duration
                 intersection = 0.
                 prev_r = r
-        
+
             intersection = max(intersection, (r & h).duration)
 
-        detail[TOTAL] += duration
-        detail[INTER] += intersection
-        
+        detail[PTY_CVG_TOTAL] += duration
+        detail[PTY_CVG_INTER] += intersection
+
         return detail
 
     def _get_rate(self, detail):
 
-        return detail[INTER] / detail[TOTAL]
+        return detail[PTY_CVG_INTER] / detail[PTY_CVG_TOTAL]
 
     def _pretty(self, detail):
         string = ""
-        string += "  - duration: %.2f seconds\n" % (detail[TOTAL])
-        string += "  - correct: %.2f seconds\n" % (detail[INTER])
-        string += "  - %s: %.2f %%\n" % (self.name, 100*detail[self.name])
+        string += "  - duration: %.2f seconds\n" % (detail[PTY_CVG_TOTAL])
+        string += "  - correct: %.2f seconds\n" % (detail[PTY_CVG_INTER])
+        string += "  - %s: %.2f %%\n" % (self.name, 100 * detail[self.name])
         return string
+
 
 class SegmentationPurity(SegmentationCoverage):
     """Segmentation purity
 
-    >>> from pyannote import Timeline, Segment
-    >>> from pyannote.metric.segmentation import SegmentationPurity
+    >>> from pyannote.core import Timeline, Segment
+    >>> from pyannote.metrics.segmentation import SegmentationPurity
     >>> pty = SegmentationPurity()
 
     >>> reference = Timeline()
@@ -135,7 +137,7 @@ class SegmentationPurity(SegmentationCoverage):
 
     @classmethod
     def metric_name(cls):
-        return PTY_NAME
+        return PURITY_NAME
 
     def _get_details(self, reference, hypothesis, **kwargs):
         return super(SegmentationPurity, self)._get_details(
