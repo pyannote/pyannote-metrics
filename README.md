@@ -1,4 +1,4 @@
 pyannote.metrics
 ===================
 
-[Documentation](http://nbviewer.ipython.org/github/hbredin/pyannote-metrics/blob/develop/doc/index.ipynb)
+[Documentation](http://nbviewer.ipython.org/github/pyannote/pyannote-metrics/blob/master/doc/index.ipynb)
