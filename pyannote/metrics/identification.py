@@ -12,8 +12,8 @@
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -74,8 +74,11 @@ class IdentificationErrorRate(BaseMetric):
 
     @classmethod
     def metric_components(cls):
-        return [IER_CONFUSION, IER_FALSE_ALARM, IER_MISS,
-                IER_TOTAL, IER_CORRECT]
+        return [
+            IER_CONFUSION,
+            IER_FALSE_ALARM, IER_MISS,
+            IER_TOTAL, IER_CORRECT
+        ]
 
     def __init__(self,
         matcher=None, unknown=True,
@@ -109,7 +112,8 @@ class IdentificationErrorRate(BaseMetric):
         detail = self._init_details()
 
         # common (up-sampled) timeline
-        common_timeline = reference.get_timeline().union(hypothesis.get_timeline())
+        common_timeline = reference.get_timeline().union(
+            hypothesis.get_timeline())
         common_timeline = common_timeline.segmentation()
 
         # align reference on common timeline
@@ -154,7 +158,7 @@ class IdentificationErrorRate(BaseMetric):
             else:
                 return 1.
         else:
-            return numerator/denominator
+            return numerator / denominator
 
     def _pretty(self, detail):
         string = ""
@@ -163,7 +167,7 @@ class IdentificationErrorRate(BaseMetric):
         string += "  - confusion: %.2f seconds\n" % (detail[IER_CONFUSION])
         string += "  - miss: %.2f seconds\n" % (detail[IER_MISS])
         string += "  - false alarm: %.2f seconds\n" % (detail[IER_FALSE_ALARM])
-        string += "  - %s: %.2f %%\n" % (self.name, 100*detail[self.name])
+        string += "  - %s: %.2f %%\n" % (self.name, 100 * detail[self.name])
         return string
 
 
@@ -192,7 +196,8 @@ class IdentificationPrecision(Precision):
         detail = self._init_details()
 
         # common (up-sampled) timeline
-        common_timeline = reference.get_timeline().union(hypothesis.get_timeline())
+        common_timeline = reference.get_timeline().union(
+            hypothesis.get_timeline())
         common_timeline = common_timeline.segmentation()
 
         # align reference on common timeline
@@ -216,7 +221,8 @@ class IdentificationPrecision(Precision):
             counts, _ = self.matcher.manyToManyMatch(r, h)
 
             detail[PRECISION_RETRIEVED] += duration * len(h)
-            detail[PRECISION_RELEVANT_RETRIEVED] += duration * counts[IER_CORRECT]
+            detail[PRECISION_RELEVANT_RETRIEVED] += \
+                duration * counts[IER_CORRECT]
 
         return detail
 
@@ -246,7 +252,8 @@ class IdentificationRecall(Recall):
         detail = self._init_details()
 
         # common (up-sampled) timeline
-        common_timeline = reference.get_timeline().union(hypothesis.get_timeline())
+        common_timeline = reference.get_timeline().union(
+            hypothesis.get_timeline())
         common_timeline = common_timeline.segmentation()
 
         # align reference on common timeline
