@@ -25,103 +25,20 @@
 
 from __future__ import unicode_literals
 
-import numpy as np
-from munkres import Munkres
-
 from base import BaseMetric
 from base import Precision, PRECISION_RETRIEVED, PRECISION_RELEVANT_RETRIEVED
 from base import Recall, RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED
-from pyannote.core.annotation import Unknown
+from matcher import LabelMatcherWithUnknownSupport, \
+    MATCH_TOTAL, MATCH_CORRECT, MATCH_CONFUSION, \
+    MATCH_MISSED_DETECTION, MATCH_FALSE_ALARM
+from pyannote.core import Segment, Timeline
 
-IER_TOTAL = 'total'
-IER_CORRECT = 'correct'
-IER_CONFUSION = 'confusion'
-IER_FALSE_ALARM = 'false alarm'
-IER_MISS = 'miss'
+IER_TOTAL = MATCH_TOTAL
+IER_CORRECT = MATCH_CORRECT
+IER_CONFUSION = MATCH_CONFUSION
+IER_FALSE_ALARM = MATCH_FALSE_ALARM
+IER_MISS = MATCH_MISSED_DETECTION
 IER_NAME = 'identification error rate'
-
-
-class IDMatcher(object):
-    """
-    ID matcher base class.
-
-    All ID matcher classes must inherit from this class and implement
-    .oneToOneMatch() -- ie return True if two IDs match and False
-    otherwise.
-    """
-
-    def __init__(self):
-        super(IDMatcher, self).__init__()
-        self.munkres = Munkres()
-
-    def oneToOneMatch(self, id1, id2):
-        # Two IDs match if they are equal to each other
-        return id1 == id2
-
-    def manyToManyMatch(self, ids1, ids2):
-        ids1 = list(ids1)
-        ids2 = list(ids2)
-
-        n1 = len(ids1)
-        n2 = len(ids2)
-
-        nCorrect = nConfusion = nMiss = nFalseAlarm = 0
-        correct = list()
-        confusion = list()
-        miss = list()
-        falseAlarm = list()
-
-        n = max(n1, n2)
-
-        if n > 0:
-
-            match = np.zeros((n, n), dtype=bool)
-
-            for i1, id1 in enumerate(ids1):
-                for i2, id2 in enumerate(ids2):
-                    match[i1, i2] = self.oneToOneMatch(id1, id2)
-
-            mapping = self.munkres.compute(1-match)
-
-            for i1, i2 in mapping:
-                if i1 >= n1:
-                    nFalseAlarm += 1
-                    falseAlarm.append(ids2[i2])
-                elif i2 >= n2:
-                    nMiss += 1
-                    miss.append(ids1[i1])
-                elif match[i1, i2]:
-                    nCorrect += 1
-                    correct.append((ids1[i1], ids2[i2]))
-                else:
-                    nConfusion += 1
-                    confusion.append((ids1[i1], ids2[i2]))
-
-        return ({IER_CORRECT: nCorrect,
-                IER_CONFUSION: nConfusion,
-                IER_MISS: nMiss,
-                IER_FALSE_ALARM: nFalseAlarm,
-                IER_TOTAL: n1},
-                {IER_CORRECT: correct,
-                 IER_CONFUSION: confusion,
-                 IER_MISS: miss,
-                 IER_FALSE_ALARM: falseAlarm})
-
-
-class UnknownIDMatcher(IDMatcher):
-    """
-    Two IDs match if:
-    * they are both anonymous, or
-    * they are both named and equal.
-
-    """
-
-    def __init__(self):
-        super(UnknownIDMatcher, self).__init__()
-
-    def oneToOneMatch(self, id1, id2):
-        return (isinstance(id1, Unknown) and isinstance(id2, Unknown)) \
-            or id1 == id2
 
 
 class IdentificationErrorRate(BaseMetric):
@@ -167,7 +84,10 @@ class IdentificationErrorRate(BaseMetric):
     ):
 
         super(IdentificationErrorRate, self).__init__()
-        self.matcher = UnknownIDMatcher() if matcher is None else matcher
+
+        if matcher is None:
+            matcher = LabelMatcherWithUnknownSupport()
+        self.matcher = matcher
         self.unknown = unknown
         self.confusion = confusion
         self.miss = miss
@@ -210,7 +130,7 @@ class IdentificationErrorRate(BaseMetric):
             # list of IDs in hypothesis segment
             h = H.get_labels(segment, unknown=self.unknown, unique=False)
 
-            counts, _ = self.matcher.manyToManyMatch(r, h)
+            counts, _ = self.matcher(r, h)
 
             detail[IER_TOTAL] += duration * counts[IER_TOTAL]
             detail[IER_CORRECT] += duration * counts[IER_CORRECT]
@@ -262,7 +182,9 @@ class IdentificationPrecision(Precision):
 
     def __init__(self, matcher=None, unknown=False, **kwargs):
         super(IdentificationPrecision, self).__init__()
-        self.matcher = UnknownIDMatcher if matcher is None else matcher
+        if matcher is None:
+            matcher = LabelMatcherWithUnknownSupport()
+        self.matcher = matcher
         self.unknown = unknown
 
     def _get_details(self, reference, hypothesis, **kwargs):
@@ -314,7 +236,9 @@ class IdentificationRecall(Recall):
 
     def __init__(self, matcher=None, unknown=False, **kwargs):
         super(IdentificationRecall, self).__init__()
-        self.matcher = UnknownIDMatcher if matcher is None else matcher
+        if matcher is None:
+            matcher = LabelMatcherWithUnknownSupport()
+        self.matcher = matcher
         self.unknown = unknown
 
     def _get_details(self, reference, hypothesis, **kwargs):
