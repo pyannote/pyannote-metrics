@@ -41,11 +41,66 @@ IER_MISS = MATCH_MISSED_DETECTION
 IER_NAME = 'identification error rate'
 
 
-class IdentificationErrorRate(BaseMetric):
-    """
+class UEMSupportMixin:
+    """Provides 'uemify' method with optional (à la NIST) collar"""
+
+    def _get_collar(self, reference, duration):
+
+        # initialize empty timeline
+        collar = Timeline(uri=reference.uri)
+
+        if duration == 0.:
+            return collar
+
+        # iterate over all segments in reference
+        for segment in reference.itersegments():
+
+            # add collar centered on start time
+            t = segment.start
+            collar.add(Segment(t - .5 * duration, t + .5 * duration))
+
+            # add collar centered on end time
+            t = segment.end
+            collar.add(Segment(t - .5 * duration, t + .5 * duration))
+
+        # merge overlapping collars and return
+        return collar.coverage()
+
+    def uemify(self, reference, hypothesis, uem=None, collar=0.):
+        """
+
+        Parameters
+        ----------
+        reference, hypothesis : Annotation
+            Reference and hypothesis annotations.
+        uem : Timeline, optional
+            Evaluation map.
+        collar : float, optional
+            Duration (in seconds) of collars removed from evaluation around
+            boundaries of reference segments.
+        """
+
+        # when uem is not provided
+        # use the union of reference and hypothesis extents
+        if uem is None:
+            r_extent = reference.get_timeline().extent()
+            h_extent = hypothesis.get_timeline().extent()
+            uem = Timeline(segments=[r_extent | h_extent], uri=reference.uri)
+
+        # remove collars from uem
+        uem = self._get_collar(reference, collar).gaps(focus=uem)
+
+        # crop reference and hypothesis
+        reference = reference.crop(uem, mode='intersection')
+        hypothesis = hypothesis.crop(uem, mode='intersection')
+
+        return reference, hypothesis
 
 
-        ``ier = (wc x confusion + wf x false_alarm + wm x miss) / total``
+class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
+    """Identification error rate
+
+    ``ier = (wc x confusion + wf x false_alarm + wm x miss) / total``
 
     where
         - `confusion` is the total confusion duration in seconds
@@ -56,16 +111,18 @@ class IdentificationErrorRate(BaseMetric):
 
     Parameters
     ----------
-    matcher : `IDMatcher`, optional
-        Defaults to `UnknownIDMatcher` instance
+    matcher : `Matcher`, optional
+        Defaults to `LabelMatcherWithUnknownSupport` instance
         i.e. two Unknowns are always considered as correct.
     unknown : bool, optional
         Set `unknown` to True (default) to take `Unknown` instances into
         account. Set it to False to get rid of them before evaluation.
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments.
     confusion, miss, false_alarm: float, optional
         Optional weights for confusion, miss and false alarm respectively.
         Default to 1. (no weight)
-
     """
 
     @classmethod
@@ -95,47 +152,12 @@ class IdentificationErrorRate(BaseMetric):
         self.false_alarm = false_alarm
         self.collar = collar
 
-    def _get_collar(self, reference):
-        """"""
-
-        # initialize empty timeline
-        collar = Timeline(uri=reference.uri)
-
-        if self.collar == 0.:
-            return collar
-
-        # iterate over all segments in reference
-        for segment in reference.itersegments():
-
-            # add collar centered on start time
-            t = segment.start
-            collar.add(Segment(t - .5 * self.collar, t + .5 * self.collar))
-
-            # add collar centered on end time
-            t = segment.end
-            collar.add(Segment(t - .5 * self.collar, t + .5 * self.collar))
-
-        # merge overlapping collars and return
-        return collar.coverage()
-
     def _get_details(self, reference, hypothesis, uem=None, **kwargs):
 
         detail = self._init_details()
 
-        # when uem is not provided
-        # use the union of reference and hypothesis extents
-        if uem is None:
-            r_extent = reference.get_timeline().extent()
-            h_extent = hypothesis.get_timeline().extent()
-            uem = Timeline(segments=[r_extent | h_extent], uri=reference.uri)
-
-        # remove collars from uem
-        collar = self._get_collar(reference)
-        uem = collar.gaps(focus=uem)
-
-        # crop reference and hypothesis
-        reference = reference.crop(uem, mode='intersection')
-        hypothesis = hypothesis.crop(uem, mode='intersection')
+        reference, hypothesis = self.uemify(
+            reference, hypothesis, uem=uem, collar=self.collar)
 
         # common (up-sampled) timeline
         common_timeline = reference.get_timeline().union(
