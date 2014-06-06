@@ -219,29 +219,36 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
         return string
 
 
-class IdentificationPrecision(Precision):
-    """
-    Identification Precision
+class IdentificationPrecision(UEMSupportMixin, Precision):
+    """Identification Precision
 
     Parameters
     ----------
-    matcher : `IDMatcher`, optional
-        Defaults to `UnknownIDMatcher` instance
+    matcher : `Matcher`, optional
+        Defaults to `LabelMatcherWithUnknownSupport` instance
+        i.e. two Unknowns are always considered as correct.
     unknown : bool, optional
-        Set `unknown` to True to take `Unknown` instances into account.
-        Set it to False (default) to get rid of them before evaluation.
+        Set `unknown` to True (default) to take `Unknown` instances into
+        account. Set it to False to get rid of them before evaluation.
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments.
     """
 
-    def __init__(self, matcher=None, unknown=False, **kwargs):
+    def __init__(self, matcher=None, unknown=False, collar=0., **kwargs):
         super(IdentificationPrecision, self).__init__()
         if matcher is None:
             matcher = LabelMatcherWithUnknownSupport()
         self.matcher = matcher
         self.unknown = unknown
+        self.collar = collar
 
-    def _get_details(self, reference, hypothesis, **kwargs):
+    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
 
         detail = self._init_details()
+
+        reference, hypothesis = self.uemify(
+            reference, hypothesis, uem=uem, collar=self.collar)
 
         # common (up-sampled) timeline
         common_timeline = reference.get_timeline().union(
@@ -275,29 +282,36 @@ class IdentificationPrecision(Precision):
         return detail
 
 
-class IdentificationRecall(Recall):
-    """
-    Identification Recall
+class IdentificationRecall(UEMSupportMixin, Recall):
+    """Identification Recall
 
     Parameters
     ----------
-    matcher : `IDMatcher`, optional
-        Defaults to `UnknownIDMatcher` instance
+    matcher : `Matcher`, optional
+        Defaults to `LabelMatcherWithUnknownSupport` instance
+        i.e. two Unknowns are always considered as correct.
     unknown : bool, optional
-        Set `unknown` to True to take `Unknown` instances into account.
-        Set it to False (default) to get rid of them before evaluation.
+        Set `unknown` to True (default) to take `Unknown` instances into
+        account. Set it to False to get rid of them before evaluation.
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments.
     """
 
-    def __init__(self, matcher=None, unknown=False, **kwargs):
+    def __init__(self, matcher=None, unknown=False, collar=0., **kwargs):
         super(IdentificationRecall, self).__init__()
         if matcher is None:
             matcher = LabelMatcherWithUnknownSupport()
         self.matcher = matcher
         self.unknown = unknown
+        self.collar = collar
 
-    def _get_details(self, reference, hypothesis, **kwargs):
+    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
 
         detail = self._init_details()
+
+        reference, hypothesis = self.uemify(
+            reference, hypothesis, uem=uem, collar=self.collar)
 
         # common (up-sampled) timeline
         common_timeline = reference.get_timeline().union(
@@ -328,8 +342,3 @@ class IdentificationRecall(Recall):
             detail[RECALL_RELEVANT_RETRIEVED] += duration * counts[IER_CORRECT]
 
         return detail
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
