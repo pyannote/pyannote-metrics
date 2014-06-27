@@ -37,6 +37,9 @@ from ..matcher import MATCH_CORRECT, MATCH_CONFUSION, \
 
 from ..identification import UEMSupportMixin
 
+REFERENCE_TOTAL = 'reference'
+HYPOTHESIS_TOTAL = 'hypothesis'
+
 
 class IdentificationErrorAnalysis(UEMSupportMixin, object):
     """
@@ -89,7 +92,7 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
 
         return reference, hypothesis
 
-    def annotation(self, reference, hypothesis, uem=None):
+    def annotation(self, reference, hypothesis, uem=None, uemified=False):
         """Get error analysis as `Annotation`
 
         Labels are (status, reference_label, hypothesis_label) tuples.
@@ -97,6 +100,12 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
         'false alarm'.
         `reference_label` is None in case of 'false alarm'.
         `hypothesis_label` is None in case of 'missed detection'.
+
+        Parameters
+        ----------
+        uemified : bool, optional
+            Returns "uemified" version of reference and hypothesis.
+            Defaults to False.
 
         Returns
         -------
@@ -152,11 +161,17 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
                 track = errors.new_track(segment, prefix=MATCH_FALSE_ALARM)
                 errors[segment, track] = (MATCH_FALSE_ALARM, None, h)
 
-        return errors
+        if uemified:
+            return reference, hypothesis, errors
+        else:
+            return errors
 
     def matrix(self, reference, hypothesis, uem=None):
 
-        chart = self.annotation(reference, hypothesis, uem=uem).chart()
+        reference, hypothesis, errors = self.annotation(
+            reference, hypothesis, uem=uem, uemified=True)
+
+        chart = errors.chart()
 
         # rLabels contains reference labels
         # hLabels contains hypothesis labels confused with a reference label
@@ -194,8 +209,9 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
 
         # prepend duration columns before the detailed confusion matrix
         hLabels = [
-            MATCH_CORRECT, MATCH_CONFUSION, MATCH_FALSE_ALARM,
-            MATCH_MISSED_DETECTION
+            REFERENCE_TOTAL, HYPOTHESIS_TOTAL,
+            MATCH_CORRECT, MATCH_CONFUSION,
+            MATCH_FALSE_ALARM, MATCH_MISSED_DETECTION
         ] + hLabels
 
         # initialize empty matrix
@@ -222,5 +238,18 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
 
             # increment status column
             matrix[rLabel, status] += duration
+
+        # total reference and hypothesis duration
+        for rLabel in rLabels:
+
+            if isinstance(rLabel, tuple) and rLabel[0] == MATCH_FALSE_ALARM:
+                r = 0.
+                h = hypothesis.label_duration(rLabel[0])
+            else:
+                r = reference.label_duration(rLabel)
+                h = hypothesis.label_duration(rLabel)
+
+            matrix[rLabel, REFERENCE_TOTAL] = r
+            matrix[rLabel, HYPOTHESIS_TOTAL] = h
 
         return matrix
