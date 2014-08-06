@@ -1,5 +1,6 @@
-### Version 0.1.1 (2014-08-05)
+### Version 0.2 (2014-08-05)
 
+  - feat(detection): add precision and recall
   - fix(identification): fix precision and recall
 
 ### Version 0.1 (2014-06-27)

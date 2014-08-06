@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2014 CNRS (Hervé BREDIN - http://herve.niderb.fr)
+# Copyright (c) 2012-2014 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -12,8 +12,8 @@
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,17 +23,32 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# AUTHORS
+# Hervé BREDIN - http://herve.niderb.fr
+
 from __future__ import unicode_literals
 
 from base import BaseMetric
+from base import Precision, PRECISION_RETRIEVED, PRECISION_RELEVANT_RETRIEVED
+from base import Recall, RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED
 
 DER_TOTAL = 'total'
 DER_FALSE_ALARM = 'false alarm'
 DER_MISS = 'miss'
 DER_NAME = 'detection error rate'
 
+from utils import UEMSupportMixin
 
-class DetectionErrorRate(BaseMetric):
+
+class DetectionErrorRate(UEMSupportMixin, BaseMetric):
+    """Detection error rate
+
+    Parameters
+    ----------
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments
+    """
 
     @classmethod
     def metric_name(cls):
@@ -43,12 +58,21 @@ class DetectionErrorRate(BaseMetric):
     def metric_components(cls):
         return [DER_FALSE_ALARM, DER_MISS, DER_TOTAL]
 
-    def _get_details(self, reference, hypothesis, **kwargs):
+    def __init__(self, collar=0., **kargs):
+
+        super(DetectionErrorRate, self).__init__()
+        self.collar = collar
+
+    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
 
         detail = self._init_details()
 
+        reference, hypothesis = self.uemify(
+            reference, hypothesis, uem=uem, collar=self.collar)
+
         # common (up-sampled) timeline
-        common_timeline = reference.get_timeline().union(hypothesis.get_timeline())
+        common_timeline = reference.get_timeline().union(
+            hypothesis.get_timeline())
         common_timeline = common_timeline.segmentation()
 
         # align reference on common timeline
@@ -91,15 +115,117 @@ class DetectionErrorRate(BaseMetric):
             else:
                 return 1.
         else:
-            return numerator/denominator
+            return numerator / denominator
 
     def _pretty(self, detail):
         string = ""
         string += "  - duration: %.2f seconds\n" % (detail[DER_TOTAL])
         string += "  - miss: %.2f seconds\n" % (detail[DER_MISS])
         string += "  - false alarm: %.2f seconds\n" % (detail[DER_FALSE_ALARM])
-        string += "  - %s: %.2f %%\n" % (self.name, 100*detail[self.name])
+        string += "  - %s: %.2f %%\n" % (self.name, 100 * detail[self.name])
         return string
+
+
+class DetectionPrecision(UEMSupportMixin, Precision):
+    """Detection precision
+
+    Parameters
+    ----------
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments
+    """
+    def __init__(self, collar=0., **kargs):
+        super(DetectionPrecision, self).__init__()
+        self.collar = collar
+
+    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
+
+        detail = self._init_details()
+
+        reference, hypothesis = self.uemify(
+            reference, hypothesis, uem=uem, collar=self.collar)
+
+        # common (up-sampled) timeline
+        common_timeline = reference.get_timeline().union(
+            hypothesis.get_timeline())
+        common_timeline = common_timeline.segmentation()
+
+        # align reference on common timeline
+        R = self._tagger(reference, common_timeline)
+
+        # translate and align hypothesis on common timeline
+        H = self._tagger(hypothesis, common_timeline)
+
+        # loop on all segments
+        for segment in common_timeline:
+
+            # segment duration
+            duration = segment.duration
+
+            # set of IDs in reference segment
+            r = R.get_labels(segment)
+            Nr = len(r)
+
+            # set of IDs in hypothesis segment
+            h = H.get_labels(segment)
+            Nh = len(h)
+
+            detail[PRECISION_RETRIEVED] += duration * Nh
+            detail[PRECISION_RELEVANT_RETRIEVED] += duration * min(Nr, Nh)
+
+        return detail
+
+
+class DetectionRecall(UEMSupportMixin, Recall):
+    """Detection recall
+
+    Parameters
+    ----------
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments
+    """
+    def __init__(self, collar=0., **kargs):
+        super(DetectionRecall, self).__init__()
+        self.collar = collar
+
+    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
+
+        detail = self._init_details()
+
+        reference, hypothesis = self.uemify(
+            reference, hypothesis, uem=uem, collar=self.collar)
+
+        # common (up-sampled) timeline
+        common_timeline = reference.get_timeline().union(
+            hypothesis.get_timeline())
+        common_timeline = common_timeline.segmentation()
+
+        # align reference on common timeline
+        R = self._tagger(reference, common_timeline)
+
+        # translate and align hypothesis on common timeline
+        H = self._tagger(hypothesis, common_timeline)
+
+        # loop on all segments
+        for segment in common_timeline:
+
+            # segment duration
+            duration = segment.duration
+
+            # set of IDs in reference segment
+            r = R.get_labels(segment)
+            Nr = len(r)
+
+            # set of IDs in hypothesis segment
+            h = H.get_labels(segment)
+            Nh = len(h)
+
+            detail[RECALL_RELEVANT] += duration * Nr
+            detail[RECALL_RELEVANT_RETRIEVED] += duration * min(Nr, Nh)
+
+        return detail
 
 
 if __name__ == "__main__":
