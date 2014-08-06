@@ -273,7 +273,7 @@ class IdentificationPrecision(UEMSupportMixin, Precision):
             # list of IDs in hypothesis segment
             h = H.get_labels(segment, unknown=self.unknown, unique=False)
 
-            counts, _ = self.matcher.manyToManyMatch(r, h)
+            counts, _ = self.matcher(r, h)
 
             detail[PRECISION_RETRIEVED] += duration * len(h)
             detail[PRECISION_RELEVANT_RETRIEVED] += \
@@ -336,7 +336,7 @@ class IdentificationRecall(UEMSupportMixin, Recall):
             # list of IDs in hypothesis segment
             h = H.get_labels(segment, unknown=self.unknown, unique=False)
 
-            counts, _ = self.matcher.manyToManyMatch(r, h)
+            counts, _ = self.matcher(r, h)
 
             detail[RECALL_RELEVANT] += duration * counts[IER_TOTAL]
             detail[RECALL_RELEVANT_RETRIEVED] += duration * counts[IER_CORRECT]
