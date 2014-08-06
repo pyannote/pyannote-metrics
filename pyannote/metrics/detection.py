@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2014 CNRS (Hervé BREDIN - http://herve.niderb.fr)
+# Copyright (c) 2012-2014 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -12,8 +12,8 @@
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,6 +22,9 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
+# AUTHORS
+# Hervé BREDIN - http://herve.niderb.fr
 
 from __future__ import unicode_literals
 
@@ -32,8 +35,10 @@ DER_FALSE_ALARM = 'false alarm'
 DER_MISS = 'miss'
 DER_NAME = 'detection error rate'
 
+from utils import UEMSupportMixin
 
-class DetectionErrorRate(BaseMetric):
+
+class DetectionErrorRate(UEMSupportMixin, BaseMetric):
 
     @classmethod
     def metric_name(cls):
@@ -43,12 +48,21 @@ class DetectionErrorRate(BaseMetric):
     def metric_components(cls):
         return [DER_FALSE_ALARM, DER_MISS, DER_TOTAL]
 
-    def _get_details(self, reference, hypothesis, **kwargs):
+    def __init__(self, collar=0., **kargs):
+
+        super(DetectionErrorRate, self).__init__()
+        self.collar = collar
+
+    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
 
         detail = self._init_details()
 
+        reference, hypothesis = self.uemify(
+            reference, hypothesis, uem=uem, collar=self.collar)
+
         # common (up-sampled) timeline
-        common_timeline = reference.get_timeline().union(hypothesis.get_timeline())
+        common_timeline = reference.get_timeline().union(
+            hypothesis.get_timeline())
         common_timeline = common_timeline.segmentation()
 
         # align reference on common timeline
@@ -91,14 +105,14 @@ class DetectionErrorRate(BaseMetric):
             else:
                 return 1.
         else:
-            return numerator/denominator
+            return numerator / denominator
 
     def _pretty(self, detail):
         string = ""
         string += "  - duration: %.2f seconds\n" % (detail[DER_TOTAL])
         string += "  - miss: %.2f seconds\n" % (detail[DER_MISS])
         string += "  - false alarm: %.2f seconds\n" % (detail[DER_FALSE_ALARM])
-        string += "  - %s: %.2f %%\n" % (self.name, 100*detail[self.name])
+        string += "  - %s: %.2f %%\n" % (self.name, 100 * detail[self.name])
         return string
 
 
