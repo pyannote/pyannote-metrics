@@ -1,3 +1,7 @@
+### Version 0.1.1 (2014-08-05)
+
+  - fix(identification): fix precision and recall
+
 ### Version 0.1 (2014-06-27)
 
   - feat(segmentation): add precision and recall
