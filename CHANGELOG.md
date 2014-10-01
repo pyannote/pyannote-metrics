@@ -1,3 +1,7 @@
+### Version 0.3 (2014-10-01)
+
+  - feat(error): segmentation error analysis
+
 ### Version 0.2 (2014-08-05)
 
   - feat(detection): add precision and recall
