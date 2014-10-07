@@ -39,6 +39,9 @@ setup(
     # package
     namespace_packages=['pyannote'],
     packages=find_packages(),
+    scripts=[
+        'scripts/pyannote_eval.py',
+    ],
     install_requires=[
         'pyannote.core >= 0.1',
         'pyannote.algorithms >= 0.0.4.1',
