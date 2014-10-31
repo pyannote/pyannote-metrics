@@ -47,6 +47,7 @@ setup(
         'pyannote.algorithms >= 0.1',
         'scipy >= 0.10.0',
         'munkres >= 1.0.6',
+        'docopt >= 0.6.2',
     ],
     # versioneer
     version=versioneer.get_version(),
