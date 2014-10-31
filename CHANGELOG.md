@@ -1,3 +1,8 @@
+### Version 0.4 (2014-10-31)
+
+  - feat(error): identification regression analysis
+  - feat: new pyannote_eval.py CLI
+
 ### Version 0.3 (2014-10-01)
 
   - feat(error): segmentation error analysis
