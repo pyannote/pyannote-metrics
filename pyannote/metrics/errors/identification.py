@@ -29,6 +29,7 @@
 from __future__ import unicode_literals
 
 import numpy as np
+from munkres import Munkres
 
 from ..matcher import LabelMatcherWithUnknownSupport
 from pyannote.core import Annotation, Unknown
@@ -42,6 +43,11 @@ from ..identification import UEMSupportMixin
 
 REFERENCE_TOTAL = 'reference'
 HYPOTHESIS_TOTAL = 'hypothesis'
+
+REGRESSION = 'regression'
+IMPROVEMENT = 'improvement'
+BOTH_CORRECT = 'both_correct'
+BOTH_INCORRECT = 'both_incorrect'
 
 
 class IdentificationErrorAnalysis(UEMSupportMixin, object):
@@ -71,6 +77,7 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
         if matcher is None:
             matcher = LabelMatcherWithUnknownSupport()
         self.matcher = matcher
+        self.munkres = Munkres()
         self.unknown = unknown
         self.merge_unknowns = merge_unknowns
         self.collar = collar
@@ -96,6 +103,10 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
         return reference, hypothesis
 
     def annotation(self, reference, hypothesis, uem=None, uemified=False):
+        return self.difference(reference, hypothesis,
+                               uem=uem, uemified=uemified)
+
+    def difference(self, reference, hypothesis, uem=None, uemified=False):
         """Get error analysis as `Annotation`
 
         Labels are (status, reference_label, hypothesis_label) tuples.
@@ -168,6 +179,103 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
             return reference, hypothesis, errors
         else:
             return errors
+
+    def _match_errors(self, before, after):
+        b_type, b_ref, b_hyp = before
+        a_type, a_ref, a_hyp = after
+        return (b_ref == a_ref) * (1 + (b_type == a_type) + (b_hyp == a_hyp))
+
+    def regression(self, reference, before, after, uem=None, uemified=False):
+
+        _, before, errors_before = self.difference(
+            reference, before, uem=uem, uemified=True)
+
+        reference, after, errors_after = self.difference(
+            reference, after, uem=uem, uemified=True)
+
+        behaviors = Annotation(uri=reference.uri, modality=reference.modality)
+
+        # common (up-sampled) timeline
+        common_timeline = errors_after.get_timeline().union(
+            errors_before.get_timeline())
+        common_timeline = common_timeline.segmentation()
+
+        # align 'before' errors on common timeline
+        B = self._tagger(errors_before, common_timeline)
+
+        # align 'after' errors on common timeline
+        A = self._tagger(errors_after, common_timeline)
+
+        for segment in common_timeline:
+
+            old_errors = B.get_labels(segment, unique=False)
+            new_errors = A.get_labels(segment, unique=False)
+
+            n1 = len(old_errors)
+            n2 = len(new_errors)
+            n = max(n1, n2)
+
+            match = np.zeros((n, n), dtype=int)
+            for i1, e1 in enumerate(old_errors):
+                for i2, e2 in enumerate(new_errors):
+                    match[i1, i2] = self._match_errors(e1, e2)
+
+            mapping = self.munkres.compute(2 - match)
+
+            for i1, i2 in mapping:
+
+                if i1 >= n1:
+                    track = behaviors.new_track(segment,
+                                                candidate=REGRESSION,
+                                                prefix=REGRESSION)
+                    behaviors[segment, track] = (
+                        REGRESSION, None, new_errors[i2])
+
+                elif i2 >= n2:
+                    track = behaviors.new_track(segment,
+                                                candidate=IMPROVEMENT,
+                                                prefix=IMPROVEMENT)
+                    behaviors[segment, track] = (
+                        IMPROVEMENT, old_errors[i1], None)
+
+                elif old_errors[i1][0] == MATCH_CORRECT:
+
+                    if new_errors[i2][0] == MATCH_CORRECT:
+                        track = behaviors.new_track(segment,
+                                                    candidate=BOTH_CORRECT,
+                                                    prefix=BOTH_CORRECT)
+                        behaviors[segment, track] = (
+                            BOTH_CORRECT, old_errors[i1], new_errors[i2])
+
+                    else:
+                        track = behaviors.new_track(segment,
+                                                    candidate=REGRESSION,
+                                                    prefix=REGRESSION)
+                        behaviors[segment, track] = (
+                            REGRESSION, old_errors[i1], new_errors[i2])
+
+                else:
+
+                    if new_errors[i2][0] == MATCH_CORRECT:
+                        track = behaviors.new_track(segment,
+                                                    candidate=IMPROVEMENT,
+                                                    prefix=IMPROVEMENT)
+                        behaviors[segment, track] = (
+                            IMPROVEMENT, old_errors[i1], new_errors[i2])
+
+                    else:
+                        track = behaviors.new_track(segment,
+                                                    candidate=BOTH_INCORRECT,
+                                                    prefix=BOTH_INCORRECT)
+                        behaviors[segment, track] = (
+                            BOTH_INCORRECT, old_errors[i1], new_errors[i2])
+
+        behaviors = behaviors.smooth()
+
+        if uemified:
+            return reference, before, after, behaviors
+        else:
+            return behaviors
 
     def matrix(self, reference, hypothesis, uem=None):
 
