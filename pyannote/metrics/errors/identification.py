@@ -84,27 +84,34 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
 
         self._tagger = DirectTagger()
 
-    def _merge_unknowns(self, reference, hypothesis):
-
-        # create new unique `Unknown` instance label
-        unknown = Unknown('?')
+    def _handle_unknowns(self, reference, hypothesis):
 
         # gather reference and hypothesis unknown labels
-        rUnknown = [u for u in reference.labels()
-                    if isinstance(u, Unknown)]
-        hUnknown = [u for u in hypothesis.labels()
-                    if isinstance(u, Unknown)]
+        rUnknown = set([u for u in reference.labels()
+                        if isinstance(u, Unknown)])
+        hUnknown = set([u for u in hypothesis.labels()
+                        if isinstance(u, Unknown)])
 
-        # replace them all by unique unknown label
-        translation = {u: unknown for u in rUnknown + hUnknown}
-        reference = reference.translate(translation)
-        hypothesis = hypothesis.translate(translation)
+        if self.unknown:
+
+            if self.merge_unknowns:
+
+                # create new unique `Unknown` instance label
+                unknown = Unknown('?')
+
+                # replace them all by unique unknown label
+                translation = {u: unknown for u in rUnknown}
+                reference = reference.translate(translation)
+
+                translation = {u: unknown for u in hUnknown}
+                hypothesis = hypothesis.translate(translation)
+
+        else:
+
+            reference = reference.subset(rUnknown, invert=True)
+            hypothesis = hypothesis.subset(hUnknown, invert=True)
 
         return reference, hypothesis
-
-    def annotation(self, reference, hypothesis, uem=None, uemified=False):
-        return self.difference(reference, hypothesis,
-                               uem=uem, uemified=uemified)
 
     def difference(self, reference, hypothesis, uem=None, uemified=False):
         """Get error analysis as `Annotation`
@@ -130,9 +137,7 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
         reference, hypothesis = self.uemify(
             reference, hypothesis, uem=uem, collar=self.collar)
 
-        # merge Unknown instance labels into one unique `Unknown` instance
-        if self.unknown and self.merge_unknowns:
-            reference, hypothesis = self._merge_unknowns(reference, hypothesis)
+        reference, hypothesis = self._handle_unknowns(reference, hypothesis)
 
         # common (up-sampled) timeline
         common_timeline = reference.get_timeline().union(
@@ -279,7 +284,7 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
 
     def matrix(self, reference, hypothesis, uem=None):
 
-        reference, hypothesis, errors = self.annotation(
+        reference, hypothesis, errors = self.difference(
             reference, hypothesis, uem=uem, uemified=True)
 
         chart = errors.chart()
@@ -288,24 +293,10 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
         # hLabels contains hypothesis labels confused with a reference label
         # falseAlarmLabels contains false alarm hypothesis labels that do not
         # exist in reference labels // corner case  //
-        rLabels, hLabels, falseAlarmLabels = set([]), set([]), set([])
-        for (status, rLabel, hLabel), _ in chart:
 
-            # labels for confusion matrix
-            if status in {MATCH_CORRECT, MATCH_CONFUSION}:
-                rLabels.add(rLabel)
-                hLabels.add(hLabel)
-
-            # missed reference label
-            if status == MATCH_MISSED_DETECTION:
-                rLabels.add(rLabel)
-
-            # false alarm hypothesis labels
-            if status == MATCH_FALSE_ALARM:
-                falseAlarmLabels.add(hLabel)
-
-        # make sure only labels that do not exist in reference are ketp
-        falseAlarmLabels = falseAlarmLabels - rLabels
+        falseAlarmLabels = set(hypothesis.labels()) - set(reference.labels())
+        hLabels = set(reference.labels()) | set(hypothesis.labels())
+        rLabels = set(reference.labels())
 
         # sort these sets of labels
         cmp_func = reference._cmp_labels
@@ -334,28 +325,38 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
         # loop on chart
         for (status, rLabel, hLabel), duration in chart:
 
-            # increment confusion matrix
-            if status in {MATCH_CORRECT, MATCH_CONFUSION}:
+            # increment correct
+            if status == MATCH_CORRECT:
                 matrix[rLabel, hLabel] += duration
+                matrix[rLabel, MATCH_CORRECT] += duration
 
-            # corner case for ('false alarm', None, hLabel)
+            # increment confusion matrix
+            if status == MATCH_CONFUSION:
+                matrix[rLabel, hLabel] += duration
+                matrix[rLabel, MATCH_CONFUSION] += duration
+                if hLabel in falseAlarmLabels:
+                    matrix[(MATCH_FALSE_ALARM, hLabel), rLabel] += duration
+                    matrix[(MATCH_FALSE_ALARM, hLabel), MATCH_CONFUSION] += duration
+                else:
+                    matrix[hLabel, rLabel] += duration
+                    matrix[hLabel, MATCH_CONFUSION] += duration
+
             if status == MATCH_FALSE_ALARM:
                 # hLabel is also a reference label
-                if hLabel in rLabels:
-                    rLabel = hLabel
-                # hLabel comes out of nowhere (ie. is not even in reference)
+                if hLabel in falseAlarmLabels:
+                    matrix[(MATCH_FALSE_ALARM, hLabel), MATCH_FALSE_ALARM] += duration
                 else:
-                    rLabel = (MATCH_FALSE_ALARM, hLabel)
+                    matrix[hLabel, MATCH_FALSE_ALARM] += duration
 
-            # increment status column
-            matrix[rLabel, status] += duration
+            if status == MATCH_MISSED_DETECTION:
+                matrix[rLabel, MATCH_MISSED_DETECTION] += duration
 
         # total reference and hypothesis duration
         for rLabel in rLabels:
 
             if isinstance(rLabel, tuple) and rLabel[0] == MATCH_FALSE_ALARM:
                 r = 0.
-                h = hypothesis.label_duration(rLabel[0])
+                h = hypothesis.label_duration(rLabel[1])
             else:
                 r = reference.label_duration(rLabel)
                 h = hypothesis.label_duration(rLabel)
