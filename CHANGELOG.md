@@ -1,3 +1,7 @@
+### Version 0.4.1 (2014-11-20)
+
+  - fix: identification error analysis matrix confusion
+
 ### Version 0.4 (2014-10-31)
 
   - feat(error): identification regression analysis
