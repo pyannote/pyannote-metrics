@@ -91,6 +91,8 @@ class DiarizationErrorRate(IdentificationErrorRate):
         return self._mapper(hypothesis, reference)
 
     def _get_details(self, reference, hypothesis, **kwargs):
+        reference = reference.anonymize_labels(generator='string')
+        hypothesis = hypothesis.anonymize_labels(generator='int')
         mapping = self.optimal_mapping(reference, hypothesis)
         return super(DiarizationErrorRate, self)\
             ._get_details(reference, hypothesis % mapping)
