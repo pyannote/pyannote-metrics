@@ -1,4 +1,4 @@
-### Version 0.5 (2016-02-19)
+### Version 0.5.1 (2016-02-19)
 
   - refactor: diarization metrics
 
