@@ -33,7 +33,7 @@ from munkres import Munkres
 
 from ..matcher import LabelMatcherWithUnknownSupport
 from pyannote.core import Annotation, Unknown
-from pyannote.core.matrix import LabelMatrix
+from xarray import DataArray
 from pyannote.algorithms.tagging import DirectTagger
 
 from ..matcher import MATCH_CORRECT, MATCH_CONFUSION, \
@@ -317,39 +317,38 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
         ] + hLabels
 
         # initialize empty matrix
-        matrix = LabelMatrix(
-            rows=rLabels, columns=hLabels,
-            data=np.zeros((len(rLabels), len(hLabels)))
-        )
+        matrix = DataArray(
+            np.zeros((len(rLabels), len(hLabels))),
+            coords=[('reference', rLabels), ('hypothesis', hLabels)])
 
         # loop on chart
         for (status, rLabel, hLabel), duration in chart:
 
             # increment correct
             if status == MATCH_CORRECT:
-                matrix[rLabel, hLabel] += duration
-                matrix[rLabel, MATCH_CORRECT] += duration
+                matrix.loc[rLabel, hLabel] += duration
+                matrix.loc[rLabel, MATCH_CORRECT] += duration
 
             # increment confusion matrix
             if status == MATCH_CONFUSION:
-                matrix[rLabel, hLabel] += duration
-                matrix[rLabel, MATCH_CONFUSION] += duration
+                matrix.loc[rLabel, hLabel] += duration
+                matrix.loc[rLabel, MATCH_CONFUSION] += duration
                 if hLabel in falseAlarmLabels:
-                    matrix[(MATCH_FALSE_ALARM, hLabel), rLabel] += duration
-                    matrix[(MATCH_FALSE_ALARM, hLabel), MATCH_CONFUSION] += duration
+                    matrix.loc[(MATCH_FALSE_ALARM, hLabel), rLabel] += duration
+                    matrix.loc[(MATCH_FALSE_ALARM, hLabel), MATCH_CONFUSION] += duration
                 else:
-                    matrix[hLabel, rLabel] += duration
-                    matrix[hLabel, MATCH_CONFUSION] += duration
+                    matrix.loc[hLabel, rLabel] += duration
+                    matrix.loc[hLabel, MATCH_CONFUSION] += duration
 
             if status == MATCH_FALSE_ALARM:
                 # hLabel is also a reference label
                 if hLabel in falseAlarmLabels:
-                    matrix[(MATCH_FALSE_ALARM, hLabel), MATCH_FALSE_ALARM] += duration
+                    matrix.loc[(MATCH_FALSE_ALARM, hLabel), MATCH_FALSE_ALARM] += duration
                 else:
-                    matrix[hLabel, MATCH_FALSE_ALARM] += duration
+                    matrix.loc[hLabel, MATCH_FALSE_ALARM] += duration
 
             if status == MATCH_MISSED_DETECTION:
-                matrix[rLabel, MATCH_MISSED_DETECTION] += duration
+                matrix.loc[rLabel, MATCH_MISSED_DETECTION] += duration
 
         # total reference and hypothesis duration
         for rLabel in rLabels:
@@ -361,7 +360,7 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
                 r = reference.label_duration(rLabel)
                 h = hypothesis.label_duration(rLabel)
 
-            matrix[rLabel, REFERENCE_TOTAL] = r
-            matrix[rLabel, HYPOTHESIS_TOTAL] = h
+            matrix.loc[rLabel, REFERENCE_TOTAL] = r
+            matrix.loc[rLabel, HYPOTHESIS_TOTAL] = h
 
         return matrix
