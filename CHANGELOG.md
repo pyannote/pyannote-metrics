@@ -1,3 +1,7 @@
+### Version 0.5 (2016-02-19)
+
+  - refactor: diarization metrics
+
 ### Version 0.4.1 (2014-11-20)
 
   - fix: identification error analysis matrix confusion
