@@ -31,6 +31,7 @@ from __future__ import unicode_literals
 """Metrics for diarization"""
 
 import numpy as np
+from xarray import DataArray
 
 from pyannote.algorithms.tagging.mapping import HungarianMapper
 
@@ -38,6 +39,7 @@ from base import BaseMetric
 from identification import IdentificationErrorRate
 
 DER_NAME = 'diarization error rate'
+
 
 class DiarizationErrorRate(IdentificationErrorRate):
     """Diarization error rate
