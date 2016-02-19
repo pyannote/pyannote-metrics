@@ -33,7 +33,6 @@ from __future__ import unicode_literals
 import numpy as np
 
 from pyannote.algorithms.tagging.mapping import HungarianMapper
-from pyannote.core.matrix import get_cooccurrence_matrix
 
 from base import BaseMetric
 from identification import IdentificationErrorRate
@@ -227,27 +226,20 @@ class DiarizationHomogeneity(BaseMetric):
     def _get_details(self, reference, hypothesis, **kwargs):
         detail = self._init_details()
 
-        matrix = get_cooccurrence_matrix(reference, hypothesis)
+        matrix = reference.smooth() * hypothesis.smooth()
 
-        duration = np.sum(matrix.M)
-        rduration = np.sum(matrix.M, axis=1)
-        hduration = np.sum(matrix.M, axis=0)
+
+        duration = matrix.sum()
+        rduration = matrix.sum(dim='j')
+        hduration = matrix.sum(dim='i')
 
         # Reference entropy and reference/hypothesis cross-entropy
-        cross_entropy = 0.
-        entropy = 0.
-        for i, ilabel in enumerate(matrix.iter_ilabels()):
-            ratio = rduration[i] / duration
-            if ratio > 0:
-                entropy -= ratio * np.log(ratio)
-            for j, jlabel in enumerate(matrix.iter_jlabels()):
-                coduration = matrix[ilabel, jlabel]
-                if coduration > 0:
-                    cross_entropy -= (coduration / duration) * \
-                        np.log(coduration / hduration[j])
+        ratio = rduration / duration
+        entropy = -(ratio * np.log(ratio)).sum()
+        detail[HOMOGENEITY_ENTROPY] = entropy.item()
 
-        detail[HOMOGENEITY_CROSS_ENTROPY] = cross_entropy
-        detail[HOMOGENEITY_ENTROPY] = entropy
+        cross_entropy = -((matrix / duration) * np.log(matrix / hduration)).sum()
+        detail[HOMOGENEITY_CROSS_ENTROPY] = cross_entropy.item()
 
         return detail
 
