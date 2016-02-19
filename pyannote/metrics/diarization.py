@@ -95,7 +95,7 @@ class DiarizationErrorRate(IdentificationErrorRate):
         hypothesis = hypothesis.anonymize_labels(generator='int')
         mapping = self.optimal_mapping(reference, hypothesis)
         return super(DiarizationErrorRate, self)\
-            ._get_details(reference, hypothesis % mapping)
+            ._get_details(reference, hypothesis.translate(mapping))
 
 
 PURITY_NAME = 'purity'
