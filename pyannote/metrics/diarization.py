@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2014 CNRS
+# Copyright (c) 2012-2016 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -74,7 +74,7 @@ class DiarizationErrorRate(IdentificationErrorRate):
 
     See Also
     --------
-    :class:`pyannote.metric.base.BaseMetric`: details on accumumation
+    :class:`pyannote.metric.base.BaseMetric`: details on accumulation
     :class:`pyannote.metric.identification.IdentificationErrorRate`: identification error rate
 
     """
@@ -101,7 +101,6 @@ PURITY_NAME = 'purity'
 PURITY_TOTAL = 'total'
 PURITY_CORRECT = 'correct'
 
-
 class DiarizationPurity(BaseMetric):
     """Purity
 
@@ -109,11 +108,6 @@ class DiarizationPurity(BaseMetric):
 
     Parameters
     ----------
-    detection_error: bool, optional
-        When detection_error = True, detection errors (false alarm
-        and/or miss detection) may artificially decrease purity.
-        Using detection_error = False (default), purity is only computed
-        on the segments where both reference and hypothesis detected something.
     per_cluster : bool, optional
         By default (per_cluster = False), clusters are duration-weighted.
         When per_cluster = True, each cluster is given the same weight.
@@ -131,34 +125,30 @@ class DiarizationPurity(BaseMetric):
     def __init__(self, detection_error=False, per_cluster=False, **kwargs):
         super(DiarizationPurity, self).__init__()
         self.per_cluster = per_cluster
-        self.detection_error = detection_error
 
     def _get_details(self, reference, hypothesis, **kwargs):
         detail = self._init_details()
 
-        if not self.detection_error:
-            reference = reference.crop(hypothesis.get_timeline(),
-                                       mode='intersection')
-            hypothesis = hypothesis.crop(reference.get_timeline(),
-                                         mode='intersection')
+        matrix = reference.smooth() * hypothesis.smooth()
 
-        matrix = get_cooccurrence_matrix(reference, hypothesis)
+        biggest = matrix.max(dim='i')
+        duration = DataArray(
+            [hypothesis.label_duration(j.item()) for j in biggest.coords['j']],
+            coords=biggest.coords)
 
         if self.per_cluster:
             # biggest class in each cluster
-            detail[PURITY_CORRECT] = \
-                np.sum([matrix[L, K] / hypothesis.label_duration(K)
-                        for K, L in matrix.argmax(axis=0).iteritems()])
+            detail[PURITY_CORRECT] = (biggest / duration).sum().item()
             # number of clusters (as float)
-            detail[PURITY_TOTAL] = float(matrix.shape[1])
+            detail[PURITY_TOTAL] = len(biggest)
+
         else:
             if np.prod(matrix.shape):
-                detail[PURITY_CORRECT] = np.sum(np.max(matrix.df.values, axis=0))
+                detail[PURITY_CORRECT] = biggest.sum().item()
             else:
                 detail[PURITY_CORRECT] = 0.
             # total duration of clusters (with overlap)
-            detail[PURITY_TOTAL] = np.sum([hypothesis.label_duration(K)
-                                           for K in hypothesis.labels()])
+            detail[PURITY_TOTAL] = duration.sum().item()
 
         return detail
 
@@ -190,24 +180,17 @@ class DiarizationCoverage(DiarizationPurity):
 
     Parameters
     ----------
-    detection_error: bool, optional
-        When detection_error = True, detection errors (false alarm
-        and/or miss detection) may artificially decrease coverage.
-        Using detection_error = False (default), purity is only computed
-        on the segments where both reference and hypothesis detected something.
     per_cluster : bool, optional
         By default (per_cluster = False), classes are duration-weighted.
         When per_cluster = True, each class is given the same weight.
-
     """
 
     @classmethod
     def metric_name(cls):
         return COVERAGE_NAME
 
-    def __init__(self, detection_error=False, per_cluster=False, **kwargs):
-        super(DiarizationCoverage, self).__init__(
-            detection_error=detection_error, per_cluster=per_cluster)
+    def __init__(self, per_cluster=False, **kwargs):
+        super(DiarizationCoverage, self).__init__(per_cluster=per_cluster)
 
     def _get_details(self, reference, hypothesis, **kwargs):
         return super(DiarizationCoverage, self)\
@@ -223,6 +206,7 @@ class DiarizationCoverage(DiarizationPurity):
             string += "  - correct: %.2f seconds\n" % (detail[PURITY_CORRECT])
         string += "  - %s: %.2f %%\n" % (self.name, 100*detail[self.name])
         return string
+
 
 HOMOGENEITY_NAME = 'homogeneity'
 HOMOGENEITY_ENTROPY = 'entropy'
