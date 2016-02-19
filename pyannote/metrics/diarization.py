@@ -45,7 +45,7 @@ class DiarizationErrorRate(IdentificationErrorRate):
     First, the optimal mapping between reference and hypothesis labels
     is obtained using the Hungarian algorithm. Then, the actual diarization
     error rate is computed as the identification error rate with each hypothesis
-    label trasnlated into the corresponding reference label.
+    label translated into the corresponding reference label.
 
     * Diarization error rate between `reference` and `hypothesis` annotations
 
