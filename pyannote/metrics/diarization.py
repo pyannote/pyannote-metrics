@@ -35,8 +35,8 @@ from xarray import DataArray
 
 from pyannote.algorithms.tagging.mapping import HungarianMapper
 
-from base import BaseMetric
-from identification import IdentificationErrorRate
+from .base import BaseMetric
+from .identification import IdentificationErrorRate
 
 DER_NAME = 'diarization error rate'
 
@@ -231,7 +231,6 @@ class DiarizationHomogeneity(BaseMetric):
         detail = self._init_details()
 
         matrix = reference.smooth() * hypothesis.smooth()
-
 
         duration = matrix.sum()
         rduration = matrix.sum(dim='j')
