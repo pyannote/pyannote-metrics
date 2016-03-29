@@ -24,7 +24,7 @@ install:
  - source activate test
  - conda install --yes numpy=$NUMPY scipy=$SCIPY
  - pip install setuptools
- - python setup.py install
+ - pip install .
 
 script:
  - py.test pyannote/metrics/tests
