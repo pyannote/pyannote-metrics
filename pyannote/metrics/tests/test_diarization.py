@@ -51,7 +51,7 @@ def test_detailed(reference, hypothesis):
     npt.assert_almost_equal(confusion, 7.0, decimal=7)
 
     correct = details['correct']
-    npt.assert_almost_equal(confusion, 22.0, decimal=7)
+    npt.assert_almost_equal(correct, 22.0, decimal=7)
 
     rate = details['diarization error rate']
     npt.assert_almost_equal(rate, 0.5161290322580645, decimal=7)
