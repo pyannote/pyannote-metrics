@@ -11,3 +11,9 @@ install:
   - pip install .
 
 script: py.test pyannote/metrics/tests
+
+addons:
+  apt:
+    packages:
+      - python-scipy
+      - python-numpy
