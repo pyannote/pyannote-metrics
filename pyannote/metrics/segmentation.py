@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2014 CNRS
+# Copyright (c) 2012-2016 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,7 @@
 from __future__ import unicode_literals
 
 import numpy as np
-from base import BaseMetric
+from .base import BaseMetric
 from pyannote.core import Annotation
 
 PURITY_NAME = 'segmentation purity'

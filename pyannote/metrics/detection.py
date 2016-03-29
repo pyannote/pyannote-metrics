@@ -28,16 +28,16 @@
 
 from __future__ import unicode_literals
 
-from base import BaseMetric
-from base import Precision, PRECISION_RETRIEVED, PRECISION_RELEVANT_RETRIEVED
-from base import Recall, RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED
+from .base import BaseMetric
+from .base import Precision, PRECISION_RETRIEVED, PRECISION_RELEVANT_RETRIEVED
+from .base import Recall, RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED
+
+from .utils import UEMSupportMixin
 
 DER_TOTAL = 'total'
 DER_FALSE_ALARM = 'false alarm'
 DER_MISS = 'miss'
 DER_NAME = 'detection error rate'
-
-from utils import UEMSupportMixin
 
 
 class DetectionErrorRate(UEMSupportMixin, BaseMetric):

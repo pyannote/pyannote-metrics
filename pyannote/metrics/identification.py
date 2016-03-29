@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2014 CNRS
+# Copyright (c) 2012-2016 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,13 +28,13 @@
 
 from __future__ import unicode_literals
 
-from base import BaseMetric
-from base import Precision, PRECISION_RETRIEVED, PRECISION_RELEVANT_RETRIEVED
-from base import Recall, RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED
-from matcher import LabelMatcherWithUnknownSupport, \
+from .base import BaseMetric
+from .base import Precision, PRECISION_RETRIEVED, PRECISION_RELEVANT_RETRIEVED
+from .base import Recall, RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED
+from .matcher import LabelMatcherWithUnknownSupport, \
     MATCH_TOTAL, MATCH_CORRECT, MATCH_CONFUSION, \
     MATCH_MISSED_DETECTION, MATCH_FALSE_ALARM
-from utils import UEMSupportMixin
+from .utils import UEMSupportMixin
 
 IER_TOTAL = MATCH_TOTAL
 IER_CORRECT = MATCH_CORRECT

@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2014 CNRS
+# Copyright (c) 2012-2016 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -210,7 +210,7 @@ class BaseMetric(object):
 
     def _pretty(self, components):
         string = '%s: %g\n' % (self.name, components[self.name])
-        for name, value in components.iteritems():
+        for name, value in components.items():
             if name == self.name:
                 continue
             string += '  - %s: %g\n' % (name, value)
