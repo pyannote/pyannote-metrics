@@ -1,3 +1,7 @@
+### Version 0.6.0 (2016-03-28)
+
+  - feat: Python 3 support
+
 ### Version 0.5.1 (2016-02-19)
 
   - refactor: diarization metrics

@@ -43,8 +43,8 @@ setup(
         'scripts/pyannote_eval.py',
     ],
     install_requires=[
-        'pyannote.core >= 0.5.2',
-        'pyannote.algorithms >= 0.5.1',
+        'pyannote.core >= 0.6.3',
+        'pyannote.algorithms >= 0.6.1',
         'scipy >= 0.10.0',
         'munkres >= 1.0.6',
         'docopt >= 0.6.2',
@@ -64,7 +64,11 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
+        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
         "Topic :: Scientific/Engineering"
     ],
 )
