@@ -43,7 +43,7 @@ setup(
         'scripts/pyannote_eval.py',
     ],
     install_requires=[
-        'pyannote.core >= 0.6.1',
+        'pyannote.core >= 0.6.3',
         'pyannote.algorithms >= 0.6.1',
         'scipy >= 0.10.0',
         'munkres >= 1.0.6',
