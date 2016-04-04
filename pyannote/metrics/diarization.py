@@ -34,6 +34,7 @@ import numpy as np
 from xarray import DataArray
 
 from pyannote.algorithms.tagging.mapping import HungarianMapper
+from pyannote.algorithms.tagging.mapping import GreedyMapper
 
 from .base import BaseMetric
 from .identification import IdentificationErrorRate
@@ -100,9 +101,68 @@ class DiarizationErrorRate(IdentificationErrorRate):
             ._get_details(reference, hypothesis.translate(mapping))
 
 
+class GreedyDiarizationErrorRate(IdentificationErrorRate):
+    """Greedy diarization error rate
+
+    First, the greedy mapping between reference and hypothesis labels is
+    obtained. Then, the actual diarization error rate is computed as the
+    identification error rate with each hypothesis label translated into the
+    corresponding reference label.
+
+    * Greedy diarization error rate between `reference` and `hypothesis` annotations
+
+        >>> metric = GreedyDiarizationErrorRate()
+        >>> reference = Annotation(...)           # doctest: +SKIP
+        >>> hypothesis = Annotation(...)          # doctest: +SKIP
+        >>> value = metric(reference, hypothesis) # doctest: +SKIP
+
+    * Compute global greedy diarization error rate and confidence interval
+      over multiple documents
+
+        >>> for reference, hypothesis in ...      # doctest: +SKIP
+        ...    metric(reference, hypothesis)      # doctest: +SKIP
+        >>> global_value = abs(metric)            # doctest: +SKIP
+        >>> mean, (lower, upper) = metric.confidence_interval() # doctest: +SKIP
+
+    * Get greedy diarization error rate detailed components
+
+        >>> components = metric(reference, hypothesis, detailed=True) #doctest +SKIP
+
+    * Get accumulated components
+
+        >>> components = metric[:]                # doctest: +SKIP
+        >>> metric['confusion']                   # doctest: +SKIP
+
+    See Also
+    --------
+    :class:`pyannote.metric.base.BaseMetric`: details on accumulation
+
+    """
+
+    @classmethod
+    def metric_name(cls):
+        return DER_NAME
+
+    def __init__(self, **kwargs):
+        super(GreedyDiarizationErrorRate, self).__init__()
+        self._mapper = GreedyMapper()
+
+    def greedy_mapping(self, reference, hypothesis):
+        """Greedy label mapping"""
+        return self._mapper(hypothesis, reference)
+
+    def _get_details(self, reference, hypothesis, **kwargs):
+        reference = reference.anonymize_labels(generator='string')
+        hypothesis = hypothesis.anonymize_labels(generator='int')
+        mapping = self.greedy_mapping(reference, hypothesis)
+        return super(GreedyDiarizationErrorRate, self)\
+            ._get_details(reference, hypothesis.translate(mapping))
+
+
 PURITY_NAME = 'purity'
 PURITY_TOTAL = 'total'
 PURITY_CORRECT = 'correct'
+
 
 class DiarizationPurity(BaseMetric):
     """Purity
