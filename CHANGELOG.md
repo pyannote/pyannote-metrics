@@ -1,3 +1,7 @@
+### Version 0.7 (2016-04-04)
+
+  - feat: greedy diarization error rate
+
 ### Version 0.6.0 (2016-03-29)
 
   - feat: Python 3 support
