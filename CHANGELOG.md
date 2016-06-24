@@ -1,3 +1,7 @@
+### Version 0.7.1 (2016-06-24)
+
+  - setup: update to pyannote.core 0.6.6
+
 ### Version 0.7 (2016-04-04)
 
   - feat: greedy diarization error rate
