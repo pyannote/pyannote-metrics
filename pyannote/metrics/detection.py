@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2014 CNRS
+# Copyright (c) 2012-2016 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,26 +28,35 @@
 
 from __future__ import unicode_literals
 
+from pyannote.core import Annotation, Timeline
 from .base import BaseMetric
-from .base import Precision, PRECISION_RETRIEVED, PRECISION_RELEVANT_RETRIEVED
-from .base import Recall, RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED
-
 from .utils import UEMSupportMixin
 
+DER_NAME = 'detection error rate'
 DER_TOTAL = 'total'
 DER_FALSE_ALARM = 'false alarm'
 DER_MISS = 'miss'
-DER_NAME = 'detection error rate'
 
 
 class DetectionErrorRate(UEMSupportMixin, BaseMetric):
     """Detection error rate
 
+    This metric can be used to evaluate binary classification tasks such as
+    speech activity detection, for instance. It can be applied on Timeline
+    or Annotation instances. Inputs are expected to only contain segments (or
+    tracks) corresponding to the positive class (e.g. speech regions). Gaps in
+    the inputs considered as the negative class (e.g. non-speech regions).
+
+    It is computed as (fa + miss) / total, where fa is the duration of false
+    alarm (e.g. non-speech classified as speech), miss is the duration of
+    missed detection (e.g. speech classified as non-speech), and total is the
+    total duration of the positive class in the reference.
+
     Parameters
     ----------
     collar : float, optional
         Duration (in seconds) of collars removed from evaluation around
-        boundaries of reference segments
+        boundaries of reference segments (one half before, one half after).
     """
 
     @classmethod
@@ -58,64 +67,76 @@ class DetectionErrorRate(UEMSupportMixin, BaseMetric):
     def metric_components(cls):
         return [DER_FALSE_ALARM, DER_MISS, DER_TOTAL]
 
-    def __init__(self, collar=0., **kargs):
-
+    def __init__(self, collar=0., **kwargs):
         super(DetectionErrorRate, self).__init__()
         self.collar = collar
+
+    def _preprocess(self, reference, uem=None):
+
+        if isinstance(reference, Annotation):
+            positive = reference.get_timeline().coverage()
+        elif isinstance(reference, Timeline):
+            positive = reference.coverage()
+        else:
+            raise NotImplementedError(
+                'Only "Timeline" and "Annotation" are supported.')
+
+        annotation = Annotation()
+
+        for segment in positive:
+            annotation[segment] = '+'
+        for segment in positive.gaps(focus=uem):
+            annotation[segment] = '-'
+
+        return annotation
+
+    def _confusion(self, reference, hypothesis, uem=None, **kwargs):
+        """Confusion matrix"""
+
+        reference, hypothesis = self.uemify(
+            self._preprocess(reference, uem=uem),
+            self._preprocess(hypothesis, uem=uem),
+            uem=uem, collar=self.collar)
+
+        return reference * hypothesis
 
     def _get_details(self, reference, hypothesis, uem=None, **kwargs):
 
         detail = self._init_details()
 
-        reference, hypothesis = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar)
+        confusion = self._confusion(reference, hypothesis, uem=uem)
 
-        # common (up-sampled) timeline
-        common_timeline = reference.get_timeline().union(
-            hypothesis.get_timeline())
-        common_timeline = common_timeline.segmentation()
+        try:
+            true_positive = confusion.loc['+', '+'].item()
+        except KeyError as e:
+            true_positive = 0.
 
-        # align reference on common timeline
-        R = self._tagger(reference, common_timeline)
+        try:
+            false_positive = confusion.loc['-', '+'].item()
+        except KeyError as e:
+            false_positive = 0.
 
-        # translate and align hypothesis on common timeline
-        H = self._tagger(hypothesis, common_timeline)
+        try:
+            false_negative = confusion.loc['+', '-'].item()
+        except KeyError as e:
+            false_negative = 0.
 
-        # loop on all segments
-        for segment in common_timeline:
-
-            # segment duration
-            duration = segment.duration
-
-            # set of IDs in reference segment
-            r = R.get_labels(segment)
-            Nr = len(r)
-            detail[DER_TOTAL] += duration * Nr
-
-            # set of IDs in hypothesis segment
-            h = H.get_labels(segment)
-            Nh = len(h)
-
-            # number of misses
-            N_miss = max(0, Nr - Nh)
-            detail[DER_MISS] += duration * N_miss
-
-            # number of false alarms
-            N_fa = max(0, Nh - Nr)
-            detail[DER_FALSE_ALARM] += duration * N_fa
+        detail[DER_MISS] = false_negative
+        detail[DER_FALSE_ALARM] = false_positive
+        detail[DER_TOTAL] = true_positive + false_negative
 
         return detail
 
     def _get_rate(self, detail):
-        numerator = 1. * (detail[DER_FALSE_ALARM] + detail[DER_MISS])
-        denominator = 1. * detail[DER_TOTAL]
-        if denominator == 0.:
-            if numerator == 0:
+        error = 1. * (detail[DER_FALSE_ALARM] + detail[DER_MISS])
+        total = 1. * detail[DER_TOTAL]
+        if total == 0.:
+            if error == 0:
                 return 0.
             else:
                 return 1.
         else:
-            return numerator / denominator
+            return error / total
 
     def _pretty(self, detail):
         string = ""
@@ -125,107 +146,223 @@ class DetectionErrorRate(UEMSupportMixin, BaseMetric):
         string += "  - %s: %.2f %%\n" % (self.name, 100 * detail[self.name])
         return string
 
+ACCURACY_NAME = 'detection accuracy'
+ACCURACY_TRUE_POSITIVE = 'true positive'
+ACCURACY_TRUE_NEGATIVE = 'true negative'
+ACCURACY_FALSE_POSITIVE = 'false positive'
+ACCURACY_FALSE_NEGATIVE = 'false negative'
 
-class DetectionPrecision(UEMSupportMixin, Precision):
+
+class DetectionAccuracy(DetectionErrorRate):
+    """Detection accuracy
+
+    This metric can be used to evaluate binary classification tasks such as
+    speech activity detection, for instance. It can be applied on Timeline
+    or Annotation instances. Inputs are expected to only contain segments (or
+    tracks) corresponding to the positive class (e.g. speech regions). Gaps in
+    the inputs considered as the negative class (e.g. non-speech regions).
+
+    It is computed as (tp + tn) / total, where tp is the duration of true
+    positive (e.g. speech classified as speech), tn is the duration of true
+    negative (e.g. non-speech classified as non-speech), and total is the total
+    duration of the input signal.
+
+    Parameters
+    ----------
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments (one half before, one half after).
+    """
+
+    @classmethod
+    def metric_name(cls):
+        return ACCURACY_NAME
+
+    @classmethod
+    def metric_components(cls):
+        return [ACCURACY_TRUE_POSITIVE, ACCURACY_TRUE_NEGATIVE,
+                ACCURACY_FALSE_POSITIVE, ACCURACY_FALSE_NEGATIVE]
+
+    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
+
+        detail = self._init_details()
+
+        confusion = self._confusion(reference, hypothesis, uem=uem)
+
+        try:
+            true_positive = confusion.loc['+', '+'].item()
+        except KeyError as e:
+            true_positive = 0.
+
+        try:
+            false_positive = confusion.loc['-', '+'].item()
+        except KeyError as e:
+            false_positive = 0.
+
+        try:
+            true_negative = confusion.loc['-', '-'].item()
+        except KeyError as e:
+            true_negative = 0.
+
+        try:
+            false_negative = confusion.loc['+', '-'].item()
+        except KeyError as e:
+            false_negative = 0.
+
+        detail[ACCURACY_TRUE_NEGATIVE] = true_negative
+        detail[ACCURACY_TRUE_POSITIVE] = true_positive
+        detail[ACCURACY_FALSE_NEGATIVE] = false_negative
+        detail[ACCURACY_FALSE_POSITIVE] = false_positive
+
+        return detail
+
+    def _get_rate(self, detail):
+        numerator = 1. * (detail[ACCURACY_TRUE_NEGATIVE] +
+                          detail[ACCURACY_TRUE_POSITIVE])
+        denominator = 1. * (detail[ACCURACY_TRUE_NEGATIVE] +
+                            detail[ACCURACY_TRUE_POSITIVE] +
+                            detail[ACCURACY_FALSE_NEGATIVE] +
+                            detail[ACCURACY_FALSE_POSITIVE])
+
+        if denominator == 0.:
+            return 1.
+        else:
+            return numerator / denominator
+
+    def _pretty(self, detail):
+        raise NotImplementedError('')
+
+PRECISION_NAME = 'detection precision'
+PRECISION_RETRIEVED = 'retrieved'
+PRECISION_RELEVANT_RETRIEVED = 'relevant retrieved'
+
+
+class DetectionPrecision(DetectionErrorRate):
     """Detection precision
 
+    This metric can be used to evaluate binary classification tasks such as
+    speech activity detection, for instance. It can be applied on Timeline
+    or Annotation instances. Inputs are expected to only contain segments (or
+    tracks) corresponding to the positive class (e.g. speech regions). Gaps in
+    the inputs considered as the negative class (e.g. non-speech regions).
+
+    It is computed as tp / (tp + fp), where tp is the duration of true positive
+    (e.g. speech classified as speech), and fp is the duration of false
+    positive (e.g. non-speech classified as speech).
+
     Parameters
     ----------
     collar : float, optional
         Duration (in seconds) of collars removed from evaluation around
-        boundaries of reference segments
+        boundaries of reference segments (one half before, one half after).
     """
-    def __init__(self, collar=0., **kargs):
-        super(DetectionPrecision, self).__init__()
-        self.collar = collar
+
+    @classmethod
+    def metric_name(cls):
+        return PRECISION_NAME
+
+    @classmethod
+    def metric_components(cls):
+        return [PRECISION_RETRIEVED, PRECISION_RELEVANT_RETRIEVED]
 
     def _get_details(self, reference, hypothesis, uem=None, **kwargs):
 
         detail = self._init_details()
 
-        reference, hypothesis = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar)
+        confusion = self._confusion(reference, hypothesis, uem=uem)
 
-        # common (up-sampled) timeline
-        common_timeline = reference.get_timeline().union(
-            hypothesis.get_timeline())
-        common_timeline = common_timeline.segmentation()
+        try:
+            true_positive = confusion.loc['+', '+'].item()
+        except KeyError as e:
+            true_positive = 0.
 
-        # align reference on common timeline
-        R = self._tagger(reference, common_timeline)
+        try:
+            false_positive = confusion.loc['-', '+'].item()
+        except KeyError as e:
+            false_positive = 0.
 
-        # translate and align hypothesis on common timeline
-        H = self._tagger(hypothesis, common_timeline)
-
-        # loop on all segments
-        for segment in common_timeline:
-
-            # segment duration
-            duration = segment.duration
-
-            # set of IDs in reference segment
-            r = R.get_labels(segment)
-            Nr = len(r)
-
-            # set of IDs in hypothesis segment
-            h = H.get_labels(segment)
-            Nh = len(h)
-
-            detail[PRECISION_RETRIEVED] += duration * Nh
-            detail[PRECISION_RELEVANT_RETRIEVED] += duration * min(Nr, Nh)
+        detail[PRECISION_RETRIEVED] = true_positive + false_positive
+        detail[PRECISION_RELEVANT_RETRIEVED] = true_positive
 
         return detail
 
+    def _get_rate(self, detail):
+        relevant_retrieved = 1. * detail[PRECISION_RELEVANT_RETRIEVED]
+        retrieved = 1. * detail[PRECISION_RETRIEVED]
+        if retrieved == 0.:
+            return 1.
+        else:
+            return relevant_retrieved / retrieved
 
-class DetectionRecall(UEMSupportMixin, Recall):
+    def _pretty(self, detail):
+        raise NotImplementedError('')
+
+RECALL_NAME = 'detection recall'
+RECALL_RELEVANT = 'relevant'
+RECALL_RELEVANT_RETRIEVED = 'relevant retrieved'
+
+
+class DetectionRecall(DetectionErrorRate):
     """Detection recall
 
+    This metric can be used to evaluate binary classification tasks such as
+    speech activity detection, for instance. It can be applied on Timeline
+    or Annotation instances. Inputs are expected to only contain segments (or
+    tracks) corresponding to the positive class (e.g. speech regions). Gaps in
+    the inputs considered as the negative class (e.g. non-speech regions).
+
+    It is computed as tp / (tp + fn), where tp is the duration of true positive
+    (e.g. speech classified as speech), and fn is the duration of false
+    negative (e.g. speech classified as non-speech).
+
     Parameters
     ----------
     collar : float, optional
         Duration (in seconds) of collars removed from evaluation around
-        boundaries of reference segments
+        boundaries of reference segments (one half before, one half after).
     """
-    def __init__(self, collar=0., **kargs):
-        super(DetectionRecall, self).__init__()
-        self.collar = collar
+
+    @classmethod
+    def metric_name(cls):
+        return RECALL_NAME
+
+    @classmethod
+    def metric_components(cls):
+        return [RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED]
 
     def _get_details(self, reference, hypothesis, uem=None, **kwargs):
 
         detail = self._init_details()
+        confusion = self._confusion(reference, hypothesis, uem=uem)
 
-        reference, hypothesis = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar)
+        try:
+            true_positive = confusion.loc['+', '+'].item()
+        except KeyError as e:
+            true_positive = 0.
 
-        # common (up-sampled) timeline
-        common_timeline = reference.get_timeline().union(
-            hypothesis.get_timeline())
-        common_timeline = common_timeline.segmentation()
+        try:
+            false_negative = confusion.loc['+', '-'].item()
+        except KeyError as e:
+            false_negative = 0.
 
-        # align reference on common timeline
-        R = self._tagger(reference, common_timeline)
-
-        # translate and align hypothesis on common timeline
-        H = self._tagger(hypothesis, common_timeline)
-
-        # loop on all segments
-        for segment in common_timeline:
-
-            # segment duration
-            duration = segment.duration
-
-            # set of IDs in reference segment
-            r = R.get_labels(segment)
-            Nr = len(r)
-
-            # set of IDs in hypothesis segment
-            h = H.get_labels(segment)
-            Nh = len(h)
-
-            detail[RECALL_RELEVANT] += duration * Nr
-            detail[RECALL_RELEVANT_RETRIEVED] += duration * min(Nr, Nh)
+        detail[RECALL_RELEVANT] = true_positive + false_negative
+        detail[RECALL_RELEVANT_RETRIEVED] = true_positive
 
         return detail
+
+    def _get_rate(self, detail):
+        relevant_retrieved = 1. * detail[RECALL_RELEVANT_RETRIEVED]
+        relevant = 1. * detail[RECALL_RELEVANT]
+        if relevant == 0.:
+            if relevant_retrieved == 0:
+                return 1.
+            else:
+                return 0.
+        else:
+            return relevant_retrieved / relevant
+
+    def _pretty(self, detail):
+        raise NotImplementedError('')
 
 
 if __name__ == "__main__":
