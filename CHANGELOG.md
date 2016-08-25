@@ -1,3 +1,9 @@
+### Version 0.8 (2016-08-25)
+
+  - feat: detection accuracy
+  - refactor: detection metrics
+  - setup: update to pyannote.core 0.7.2
+
 ### Version 0.7.1 (2016-06-24)
 
   - setup: update to pyannote.core 0.6.6
