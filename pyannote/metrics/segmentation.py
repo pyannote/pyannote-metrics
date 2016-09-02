@@ -32,17 +32,14 @@ from __future__ import unicode_literals
 
 import numpy as np
 from .base import BaseMetric
-from pyannote.core import Annotation
+from pyannote.core import Segment, Timeline, Annotation
+from pyannote.core.util import pairwise
+
 
 PURITY_NAME = 'segmentation purity'
 COVERAGE_NAME = 'segmentation coverage'
 PTY_CVG_TOTAL = 'total duration'
 PTY_CVG_INTER = 'intersection duration'
-
-PK_NAME = 'segmentation pk'
-WINDOWDIFF_NAME = 'segmentation windowdiff'
-PK_AGREEMENT = 'number of agreements'
-PK_COMPARISON = 'number of comparisons'
 
 PRECISION_NAME = 'segmentation precision'
 RECALL_NAME = 'segmentation recall'
@@ -54,26 +51,73 @@ PR_MATCHES = 'number of matches'
 class SegmentationCoverage(BaseMetric):
     """Segmentation coverage
 
-    >>> from pyannote.core import Timeline, Segment
-    >>> from pyannote.metrics.segmentation import SegmentationCoverage
-    >>> cvg = SegmentationCoverage()
+    Parameters
+    ----------
+    tolerance : float, optional
+        When provided, preprocess reference by filling intra-label gaps shorter
+        than `tolerance` (in seconds).
 
-    >>> reference = Timeline()
-    >>> reference.add(Segment(0, 1))
-    >>> reference.add(Segment(1, 2))
-    >>> reference.add(Segment(2, 4))
-
-    >>> hypothesis = Timeline()
-    >>> hypothesis.add(Segment(0, 4))
-    >>> cvg(reference, hypothesis)
-    1.0
-
-    >>> hypothesis = Timeline()
-    >>> hypothesis.add(Segment(0, 3))
-    >>> hypothesis.add(Segment(3, 4))
-    >>> cvg(reference, hypothesis)
-    0.75
     """
+
+    def __init__(self, tolerance=0.500):
+        super(SegmentationCoverage, self).__init__()
+        self.tolerance = tolerance
+
+    def _partition(self, timeline, coverage):
+
+        # boundaries (as set of timestamps)
+        boundaries = set([])
+        for segment in timeline:
+            boundaries.add(segment.start)
+            boundaries.add(segment.end)
+
+        # partition (as timeline)
+        partition = Annotation()
+        for start, end in pairwise(sorted(boundaries)):
+            segment = Segment(start, end)
+            partition[segment] = '_'
+
+        cropped = partition.crop(coverage, mode='intersection')
+
+        return partition.crop(coverage, mode='intersection').anonymize_tracks()
+
+    def _preprocess(self, reference, hypothesis):
+
+        if not isinstance(reference, Annotation):
+            raise TypeError('reference must be an instance of `Annotation`')
+
+        if isinstance(hypothesis, Annotation):
+            hypothesis = hypothesis.get_timeline()
+
+        # reference where short intra-label gaps are removed
+        filled = Timeline()
+        for label in reference.labels():
+            label_timeline = reference.label_timeline(label)
+            for gap in label_timeline.gaps():
+                if gap.duration < self.tolerance:
+                    label_timeline.add(gap)
+
+            for segment in label_timeline.coverage():
+                filled.add(segment)
+
+        # reference coverage after filling gaps
+        coverage = filled.coverage()
+
+        reference_partition = self._partition(filled, coverage)
+        hypothesis_partition = self._partition(hypothesis, coverage)
+
+        return reference_partition, hypothesis_partition
+
+    def _process(self, reference, hypothesis):
+
+        detail = self._init_details()
+
+        # cooccurrence matrix
+        K = reference * hypothesis
+        detail[PTY_CVG_TOTAL] = np.sum(K).item()
+        detail[PTY_CVG_INTER] = np.sum(np.max(K, axis=1)).item()
+
+        return detail
 
     @classmethod
     def metric_name(cls):
@@ -84,71 +128,21 @@ class SegmentationCoverage(BaseMetric):
         return [PTY_CVG_TOTAL, PTY_CVG_INTER]
 
     def _get_details(self, reference, hypothesis, **kwargs):
-
-        if isinstance(reference, Annotation):
-            reference = reference.get_timeline()
-
-        if isinstance(hypothesis, Annotation):
-            hypothesis = hypothesis.get_timeline()
-
-        detail = self._init_details()
-
-        prev_r = None
-        duration = 0.
-        intersection = 0.
-        for r, h in reference.co_iter(hypothesis):
-
-            if r != prev_r:
-                detail[PTY_CVG_TOTAL] += duration
-                detail[PTY_CVG_INTER] += intersection
-
-                duration = r.duration
-                intersection = 0.
-                prev_r = r
-
-            intersection = max(intersection, (r & h).duration)
-
-        detail[PTY_CVG_TOTAL] += duration
-        detail[PTY_CVG_INTER] += intersection
-
-        return detail
+        reference, hypothesis = self._preprocess(reference, hypothesis)
+        return self._process(reference, hypothesis)
 
     def _get_rate(self, detail):
-
         return detail[PTY_CVG_INTER] / detail[PTY_CVG_TOTAL]
-
-    def _pretty(self, detail):
-        string = ""
-        string += "  - duration: %.2f seconds\n" % (detail[PTY_CVG_TOTAL])
-        string += "  - correct: %.2f seconds\n" % (detail[PTY_CVG_INTER])
-        string += "  - %s: %.2f %%\n" % (self.name, 100 * detail[self.name])
-        return string
 
 
 class SegmentationPurity(SegmentationCoverage):
     """Segmentation purity
 
-    >>> from pyannote.core import Timeline, Segment
-    >>> from pyannote.metrics.segmentation import SegmentationPurity
-    >>> pty = SegmentationPurity()
-
-    >>> reference = Timeline()
-    >>> reference.add(Segment(0, 1))
-    >>> reference.add(Segment(1, 2))
-    >>> reference.add(Segment(2, 4))
-
-    >>> hypothesis = Timeline()
-    >>> hypothesis.add(Segment(0, 1))
-    >>> hypothesis.add(Segment(1, 2))
-    >>> hypothesis.add(Segment(2, 3))
-    >>> hypothesis.add(Segment(3, 4))
-    >>> pty(reference, hypothesis)
-    1.0
-
-    >>> hypothesis = Timeline()
-    >>> hypothesis.add(Segment(0, 4))
-    >>> pty(reference, hypothesis)
-    0.5
+    Parameters
+    ----------
+    tolerance : float, optional
+        When provided, preprocess reference by filling intra-label gaps shorter
+        than `tolerance` (in seconds).
 
     """
 
@@ -157,195 +151,8 @@ class SegmentationPurity(SegmentationCoverage):
         return PURITY_NAME
 
     def _get_details(self, reference, hypothesis, **kwargs):
-        return super(SegmentationPurity, self)._get_details(
-            hypothesis, reference, **kwargs
-        )
-
-
-class SegmentationPK(BaseMetric):
-    """Segmentation PK
-
-    Parameters
-    ----------
-    step : float, optional
-        Step in seconds. Defaults to 1.
-
-    Example
-    -------
-
-    >>> from pyannote.core import Timeline, Segment
-    >>> from pyannote.metrics.segmentation import SegmentationPK
-    >>> pk = SegmentationPK()
-
-    >>> reference = Timeline()
-    >>> reference.add(Segment(0, 1))
-    >>> reference.add(Segment(1, 2))
-    >>> reference.add(Segment(2, 4))
-
-    >>> hypothesis = Timeline()
-    >>> hypothesis.add(Segment(0, 4))
-    >>> pk(reference, hypothesis)
-    1.0
-
-    >>> hypothesis = Timeline()
-    >>> hypothesis.add(Segment(0, 3))
-    >>> hypothesis.add(Segment(3, 4))
-    >>> pk(reference, hypothesis)
-    0.75
-    """
-
-    def __init__(self, step=1):
-
-        super(SegmentationPK, self).__init__()
-        self.step = step
-
-    @classmethod
-    def metric_name(cls):
-        return PK_NAME
-
-    @classmethod
-    def metric_components(cls):
-        return [PK_AGREEMENT, PK_COMPARISON]
-
-    def _get_details(self, reference, hypothesis, **kwargs):
-
-        if isinstance(reference, Annotation):
-            reference = reference.get_timeline()
-
-        if isinstance(hypothesis, Annotation):
-            hypothesis = hypothesis.get_timeline()
-
-        detail = self._init_details()
-
-        # (half-)average duration of hypothesis segments
-        K = 0.5 * (hypothesis.duration() / len(hypothesis))
-
-        comparisons = 0.
-        agreements = 0.
-
-        start, end = hypothesis.extent()
-        for t in np.arange(start, end - K, self.step):
-
-            # true if t and t+K fall in the same segment
-            # false if t and t+K fall into 2 different segments
-            r = reference.overlapping(t) == reference.overlapping(t + K)
-            h = hypothesis.overlapping(t) == hypothesis.overlapping(t + K)
-
-            # increment if reference and hypothesis agree
-            agreements += (r == h)
-
-            comparisons += 1
-
-        detail[PK_AGREEMENT] += agreements
-        detail[PK_COMPARISON] += comparisons
-
-        return detail
-
-    def _get_rate(self, detail):
-
-        return 1. * detail[PK_AGREEMENT] / detail[PK_COMPARISON]
-
-    def _pretty(self, detail):
-        string = ""
-        string += "  - number of comparisons: %d\n" % (detail[PK_COMPARISON])
-        string += "  - number of agreements: %d\n" % (detail[PK_AGREEMENT])
-        string += "  - %s: %.2f %%\n" % (self.name, 100 * detail[self.name])
-        return string
-
-
-class SegmentationWindowDiff(BaseMetric):
-    """Segmentation WindowDiff
-
-    Parameters
-    ----------
-    step : float, optional
-        Step in seconds. Defaults to 1.
-
-    Example
-    -------
-
-    >>> from pyannote.core import Timeline, Segment
-    >>> from pyannote.metrics.segmentation import SegmentationWindowDiff
-    >>> wd = SegmentationWindowDiff()
-
-    >>> reference = Timeline()
-    >>> reference.add(Segment(0, 1))
-    >>> reference.add(Segment(1, 2))
-    >>> reference.add(Segment(2, 4))
-
-    >>> hypothesis = Timeline()
-    >>> hypothesis.add(Segment(0, 4))
-    >>> wd(reference, hypothesis)
-    1.0
-
-    >>> hypothesis = Timeline()
-    >>> hypothesis.add(Segment(0, 3))
-    >>> hypothesis.add(Segment(3, 4))
-    >>> wd(reference, hypothesis)
-    0.75
-    """
-
-    def __init__(self, step=1):
-        super(SegmentationWindowDiff, self).__init__()
-        self.step = step
-
-    @classmethod
-    def metric_name(cls):
-        return WINDOWDIFF_NAME
-
-    @classmethod
-    def metric_components(cls):
-        return [PK_AGREEMENT, PK_COMPARISON]
-
-    def _get_details(self, reference, hypothesis, **kwargs):
-
-        if isinstance(reference, Annotation):
-            reference = reference.get_timeline()
-
-        if isinstance(hypothesis, Annotation):
-            hypothesis = hypothesis.get_timeline()
-
-        detail = self._init_details()
-
-        # (half-)average duration of hypothesis segments
-        K = .5 * hypothesis.duration() / len(hypothesis)
-
-        comparisons = 0.
-        agreements = 0.
-
-        start, end = hypothesis.extent()
-        for t in np.arange(start, end - K, self.step):
-
-            # number of boundaries between t and t+K in reference
-            i = reference.index(reference.overlapping(t + K)[0])
-            j = reference.index(reference.overlapping(t)[0])
-            r = i - j
-
-            # number of boundaries between t and t+K in hypothesis
-            i = hypothesis.index(hypothesis.overlapping(t + K)[0])
-            j = hypothesis.index(hypothesis.overlapping(t)[0])
-            h = i - j
-
-            # increment if reference and hypothesis agree
-            agreements += (r == h)
-
-            comparisons += 1
-
-        detail[PK_AGREEMENT] += agreements
-        detail[PK_COMPARISON] += comparisons
-
-        return detail
-
-    def _get_rate(self, detail):
-
-        return 1. * detail[PK_AGREEMENT] / detail[PK_COMPARISON]
-
-    def _pretty(self, detail):
-        string = ""
-        string += "  - number of comparisons: %d\n" % (detail[PK_COMPARISON])
-        string += "  - number of agreements: %d\n" % (detail[PK_AGREEMENT])
-        string += "  - %s: %.2f %%\n" % (self.name, 100 * detail[self.name])
-        return string
+        reference, hypothesis = self._preprocess(reference, hypothesis)
+        return self._process(hypothesis, reference)
 
 
 class SegmentationPrecision(BaseMetric):
