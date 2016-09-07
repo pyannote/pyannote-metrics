@@ -34,6 +34,7 @@ import numpy as np
 from .base import BaseMetric
 from pyannote.core import Segment, Timeline, Annotation
 from pyannote.core.util import pairwise
+from .utils import UEMSupportMixin
 
 
 PURITY_NAME = 'segmentation purity'
@@ -155,7 +156,7 @@ class SegmentationPurity(SegmentationCoverage):
         return self._process(hypothesis, reference)
 
 
-class SegmentationPrecision(BaseMetric):
+class SegmentationPrecision(UEMSupportMixin, BaseMetric):
     """Segmentation precision
 
     >>> from pyannote.core import Timeline, Segment
