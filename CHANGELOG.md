@@ -1,3 +1,7 @@
+### Version 0.9 (2016-09-23)
+
+  - feat: add plotting functions for binary classification tasks
+
 ### Version 0.8 (2016-08-25)
 
   - feat: detection accuracy

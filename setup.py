@@ -44,10 +44,12 @@ setup(
     ],
     install_requires=[
         'pyannote.core >= 0.7.2',
-        'pyannote.algorithms >= 0.6.3',
+        'pyannote.algorithms >= 0.6.5',
         'scipy >= 0.10.0',
         'munkres >= 1.0.6',
         'docopt >= 0.6.2',
+        'matplotlib >= 1.5.2',
+        'scikit-learn >= 0.17.1'
     ],
     # versioneer
     version=versioneer.get_version(),
