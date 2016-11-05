@@ -1,4 +1,4 @@
-### Version 0.10 (2016-11-05)
+### Version 0.10.1 (2016-11-05)
 
   - feat: add "uem" support to diarization metrics
 
