@@ -37,6 +37,7 @@ from pyannote.algorithms.tagging.mapping import HungarianMapper
 from pyannote.algorithms.tagging.mapping import GreedyMapper
 
 from .base import BaseMetric
+from .utils import UEMSupportMixin
 from .identification import IdentificationErrorRate
 
 DER_NAME = 'diarization error rate'
@@ -87,18 +88,57 @@ class DiarizationErrorRate(IdentificationErrorRate):
 
     def __init__(self, **kwargs):
         super(DiarizationErrorRate, self).__init__()
-        self._mapper = HungarianMapper()
+        self.mapper_ = HungarianMapper()
 
-    def optimal_mapping(self, reference, hypothesis):
-        """Optimal label mapping"""
-        return self._mapper(hypothesis, reference)
+    def optimal_mapping(self, reference, hypothesis, uem=None):
+        """Optimal label mapping
 
-    def _get_details(self, reference, hypothesis, **kwargs):
+        Parameters
+        ----------
+        reference : Annotation
+        hypothesis : Annotation
+            Reference and hypothesis diarization
+        uem : Timeline
+            Evaluation map
+
+        Returns
+        -------
+        mapping : dict
+            Mapping between hypothesis (key) and reference (value) labels
+        """
+
+        # NOTE that this 'uemification' will not be called when
+        # 'optimal_mapping' is called from '_get_details' as it
+        # has already been done in '_get_details'
+        if uem:
+            reference, hypothesis = self.uemify(reference, hypothesis, uem=uem)
+
+        # call hungarian mapper
+        mapping = self.mapper_(hypothesis, reference)
+        return mapping
+
+    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
+
+        # crop reference and hypothesis to evaluated regions (uem)
+        # remove collars around reference segment boundaries
+        reference, hypothesis = self.uemify(
+            reference, hypothesis, uem=uem, collar=self.collar)
+        # NOTE that this 'uemification' must be done here because it
+        # might have an impact on the search for the optimal mapping.
+
+        # make sure reference only contains string labels ('A', 'B', ...)
         reference = reference.anonymize_labels(generator='string')
+
+        # make sure hypothesis only contains integer labels (1, 2, ...)
         hypothesis = hypothesis.anonymize_labels(generator='int')
+
+        # optimal (int --> str) mapping
         mapping = self.optimal_mapping(reference, hypothesis)
+
+        # compute identification error rate based on mapped hypothesis
+        mapped = hypothesis.translate(mapping)
         return super(DiarizationErrorRate, self)\
-            ._get_details(reference, hypothesis.translate(mapping))
+            ._get_details(reference, hypothesis, **kwargs)
 
 
 class GreedyDiarizationErrorRate(IdentificationErrorRate):
@@ -145,18 +185,50 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
 
     def __init__(self, **kwargs):
         super(GreedyDiarizationErrorRate, self).__init__()
-        self._mapper = GreedyMapper()
+        self.mapper_ = GreedyMapper()
 
-    def greedy_mapping(self, reference, hypothesis):
-        """Greedy label mapping"""
-        return self._mapper(hypothesis, reference)
+    def greedy_mapping(self, reference, hypothesis, uem=None):
+        """Greedy label mapping
 
-    def _get_details(self, reference, hypothesis, **kwargs):
+        Parameters
+        ----------
+        reference : Annotation
+        hypothesis : Annotation
+            Reference and hypothesis diarization
+        uem : Timeline
+            Evaluation map
+
+        Returns
+        -------
+        mapping : dict
+            Mapping between hypothesis (key) and reference (value) labels
+        """
+        if uem:
+            reference, hypothesis = self.uemify(reference, hypothesis, uem=uem)
+        return self.mapper_(hypothesis, reference)
+
+    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
+
+        # crop reference and hypothesis to evaluated regions (uem)
+        # remove collars around reference segment boundaries
+        reference, hypothesis = self.uemify(
+            reference, hypothesis, uem=uem, collar=self.collar)
+        # NOTE that this 'uemification' must be done here because it
+        # might have an impact on the search for the optimal mapping.
+
+        # make sure reference only contains string labels ('A', 'B', ...)
         reference = reference.anonymize_labels(generator='string')
+
+        # make sure hypothesis only contains integer labels (1, 2, ...)
         hypothesis = hypothesis.anonymize_labels(generator='int')
+
+        # greedy (int --> str) mapping
         mapping = self.greedy_mapping(reference, hypothesis)
+
+        # compute identification error rate based on mapped hypothesis
+        mapped = hypothesis.translate(mapping)
         return super(GreedyDiarizationErrorRate, self)\
-            ._get_details(reference, hypothesis.translate(mapping))
+            ._get_details(reference, mapped, **kwargs)
 
 
 PURITY_NAME = 'purity'
@@ -164,17 +236,16 @@ PURITY_TOTAL = 'total'
 PURITY_CORRECT = 'correct'
 
 
-class DiarizationPurity(BaseMetric):
-    """Purity
+class DiarizationPurity(UEMSupportMixin, BaseMetric):
+    """Cluster purity
 
-    Compute purity of hypothesis clusters with respect to reference classes.
+    A hypothesized annotation has perfect purity if all of its labels overlap
+    only segments which are members of a single reference label.
 
     Parameters
     ----------
-    per_cluster : bool, optional
-        By default (per_cluster = False), clusters are duration-weighted.
-        When per_cluster = True, each cluster is given the same weight.
-
+    weighted : bool, optional
+        When True (default), each cluster is weighted by its overall duration.
     """
 
     @classmethod
@@ -185,32 +256,32 @@ class DiarizationPurity(BaseMetric):
     def metric_components(cls):
         return [PURITY_TOTAL, PURITY_CORRECT]
 
-    def __init__(self, detection_error=False, per_cluster=False, **kwargs):
+    def __init__(self, weighted=True, **kwargs):
         super(DiarizationPurity, self).__init__()
-        self.per_cluster = per_cluster
+        self.weighted = weighted
 
-    def _get_details(self, reference, hypothesis, **kwargs):
+    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
+
         detail = self._init_details()
 
+        # crop reference and hypothesis to evaluated regions (uem)
+        reference, hypothesis = self.uemify(reference, hypothesis, uem=uem)
+
+        # cooccurrence matrix
         matrix = reference.smooth() * hypothesis.smooth()
 
-        biggest = matrix.max(dim='i')
-        duration = DataArray(
-            [hypothesis.label_duration(j.item()) for j in biggest.coords['j']],
-            coords=biggest.coords)
+        # duration of largest class in each cluster
+        largest = matrix.max(dim='i')
+        duration = matrix.sum(dim='i')
 
-        if self.per_cluster:
-            # biggest class in each cluster
-            detail[PURITY_CORRECT] = (biggest / duration).sum().item()
-            # number of clusters (as float)
-            detail[PURITY_TOTAL] = len(biggest)
+        if self.weighted:
+            detail[PURITY_CORRECT] = (largest / duration).sum().item()
+            detail[PURITY_TOTAL] = len(largest)
 
         else:
+            detail[PURITY_CORRECT] = 0.
             if np.prod(matrix.shape):
-                detail[PURITY_CORRECT] = biggest.sum().item()
-            else:
-                detail[PURITY_CORRECT] = 0.
-            # total duration of clusters (with overlap)
+                detail[PURITY_CORRECT] = largest.sum().item()
             detail[PURITY_TOTAL] = duration.sum().item()
 
         return detail
@@ -218,57 +289,34 @@ class DiarizationPurity(BaseMetric):
     def _get_rate(self, detail):
         if detail[PURITY_TOTAL] > 0.:
             return detail[PURITY_CORRECT] / detail[PURITY_TOTAL]
-        else:
-            return 1.
+        return 1.
 
-    def _pretty(self, detail):
-        string = ""
-        if self.per_cluster:
-            string += "  - clusters: %d\n" % (detail[PURITY_TOTAL])
-            string += "  - correct: %.2f\n" % (detail[PURITY_CORRECT])
-        else:
-            string += "  - duration: %.2f seconds\n" % (detail[PURITY_TOTAL])
-            string += "  - correct: %.2f seconds\n" % (detail[PURITY_CORRECT])
-        string += "  - %s: %.2f %%\n" % (self.name, 100*detail[self.name])
-        return string
 
 COVERAGE_NAME = 'coverage'
 
 
 class DiarizationCoverage(DiarizationPurity):
-    """Coverage
+    """Cluster coverage
 
-    Compute coverage of hypothesis clusters with respect to reference classes
-    (i.e. purity of reference classes with respect to hypothesis clusters)
+    A hypothesized annotation has perfect coverage if all segments from a
+    given reference label are clustered in the same cluster.
 
     Parameters
     ----------
-    per_cluster : bool, optional
-        By default (per_cluster = False), classes are duration-weighted.
-        When per_cluster = True, each class is given the same weight.
+    weighted : bool, optional
+        When True (default), each cluster is weighted by its overall duration.
     """
 
     @classmethod
     def metric_name(cls):
         return COVERAGE_NAME
 
-    def __init__(self, per_cluster=False, **kwargs):
-        super(DiarizationCoverage, self).__init__(per_cluster=per_cluster)
+    def __init__(self, weighted=True, **kwargs):
+        super(DiarizationCoverage, self).__init__(weighted=weighted)
 
-    def _get_details(self, reference, hypothesis, **kwargs):
+    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
         return super(DiarizationCoverage, self)\
-            ._get_details(hypothesis, reference)
-
-    def _pretty(self, detail):
-        string = ""
-        if self.per_cluster:
-            string += "  - classes: %d\n" % (detail[PURITY_TOTAL])
-            string += "  - correct: %.2f\n" % (detail[PURITY_CORRECT])
-        else:
-            string += "  - duration: %.2f seconds\n" % (detail[PURITY_TOTAL])
-            string += "  - correct: %.2f seconds\n" % (detail[PURITY_CORRECT])
-        string += "  - %s: %.2f %%\n" % (self.name, 100*detail[self.name])
-        return string
+            ._get_details(hypothesis, reference, uem=uem, **kwargs)
 
 
 HOMOGENEITY_NAME = 'homogeneity'
@@ -277,7 +325,7 @@ HOMOGENEITY_CROSS_ENTROPY = 'cross-entropy'
 
 
 class DiarizationHomogeneity(BaseMetric):
-    """Homogeneity"""
+    """Cluster homogeneity"""
 
     @classmethod
     def metric_name(cls):
@@ -287,16 +335,21 @@ class DiarizationHomogeneity(BaseMetric):
     def metric_components(cls):
         return [HOMOGENEITY_ENTROPY, HOMOGENEITY_CROSS_ENTROPY]
 
-    def _get_details(self, reference, hypothesis, **kwargs):
+    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
+
         detail = self._init_details()
 
+        # crop reference and hypothesis to evaluated regions (uem)
+        reference, hypothesis = self.uemify(reference, hypothesis, uem=uem)
+
+        # cooccurrence matrix
         matrix = reference.smooth() * hypothesis.smooth()
 
         duration = matrix.sum()
         rduration = matrix.sum(dim='j')
         hduration = matrix.sum(dim='i')
 
-        # Reference entropy and reference/hypothesis cross-entropy
+        # reference entropy and reference/hypothesis cross-entropy
         ratio = rduration / duration
         entropy = -(ratio * np.log(ratio)).sum()
         detail[HOMOGENEITY_ENTROPY] = entropy.item()
@@ -315,30 +368,22 @@ class DiarizationHomogeneity(BaseMetric):
             else:
                 return 0.
         else:
-            return 1. - numerator/denominator
+            return 1. - numerator / denominator
 
-    def _pretty(self, detail):
-        string = ""
-        string += "  - %s: %.2f\n" % \
-                  (HOMOGENEITY_ENTROPY, detail[HOMOGENEITY_ENTROPY])
-        string += "  - %s: %.2f\n" % \
-                  (HOMOGENEITY_CROSS_ENTROPY, detail[HOMOGENEITY_CROSS_ENTROPY])
-        string += "  - %s: %.2f %%\n" % (self.name, 100*detail[self.name])
-        return string
 
 COMPLETENESS_NAME = 'completeness'
 
 
 class DiarizationCompleteness(DiarizationHomogeneity):
-    """Completeness"""
+    """Cluster completeness"""
 
     @classmethod
     def metric_name(cls):
         return COMPLETENESS_NAME
 
-    def _get_details(self, reference, hypothesis, **kwargs):
+    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
         return super(DiarizationCompleteness, self)\
-            ._get_details(hypothesis, reference)
+            ._get_details(hypothesis, reference, uem=uem, **kwargs)
 
 
 if __name__ == "__main__":
