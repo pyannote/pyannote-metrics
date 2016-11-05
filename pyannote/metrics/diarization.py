@@ -275,14 +275,14 @@ class DiarizationPurity(UEMSupportMixin, BaseMetric):
         duration = matrix.sum(dim='i')
 
         if self.weighted:
-            detail[PURITY_CORRECT] = (largest / duration).sum().item()
-            detail[PURITY_TOTAL] = len(largest)
-
-        else:
             detail[PURITY_CORRECT] = 0.
             if np.prod(matrix.shape):
                 detail[PURITY_CORRECT] = largest.sum().item()
             detail[PURITY_TOTAL] = duration.sum().item()
+
+        else:
+            detail[PURITY_CORRECT] = (largest / duration).sum().item()
+            detail[PURITY_TOTAL] = len(largest)
 
         return detail
 
