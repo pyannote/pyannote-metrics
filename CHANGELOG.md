@@ -1,3 +1,7 @@
+### Version 0.10 (2016-11-05)
+
+  - feat: add "uem" support to diarization metrics
+
 ### Version 0.9 (2016-09-23)
 
   - feat: add plotting functions for binary classification tasks
