@@ -43,7 +43,7 @@ setup(
         'scripts/pyannote_eval.py',
     ],
     install_requires=[
-        'pyannote.core >= 0.7.2',
+        'pyannote.core >= 0.7.3',
         'pyannote.algorithms >= 0.6.5',
         'scipy >= 0.10.0',
         'munkres >= 1.0.6',
@@ -60,7 +60,7 @@ setup(
     description=('PyAnnote metrics'),
     author='Hervé Bredin',
     author_email='bredin@limsi.fr',
-    url='http://herve.niderb.fr/',
+    url='http://pyannote.github.io/',
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
