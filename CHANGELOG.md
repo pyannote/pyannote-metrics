@@ -1,3 +1,8 @@
+### Version 0.10.2 (2016-11-10)
+
+  - fix: fix default "xlim" in "plot_distributions"
+  - setup: switch to pyannote.core 0.8 and pyannote.algorithms 0.6.6
+
 ### Version 0.10.1 (2016-11-05)
 
   - feat: add "uem" support to diarization metrics
