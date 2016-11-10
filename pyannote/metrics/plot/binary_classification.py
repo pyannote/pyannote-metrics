@@ -55,6 +55,10 @@ def plot_distributions(y_true, scores, save_to, xlim=None, nbins=100, ymax=3.):
     """
 
     plt.figure(figsize=(12, 12))
+
+    if xlim is None:
+        xlim = (np.min(scores), np.max(scores))
+
     bins = np.linspace(xlim[0], xlim[1], nbins)
     plt.hist(scores[y_true], bins=bins, color='g', alpha=0.5, normed=True)
     plt.hist(scores[~y_true], bins=bins, color='r', alpha=0.5, normed=True)
