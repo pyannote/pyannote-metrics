@@ -87,7 +87,7 @@ class DiarizationErrorRate(IdentificationErrorRate):
         return DER_NAME
 
     def __init__(self, **kwargs):
-        super(DiarizationErrorRate, self).__init__()
+        super(DiarizationErrorRate, self).__init__(**kwargs)
         self.mapper_ = HungarianMapper()
 
     def optimal_mapping(self, reference, hypothesis, uem=None):
@@ -138,7 +138,7 @@ class DiarizationErrorRate(IdentificationErrorRate):
         # compute identification error rate based on mapped hypothesis
         mapped = hypothesis.translate(mapping)
         return super(DiarizationErrorRate, self)\
-            ._get_details(reference, hypothesis, **kwargs)
+            ._get_details(reference, mapped, **kwargs)
 
 
 class GreedyDiarizationErrorRate(IdentificationErrorRate):
@@ -184,7 +184,7 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
         return DER_NAME
 
     def __init__(self, **kwargs):
-        super(GreedyDiarizationErrorRate, self).__init__()
+        super(GreedyDiarizationErrorRate, self).__init__(**kwargs)
         self.mapper_ = GreedyMapper()
 
     def greedy_mapping(self, reference, hypothesis, uem=None):
