@@ -1,3 +1,8 @@
+### Version 0.10.3 (2016-11-28)
+
+  - fix: fix (greedy) diarization error rate
+  - feat: add support for 'collar' to (greedy) diarization error rate
+
 ### Version 0.10.2 (2016-11-10)
 
   - fix: fix default "xlim" in "plot_distributions"
