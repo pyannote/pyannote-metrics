@@ -1,5 +1,6 @@
 import pytest
 
+import pyannote.core
 from pyannote.core import Annotation
 from pyannote.core import Segment
 from pyannote.core import Timeline
