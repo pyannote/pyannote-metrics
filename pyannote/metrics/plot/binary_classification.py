@@ -72,7 +72,7 @@ def plot_distributions(y_true, scores, save_to, xlim=None, nbins=100, ymax=3.):
 
     return True
 
-def plot_det_curve(y_true, scores, save_to):
+def plot_det_curve(y_true, scores, save_to, distance=False):
     """DET curve
 
     This function will create (and overwrite) the following files:
@@ -88,12 +88,17 @@ def plot_det_curve(y_true, scores, save_to):
         Predicted score.
     save_to : str
         Files path prefix.
+    distances : boolean, optional
+        When True, indicate that `scores` are actually `distances`
 
     Returns
     -------
     eer : float
         Equal error rate
     """
+
+    if distances:
+        scores = -scores
 
     # compute false positive and false negative rates
     # (a.k.a. false alarm and false rejection rates)
@@ -125,7 +130,7 @@ def plot_det_curve(y_true, scores, save_to):
     with open(txt, 'w') as f:
         for i, (t, fp, fn) in enumerate(zip(thresholds, fpr, fnr)):
             mark = 'eer' if i == eer_index else '---'
-            f.write(line.format(t=t, fp=fp, fn=fn, mark=mark))
+            f.write(line.format(t=-t if distances else t, fp=fp, fn=fn, mark=mark))
 
     return eer
 
