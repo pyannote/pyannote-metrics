@@ -1,3 +1,7 @@
+### Version 0.11 (2016-12-13)
+
+  - feat: add pyannote.metrics.binary_classification module
+
 ### Version 0.10.3 (2016-11-28)
 
   - fix: fix (greedy) diarization error rate
