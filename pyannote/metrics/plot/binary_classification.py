@@ -34,10 +34,12 @@ with warnings.catch_warnings():
     matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-import sklearn.metrics
 import numpy as np
+from pyannote.metrics.binary_classification import det_curve
+from pyannote.metrics.binary_classification import precision_recall_curve
 
-def plot_distributions(y_true, scores, save_to, xlim=None, nbins=100, ymax=3.):
+
+def plot_distributions(y_true, scores, save_to, xlim=None, nbins=100, ymax=3., dpi=150):
     """Scores distributions
 
     This function will create (and overwrite) the following files:
@@ -66,13 +68,15 @@ def plot_distributions(y_true, scores, save_to, xlim=None, nbins=100, ymax=3.):
     # TODO heuristic to estimate ymax from nbins and xlim
     plt.ylim(0, ymax)
     plt.tight_layout()
-    plt.savefig(save_to + '.scores.png', dpi=150)
+    plt.savefig(save_to + '.scores.png', dpi=dpi)
     plt.savefig(save_to + '.scores.eps')
     plt.close()
 
     return True
 
-def plot_det_curve(y_true, scores, save_to):
+
+def plot_det_curve(y_true, scores, save_to,
+                   distances=False, dpi=150):
     """DET curve
 
     This function will create (and overwrite) the following files:
@@ -88,6 +92,10 @@ def plot_det_curve(y_true, scores, save_to):
         Predicted score.
     save_to : str
         Files path prefix.
+    distances : boolean, optional
+        When True, indicate that `scores` are actually `distances`
+    dpi : int, optional
+        Resolution of .png file. Defaults to 150.
 
     Returns
     -------
@@ -95,18 +103,9 @@ def plot_det_curve(y_true, scores, save_to):
         Equal error rate
     """
 
-    # compute false positive and false negative rates
-    # (a.k.a. false alarm and false rejection rates)
-    fpr, tpr, thresholds = sklearn.metrics.roc_curve(y_true,
-                                                     scores,
-                                                     pos_label=True)
-    fnr = 1 - tpr
+    fpr, fnr, thresholds, eer = det_curve(y_true, scores, distances=distances)
 
-    # estimate equal error rate
-    eer_index = np.where(fpr > fnr)[0][0]
-    eer = .25 * (fpr[eer_index-1] + fpr[eer_index] +
-                 fnr[eer_index-1] + fnr[eer_index])
-
+    # plot DET curve
     plt.figure(figsize=(12, 12))
     plt.loglog(fpr, fnr, 'b')
     plt.loglog([eer], [eer], 'bo')
@@ -116,26 +115,53 @@ def plot_det_curve(y_true, scores, save_to):
     plt.ylim(1e-2, 1.)
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig(save_to + '.det.png', dpi=150)
+    plt.savefig(save_to + '.det.png', dpi=dpi)
     plt.savefig(save_to + '.det.eps')
     plt.close()
 
+    # save DET curve in text file
     txt = save_to + '.det.txt'
-    line = '{t:.6f} {fp:.6f} {fn:.6f} {mark:s}\n'
+    line = '{t:.6f} {fp:.6f} {fn:.6f}\n'
     with open(txt, 'w') as f:
         for i, (t, fp, fn) in enumerate(zip(thresholds, fpr, fnr)):
-            mark = 'eer' if i == eer_index else '---'
-            f.write(line.format(t=t, fp=fp, fn=fn, mark=mark))
+            f.write(line.format(t=t, fp=fp, fn=fn))
 
     return eer
 
-def plot_precision_recall_curve(y_true, scores, save_to):
 
-    precision, recall, thresholds = sklearn.metrics.precision_recall_curve(
-        y_true, scores, pos_label=True)
+def plot_precision_recall_curve(y_true, scores, save_to,
+                                distances=False, dpi=150):
+    """Precision/recall curve
 
-    auc = sklearn.metrics.auc(precision, recall, reorder=True)
+    This function will create (and overwrite) the following files:
+        - {save_to}.precision_recall.png
+        - {save_to}.precision_recall.eps
+        - {save_to}.precision_recall.txt
 
+    Parameters
+    ----------
+    y_true : (n_samples, ) array-like
+        Boolean reference.
+    scores : (n_samples, ) array-like
+        Predicted score.
+    save_to : str
+        Files path prefix.
+    distances : boolean, optional
+        When True, indicate that `scores` are actually `distances`
+    dpi : int, optional
+        Resolution of .png file. Defaults to 150.
+
+    Returns
+    -------
+    auc : float
+        Area under precision/recall curve
+    """
+
+
+    precision, recall, thresholds, auc = precision_recall_curve(
+        y_true, scores, distances=distances)
+
+    # plot P/R curve
     plt.figure(figsize=(12, 12))
     plt.plot(recall, precision, 'b')
     plt.xlabel('Recall')
@@ -143,8 +169,15 @@ def plot_precision_recall_curve(y_true, scores, save_to):
     plt.xlim(0, 1)
     plt.ylim(0, 1)
     plt.tight_layout()
-    plt.savefig(save_to + '.precision_recall.png', dpi=150)
+    plt.savefig(save_to + '.precision_recall.png', dpi=dpi)
     plt.savefig(save_to + '.precision_recall.eps')
     plt.close()
+
+    # save P/R curve in text file
+    txt = save_to + '.precision_recall.txt'
+    line = '{t:.6f} {p:.6f} {r:.6f}\n'
+    with open(txt, 'w') as f:
+        for i, (t, p, r) in enumerate(zip(thresholds, precision, recall)):
+            f.write(line.format(t=t, p=p, r=r))
 
     return auc
