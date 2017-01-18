@@ -33,8 +33,8 @@ from __future__ import unicode_literals
 import numpy as np
 from xarray import DataArray
 
-from pyannote.algorithms.tagging.mapping import HungarianMapper
-from pyannote.algorithms.tagging.mapping import GreedyMapper
+from .matcher import HungarianMapper
+from .matcher import GreedyMapper
 
 from .base import BaseMetric
 from .utils import UEMSupportMixin

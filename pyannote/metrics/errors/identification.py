@@ -31,10 +31,9 @@ from __future__ import unicode_literals
 import numpy as np
 from munkres import Munkres
 
-from ..matcher import LabelMatcherWithUnknownSupport
-from pyannote.core import Annotation, Unknown
+from ..matcher import LabelMatcher
+from pyannote.core import Annotation
 from xarray import DataArray
-from pyannote.algorithms.tagging import DirectTagger
 
 from ..matcher import MATCH_CORRECT, MATCH_CONFUSION, \
     MATCH_MISSED_DETECTION, MATCH_FALSE_ALARM
@@ -55,63 +54,18 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
 
     Parameters
     ----------
-    matcher : `Matcher`, optional
-        Defaults to `LabelMatcherWithUnknownSupport` instance
-        i.e. two Unknowns are always considered as correct.
-    unknown : bool, optional
-        Set `unknown` to True (default) to take `Unknown` instances into
-        account. Set it to False to get rid of them before evaluation.
-    merge_unknowns : bool, optional
-        See all `Unknown` instances as one unique label. Defaults to False.
     collar : float, optional
         Duration (in seconds) of collars removed from evaluation around
         boundaries of reference segments.
 
     """
 
-    def __init__(self, matcher=None, unknown=True, merge_unknowns=False,
-                 collar=0.):
+    def __init__(self, collar=0.):
 
         super(IdentificationErrorAnalysis, self).__init__()
-
-        if matcher is None:
-            matcher = LabelMatcherWithUnknownSupport()
-        self.matcher = matcher
+        self.matcher_ = LabelMatcher()
         self.munkres = Munkres()
-        self.unknown = unknown
-        self.merge_unknowns = merge_unknowns
         self.collar = collar
-
-        self._tagger = DirectTagger()
-
-    def _handle_unknowns(self, reference, hypothesis):
-
-        # gather reference and hypothesis unknown labels
-        rUnknown = set([u for u in reference.labels()
-                        if isinstance(u, Unknown)])
-        hUnknown = set([u for u in hypothesis.labels()
-                        if isinstance(u, Unknown)])
-
-        if self.unknown:
-
-            if self.merge_unknowns:
-
-                # create new unique `Unknown` instance label
-                unknown = Unknown('?')
-
-                # replace them all by unique unknown label
-                translation = {u: unknown for u in rUnknown}
-                reference = reference.translate(translation)
-
-                translation = {u: unknown for u in hUnknown}
-                hypothesis = hypothesis.translate(translation)
-
-        else:
-
-            reference = reference.subset(rUnknown, invert=True)
-            hypothesis = hypothesis.subset(hUnknown, invert=True)
-
-        return reference, hypothesis
 
     def difference(self, reference, hypothesis, uem=None, uemified=False):
         """Get error analysis as `Annotation`
@@ -134,21 +88,9 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
 
         """
 
-        reference, hypothesis = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar)
-
-        reference, hypothesis = self._handle_unknowns(reference, hypothesis)
-
-        # common (up-sampled) timeline
-        common_timeline = reference.get_timeline().union(
-            hypothesis.get_timeline())
-        common_timeline = common_timeline.segmentation()
-
-        # align reference on common timeline
-        R = self._tagger(reference, common_timeline)
-
-        # translate and align hypothesis on common timeline
-        H = self._tagger(hypothesis, common_timeline)
+        R, H, common_timeline = self.uemify(
+            reference, hypothesis, uem=uem, collar=self.collar,
+            returns_timeline=True)
 
         errors = Annotation(uri=reference.uri, modality=reference.modality)
 
@@ -156,10 +98,10 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
         for segment in common_timeline:
 
             # list of labels in reference segment
-            rlabels = R.get_labels(segment, unknown=self.unknown, unique=False)
+            rlabels = R.get_labels(segment, unique=False)
 
             # list of labels in hypothesis segment
-            hlabels = H.get_labels(segment, unknown=self.unknown, unique=False)
+            hlabels = H.get_labels(segment, unique=False)
 
             _, details = self.matcher(rlabels, hlabels)
 

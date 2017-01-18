@@ -31,12 +31,10 @@ from __future__ import unicode_literals
 from .base import BaseMetric
 from .base import Precision, PRECISION_RETRIEVED, PRECISION_RELEVANT_RETRIEVED
 from .base import Recall, RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED
-from .matcher import LabelMatcherWithUnknownSupport, \
+from .matcher import LabelMatcher, \
     MATCH_TOTAL, MATCH_CORRECT, MATCH_CONFUSION, \
     MATCH_MISSED_DETECTION, MATCH_FALSE_ALARM
 from .utils import UEMSupportMixin
-
-from pyannote.algorithms.tagging import DirectTagger
 
 IER_TOTAL = MATCH_TOTAL
 IER_CORRECT = MATCH_CORRECT
@@ -60,12 +58,6 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
 
     Parameters
     ----------
-    matcher : `Matcher`, optional
-        Defaults to `LabelMatcherWithUnknownSupport` instance
-        i.e. two Unknowns are always considered as correct.
-    unknown : bool, optional
-        Set `unknown` to True (default) to take `Unknown` instances into
-        account. Set it to False to get rid of them before evaluation.
     collar : float, optional
         Duration (in seconds) of collars removed from evaluation around
         boundaries of reference segments.
@@ -86,40 +78,24 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
             IER_TOTAL, IER_CORRECT
         ]
 
-    def __init__(self, matcher=None, unknown=True,
-                 confusion=1., miss=1., false_alarm=1.,
+    def __init__(self, confusion=1., miss=1., false_alarm=1.,
                  collar=0., **kargs):
 
         super(IdentificationErrorRate, self).__init__()
 
-        if matcher is None:
-            matcher = LabelMatcherWithUnknownSupport()
-        self.matcher = matcher
-        self.unknown = unknown
+        self.matcher_ = LabelMatcher()
         self.confusion = confusion
         self.miss = miss
         self.false_alarm = false_alarm
         self.collar = collar
-        self._tagger = DirectTagger()
-
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
 
         detail = self.init_components()
 
-        reference, hypothesis = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar)
-
-        # common (up-sampled) timeline
-        common_timeline = reference.get_timeline().union(
-            hypothesis.get_timeline())
-        common_timeline = common_timeline.segmentation()
-
-        # align reference on common timeline
-        R = self._tagger(reference, common_timeline)
-
-        # translate and align hypothesis on common timeline
-        H = self._tagger(hypothesis, common_timeline)
+        R, H, common_timeline = self.uemify(
+            reference, hypothesis, uem=uem, collar=self.collar,
+            returns_timeline=True)
 
         # loop on all segments
         for segment in common_timeline:
@@ -128,12 +104,12 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
             duration = segment.duration
 
             # list of IDs in reference segment
-            r = R.get_labels(segment, unknown=self.unknown, unique=False)
+            r = R.get_labels(segment, unique=False)
 
             # list of IDs in hypothesis segment
-            h = H.get_labels(segment, unknown=self.unknown, unique=False)
+            h = H.get_labels(segment, unique=False)
 
-            counts, _ = self.matcher(r, h)
+            counts, _ = self.matcher_(r, h)
 
             detail[IER_TOTAL] += duration * counts[IER_TOTAL]
             detail[IER_CORRECT] += duration * counts[IER_CORRECT]
@@ -165,43 +141,23 @@ class IdentificationPrecision(UEMSupportMixin, Precision):
 
     Parameters
     ----------
-    matcher : `Matcher`, optional
-        Defaults to `LabelMatcherWithUnknownSupport` instance
-        i.e. two Unknowns are always considered as correct.
-    unknown : bool, optional
-        Set `unknown` to True (default) to take `Unknown` instances into
-        account. Set it to False to get rid of them before evaluation.
     collar : float, optional
         Duration (in seconds) of collars removed from evaluation around
         boundaries of reference segments.
     """
 
-    def __init__(self, matcher=None, unknown=False, collar=0., **kwargs):
+    def __init__(self, unknown=False, collar=0., **kwargs):
         super(IdentificationPrecision, self).__init__()
-        if matcher is None:
-            matcher = LabelMatcherWithUnknownSupport()
-        self.matcher = matcher
-        self.unknown = unknown
         self.collar = collar
-        self._tagger = DirectTagger()
+        self.matcher_ = LabelMatcher()
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
 
         detail = self.init_components()
 
-        reference, hypothesis = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar)
-
-        # common (up-sampled) timeline
-        common_timeline = reference.get_timeline().union(
-            hypothesis.get_timeline())
-        common_timeline = common_timeline.segmentation()
-
-        # align reference on common timeline
-        R = self._tagger(reference, common_timeline)
-
-        # align hypothesis on common timeline
-        H = self._tagger(hypothesis, common_timeline)
+        R, H, common_timeline = self.uemify(
+            reference, hypothesis, uem=uem, collar=self.collar,
+            returns_timeline=True)
 
         # loop on all segments
         for segment in common_timeline:
@@ -210,12 +166,12 @@ class IdentificationPrecision(UEMSupportMixin, Precision):
             duration = segment.duration
 
             # list of IDs in reference segment
-            r = R.get_labels(segment, unknown=self.unknown, unique=False)
+            r = R.get_labels(segment, unique=False)
 
             # list of IDs in hypothesis segment
-            h = H.get_labels(segment, unknown=self.unknown, unique=False)
+            h = H.get_labels(segment, unique=False)
 
-            counts, _ = self.matcher(r, h)
+            counts, _ = self.matcher_(r, h)
 
             detail[PRECISION_RETRIEVED] += duration * len(h)
             detail[PRECISION_RELEVANT_RETRIEVED] += \
@@ -229,43 +185,23 @@ class IdentificationRecall(UEMSupportMixin, Recall):
 
     Parameters
     ----------
-    matcher : `Matcher`, optional
-        Defaults to `LabelMatcherWithUnknownSupport` instance
-        i.e. two Unknowns are always considered as correct.
-    unknown : bool, optional
-        Set `unknown` to True (default) to take `Unknown` instances into
-        account. Set it to False to get rid of them before evaluation.
     collar : float, optional
         Duration (in seconds) of collars removed from evaluation around
         boundaries of reference segments.
     """
 
-    def __init__(self, matcher=None, unknown=False, collar=0., **kwargs):
+    def __init__(self, collar=0., **kwargs):
         super(IdentificationRecall, self).__init__()
-        if matcher is None:
-            matcher = LabelMatcherWithUnknownSupport()
-        self.matcher = matcher
-        self.unknown = unknown
         self.collar = collar
-        self._tagger = DirectTagger()
+        self.matcher_ = LabelMatcher()
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
 
         detail = self.init_components()
 
-        reference, hypothesis = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar)
-
-        # common (up-sampled) timeline
-        common_timeline = reference.get_timeline().union(
-            hypothesis.get_timeline())
-        common_timeline = common_timeline.segmentation()
-
-        # align reference on common timeline
-        R = self._tagger(reference, common_timeline)
-
-        # align hypothesis on common timeline
-        H = self._tagger(hypothesis, common_timeline)
+        R, H, common_timeline = self.uemify(
+            reference, hypothesis, uem=uem, collar=self.collar,
+            returns_timeline=True)
 
         # loop on all segments
         for segment in common_timeline:
@@ -274,12 +210,12 @@ class IdentificationRecall(UEMSupportMixin, Recall):
             duration = segment.duration
 
             # list of IDs in reference segment
-            r = R.get_labels(segment, unknown=self.unknown, unique=False)
+            r = R.get_labels(segment, unique=False)
 
             # list of IDs in hypothesis segment
-            h = H.get_labels(segment, unknown=self.unknown, unique=False)
+            h = H.get_labels(segment, unique=False)
 
-            counts, _ = self.matcher(r, h)
+            counts, _ = self.matcher_(r, h)
 
             detail[RECALL_RELEVANT] += duration * counts[IER_TOTAL]
             detail[RECALL_RELEVANT_RETRIEVED] += duration * counts[IER_CORRECT]
