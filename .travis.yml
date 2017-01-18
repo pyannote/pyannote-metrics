@@ -23,7 +23,7 @@ install:
  - conda create --yes -n test python=$TRAVIS_PYTHON_VERSION
  - source activate test
  - conda install --yes numpy=$NUMPY scipy=$SCIPY
- - pip install setuptools
+ - pip install -U pip
  - pip install .
 
 script:
