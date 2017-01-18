@@ -360,7 +360,3 @@ class DetectionRecall(DetectionErrorRate):
                 return 0.
         else:
             return relevant_retrieved / relevant
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()

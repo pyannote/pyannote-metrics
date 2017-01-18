@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2016 CNRS
+# Copyright (c) 2012-2017 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -384,8 +384,3 @@ class DiarizationCompleteness(DiarizationHomogeneity):
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
         return super(DiarizationCompleteness, self)\
             .compute_components(hypothesis, reference, uem=uem, **kwargs)
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()

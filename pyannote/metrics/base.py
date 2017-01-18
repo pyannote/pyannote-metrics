@@ -370,8 +370,3 @@ def f_measure(precision, recall, beta=1.):
     where P is `precision`, R is `recall` and b is `beta`
     """
     return (1+beta*beta)*precision*recall / (beta*beta*precision+recall)
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()

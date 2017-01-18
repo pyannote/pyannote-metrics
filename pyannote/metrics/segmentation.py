@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2016 CNRS
+# Copyright (c) 2012-2017 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -306,8 +306,3 @@ class SegmentationRecall(SegmentationPrecision):
     def compute_components(self, reference, hypothesis, **kwargs):
         return super(SegmentationRecall, self).compute_components(
             hypothesis, reference)
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
