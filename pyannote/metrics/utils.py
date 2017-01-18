@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2016 CNRS
+# Copyright (c) 2012-2017 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -56,7 +56,8 @@ class UEMSupportMixin:
         # merge overlapping collars and return
         return collar.coverage()
 
-    def uemify(self, reference, hypothesis, uem=None, collar=0.):
+    def uemify(self, reference, hypothesis, uem=None, collar=0.,
+               returns_uem=False):
         """
 
         Parameters
@@ -84,4 +85,7 @@ class UEMSupportMixin:
         reference = reference.crop(uem, mode='intersection')
         hypothesis = hypothesis.crop(uem, mode='intersection')
 
-        return reference, hypothesis
+        if returns_uem:
+            return reference, hypothesis, uem
+        else:
+            return reference, hypothesis
