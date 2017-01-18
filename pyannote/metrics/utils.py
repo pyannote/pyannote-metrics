@@ -28,6 +28,7 @@
 
 from __future__ import unicode_literals
 
+import warnings
 from pyannote.core import Timeline, Segment
 
 
@@ -73,10 +74,14 @@ class UEMSupportMixin:
 
         # when uem is not provided
         # use the union of reference and hypothesis extents
+
         if uem is None:
             r_extent = reference.get_timeline().extent()
             h_extent = hypothesis.get_timeline().extent()
             uem = Timeline(segments=[r_extent | h_extent], uri=reference.uri)
+            warnings.warn(
+                "'uem' was approximated by the union of 'reference' "
+                "and 'hypothesis' extents.")
 
         # remove collars from uem
         uem = self._get_collar(reference, collar).gaps(focus=uem)
@@ -87,5 +92,5 @@ class UEMSupportMixin:
 
         if returns_uem:
             return reference, hypothesis, uem
-        else:
-            return reference, hypothesis
+
+        return reference, hypothesis
