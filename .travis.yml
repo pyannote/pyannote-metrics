@@ -27,4 +27,4 @@ install:
  - pip install .
 
 script:
- - py.test pyannote/metrics/tests
+ - py.test

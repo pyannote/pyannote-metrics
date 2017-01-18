@@ -70,10 +70,10 @@ def test_detailed(reference, hypothesis):
 def test_purity(reference, hypothesis):
     diarizationPurity = DiarizationPurity()
     purity = diarizationPurity(reference, hypothesis)
-    npt.assert_almost_equal(purity, 0.667, decimal=3)
+    npt.assert_almost_equal(purity, 0.8275, decimal=3)
 
 
 def test_coverage(reference, hypothesis):
     diarizationCoverage = DiarizationCoverage()
     coverage = diarizationCoverage(reference, hypothesis)
-    npt.assert_almost_equal(coverage, 0.710, decimal=3)
+    npt.assert_almost_equal(coverage, 0.7586, decimal=3)
