@@ -27,9 +27,12 @@
 # Hervé BREDIN - http://herve.niderb.fr
 
 from __future__ import unicode_literals
+from __future__ import print_function
+
 
 import scipy.stats
 import numpy as np
+import pandas as pd
 import multiprocessing
 
 
@@ -121,6 +124,67 @@ class BaseMetric(object):
             return components
 
         return components[self.metric_name_]
+
+    def report(self, display=False):
+        """Evaluation report
+
+        Parameters
+        ----------
+        display : bool, optional
+            Set to True to print the report to stdout.
+
+        Returns
+        -------
+        report : pandas.DataFrame
+            Dataframe with one column per metric component, one row per
+            evaluated item, and one final row for accumulated results.
+        """
+
+        report = []
+        uris = []
+
+        for uri, components in self.results_:
+            row = {}
+            total = components['total']
+            for key, value in components.items():
+                if key == self.name:
+                    row[key, '(percent)'] = 100 * value
+                elif key == 'total':
+                    row[key, '(seconds)'] = value
+                else:
+                    row[key, '(seconds)'] = value
+                    row[key, '(percent)'] = 100 * value / total
+
+            report.append(row)
+            uris.append(uri)
+
+        row = {}
+        components = self.accumulated_
+        total = components['total']
+        for key, value in components.items():
+            if key == self.name:
+                row[key, '(percent)'] = 100 * value
+            elif key == 'total':
+                row[key, '(seconds)'] = value
+            else:
+                row[key, '(seconds)'] = value
+                row[key, '(percent)'] = 100 * value / total
+        row[self.name, '(percent)'] = 100 * abs(self)
+        report.append(row)
+        uris.append('TOTAL')
+
+        df = pd.DataFrame(report)
+
+        df['item'] = uris
+        df = df.set_index('item')
+
+        df.columns = pd.MultiIndex.from_tuples(df.columns)
+
+        if display:
+            print(df.to_string(index=True, sparsify=False, justify='right', float_format=lambda f: '{0:.2f}'.format(f)))
+
+        return df
+
 
     def __str__(self):
         components = dict(self.accumulated_)
