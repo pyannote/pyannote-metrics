@@ -8,6 +8,7 @@ python:
   - "3.5"
 
 install:
+  - pip install --user --upgrade pip
   - pip install .
 
 script: py.test
