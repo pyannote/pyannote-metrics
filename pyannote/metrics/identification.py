@@ -36,6 +36,8 @@ from .matcher import LabelMatcherWithUnknownSupport, \
     MATCH_MISSED_DETECTION, MATCH_FALSE_ALARM
 from .utils import UEMSupportMixin
 
+from pyannote.algorithms.tagging import DirectTagger
+
 IER_TOTAL = MATCH_TOTAL
 IER_CORRECT = MATCH_CORRECT
 IER_CONFUSION = MATCH_CONFUSION
@@ -98,10 +100,12 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
         self.miss = miss
         self.false_alarm = false_alarm
         self.collar = collar
+        self._tagger = DirectTagger()
 
-    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
 
-        detail = self._init_details()
+    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+
+        detail = self.init_components()
 
         reference, hypothesis = self.uemify(
             reference, hypothesis, uem=uem, collar=self.collar)
@@ -139,7 +143,7 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
 
         return detail
 
-    def _get_rate(self, detail):
+    def compute_metric(self, detail):
 
         numerator = 1. * (
             self.confusion * detail[IER_CONFUSION] +
@@ -189,10 +193,11 @@ class IdentificationPrecision(UEMSupportMixin, Precision):
         self.matcher = matcher
         self.unknown = unknown
         self.collar = collar
+        self._tagger = DirectTagger()
 
-    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
 
-        detail = self._init_details()
+        detail = self.init_components()
 
         reference, hypothesis = self.uemify(
             reference, hypothesis, uem=uem, collar=self.collar)
@@ -252,10 +257,11 @@ class IdentificationRecall(UEMSupportMixin, Recall):
         self.matcher = matcher
         self.unknown = unknown
         self.collar = collar
+        self._tagger = DirectTagger()
 
-    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
 
-        detail = self._init_details()
+        detail = self.init_components()
 
         reference, hypothesis = self.uemify(
             reference, hypothesis, uem=uem, collar=self.collar)

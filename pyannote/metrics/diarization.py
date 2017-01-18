@@ -108,8 +108,8 @@ class DiarizationErrorRate(IdentificationErrorRate):
         """
 
         # NOTE that this 'uemification' will not be called when
-        # 'optimal_mapping' is called from '_get_details' as it
-        # has already been done in '_get_details'
+        # 'optimal_mapping' is called from 'compute_components' as it
+        # has already been done in 'compute_components'
         if uem:
             reference, hypothesis = self.uemify(reference, hypothesis, uem=uem)
 
@@ -117,7 +117,7 @@ class DiarizationErrorRate(IdentificationErrorRate):
         mapping = self.mapper_(hypothesis, reference)
         return mapping
 
-    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
 
         # crop reference and hypothesis to evaluated regions (uem)
         # remove collars around reference segment boundaries
@@ -138,7 +138,7 @@ class DiarizationErrorRate(IdentificationErrorRate):
         # compute identification error rate based on mapped hypothesis
         mapped = hypothesis.translate(mapping)
         return super(DiarizationErrorRate, self)\
-            ._get_details(reference, mapped, **kwargs)
+            .compute_components(reference, mapped, **kwargs)
 
 
 class GreedyDiarizationErrorRate(IdentificationErrorRate):
@@ -207,7 +207,7 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
             reference, hypothesis = self.uemify(reference, hypothesis, uem=uem)
         return self.mapper_(hypothesis, reference)
 
-    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
 
         # crop reference and hypothesis to evaluated regions (uem)
         # remove collars around reference segment boundaries
@@ -228,7 +228,7 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
         # compute identification error rate based on mapped hypothesis
         mapped = hypothesis.translate(mapping)
         return super(GreedyDiarizationErrorRate, self)\
-            ._get_details(reference, mapped, **kwargs)
+            .compute_components(reference, mapped, **kwargs)
 
 
 PURITY_NAME = 'purity'
@@ -260,9 +260,9 @@ class DiarizationPurity(UEMSupportMixin, BaseMetric):
         super(DiarizationPurity, self).__init__()
         self.weighted = weighted
 
-    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
 
-        detail = self._init_details()
+        detail = self.init_components()
 
         # crop reference and hypothesis to evaluated regions (uem)
         reference, hypothesis = self.uemify(reference, hypothesis, uem=uem)
@@ -286,7 +286,7 @@ class DiarizationPurity(UEMSupportMixin, BaseMetric):
 
         return detail
 
-    def _get_rate(self, detail):
+    def compute_metric(self, detail):
         if detail[PURITY_TOTAL] > 0.:
             return detail[PURITY_CORRECT] / detail[PURITY_TOTAL]
         return 1.
@@ -314,9 +314,9 @@ class DiarizationCoverage(DiarizationPurity):
     def __init__(self, weighted=True, **kwargs):
         super(DiarizationCoverage, self).__init__(weighted=weighted)
 
-    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
         return super(DiarizationCoverage, self)\
-            ._get_details(hypothesis, reference, uem=uem, **kwargs)
+            .compute_components(hypothesis, reference, uem=uem, **kwargs)
 
 
 HOMOGENEITY_NAME = 'homogeneity'
@@ -335,9 +335,9 @@ class DiarizationHomogeneity(BaseMetric):
     def metric_components(cls):
         return [HOMOGENEITY_ENTROPY, HOMOGENEITY_CROSS_ENTROPY]
 
-    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
 
-        detail = self._init_details()
+        detail = self.init_components()
 
         # crop reference and hypothesis to evaluated regions (uem)
         reference, hypothesis = self.uemify(reference, hypothesis, uem=uem)
@@ -359,7 +359,7 @@ class DiarizationHomogeneity(BaseMetric):
 
         return detail
 
-    def _get_rate(self, detail):
+    def compute_metric(self, detail):
         numerator = 1. * detail[HOMOGENEITY_CROSS_ENTROPY]
         denominator = 1. * detail[HOMOGENEITY_ENTROPY]
         if denominator == 0.:
@@ -381,9 +381,9 @@ class DiarizationCompleteness(DiarizationHomogeneity):
     def metric_name(cls):
         return COMPLETENESS_NAME
 
-    def _get_details(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
         return super(DiarizationCompleteness, self)\
-            ._get_details(hypothesis, reference, uem=uem, **kwargs)
+            .compute_components(hypothesis, reference, uem=uem, **kwargs)
 
 
 if __name__ == "__main__":

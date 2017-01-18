@@ -111,7 +111,7 @@ class SegmentationCoverage(BaseMetric):
 
     def _process(self, reference, hypothesis):
 
-        detail = self._init_details()
+        detail = self.init_components()
 
         # cooccurrence matrix
         K = reference * hypothesis
@@ -128,11 +128,11 @@ class SegmentationCoverage(BaseMetric):
     def metric_components(cls):
         return [PTY_CVG_TOTAL, PTY_CVG_INTER]
 
-    def _get_details(self, reference, hypothesis, **kwargs):
+    def compute_components(self, reference, hypothesis, **kwargs):
         reference, hypothesis = self._preprocess(reference, hypothesis)
         return self._process(reference, hypothesis)
 
-    def _get_rate(self, detail):
+    def compute_metric(self, detail):
         return detail[PTY_CVG_INTER] / detail[PTY_CVG_TOTAL]
 
 
@@ -151,7 +151,7 @@ class SegmentationPurity(SegmentationCoverage):
     def metric_name(cls):
         return PURITY_NAME
 
-    def _get_details(self, reference, hypothesis, **kwargs):
+    def compute_components(self, reference, hypothesis, **kwargs):
         reference, hypothesis = self._preprocess(reference, hypothesis)
         return self._process(hypothesis, reference)
 
@@ -195,7 +195,7 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
         super(SegmentationPrecision, self).__init__()
         self.tolerance = tolerance
 
-    def _get_details(self, reference, hypothesis, **kwargs):
+    def compute_components(self, reference, hypothesis, **kwargs):
 
         # extract timeline if needed
         if isinstance(reference, Annotation):
@@ -203,7 +203,7 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
         if isinstance(hypothesis, Annotation):
             hypothesis = hypothesis.get_timeline()
 
-        detail = self._init_details()
+        detail = self.init_components()
 
         # number of matches so far...
         nMatches = 0.  # make sure it is a float (for later ratio)
@@ -259,7 +259,7 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
         detail[PR_MATCHES] = nMatches
         return detail
 
-    def _get_rate(self, detail):
+    def compute_metric(self, detail):
 
         numerator = detail[PR_MATCHES]
         denominator = detail[PR_BOUNDARIES]
@@ -303,8 +303,8 @@ class SegmentationRecall(SegmentationPrecision):
     def metric_name(cls):
         return RECALL_NAME
 
-    def _get_details(self, reference, hypothesis, **kwargs):
-        return super(SegmentationRecall, self)._get_details(
+    def compute_components(self, reference, hypothesis, **kwargs):
+        return super(SegmentationRecall, self).compute_components(
             hypothesis, reference)
 
 
