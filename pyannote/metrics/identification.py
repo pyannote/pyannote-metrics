@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2016 CNRS
+# Copyright (c) 2012-2017 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -158,16 +158,6 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
                 return 1.
         else:
             return numerator / denominator
-
-    def _pretty(self, detail):
-        string = ""
-        string += "  - duration: %.2f seconds\n" % (detail[IER_TOTAL])
-        string += "  - correct: %.2f seconds\n" % (detail[IER_CORRECT])
-        string += "  - confusion: %.2f seconds\n" % (detail[IER_CONFUSION])
-        string += "  - miss: %.2f seconds\n" % (detail[IER_MISS])
-        string += "  - false alarm: %.2f seconds\n" % (detail[IER_FALSE_ALARM])
-        string += "  - %s: %.2f %%\n" % (self.name, 100 * detail[self.name])
-        return string
 
 
 class IdentificationPrecision(UEMSupportMixin, Precision):

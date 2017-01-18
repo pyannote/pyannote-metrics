@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2016 CNRS
+# Copyright (c) 2012-2017 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -360,10 +360,6 @@ class DetectionRecall(DetectionErrorRate):
                 return 0.
         else:
             return relevant_retrieved / relevant
-
-    def _pretty(self, detail):
-        raise NotImplementedError('')
-
 
 if __name__ == "__main__":
     import doctest

@@ -185,11 +185,11 @@ class BaseMetric(object):
 
         return df
 
-
     def __str__(self):
-        components = dict(self.accumulated_)
-        components[self.metric_name_] = self.compute_metric(components)
-        return self._pretty(components)
+        report = self.report(display=False)
+        return report.to_string(
+            sparsify=False,
+            float_format=lambda f: '{0:.2f}'.format(f))
 
     def __abs__(self):
         """Compute metric value from accumulated components"""
@@ -259,14 +259,6 @@ class BaseMetric(object):
             cls.__name__ + " is missing a 'compute_metric' method. "
             "It should return the actual value of the metric based "
             "on the precomputed component dictionary given as input.")
-
-    def _pretty(self, components):
-        string = '%s: %g\n' % (self.name, components[self.name])
-        for name, value in components.items():
-            if name == self.name:
-                continue
-            string += '  - %s: %g\n' % (name, value)
-        return string
 
     def confidence_interval(self, alpha=0.9):
         """Compute confidence interval on accumulated metric values
