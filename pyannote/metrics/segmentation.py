@@ -29,6 +29,7 @@
 # Mamadou Doumbia
 
 from __future__ import unicode_literals
+from __future__ import division
 
 import numpy as np
 from .base import BaseMetric
@@ -246,7 +247,7 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
 
             # find boundaries to match
             k = np.argmin(delta)
-            i = k / M
+            i = k // M
             j = k % M
 
             # make sure they cannot be matched again
