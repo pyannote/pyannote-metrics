@@ -1,6 +1,6 @@
-### Version 0.12 (2017-01-27)
+### Version 0.12.1 (2017-01-27)
 
-  - feat: thread safety
+  - feat: support for multiprocessing
   - feat: add report() method
   - feat: travis continuous integration (finally!)
   - improve: speed up detection metrics
