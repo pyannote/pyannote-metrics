@@ -26,14 +26,13 @@
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
 
+
 from __future__ import unicode_literals
 from __future__ import print_function
 
 
 import scipy.stats
-import numpy as np
 import pandas as pd
-import multiprocessing
 
 
 class BaseMetric(object):
@@ -64,7 +63,6 @@ class BaseMetric(object):
 
     def __init__(self, **kwargs):
         super(BaseMetric, self).__init__()
-        self.manager_ = multiprocessing.Manager()
         self.metric_name_ = self.__class__.metric_name()
         self.components_ = set(self.__class__.metric_components())
         self.reset()
@@ -74,10 +72,11 @@ class BaseMetric(object):
 
     def reset(self):
         """Reset accumulated components and metric values"""
-        self.accumulated_ = self.manager_.dict()
+        from pyannote.metrics import manager_
+        self.accumulated_ = manager_.dict()
         for value in self.components_:
             self.accumulated_[value] = 0.
-        self.results_ = self.manager_.list()
+        self.results_ = manager_.list()
 
     def __get_name(self):
         return self.__class__.metric_name()
