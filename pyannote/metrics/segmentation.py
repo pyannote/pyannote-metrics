@@ -79,8 +79,6 @@ class SegmentationCoverage(BaseMetric):
             segment = Segment(start, end)
             partition[segment] = '_'
 
-        cropped = partition.crop(coverage, mode='intersection')
-
         return partition.crop(coverage, mode='intersection').anonymize_tracks()
 
     def _preprocess(self, reference, hypothesis):
