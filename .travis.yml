@@ -1,30 +1,14 @@
-sudo: false
+sudo: required
 
 language: python
 
-matrix:
-  include:
-    - python: 2.7
-      env: NUMPY=1.10 SCIPY=0.17
-    - python: 3.4
-      env: NUMPY=1.10 SCIPY=0.17
-    - python: 3.5
-      env: NUMPY=1.10 SCIPY=0.17
-
-
-before_install:
- - travis_retry wget http://repo.continuum.io/miniconda/Miniconda-3.8.3-Linux-x86_64.sh -O miniconda.sh
- - chmod +x miniconda.sh
- - bash miniconda.sh -b -p $HOME/miniconda
- - export PATH=/home/travis/miniconda/bin:$PATH
- - conda update --yes conda
+python:
+  - "2.7"
+  - "3.4"
+  - "3.5"
 
 install:
- - conda create --yes -n test python=$TRAVIS_PYTHON_VERSION
- - source activate test
- - conda install --yes numpy=$NUMPY scipy=$SCIPY
- - pip install setuptools
- - pip install .
+  - pip install --upgrade pip
+  - pip install .
 
-script:
- - py.test pyannote/metrics/tests
+script: py.test

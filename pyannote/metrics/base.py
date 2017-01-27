@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2016 CNRS
+# Copyright (c) 2012-2017 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -27,10 +27,13 @@
 # Hervé BREDIN - http://herve.niderb.fr
 
 from __future__ import unicode_literals
+from __future__ import print_function
+
 
 import scipy.stats
 import numpy as np
-from pyannote.algorithms.tagging import DirectTagger
+import pandas as pd
+import multiprocessing
 
 
 class BaseMetric(object):
@@ -49,67 +52,36 @@ class BaseMetric(object):
 
     @classmethod
     def metric_name(cls):
-        raise NotImplementedError("Missing class method 'metric_name'.")
+        raise NotImplementedError(
+            cls.__name__ + " is missing a 'metric_name' class method. "
+            "It should return the name of the metric as string.")
 
     @classmethod
     def metric_components(cls):
-        raise NotImplementedError("Missing class method 'metric_components'")
+        raise NotImplementedError(
+            cls.__name__ + " is missing a 'metric_components' class method. "
+            "It should return the list of names of metric components.")
 
     def __init__(self, **kwargs):
         super(BaseMetric, self).__init__()
-        self.__name = self.__class__.metric_name()
-        self.__values = set(self.__class__.metric_components())
+        self.manager_ = multiprocessing.Manager()
+        self.metric_name_ = self.__class__.metric_name()
+        self.components_ = set(self.__class__.metric_components())
         self.reset()
-        self._tagger = DirectTagger()
+
+    def init_components(self):
+        return {value: 0. for value in self.components_}
+
+    def reset(self):
+        """Reset accumulated components and metric values"""
+        self.accumulated_ = self.manager_.dict()
+        for value in self.components_:
+            self.accumulated_[value] = 0.
+        self.results_ = self.manager_.list()
 
     def __get_name(self):
         return self.__class__.metric_name()
     name = property(fget=__get_name, doc="Metric name.")
-
-    def __accumulate(self, components):
-        """Accumulate metric components
-
-        Parameters
-        ----------
-        components : dict
-            Dictionary where keys are component names and values are component
-            values
-
-        """
-        for name in self.__values:
-            self.__details[name] += components[name]
-
-    def __compute(self, components, accumulate=True, detailed=False):
-        """Compute metric value from computed `components`
-
-        Parameters
-        ----------
-        components : dict
-            Dictionary where keys are components names and values are component
-            values
-        accumulate : bool, optional
-            If True, components are accumulated. Defaults to True.
-        detailed : bool, optional
-            By default (False), return metric value only.
-            Set `detailed` to True to return `components` updated with metric
-            value (for key `self.name`).
-
-        Returns
-        -------
-        value (if `detailed` is False) : float
-            Metric value
-        components (if `detailed` is True) : dict
-            `components` updated with metric value
-        """
-        if accumulate:
-            self.__accumulate(components)
-        rate = self._get_rate(components)
-        if detailed:
-            components = dict(components)
-            components.update({self.__name: rate})
-            return components
-        else:
-            return rate
 
     def __call__(self, reference, hypothesis, detailed=False, **kwargs):
         """Compute metric value and accumulate components
@@ -126,7 +98,6 @@ class BaseMetric(object):
             Set `detailed` to True to return dictionary where keys are
             components names and values are component values
 
-
         Returns
         -------
         value : float (if `detailed` is False)
@@ -135,19 +106,94 @@ class BaseMetric(object):
             `components` updated with metric value
 
         """
-        detail = self._get_details(reference, hypothesis, **kwargs)
-        self.__rates.append((reference.uri, self._get_rate(detail)))
-        return self.__compute(detail, accumulate=True, detailed=detailed)
+
+        # compute metric components
+        components = self.compute_components(reference, hypothesis, **kwargs)
+
+        # compute rate based on components
+        components[self.metric_name_] = self.compute_metric(components)
+
+        # keep track of this computation
+        self.results_.append((reference.uri, components))
+
+        # accumulate components
+        for name in self.components_:
+            self.accumulated_[name] += components[name]
+
+        if detailed:
+            return components
+
+        return components[self.metric_name_]
+
+    def report(self, display=False):
+        """Evaluation report
+
+        Parameters
+        ----------
+        display : bool, optional
+            Set to True to print the report to stdout.
+
+        Returns
+        -------
+        report : pandas.DataFrame
+            Dataframe with one column per metric component, one row per
+            evaluated item, and one final row for accumulated results.
+        """
+
+        report = []
+        uris = []
+
+        for uri, components in self.results_:
+            row = {}
+            total = components['total']
+            for key, value in components.items():
+                if key == self.name:
+                    row[key, '(percent)'] = 100 * value
+                elif key == 'total':
+                    row[key, '(seconds)'] = value
+                else:
+                    row[key, '(seconds)'] = value
+                    row[key, '(percent)'] = 100 * value / total
+
+            report.append(row)
+            uris.append(uri)
+
+        row = {}
+        components = self.accumulated_
+        total = components['total']
+        for key, value in components.items():
+            if key == self.name:
+                row[key, '(percent)'] = 100 * value
+            elif key == 'total':
+                row[key, '(seconds)'] = value
+            else:
+                row[key, '(seconds)'] = value
+                row[key, '(percent)'] = 100 * value / total
+        row[self.name, '(percent)'] = 100 * abs(self)
+        report.append(row)
+        uris.append('TOTAL')
+
+        df = pd.DataFrame(report)
+
+        df['item'] = uris
+        df = df.set_index('item')
+
+        df.columns = pd.MultiIndex.from_tuples(df.columns)
+
+        if display:
+            print(df.to_string(index=True, sparsify=False, justify='right', float_format=lambda f: '{0:.2f}'.format(f)))
+
+        return df
 
     def __str__(self):
-        detail = self.__compute(self.__details,
-                                accumulate=False,
-                                detailed=True)
-        return self._pretty(detail)
+        report = self.report(display=False)
+        return report.to_string(
+            sparsify=False,
+            float_format=lambda f: '{0:.2f}'.format(f))
 
     def __abs__(self):
         """Compute metric value from accumulated components"""
-        return self._get_rate(self.__details)
+        return self.compute_metric(self.accumulated_)
 
     def __getitem__(self, component):
         """Get value of accumulated `component`.
@@ -164,16 +210,16 @@ class BaseMetric(object):
 
         """
         if component == slice(None, None, None):
-            return dict(self.__details)
+            return dict(self.accumulated_)
         else:
-            return self.__details[component]
+            return self.accumulated_[component]
 
     def __iter__(self):
         """Iterator over the accumulated (uri, value)"""
-        for v, r in self.__rates:
-            yield v, r
+        for uri, component in self.results_:
+            yield uri, component
 
-    def _get_details(self, reference, hypothesis, **kwargs):
+    def compute_components(self, reference, hypothesis, **kwargs):
         """Compute metric components
 
         Parameters
@@ -190,9 +236,12 @@ class BaseMetric(object):
             values
 
         """
-        raise NotImplementedError("Missing method '_get_details'.")
+        raise NotImplementedError(
+            cls.__name__ + " is missing a 'compute_components' method."
+            "It should return a dictionary where keys are component names "
+            "and values are component values.")
 
-    def _get_rate(self, components):
+    def compute_metric(self, components):
         """Compute metric value from computed `components`
 
         Parameters
@@ -206,23 +255,10 @@ class BaseMetric(object):
         value : type depends on the metric
             Metric value
         """
-        raise NotImplementedError("Missing method '_get_rate'.")
-
-    def _pretty(self, components):
-        string = '%s: %g\n' % (self.name, components[self.name])
-        for name, value in components.items():
-            if name == self.name:
-                continue
-            string += '  - %s: %g\n' % (name, value)
-        return string
-
-    def _init_details(self):
-        return {value: 0. for value in self.__values}
-
-    def reset(self):
-        """Reset accumulated components and metric values"""
-        self.__details = self._init_details()
-        self.__rates = []
+        raise NotImplementedError(
+            cls.__name__ + " is missing a 'compute_metric' method. "
+            "It should return the actual value of the metric based "
+            "on the precomputed component dictionary given as input.")
 
     def confidence_interval(self, alpha=0.9):
         """Compute confidence interval on accumulated metric values
@@ -245,7 +281,8 @@ class BaseMetric(object):
         scipy.stats.bayes_mvs
 
         """
-        m, _, _ = scipy.stats.bayes_mvs([r for _, r in self.__rates], alpha=alpha)
+        m, _, _ = scipy.stats.bayes_mvs(
+            [r[self.metric_name_] for _, r in self.results_], alpha=alpha)
         return m
 
 
@@ -259,11 +296,11 @@ class Precision(BaseMetric):
     :class:`Precision` is a base class for precision-like evaluation metrics.
 
     It defines two components '# retrieved' and '# relevant retrieved' and the
-    _get_rate() method to compute the actual precision:
+    compute_metric() method to compute the actual precision:
 
         Precision = # retrieved / # relevant retrieved
 
-    Inheriting classes must implement _get_details().
+    Inheriting classes must implement compute_components().
     """
 
     @classmethod
@@ -274,7 +311,7 @@ class Precision(BaseMetric):
     def metric_components(cls):
         return [PRECISION_RETRIEVED, PRECISION_RELEVANT_RETRIEVED]
 
-    def _get_rate(self, components):
+    def compute_metric(self, components):
         """Compute precision from `components`"""
         numerator = components[PRECISION_RELEVANT_RETRIEVED]
         denominator = components[PRECISION_RETRIEVED]
@@ -296,11 +333,11 @@ class Recall(BaseMetric):
     :class:`Recall` is a base class for recall-like evaluation metrics.
 
     It defines two components '# relevant' and '# relevant retrieved' and the
-    _get_rate() method to compute the actual recall:
+    compute_metric() method to compute the actual recall:
 
         Recall = # relevant retrieved / # relevant
 
-    Inheriting classes must implement _get_details().
+    Inheriting classes must implement compute_components().
     """
 
     @classmethod
@@ -311,7 +348,7 @@ class Recall(BaseMetric):
     def metric_components(cls):
         return [RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED]
 
-    def _get_rate(self, components):
+    def compute_metric(self, components):
         """Compute recall from `components`"""
         numerator = components[RECALL_RELEVANT_RETRIEVED]
         denominator = components[RECALL_RELEVANT]
@@ -333,8 +370,3 @@ def f_measure(precision, recall, beta=1.):
     where P is `precision`, R is `recall` and b is `beta`
     """
     return (1+beta*beta)*precision*recall / (beta*beta*precision+recall)
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()

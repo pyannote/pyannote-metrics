@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2016 CNRS
+# Copyright (c) 2012-2017 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@
 # Mamadou Doumbia
 
 from __future__ import unicode_literals
+from __future__ import division
 
 import numpy as np
 from .base import BaseMetric
@@ -78,8 +79,6 @@ class SegmentationCoverage(BaseMetric):
             segment = Segment(start, end)
             partition[segment] = '_'
 
-        cropped = partition.crop(coverage, mode='intersection')
-
         return partition.crop(coverage, mode='intersection').anonymize_tracks()
 
     def _preprocess(self, reference, hypothesis):
@@ -111,7 +110,7 @@ class SegmentationCoverage(BaseMetric):
 
     def _process(self, reference, hypothesis):
 
-        detail = self._init_details()
+        detail = self.init_components()
 
         # cooccurrence matrix
         K = reference * hypothesis
@@ -128,11 +127,11 @@ class SegmentationCoverage(BaseMetric):
     def metric_components(cls):
         return [PTY_CVG_TOTAL, PTY_CVG_INTER]
 
-    def _get_details(self, reference, hypothesis, **kwargs):
+    def compute_components(self, reference, hypothesis, **kwargs):
         reference, hypothesis = self._preprocess(reference, hypothesis)
         return self._process(reference, hypothesis)
 
-    def _get_rate(self, detail):
+    def compute_metric(self, detail):
         return detail[PTY_CVG_INTER] / detail[PTY_CVG_TOTAL]
 
 
@@ -151,7 +150,7 @@ class SegmentationPurity(SegmentationCoverage):
     def metric_name(cls):
         return PURITY_NAME
 
-    def _get_details(self, reference, hypothesis, **kwargs):
+    def compute_components(self, reference, hypothesis, **kwargs):
         reference, hypothesis = self._preprocess(reference, hypothesis)
         return self._process(hypothesis, reference)
 
@@ -195,7 +194,7 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
         super(SegmentationPrecision, self).__init__()
         self.tolerance = tolerance
 
-    def _get_details(self, reference, hypothesis, **kwargs):
+    def compute_components(self, reference, hypothesis, **kwargs):
 
         # extract timeline if needed
         if isinstance(reference, Annotation):
@@ -203,7 +202,7 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
         if isinstance(hypothesis, Annotation):
             hypothesis = hypothesis.get_timeline()
 
-        detail = self._init_details()
+        detail = self.init_components()
 
         # number of matches so far...
         nMatches = 0.  # make sure it is a float (for later ratio)
@@ -246,7 +245,7 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
 
             # find boundaries to match
             k = np.argmin(delta)
-            i = k / M
+            i = k // M
             j = k % M
 
             # make sure they cannot be matched again
@@ -259,7 +258,7 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
         detail[PR_MATCHES] = nMatches
         return detail
 
-    def _get_rate(self, detail):
+    def compute_metric(self, detail):
 
         numerator = detail[PR_MATCHES]
         denominator = detail[PR_BOUNDARIES]
@@ -303,11 +302,6 @@ class SegmentationRecall(SegmentationPrecision):
     def metric_name(cls):
         return RECALL_NAME
 
-    def _get_details(self, reference, hypothesis, **kwargs):
-        return super(SegmentationRecall, self)._get_details(
+    def compute_components(self, reference, hypothesis, **kwargs):
+        return super(SegmentationRecall, self).compute_components(
             hypothesis, reference)
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
