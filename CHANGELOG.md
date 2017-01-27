@@ -1,3 +1,14 @@
+### Version 0.12 (2017-01-27)
+
+  - feat: thread safety
+  - feat: add report() method
+  - feat: travis continuous integration (finally!)
+  - improve: speed up detection metrics
+  - feat: add unit tests for detection metrics
+  - fix: fix python 3 support
+  - setup: remove dependency to pyannote.algorithms
+  - setup: switch to pyannote.core 0.11
+
 ### Version 0.11 (2016-12-13)
 
   - feat: add pyannote.metrics.binary_classification module
