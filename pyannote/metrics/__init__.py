@@ -32,4 +32,11 @@ from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
 
+# Note: if you (yes, you!) know a better way to do this,
+# please open a pull request.
+# I had to use this global multiprocessing manager for it to be accessible
+# from anywhere, and make parallel computation of evaluation metric a reality
+from multiprocessing import Manager
+manager_ = Manager()
+
 from .base import f_measure
