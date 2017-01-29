@@ -73,10 +73,10 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
     @classmethod
     def metric_components(cls):
         return [
-            IER_CONFUSION,
+            IER_TOTAL,
+            IER_CORRECT,
             IER_FALSE_ALARM, IER_MISS,
-            IER_TOTAL, IER_CORRECT
-        ]
+            IER_CONFUSION]
 
     def __init__(self, confusion=1., miss=1., false_alarm=1.,
                  collar=0., **kargs):

@@ -142,33 +142,42 @@ class BaseMetric(object):
         report = []
         uris = []
 
+        percent = 'total' in self.metric_components()
+
         for uri, components in self.results_:
             row = {}
-            total = components['total']
+            if percent:
+                total = components['total']
             for key, value in components.items():
                 if key == self.name:
-                    row[key, '(percent)'] = 100 * value
+                    row[key, '%'] = 100 * value
                 elif key == 'total':
-                    row[key, '(seconds)'] = value
+                    row[key, ''] = value
                 else:
-                    row[key, '(seconds)'] = value
-                    row[key, '(percent)'] = 100 * value / total
+                    row[key, ''] = value
+                    if percent:
+                        row[key, '%'] = 100 * value / total
 
             report.append(row)
             uris.append(uri)
 
         row = {}
         components = self.accumulated_
-        total = components['total']
+
+
+        if percent:
+            total = components['total']
+
         for key, value in components.items():
             if key == self.name:
-                row[key, '(percent)'] = 100 * value
+                row[key, '%'] = 100 * value
             elif key == 'total':
-                row[key, '(seconds)'] = value
+                row[key, ''] = value
             else:
-                row[key, '(seconds)'] = value
-                row[key, '(percent)'] = 100 * value / total
-        row[self.name, '(percent)'] = 100 * abs(self)
+                row[key, ''] = value
+                if percent:
+                    row[key, '%'] = 100 * value / total
+        row[self.name, '%'] = 100 * abs(self)
         report.append(row)
         uris.append('TOTAL')
 
@@ -178,6 +187,8 @@ class BaseMetric(object):
         df = df.set_index('item')
 
         df.columns = pd.MultiIndex.from_tuples(df.columns)
+
+        df = df[[self.name] + self.metric_components()]
 
         if display:
             print(df.to_string(index=True, sparsify=False, justify='right', float_format=lambda f: '{0:.2f}'.format(f)))
