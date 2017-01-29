@@ -40,7 +40,7 @@ setup(
     namespace_packages=['pyannote'],
     packages=find_packages(),
     scripts=[
-        'scripts/pyannote_eval.py',
+        'scripts/pyannote-metrics.py',
     ],
     install_requires=[
         'six >= 1.10.0',
