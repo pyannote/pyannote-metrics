@@ -82,6 +82,13 @@ from pyannote.metrics.identification import IdentificationErrorRate
 from pyannote.metrics.identification import IdentificationPrecision
 from pyannote.metrics.identification import IdentificationRecall
 
+showwarning_orig = warnings.showwarning
+
+def showwarning(message, category, *args, **kwargs):
+    import sys
+    print(category.__name__ + ':', str(message))
+
+warnings.showwarning = showwarning
 
 def get_hypothesis(hypotheses, item):
 
@@ -101,7 +108,7 @@ def get_hypothesis(hypotheses, item):
             raise ValueError(msg.format(uri=uri, uris=tmp_uri))
         else:
             tmp_uri = tmp_uri[0]
-            msg = 'Could not find any hypothesis matching "{uri}" exactly: using "{tmp_uri}" instead.'
+            msg = 'Could not find hypothesis for file "{uri}"; using "{tmp_uri}" instead.'
             warnings.warn(msg.format(tmp_uri=tmp_uri, uri=uri))
 
         hypothesis = hypotheses(uri=tmp_uri)
@@ -142,7 +149,8 @@ def get_reports(protocol, subset, hypotheses, metrics):
 def reindex(report, protocol, subset):
     progress = protocol.progress
     protocol.progress = False
-    new_index = [item['uri'] for item in getattr(protocol, subset)()] + ['TOTAL']
+    new_index = [item['uri'] for item in getattr(protocol, subset)()] + \
+                ['TOTAL']
     protocol.progress = progress
     return report.reindex(new_index)
 
