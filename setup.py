@@ -51,6 +51,7 @@ setup(
         'networkx >= 1.11',
         'munkres >= 1.0.8',
         'docopt >= 0.6.2',
+        'tabulate >= 0.7.7',
         'matplotlib >= 2.0.0',
     ],
     # versioneer
