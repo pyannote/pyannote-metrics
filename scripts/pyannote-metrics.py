@@ -51,6 +51,7 @@ Options:
 # command line parsing
 from docopt import docopt
 
+import warnings
 import functools
 import pandas as pd
 from tabulate import tabulate
@@ -100,6 +101,8 @@ def get_hypothesis(hypotheses, item):
             raise ValueError(msg.format(uri=uri, uris=tmp_uri))
         else:
             tmp_uri = tmp_uri[0]
+            msg = 'Could not find any hypothesis matching "{uri}" exactly: using "{tmp_uri}" instead.'
+            warnings.warn(msg.format(tmp_uri=tmp_uri, uri=uri))
 
         hypothesis = hypotheses(uri=tmp_uri)
         hypothesis.uri = uri
