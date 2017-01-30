@@ -1,4 +1,4 @@
-### Version 0.13 (2017-01-30)
+### Version 0.13.1 (2017-01-30)
 
   - feat: add pyannote-metrics.py evaluation script
   - fix: fix BaseMetric.report() for metric without a 'total' component
