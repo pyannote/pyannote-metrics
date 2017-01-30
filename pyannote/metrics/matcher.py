@@ -28,7 +28,6 @@
 
 from __future__ import unicode_literals
 
-import six
 import numpy as np
 from munkres import Munkres
 import networkx as nx
@@ -171,7 +170,7 @@ class HungarianMapper(object):
         Na = len(A.labels())
         Nb = len(B.labels())
         if Na > Nb:
-            return {a: b for (b, a) in six.iteritems(self._helper(B, A))}
+            return {a: b for (b, a) in self._helper(B, A).items()}
 
         matrix = A * B
         mapping = self._munkres.compute(matrix.max() - matrix)
