@@ -1,3 +1,12 @@
+### Version 0.13 (2017-01-30)
+
+  - feat: add pyannote-metrics.py evaluation script
+  - fix: fix BaseMetric.report() for metric without a 'total' component
+  - fix: fix (Greedy)DiarizationErrorRate uem handling
+  - fix: fix (Greedy)DiarizationErrorRate parallel processing
+  - setup: switch to pyannote.core 0.12
+  - setup: update munkres & matplotlib dependencies
+
 ### Version 0.12.1 (2017-01-27)
 
   - feat: support for multiprocessing
