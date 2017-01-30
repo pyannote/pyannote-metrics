@@ -121,8 +121,9 @@ class DiarizationErrorRate(IdentificationErrorRate):
 
         # crop reference and hypothesis to evaluated regions (uem)
         # remove collars around reference segment boundaries
-        reference, hypothesis = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar)
+        reference, hypothesis, uem = self.uemify(
+            reference, hypothesis, uem=uem, collar=self.collar,
+            returns_uem=True)
         # NOTE that this 'uemification' must be done here because it
         # might have an impact on the search for the optimal mapping.
 
@@ -136,9 +137,12 @@ class DiarizationErrorRate(IdentificationErrorRate):
         mapping = self.optimal_mapping(reference, hypothesis)
 
         # compute identification error rate based on mapped hypothesis
+        # NOTE that collar is set to 0.0 because 'uemify' has already
+        # been applied
         mapped = hypothesis.translate(mapping)
         return super(DiarizationErrorRate, self)\
-            .compute_components(reference, mapped, **kwargs)
+            .compute_components(reference, mapped, uem=uem, collar=0.0,
+                                **kwargs)
 
 
 class GreedyDiarizationErrorRate(IdentificationErrorRate):
@@ -211,8 +215,9 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
 
         # crop reference and hypothesis to evaluated regions (uem)
         # remove collars around reference segment boundaries
-        reference, hypothesis = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar)
+        reference, hypothesis, uem = self.uemify(
+            reference, hypothesis, uem=uem, collar=self.collar,
+            returns_uem=True)
         # NOTE that this 'uemification' must be done here because it
         # might have an impact on the search for the optimal mapping.
 
@@ -226,9 +231,11 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
         mapping = self.greedy_mapping(reference, hypothesis)
 
         # compute identification error rate based on mapped hypothesis
+        # NOTE that collar is set to 0.0 because 'uemify' has already
+        # been applied
         mapped = hypothesis.translate(mapping)
         return super(GreedyDiarizationErrorRate, self)\
-            .compute_components(reference, mapped, **kwargs)
+            .compute_components(reference, mapped, uem=uem, collar=0.0, **kwargs)
 
 
 PURITY_NAME = 'purity'

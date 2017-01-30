@@ -40,19 +40,18 @@ setup(
     namespace_packages=['pyannote'],
     packages=find_packages(),
     scripts=[
-        'scripts/pyannote_eval.py',
+        'scripts/pyannote-metrics.py',
     ],
     install_requires=[
-        'six >= 1.10.0',
-        'pyannote.core >= 0.11.1',
+        'pyannote.core >= 0.12',
+        'pyannote.parser >= 0.6.2',
         'pandas >= 0.19',
         'scipy >= 0.10.0',
         'scikit-learn >= 0.17.1',
         'networkx >= 1.11',
-        'munkres >= 1.0.6',
+        'munkres >= 1.0.8',
         'docopt >= 0.6.2',
-        'matplotlib >= 1.5.2',
-
+        'matplotlib >= 2.0.0',
     ],
     # versioneer
     version=versioneer.get_version(),

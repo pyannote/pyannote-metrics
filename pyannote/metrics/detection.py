@@ -65,7 +65,7 @@ class DetectionErrorRate(UEMSupportMixin, BaseMetric):
 
     @classmethod
     def metric_components(cls):
-        return [DER_FALSE_ALARM, DER_MISS, DER_TOTAL]
+        return [DER_TOTAL, DER_FALSE_ALARM, DER_MISS]
 
     def __init__(self, collar=0.0, **kwargs):
         super(DetectionErrorRate, self).__init__()

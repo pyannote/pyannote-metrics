@@ -28,7 +28,6 @@
 
 from __future__ import unicode_literals
 
-import six
 import numpy as np
 from munkres import Munkres
 import networkx as nx
@@ -159,22 +158,10 @@ class LabelMatcher(object):
         return (counts, details)
 
 
-class BaseMapper(object):
+class HungarianMapper(object):
 
-    def __init__(self, cost=None):
-        super(BaseMapper, self).__init__()
-        if cost is None:
-            cost = lambda AB: AB[0] * AB[1]
-        self.cost = cost
-
-    def __call__(self, A, B):
-        raise NotImplementedError()
-
-
-class HungarianMapper(BaseMapper):
-
-    def __init__(self, cost=None):
-        super(HungarianMapper, self).__init__(cost=cost)
+    def __init__(self):
+        super(HungarianMapper, self).__init__()
         self._munkres = Munkres()
 
     def _helper(self, A, B):
@@ -183,9 +170,9 @@ class HungarianMapper(BaseMapper):
         Na = len(A.labels())
         Nb = len(B.labels())
         if Na > Nb:
-            return {a: b for (b, a) in six.iteritems(self._helper(B, A))}
+            return {a: b for (b, a) in self._helper(B, A).items()}
 
-        matrix = self.cost((A, B))
+        matrix = A * B
         mapping = self._munkres.compute(matrix.max() - matrix)
 
         return dict(
@@ -235,14 +222,11 @@ class HungarianMapper(BaseMapper):
         return mapping
 
 
-class GreedyMapper(BaseMapper):
-
-    def __init__(self, cost=None):
-        super(GreedyMapper, self).__init__(cost=cost)
+class GreedyMapper(object):
 
     def __call__(self, A, B):
 
-        matrix = self.cost((A, B))
+        matrix = A * B
         Na, Nb = matrix.shape
         N = min(Na, Nb)
 
