@@ -110,6 +110,4 @@ class SegmentationError(object):
         for segment in only_under:
             status[segment, '_'] = 'under'
 
-        return status.smooth()
-
-
+        return status.support()

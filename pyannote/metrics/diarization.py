@@ -275,7 +275,7 @@ class DiarizationPurity(UEMSupportMixin, BaseMetric):
         reference, hypothesis = self.uemify(reference, hypothesis, uem=uem)
 
         # cooccurrence matrix
-        matrix = reference.smooth() * hypothesis.smooth()
+        matrix = reference.support() * hypothesis.support()
 
         # duration of largest class in each cluster
         largest = matrix.max(dim='i')
@@ -350,7 +350,7 @@ class DiarizationHomogeneity(BaseMetric):
         reference, hypothesis = self.uemify(reference, hypothesis, uem=uem)
 
         # cooccurrence matrix
-        matrix = reference.smooth() * hypothesis.smooth()
+        matrix = reference.support() * hypothesis.support()
 
         duration = matrix.sum()
         rduration = matrix.sum(dim='j')
