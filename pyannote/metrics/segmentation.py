@@ -61,8 +61,8 @@ class SegmentationCoverage(BaseMetric):
 
     """
 
-    def __init__(self, tolerance=0.500):
-        super(SegmentationCoverage, self).__init__()
+    def __init__(self, tolerance=0.500, **kwargs):
+        super(SegmentationCoverage, self).__init__(**kwargs)
         self.tolerance = tolerance
 
     def _partition(self, timeline, coverage):
@@ -191,7 +191,7 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
 
     def __init__(self, tolerance=0., **kwargs):
 
-        super(SegmentationPrecision, self).__init__()
+        super(SegmentationPrecision, self).__init__(**kwargs)
         self.tolerance = tolerance
 
     def compute_components(self, reference, hypothesis, **kwargs):

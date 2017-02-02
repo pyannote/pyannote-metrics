@@ -264,7 +264,7 @@ class DiarizationPurity(UEMSupportMixin, BaseMetric):
         return [PURITY_TOTAL, PURITY_CORRECT]
 
     def __init__(self, weighted=True, **kwargs):
-        super(DiarizationPurity, self).__init__()
+        super(DiarizationPurity, self).__init__(**kwargs)
         self.weighted = weighted
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
@@ -319,7 +319,7 @@ class DiarizationCoverage(DiarizationPurity):
         return COVERAGE_NAME
 
     def __init__(self, weighted=True, **kwargs):
-        super(DiarizationCoverage, self).__init__(weighted=weighted)
+        super(DiarizationCoverage, self).__init__(weighted=weighted, **kwargs)
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
         return super(DiarizationCoverage, self)\

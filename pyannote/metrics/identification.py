@@ -79,9 +79,9 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
             IER_CONFUSION]
 
     def __init__(self, confusion=1., miss=1., false_alarm=1.,
-                 collar=0., **kargs):
+                 collar=0., **kwargs):
 
-        super(IdentificationErrorRate, self).__init__()
+        super(IdentificationErrorRate, self).__init__(**kwargs)
 
         self.matcher_ = LabelMatcher()
         self.confusion = confusion
@@ -147,7 +147,7 @@ class IdentificationPrecision(UEMSupportMixin, Precision):
     """
 
     def __init__(self, unknown=False, collar=0., **kwargs):
-        super(IdentificationPrecision, self).__init__()
+        super(IdentificationPrecision, self).__init__(**kwargs)
         self.collar = collar
         self.matcher_ = LabelMatcher()
 
@@ -191,7 +191,7 @@ class IdentificationRecall(UEMSupportMixin, Recall):
     """
 
     def __init__(self, collar=0., **kwargs):
-        super(IdentificationRecall, self).__init__()
+        super(IdentificationRecall, self).__init__(**kwargs)
         self.collar = collar
         self.matcher_ = LabelMatcher()
 
