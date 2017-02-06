@@ -1,3 +1,10 @@
+### Version 0.14 (2017-02-06)
+
+  - feat: add "parallel" option to not use multiprocessing
+  - feat: add "accuracy" in "detection" report
+  - setup: switch to pyannote.core 0.13
+  - setup: switch to pyannote.parser 0.6.5
+
 ### Version 0.13.2 (2017-01-30)
 
   - feat: add pyannote-metrics.py evaluation script
