@@ -65,6 +65,7 @@ from pyannote.database import get_protocol
 from pyannote.database.util import get_annotated
 
 from pyannote.metrics.detection import DetectionErrorRate
+from pyannote.metrics.detection import DetectionAccuracy
 from pyannote.metrics.detection import DetectionRecall
 from pyannote.metrics.detection import DetectionPrecision
 
@@ -157,26 +158,29 @@ def reindex(report, protocol, subset):
 def detection(protocol, subset, hypotheses, collar=0.0):
 
     metrics = {'error': DetectionErrorRate(collar=collar),
+               'accuracy': DetectionAccuracy(collar=collar),
                'precision': DetectionPrecision(collar=collar),
                'recall': DetectionRecall(collar=collar)}
 
     reports = get_reports(protocol, subset, hypotheses, metrics)
 
     report = metrics['error'].report(display=False)
+    accuracy = metrics['accuracy'].report(display=False)
     precision = metrics['precision'].report(display=False)
     recall = metrics['recall'].report(display=False)
 
+    report['accuracy', '%'] = accuracy[metrics['accuracy'].name, '%']
     report['precision', '%'] = precision[metrics['precision'].name, '%']
     report['recall', '%'] = recall[metrics['recall'].name, '%']
 
     report = reindex(report, protocol, subset)
 
     columns = list(report.columns)
-    report = report[[columns[0]] + columns[-2:] + columns[1:-2]]
+    report = report[[columns[0]] + columns[-3:] + columns[1:-3]]
 
     headers = ['Detection (collar = {0:g} ms)'.format(1000*collar)] + \
-              [report.columns[i][0] for i in range(3)] + \
-              ['%' if c[1] == '%' else c[0] for c in report.columns[3:]]
+              [report.columns[i][0] for i in range(4)] + \
+              ['%' if c[1] == '%' else c[0] for c in report.columns[4:]]
 
     print(tabulate(report, headers=headers, tablefmt="simple",
                    floatfmt=".2f", numalign="decimal", stralign="left",

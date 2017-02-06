@@ -37,7 +37,7 @@ import pandas as pd
 
 class BaseMetric(object):
     """
-    :class:`BaseMetric` is the base class for most PyAnnote evaluation metrics.
+    :class:`BaseMetric` is the base class for most pyannote evaluation metrics.
 
     Parameters
     ----------
@@ -61,8 +61,9 @@ class BaseMetric(object):
             cls.__name__ + " is missing a 'metric_components' class method. "
             "It should return the list of names of metric components.")
 
-    def __init__(self, **kwargs):
+    def __init__(self, parallel=True, **kwargs):
         super(BaseMetric, self).__init__()
+        self.parallel = parallel
         self.metric_name_ = self.__class__.metric_name()
         self.components_ = set(self.__class__.metric_components())
         self.reset()
@@ -72,11 +73,16 @@ class BaseMetric(object):
 
     def reset(self):
         """Reset accumulated components and metric values"""
-        from pyannote.metrics import manager_
-        self.accumulated_ = manager_.dict()
+        if self.parallel:
+            from pyannote.metrics import manager_
+            self.accumulated_ = manager_.dict()
+            self.results_ = manager_.list()
+        else:
+            self.accumulated_ = dict()
+            self.results_ = list()
         for value in self.components_:
             self.accumulated_[value] = 0.
-        self.results_ = manager_.list()
+
 
     def __get_name(self):
         return self.__class__.metric_name()

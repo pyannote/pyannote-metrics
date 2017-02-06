@@ -217,7 +217,7 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
                         behaviors[segment, track] = (
                             BOTH_INCORRECT, old_errors[i1], new_errors[i2])
 
-        behaviors = behaviors.smooth()
+        behaviors = behaviors.support()
 
         if uemified:
             return reference, before, after, behaviors
