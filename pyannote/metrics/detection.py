@@ -68,7 +68,7 @@ class DetectionErrorRate(UEMSupportMixin, BaseMetric):
         return [DER_TOTAL, DER_FALSE_ALARM, DER_MISS]
 
     def __init__(self, collar=0.0, **kwargs):
-        super(DetectionErrorRate, self).__init__()
+        super(DetectionErrorRate, self).__init__(**kwargs)
         self.collar = collar
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
