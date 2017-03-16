@@ -1,3 +1,8 @@
+### Version 0.14.1 (2017-03-16)
+
+  - chore: rename SegmentationError to SegmentationErrorAnalysis
+  - fix: fix DetectionErrorRate support for kwargs
+
 ### Version 0.14 (2017-02-06)
 
   - feat: add "parallel" option to not use multiprocessing
