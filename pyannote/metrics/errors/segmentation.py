@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2014 CNRS
+# Copyright (c) 2012-2017 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -30,10 +30,10 @@
 from pyannote.core import Annotation, Timeline
 
 
-class SegmentationError(object):
+class SegmentationErrorAnalysis(object):
 
     def __init__(self):
-        super(SegmentationError, self).__init__()
+        super(SegmentationErrorAnalysis, self).__init__()
 
     def __call__(self, reference, hypothesis):
 
@@ -101,13 +101,13 @@ class SegmentationError(object):
         only_over = over.crop(not_under)
 
         status = Annotation(uri=reference.uri)
-        for segment in correct:
-            status[segment, '_'] = 'correct'
+        # for segment in correct:
+        #     status[segment, '_'] = 'correct'
         for segment in frontier:
-            status[segment, '_'] = 'frontier'
+            status[segment, '_'] = 'shift'
         for segment in only_over:
-            status[segment, '_'] = 'over'
+            status[segment, '_'] = 'over-segmentation'
         for segment in only_under:
-            status[segment, '_'] = 'under'
+            status[segment, '_'] = 'under-segmentation'
 
         return status.support()
