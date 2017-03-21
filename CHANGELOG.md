@@ -1,3 +1,7 @@
+### Version 0.14.2 (2017-03-21)
+
+  - feat: better README and technical report
+
 ### Version 0.14.1 (2017-03-16)
 
   - chore: rename SegmentationError to SegmentationErrorAnalysis
