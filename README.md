@@ -2,6 +2,7 @@
 
 > a toolkit for reproducible evaluation, diagnostic, and error analysis of speaker diarization systems
 
+An overview of `pyannote.metrics` is available as a [technical report](doc/pyannote-metrics.pdf): it is recommended to read it first, to quickly get an idea whether this tool is for you.
 
 ## Installation
 
@@ -14,6 +15,7 @@ $ pip install pyannote.metrics
 
 ## Documentation
 
+The documentation is not yet on par with that of [pyannote.core](http://pyannote.github.io/pyannote-core). We are working on it...
 
 ### Application programming interface (API)
 
@@ -23,12 +25,11 @@ $ pip install pyannote.metrics
 
 ```bash
 $ pyannote.metrics.py --help
-
 ```
 
 ## Citation
 
-If you use `pyannote.metrics` in your research, please use the following [citation](pyannote-metrics.pdf):
+If you use `pyannote.metrics` in your research, please use the following citation:
 
 ```bibtex
 @techreport{pyannote.metrics,
