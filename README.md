@@ -15,17 +15,9 @@ $ pip install pyannote.metrics
 
 ## Documentation
 
-The documentation is not yet on par with that of [pyannote.core](http://pyannote.github.io/pyannote-core). We are working on it...
+The documentation is available at [http://pyannote.github.io/pyannote-metrics](http://pyannote.github.io/pyannote-metrics).
 
-### Application programming interface (API)
-
-[See example notebooks](http://nbviewer.ipython.org/github/pyannote/pyannote-metrics/blob/master/doc/index.ipynb)
-
-### Command line interface (CLI)
-
-```bash
-$ pyannote.metrics.py --help
-```
+Sample notebooks are available [here](http://nbviewer.ipython.org/github/pyannote/pyannote-metrics/blob/master/notebooks/index.ipynb).
 
 ## Citation
 
