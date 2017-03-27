@@ -2,6 +2,11 @@
 Changelog
 #########
 
+Version 0.14.4 (2017-03-27)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- doc: update notebook to latest version
+
 Version 0.14.3 (2017-03-27)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

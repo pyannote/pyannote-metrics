@@ -2,7 +2,7 @@
 
 > a toolkit for reproducible evaluation, diagnostic, and error analysis of speaker diarization systems
 
-An overview of `pyannote.metrics` is available as a [technical report](doc/pyannote-metrics.pdf): it is recommended to read it first, to quickly get an idea whether this tool is for you.
+An overview of `pyannote.metrics` is available as a [technical report](docs/pyannote-metrics.pdf): it is recommended to read it first, to quickly get an idea whether this tool is for you.
 
 ## Installation
 
