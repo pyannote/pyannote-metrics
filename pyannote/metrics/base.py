@@ -41,12 +41,13 @@ class BaseMetric(object):
 
     Parameters
     ----------
+    parallel : bool, optional
+        Defaults to True
+
+    Attributes
+    ----------
     name : str
         Human-readable name of the metric (eg. 'diarization error rate')
-    components : list, set or tuple
-        Human-readable names of the components of the metric
-        (eg. ['correct', 'false alarm', 'miss', 'confusion'])
-
     """
 
     @classmethod
