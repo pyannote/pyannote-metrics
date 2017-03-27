@@ -1,0 +1,441 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Principles &mdash; pyannote.metrics 0.14.2+3.g9d56cd2.dirty documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="pyannote.metrics 0.14.2+3.g9d56cd2.dirty documentation" href="index.html"/>
+        <link rel="up" title="Getting started" href="api.html"/>
+        <link rel="next" title="Command line tool" href="cli.html"/>
+        <link rel="prev" title="Tutorial" href="tutorial.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pyannote.metrics
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.14.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">Getting started</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Principles</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#accumulation-reporting">Accumulation &amp; reporting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evaluation-map">Evaluation map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#components">Components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parallel-processing">Parallel processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#define-your-own-metric">Define your own metric</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command line tool</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyannote.metrics</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="api.html">Getting started</a> &raquo;</li>
+        
+      <li>Principles</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/basics.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="principles">
+<h1>Principles<a class="headerlink" href="#principles" title="Permalink to this headline">¶</a></h1>
+<p><cite>pyannote.metrics</cite> provides a set of classes to compare the output of speaker diarization (hereafter called <cite>hypothesis</cite>) systems to manual annotations (<cite>reference</cite>). Let us first instantiate a sample <cite>reference</cite> and <cite>hypothesis</cite>.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pyannote.core</span> <span class="kn">import</span> <span class="n">Segment</span><span class="p">,</span> <span class="n">Timeline</span><span class="p">,</span> <span class="n">Annotation</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">reference</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="s1">&#39;file1&#39;</span><span class="p">)</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;A&#39;</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">20</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;B&#39;</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">27</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;A&#39;</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;C&#39;</span>
+   <span class="o">...</span><span class="p">:</span> 
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">7</span><span class="p">]:</span> <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="s1">&#39;file1&#39;</span><span class="p">)</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;d&#39;</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">20</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">38</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;c&#39;</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">38</span><span class="p">,</span> <span class="mi">40</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;d&#39;</span>
+   <span class="o">...</span><span class="p">:</span> 
+</pre></div>
+</div>
+<p>(<a class="reference external" href="./pyplots/tutorial.py">Source code</a>, <a class="reference external" href="./pyplots/tutorial.png">png</a>, <a class="reference external" href="./pyplots/tutorial.hires.png">hires.png</a>, <a class="reference external" href="./pyplots/tutorial.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/tutorial.png" src="_images/tutorial.png" />
+</div>
+<p>This basically tells us that, according to the manual annotation, speaker <cite>A</cite> speaks in timeranges [0s, 10s] and [24s, 27s].</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Overlapping segments are supported. See <code class="xref py py-mod docutils literal"><span class="pre">pyannote.core</span></code> documentation for more details.</p>
+</div>
+<p><cite>pyannote.metrics</cite> follows an object-oriented paradigm.
+Most evaluation metrics (e.g. <code class="xref py py-class docutils literal"><span class="pre">DiarizationErrorRate</span></code> below) inherit from <code class="xref py py-class docutils literal"><span class="pre">BaseMetric</span></code>.
+As such, they share a common set of methods.</p>
+<p>For instance, once instantiated, they can be called directly to compute the value of the evaluation metric.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">13</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pyannote.metrics.diarization</span> <span class="kn">import</span> <span class="n">DiarizationErrorRate</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">14</span><span class="p">]:</span> <span class="n">metric</span> <span class="o">=</span> <span class="n">DiarizationErrorRate</span><span class="p">()</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">15</span><span class="p">]:</span> <span class="n">metric</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">15</span><span class="p">]:</span> <span class="mf">0.5161290322580645</span>
+</pre></div>
+</div>
+<div class="section" id="accumulation-reporting">
+<h2>Accumulation &amp; reporting<a class="headerlink" href="#accumulation-reporting" title="Permalink to this headline">¶</a></h2>
+<p>The same metric instance can be used to evaluate multiple files.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span></span>In [16]: other_reference = Annotation(uri=&#39;file2&#39;)
+   ....: other_reference[Segment(0, 5)] = &#39;A&#39;
+   ....: other_reference[Segment(6, 10)] = &#39;B&#39;
+   ....: other_reference[Segment(12, 13)] = &#39;B&#39;
+   ....: other_reference[Segment(15, 20)] = &#39;A&#39;
+   ....: 
+
+In [21]: other_hypothesis = Annotation(uri=&#39;file2&#39;)
+   ....: other_hypothesis[Segment(1, 6)] = &#39;a&#39;
+   ....: other_hypothesis[Segment(6, 7)] = &#39;b&#39;
+   ....: other_hypothesis[Segment(7, 10)] = &#39;c&#39;
+   ....: other_hypothesis[Segment(11, 19)] = &#39;b&#39;
+   ....: other_hypothesis[Segment(19, 20)] = &#39;a&#39;
+   ....: 
+
+In [27]: metric = DiarizationErrorRate()
+
+In [28]: metric(reference, hypothesis)
+Out[28]: 0.5161290322580645
+
+In [29]: metric(other_reference, other_hypothesis)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         Out[29]: 0.7333333333333333
+</pre></div>
+</div>
+<p>You do not need to keep track of the result of each call yourself: this is done automatically.
+For instance, once you have evaluated all files, you can use the overriden <code class="xref py py-func docutils literal"><span class="pre">__abs__()</span></code> operator to get the accumulated value:</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">30</span><span class="p">]:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">30</span><span class="p">]:</span> <span class="mf">0.5869565217391305</span>
+</pre></div>
+</div>
+<p><code class="xref py py-func docutils literal"><span class="pre">report()</span></code> provides a convenient summary of the result:</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">31</span><span class="p">]:</span> <span class="n">report</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">display</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+      <span class="n">diarization</span> <span class="n">error</span> <span class="n">rate</span> <span class="n">total</span> <span class="n">correct</span> <span class="n">correct</span> <span class="n">false</span> <span class="n">alarm</span> <span class="n">false</span> <span class="n">alarm</span> <span class="n">missed</span> <span class="n">detection</span> <span class="n">missed</span> <span class="n">detection</span> <span class="n">confusion</span> <span class="n">confusion</span>
+                           <span class="o">%</span>                     <span class="o">%</span>                       <span class="o">%</span>                                 <span class="o">%</span>                   <span class="o">%</span>
+<span class="n">item</span>                                                                                                                            
+<span class="n">file1</span>                  <span class="mf">51.61</span> <span class="mf">31.00</span>   <span class="mf">22.00</span>   <span class="mf">70.97</span>        <span class="mf">7.00</span>       <span class="mf">22.58</span>             <span class="mf">2.00</span>             <span class="mf">6.45</span>      <span class="mf">7.00</span>     <span class="mf">22.58</span>
+<span class="n">file2</span>                  <span class="mf">73.33</span> <span class="mf">15.00</span>    <span class="mf">8.00</span>   <span class="mf">53.33</span>        <span class="mf">4.00</span>       <span class="mf">26.67</span>             <span class="mf">1.00</span>             <span class="mf">6.67</span>      <span class="mf">6.00</span>     <span class="mf">40.00</span>
+<span class="n">TOTAL</span>                  <span class="mf">58.70</span> <span class="mf">46.00</span>   <span class="mf">30.00</span>   <span class="mf">65.22</span>       <span class="mf">11.00</span>       <span class="mf">23.91</span>             <span class="mf">3.00</span>             <span class="mf">6.52</span>     <span class="mf">13.00</span>     <span class="mf">28.26</span>
+</pre></div>
+</div>
+<p>The internal accumulator can be reset using the <code class="xref py py-func docutils literal"><span class="pre">report()</span></code> method:</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">32</span><span class="p">]:</span> <span class="n">metric</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="evaluation-map">
+<h2>Evaluation map<a class="headerlink" href="#evaluation-map" title="Permalink to this headline">¶</a></h2>
+<p>Though audio files can always be processed entirely (from beginning to end), there are cases where reference annotations are only available for some regions of the audio files.
+All metrics support the provision of an evaluation map that indicate which part of the audio file should be evaluated.</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span></span>In [33]: uem = Timeline([Segment(0, 10), Segment(15, 20)])
+
+In [34]: metric(reference, hypothesis, uem=uem)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      Out[34]: 0.13333333333333333
+</pre></div>
+</div>
+</div>
+<div class="section" id="components">
+<h2>Components<a class="headerlink" href="#components" title="Permalink to this headline">¶</a></h2>
+<p>Most metrics are computed as the combination of several components.
+For instance, the diarization error rate is the combination of false alarm (non-speech regions classified as speech), missed detection (speech regions classified as non-speech) and confusion between speakers.</p>
+<p>Using <code class="docutils literal"><span class="pre">detailed=True</span></code> will return the value of each component:</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">35</span><span class="p">]:</span> <span class="n">metric</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">35</span><span class="p">]:</span> 
+<span class="p">{</span><span class="s1">&#39;confusion&#39;</span><span class="p">:</span> <span class="mf">7.0</span><span class="p">,</span>
+ <span class="s1">&#39;correct&#39;</span><span class="p">:</span> <span class="mf">22.0</span><span class="p">,</span>
+ <span class="s1">&#39;diarization error rate&#39;</span><span class="p">:</span> <span class="mf">0.5161290322580645</span><span class="p">,</span>
+ <span class="s1">&#39;false alarm&#39;</span><span class="p">:</span> <span class="mf">7.0</span><span class="p">,</span>
+ <span class="s1">&#39;missed detection&#39;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+ <span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="mf">31.0</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The accumulated value of each component can also be obtained using the overriden <code class="xref py py-func docutils literal"><span class="pre">__getitem__()</span></code> operator:</p>
+<div class="highlight-ipython"><div class="highlight"><pre><span></span>In [36]: metric(other_reference, other_hypothesis)
+Out[36]: 0.7333333333333333
+
+In [37]: metric[&#39;confusion&#39;]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   Out[37]: 13.0
+
+In [38]: metric[:]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 Out[38]: 
+{&#39;confusion&#39;: 13.0,
+ &#39;correct&#39;: 43.0,
+ &#39;false alarm&#39;: 11.0,
+ &#39;missed detection&#39;: 5.0,
+ &#39;total&#39;: 61.0}
+</pre></div>
+</div>
+</div>
+<div class="section" id="parallel-processing">
+<h2>Parallel processing<a class="headerlink" href="#parallel-processing" title="Permalink to this headline">¶</a></h2>
+<p>When you have lots of files to evaluate, and you still want to accumulate them internally, they can be processed in parallel.
+<cite>pyannote.metrics</cite> metrics are thread-safe. See the code of <cite>pyannote.metrics.py</cite> command line tool for inspiration.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Parallel processing does not work that well in Jupyter notebooks.
+You might want to deactivate support for parallel processing with <cite>parallel=False</cite> when instantiating the metric.</p>
+</div>
+</div>
+<div class="section" id="define-your-own-metric">
+<h2>Define your own metric<a class="headerlink" href="#define-your-own-metric" title="Permalink to this headline">¶</a></h2>
+<p>It is possible (and encouraged) to develop and contribute new evaluation metrics.</p>
+<p>All you have to do is inherit from <code class="xref py py-class docutils literal"><span class="pre">BaseMetric</span></code> and implement a few methods:
+<code class="docutils literal"><span class="pre">metric_name</span></code>, <code class="docutils literal"><span class="pre">metric_components</span></code>, <code class="docutils literal"><span class="pre">compute_components</span></code>, and <code class="docutils literal"><span class="pre">compute_metric</span></code>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">is_male</span><span class="p">(</span><span class="n">speaker_name</span><span class="p">):</span>
+    <span class="c1"># black magic that returns True if speaker is a man, False otherwise</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">MyMetric</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+    <span class="c1"># This dummy metric computes the ratio between male and female speakers.</span>
+    <span class="c1"># It does not actually use the reference annotation...</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="c1"># Return human-readable name of the metric</span>
+
+        <span class="k">return</span> <span class="s1">&#39;male / female ratio&#39;</span>
+
+    <span class="nd">@classmethod</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="c1"># Return component names from which the metric is computed</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;male&#39;</span><span class="p">,</span> <span class="s1">&#39;female&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># Actually compute the value of each component</span>
+
+        <span class="n">components</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;male&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;female&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">segment</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">speaker_name</span> <span class="ow">in</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">itertracks</span><span class="p">(</span><span class="n">yield_label</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">is_male</span><span class="p">(</span><span class="n">speaker_name</span><span class="p">):</span>
+                <span class="n">components</span><span class="p">[</span><span class="s1">&#39;male&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">segment</span><span class="o">.</span><span class="n">duration</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">components</span><span class="p">[</span><span class="s1">&#39;female&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">segment</span><span class="o">.</span><span class="n">duration</span>
+
+        <span class="k">return</span> <span class="n">components</span>
+
+    <span class="k">def</span> <span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">components</span><span class="p">):</span>
+        <span class="c1"># Actually compute the metric based on the component values</span>
+
+        <span class="k">return</span> <span class="n">components</span><span class="p">[</span><span class="s1">&#39;male&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">components</span><span class="p">[</span><span class="s1">&#39;female&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>See <code class="xref py py-class docutils literal"><span class="pre">pyannote.metrics.base.BaseMetric</span></code> for more details.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cli.html" class="btn btn-neutral float-right" title="Command line tool" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tutorial.html" class="btn btn-neutral" title="Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, CNRS.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.14.2+3.g9d56cd2.dirty',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

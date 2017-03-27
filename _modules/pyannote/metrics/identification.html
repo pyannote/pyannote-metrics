@@ -1,0 +1,451 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyannote.metrics.identification &mdash; pyannote.metrics 0.14.2+3.g9d56cd2.dirty documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="pyannote.metrics 0.14.2+3.g9d56cd2.dirty documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyannote.metrics
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.14.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command line tool</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyannote.metrics</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyannote.metrics.identification</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyannote.metrics.identification</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># encoding: utf-8</span>
+
+<span class="c1"># The MIT License (MIT)</span>
+
+<span class="c1"># Copyright (c) 2012-2017 CNRS</span>
+
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c1"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
+<span class="c1"># in the Software without restriction, including without limitation the rights</span>
+<span class="c1"># to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</span>
+<span class="c1"># copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c1"># furnished to do so, subject to the following conditions:</span>
+
+<span class="c1"># The above copyright notice and this permission notice shall be included in</span>
+<span class="c1"># all copies or substantial portions of the Software.</span>
+
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</span>
+<span class="c1"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c1"># LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c1"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE</span>
+<span class="c1"># SOFTWARE.</span>
+
+<span class="c1"># AUTHORS</span>
+<span class="c1"># Hervé BREDIN - http://herve.niderb.fr</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">BaseMetric</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">Precision</span><span class="p">,</span> <span class="n">PRECISION_RETRIEVED</span><span class="p">,</span> <span class="n">PRECISION_RELEVANT_RETRIEVED</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">Recall</span><span class="p">,</span> <span class="n">RECALL_RELEVANT</span><span class="p">,</span> <span class="n">RECALL_RELEVANT_RETRIEVED</span>
+<span class="kn">from</span> <span class="nn">.matcher</span> <span class="k">import</span> <span class="n">LabelMatcher</span><span class="p">,</span> \
+    <span class="n">MATCH_TOTAL</span><span class="p">,</span> <span class="n">MATCH_CORRECT</span><span class="p">,</span> <span class="n">MATCH_CONFUSION</span><span class="p">,</span> \
+    <span class="n">MATCH_MISSED_DETECTION</span><span class="p">,</span> <span class="n">MATCH_FALSE_ALARM</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">UEMSupportMixin</span>
+
+<span class="n">IER_TOTAL</span> <span class="o">=</span> <span class="n">MATCH_TOTAL</span>
+<span class="n">IER_CORRECT</span> <span class="o">=</span> <span class="n">MATCH_CORRECT</span>
+<span class="n">IER_CONFUSION</span> <span class="o">=</span> <span class="n">MATCH_CONFUSION</span>
+<span class="n">IER_FALSE_ALARM</span> <span class="o">=</span> <span class="n">MATCH_FALSE_ALARM</span>
+<span class="n">IER_MISS</span> <span class="o">=</span> <span class="n">MATCH_MISSED_DETECTION</span>
+<span class="n">IER_NAME</span> <span class="o">=</span> <span class="s1">&#39;identification error rate&#39;</span>
+
+
+<div class="viewcode-block" id="IdentificationErrorRate"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.identification.IdentificationErrorRate">[docs]</a><span class="k">class</span> <span class="nc">IdentificationErrorRate</span><span class="p">(</span><span class="n">UEMSupportMixin</span><span class="p">,</span> <span class="n">BaseMetric</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Identification error rate</span>
+
+<span class="sd">    ``ier = (wc x confusion + wf x false_alarm + wm x miss) / total``</span>
+
+<span class="sd">    where</span>
+<span class="sd">        - `confusion` is the total confusion duration in seconds</span>
+<span class="sd">        - `false_alarm` is the total hypothesis duration where there are</span>
+<span class="sd">        - `miss` is</span>
+<span class="sd">        - `total` is the total duration of all tracks</span>
+<span class="sd">        - wc, wf and wm are optional weights (default to 1)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    collar : float, optional</span>
+<span class="sd">        Duration (in seconds) of collars removed from evaluation around</span>
+<span class="sd">        boundaries of reference segments.</span>
+<span class="sd">    confusion, miss, false_alarm: float, optional</span>
+<span class="sd">        Optional weights for confusion, miss and false alarm respectively.</span>
+<span class="sd">        Default to 1. (no weight)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">IER_NAME</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">IER_TOTAL</span><span class="p">,</span>
+            <span class="n">IER_CORRECT</span><span class="p">,</span>
+            <span class="n">IER_FALSE_ALARM</span><span class="p">,</span> <span class="n">IER_MISS</span><span class="p">,</span>
+            <span class="n">IER_CONFUSION</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">confusion</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">miss</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">false_alarm</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+                 <span class="n">collar</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">IdentificationErrorRate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">matcher_</span> <span class="o">=</span> <span class="n">LabelMatcher</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">confusion</span> <span class="o">=</span> <span class="n">confusion</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">miss</span> <span class="o">=</span> <span class="n">miss</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">false_alarm</span> <span class="o">=</span> <span class="n">false_alarm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collar</span> <span class="o">=</span> <span class="n">collar</span>
+
+    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">detail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_components</span><span class="p">()</span>
+
+        <span class="n">R</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">common_timeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uemify</span><span class="p">(</span>
+            <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span>
+            <span class="n">returns_timeline</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># loop on all segments</span>
+        <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">common_timeline</span><span class="p">:</span>
+
+            <span class="c1"># segment duration</span>
+            <span class="n">duration</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">duration</span>
+
+            <span class="c1"># list of IDs in reference segment</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">get_labels</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="c1"># list of IDs in hypothesis segment</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="n">H</span><span class="o">.</span><span class="n">get_labels</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="n">counts</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matcher_</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+
+            <span class="n">detail</span><span class="p">[</span><span class="n">IER_TOTAL</span><span class="p">]</span> <span class="o">+=</span> <span class="n">duration</span> <span class="o">*</span> <span class="n">counts</span><span class="p">[</span><span class="n">IER_TOTAL</span><span class="p">]</span>
+            <span class="n">detail</span><span class="p">[</span><span class="n">IER_CORRECT</span><span class="p">]</span> <span class="o">+=</span> <span class="n">duration</span> <span class="o">*</span> <span class="n">counts</span><span class="p">[</span><span class="n">IER_CORRECT</span><span class="p">]</span>
+            <span class="n">detail</span><span class="p">[</span><span class="n">IER_CONFUSION</span><span class="p">]</span> <span class="o">+=</span> <span class="n">duration</span> <span class="o">*</span> <span class="n">counts</span><span class="p">[</span><span class="n">IER_CONFUSION</span><span class="p">]</span>
+            <span class="n">detail</span><span class="p">[</span><span class="n">IER_MISS</span><span class="p">]</span> <span class="o">+=</span> <span class="n">duration</span> <span class="o">*</span> <span class="n">counts</span><span class="p">[</span><span class="n">IER_MISS</span><span class="p">]</span>
+            <span class="n">detail</span><span class="p">[</span><span class="n">IER_FALSE_ALARM</span><span class="p">]</span> <span class="o">+=</span> <span class="n">duration</span> <span class="o">*</span> <span class="n">counts</span><span class="p">[</span><span class="n">IER_FALSE_ALARM</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">detail</span>
+
+    <span class="k">def</span> <span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">):</span>
+
+        <span class="n">numerator</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">confusion</span> <span class="o">*</span> <span class="n">detail</span><span class="p">[</span><span class="n">IER_CONFUSION</span><span class="p">]</span> <span class="o">+</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">false_alarm</span> <span class="o">*</span> <span class="n">detail</span><span class="p">[</span><span class="n">IER_FALSE_ALARM</span><span class="p">]</span> <span class="o">+</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">miss</span> <span class="o">*</span> <span class="n">detail</span><span class="p">[</span><span class="n">IER_MISS</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">denominator</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">*</span> <span class="n">detail</span><span class="p">[</span><span class="n">IER_TOTAL</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">denominator</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">numerator</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mf">0.</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mf">1.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">numerator</span> <span class="o">/</span> <span class="n">denominator</span></div>
+
+
+<div class="viewcode-block" id="IdentificationPrecision"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.identification.IdentificationPrecision">[docs]</a><span class="k">class</span> <span class="nc">IdentificationPrecision</span><span class="p">(</span><span class="n">UEMSupportMixin</span><span class="p">,</span> <span class="n">Precision</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Identification Precision</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    collar : float, optional</span>
+<span class="sd">        Duration (in seconds) of collars removed from evaluation around</span>
+<span class="sd">        boundaries of reference segments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unknown</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">IdentificationPrecision</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collar</span> <span class="o">=</span> <span class="n">collar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">matcher_</span> <span class="o">=</span> <span class="n">LabelMatcher</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">detail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_components</span><span class="p">()</span>
+
+        <span class="n">R</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">common_timeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uemify</span><span class="p">(</span>
+            <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span>
+            <span class="n">returns_timeline</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># loop on all segments</span>
+        <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">common_timeline</span><span class="p">:</span>
+
+            <span class="c1"># segment duration</span>
+            <span class="n">duration</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">duration</span>
+
+            <span class="c1"># list of IDs in reference segment</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">get_labels</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="c1"># list of IDs in hypothesis segment</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="n">H</span><span class="o">.</span><span class="n">get_labels</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="n">counts</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matcher_</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+
+            <span class="n">detail</span><span class="p">[</span><span class="n">PRECISION_RETRIEVED</span><span class="p">]</span> <span class="o">+=</span> <span class="n">duration</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+            <span class="n">detail</span><span class="p">[</span><span class="n">PRECISION_RELEVANT_RETRIEVED</span><span class="p">]</span> <span class="o">+=</span> \
+                <span class="n">duration</span> <span class="o">*</span> <span class="n">counts</span><span class="p">[</span><span class="n">IER_CORRECT</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">detail</span></div>
+
+
+<div class="viewcode-block" id="IdentificationRecall"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.identification.IdentificationRecall">[docs]</a><span class="k">class</span> <span class="nc">IdentificationRecall</span><span class="p">(</span><span class="n">UEMSupportMixin</span><span class="p">,</span> <span class="n">Recall</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Identification Recall</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    collar : float, optional</span>
+<span class="sd">        Duration (in seconds) of collars removed from evaluation around</span>
+<span class="sd">        boundaries of reference segments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">IdentificationRecall</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collar</span> <span class="o">=</span> <span class="n">collar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">matcher_</span> <span class="o">=</span> <span class="n">LabelMatcher</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">detail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_components</span><span class="p">()</span>
+
+        <span class="n">R</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">common_timeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uemify</span><span class="p">(</span>
+            <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span>
+            <span class="n">returns_timeline</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># loop on all segments</span>
+        <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">common_timeline</span><span class="p">:</span>
+
+            <span class="c1"># segment duration</span>
+            <span class="n">duration</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">duration</span>
+
+            <span class="c1"># list of IDs in reference segment</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">get_labels</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="c1"># list of IDs in hypothesis segment</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="n">H</span><span class="o">.</span><span class="n">get_labels</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="n">counts</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matcher_</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+
+            <span class="n">detail</span><span class="p">[</span><span class="n">RECALL_RELEVANT</span><span class="p">]</span> <span class="o">+=</span> <span class="n">duration</span> <span class="o">*</span> <span class="n">counts</span><span class="p">[</span><span class="n">IER_TOTAL</span><span class="p">]</span>
+            <span class="n">detail</span><span class="p">[</span><span class="n">RECALL_RELEVANT_RETRIEVED</span><span class="p">]</span> <span class="o">+=</span> <span class="n">duration</span> <span class="o">*</span> <span class="n">counts</span><span class="p">[</span><span class="n">IER_CORRECT</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">detail</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, CNRS.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.14.2+3.g9d56cd2.dirty',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

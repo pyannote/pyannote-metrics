@@ -1,0 +1,481 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyannote.metrics.matcher &mdash; pyannote.metrics 0.14.2+3.g9d56cd2.dirty documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="pyannote.metrics 0.14.2+3.g9d56cd2.dirty documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyannote.metrics
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.14.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command line tool</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyannote.metrics</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyannote.metrics.matcher</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyannote.metrics.matcher</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># encoding: utf-8</span>
+
+<span class="c1"># The MIT License (MIT)</span>
+
+<span class="c1"># Copyright (c) 2012-2017 CNRS</span>
+
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c1"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
+<span class="c1"># in the Software without restriction, including without limitation the rights</span>
+<span class="c1"># to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</span>
+<span class="c1"># copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c1"># furnished to do so, subject to the following conditions:</span>
+
+<span class="c1"># The above copyright notice and this permission notice shall be included in</span>
+<span class="c1"># all copies or substantial portions of the Software.</span>
+
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</span>
+<span class="c1"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c1"># LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c1"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE</span>
+<span class="c1"># SOFTWARE.</span>
+
+<span class="c1"># AUTHORS</span>
+<span class="c1"># Hervé BREDIN - http://herve.niderb.fr</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">munkres</span> <span class="k">import</span> <span class="n">Munkres</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+
+<span class="n">MATCH_CORRECT</span> <span class="o">=</span> <span class="s1">&#39;correct&#39;</span>
+<span class="n">MATCH_CONFUSION</span> <span class="o">=</span> <span class="s1">&#39;confusion&#39;</span>
+<span class="n">MATCH_MISSED_DETECTION</span> <span class="o">=</span> <span class="s1">&#39;missed detection&#39;</span>
+<span class="n">MATCH_FALSE_ALARM</span> <span class="o">=</span> <span class="s1">&#39;false alarm&#39;</span>
+<span class="n">MATCH_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;total&#39;</span>
+
+
+<div class="viewcode-block" id="LabelMatcher"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.matcher.LabelMatcher">[docs]</a><span class="k">class</span> <span class="nc">LabelMatcher</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ID matcher base class.</span>
+
+<span class="sd">    All ID matcher classes must inherit from this class and implement</span>
+<span class="sd">    .match() -- ie return True if two IDs match and False</span>
+<span class="sd">    otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">LabelMatcher</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_munkres</span> <span class="o">=</span> <span class="n">Munkres</span><span class="p">()</span>
+
+<div class="viewcode-block" id="LabelMatcher.match"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.matcher.LabelMatcher.match">[docs]</a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rlabel</span><span class="p">,</span> <span class="n">hlabel</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rlabel :</span>
+<span class="sd">            Reference label</span>
+<span class="sd">        hlabel :</span>
+<span class="sd">            Hypothesis label</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        match : bool</span>
+<span class="sd">            True if labels match, False otherwise.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Two IDs match if they are equal to each other</span>
+        <span class="k">return</span> <span class="n">rlabel</span> <span class="o">==</span> <span class="n">hlabel</span></div>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rlabels</span><span class="p">,</span> <span class="n">hlabels</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rlabels, hlabels : iterable</span>
+<span class="sd">            Reference and hypothesis labels</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        counts : dict</span>
+<span class="sd">        details : dict</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># counts and details</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">MATCH_CORRECT</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">MATCH_CONFUSION</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">MATCH_MISSED_DETECTION</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">MATCH_FALSE_ALARM</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">MATCH_TOTAL</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="p">}</span>
+
+        <span class="n">details</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">MATCH_CORRECT</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="n">MATCH_CONFUSION</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="n">MATCH_MISSED_DETECTION</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="n">MATCH_FALSE_ALARM</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+
+        <span class="n">NR</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rlabels</span><span class="p">)</span>
+        <span class="n">NH</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hlabels</span><span class="p">)</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">NR</span><span class="p">,</span> <span class="n">NH</span><span class="p">)</span>
+
+        <span class="c1"># corner case</span>
+        <span class="k">if</span> <span class="n">N</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">details</span><span class="p">)</span>
+
+        <span class="c1"># this is to make sure rlables and hlabels are lists</span>
+        <span class="c1"># as we will access them later by index</span>
+        <span class="n">rlabels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">rlabels</span><span class="p">)</span>
+        <span class="n">hlabels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">hlabels</span><span class="p">)</span>
+
+        <span class="c1"># initialize match matrix</span>
+        <span class="c1"># with True if labels match and False otherwise</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">rlabel</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rlabels</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">h</span><span class="p">,</span> <span class="n">hlabel</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">hlabels</span><span class="p">):</span>
+                <span class="n">match</span><span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">h</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">rlabel</span><span class="p">,</span> <span class="n">hlabel</span><span class="p">)</span>
+
+        <span class="c1"># find one-to-one mapping that maximize total number of matches</span>
+        <span class="c1"># using the Hungarian algorithm</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_munkres</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">match</span><span class="p">)</span>
+
+        <span class="c1"># loop on matches</span>
+        <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">:</span>
+
+            <span class="c1"># hypothesis label is matched with unexisting reference label</span>
+            <span class="c1"># ==&gt; this is a false alarm</span>
+            <span class="k">if</span> <span class="n">r</span> <span class="o">&gt;=</span> <span class="n">NR</span><span class="p">:</span>
+                <span class="n">counts</span><span class="p">[</span><span class="n">MATCH_FALSE_ALARM</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">details</span><span class="p">[</span><span class="n">MATCH_FALSE_ALARM</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hlabels</span><span class="p">[</span><span class="n">h</span><span class="p">])</span>
+
+            <span class="c1"># reference label is matched with unexisting hypothesis label</span>
+            <span class="c1"># ==&gt; this is a missed detection</span>
+            <span class="k">elif</span> <span class="n">h</span> <span class="o">&gt;=</span> <span class="n">NH</span><span class="p">:</span>
+                <span class="n">counts</span><span class="p">[</span><span class="n">MATCH_MISSED_DETECTION</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">details</span><span class="p">[</span><span class="n">MATCH_MISSED_DETECTION</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rlabels</span><span class="p">[</span><span class="n">r</span><span class="p">])</span>
+
+            <span class="c1"># reference and hypothesis labels match</span>
+            <span class="c1"># ==&gt; this is a correct detection</span>
+            <span class="k">elif</span> <span class="n">match</span><span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">h</span><span class="p">]:</span>
+                <span class="n">counts</span><span class="p">[</span><span class="n">MATCH_CORRECT</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">details</span><span class="p">[</span><span class="n">MATCH_CORRECT</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">rlabels</span><span class="p">[</span><span class="n">r</span><span class="p">],</span> <span class="n">hlabels</span><span class="p">[</span><span class="n">h</span><span class="p">]))</span>
+
+            <span class="c1"># refernece and hypothesis do not match</span>
+            <span class="c1"># ==&gt; this is a confusion</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">counts</span><span class="p">[</span><span class="n">MATCH_CONFUSION</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">details</span><span class="p">[</span><span class="n">MATCH_CONFUSION</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">rlabels</span><span class="p">[</span><span class="n">r</span><span class="p">],</span> <span class="n">hlabels</span><span class="p">[</span><span class="n">h</span><span class="p">]))</span>
+
+        <span class="n">counts</span><span class="p">[</span><span class="n">MATCH_TOTAL</span><span class="p">]</span> <span class="o">+=</span> <span class="n">NR</span>
+
+        <span class="c1"># returns counts and details</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">details</span><span class="p">)</span></div>
+
+
+<span class="k">class</span> <span class="nc">HungarianMapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">HungarianMapper</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_munkres</span> <span class="o">=</span> <span class="n">Munkres</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_helper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
+
+        <span class="c1"># transpose matrix in case A has more labels than B</span>
+        <span class="n">Na</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">labels</span><span class="p">())</span>
+        <span class="n">Nb</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">labels</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">Na</span> <span class="o">&gt;</span> <span class="n">Nb</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="n">a</span><span class="p">:</span> <span class="n">b</span> <span class="k">for</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_helper</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">B</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_munkres</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">matrix</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;i&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">matrix</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;j&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">mapping</span> <span class="k">if</span> <span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
+
+        <span class="c1"># build bi-partite cooccurrence graph</span>
+        <span class="c1"># ------------------------------------</span>
+
+        <span class="c1"># labels from A are linked with labels from B</span>
+        <span class="c1"># if and only if the co-occur</span>
+        <span class="n">cooccurrence_graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+
+        <span class="c1"># for a_label in A.labels():</span>
+        <span class="c1">#     a = (&#39;A&#39;, a_label)</span>
+        <span class="c1">#     cooccurrence_graph.add_node(a)</span>
+        <span class="c1">#</span>
+        <span class="c1"># for b_label in B.labels():</span>
+        <span class="c1">#     b = (&#39;B&#39;, b_label)</span>
+        <span class="c1">#     cooccurrence_graph.add_node(b)</span>
+
+        <span class="k">for</span> <span class="n">a_track</span><span class="p">,</span> <span class="n">b_track</span> <span class="ow">in</span> <span class="n">A</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">B</span><span class="p">):</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="n">a_track</span><span class="p">])</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">B</span><span class="p">[</span><span class="n">b_track</span><span class="p">])</span>
+            <span class="n">cooccurrence_graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+
+        <span class="c1"># divide &amp; conquer</span>
+        <span class="c1"># ------------------</span>
+
+        <span class="c1"># split a (potentially large) association problem into smaller ones</span>
+
+        <span class="n">mapping</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">nx</span><span class="o">.</span><span class="n">connected_components</span><span class="p">(</span><span class="n">cooccurrence_graph</span><span class="p">):</span>
+
+            <span class="c1"># extract smaller problems</span>
+            <span class="n">a_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">label</span> <span class="k">for</span> <span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span> <span class="ow">in</span> <span class="n">component</span> <span class="k">if</span> <span class="n">src</span> <span class="o">==</span> <span class="s1">&#39;A&#39;</span><span class="p">]</span>
+            <span class="n">b_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">label</span> <span class="k">for</span> <span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span> <span class="ow">in</span> <span class="n">component</span> <span class="k">if</span> <span class="n">src</span> <span class="o">==</span> <span class="s1">&#39;B&#39;</span><span class="p">]</span>
+            <span class="n">sub_A</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">subset</span><span class="p">(</span><span class="n">a_labels</span><span class="p">)</span>
+            <span class="n">sub_B</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">subset</span><span class="p">(</span><span class="n">b_labels</span><span class="p">)</span>
+
+            <span class="n">local_mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_helper</span><span class="p">(</span><span class="n">sub_A</span><span class="p">,</span> <span class="n">sub_B</span><span class="p">)</span>
+            <span class="n">mapping</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">local_mapping</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">mapping</span>
+
+
+<span class="k">class</span> <span class="nc">GreedyMapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
+
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">B</span>
+        <span class="n">Na</span><span class="p">,</span> <span class="n">Nb</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">Na</span><span class="p">,</span> <span class="n">Nb</span><span class="p">)</span>
+
+        <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+
+            <span class="n">ab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">ab</span> <span class="o">//</span> <span class="p">(</span><span class="n">Nb</span><span class="o">-</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">ab</span> <span class="o">%</span> <span class="p">(</span><span class="n">Nb</span><span class="o">-</span><span class="n">i</span><span class="p">)</span>
+
+            <span class="n">cost</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">cost</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="n">alabel</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;i&#39;</span><span class="p">][</span><span class="n">a</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="n">blabel</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;j&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+            <span class="n">mapping</span><span class="p">[</span><span class="n">alabel</span><span class="p">]</span> <span class="o">=</span> <span class="n">blabel</span>
+
+            <span class="n">matrix</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="n">alabel</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="s1">&#39;i&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="n">blabel</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="s1">&#39;j&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">mapping</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, CNRS.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.14.2+3.g9d56cd2.dirty',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

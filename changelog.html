@@ -1,0 +1,412 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Changelog &mdash; pyannote.metrics 0.14.2+3.g9d56cd2.dirty documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="pyannote.metrics 0.14.2+3.g9d56cd2.dirty documentation" href="index.html"/>
+        <link rel="prev" title="Reference" href="reference.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pyannote.metrics
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.14.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command line tool</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-14-2-2017-03-21">Version 0.14.2 (2017-03-21)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-14-1-2017-03-16">Version 0.14.1 (2017-03-16)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-14-2017-02-06">Version 0.14 (2017-02-06)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-13-2-2017-01-30">Version 0.13.2 (2017-01-30)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-12-1-2017-01-27">Version 0.12.1 (2017-01-27)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-11-2016-12-13">Version 0.11 (2016-12-13)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-10-3-2016-11-28">Version 0.10.3 (2016-11-28)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-10-2-2016-11-10">Version 0.10.2 (2016-11-10)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-10-1-2016-11-05">Version 0.10.1 (2016-11-05)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-9-2016-09-23">Version 0.9 (2016-09-23)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-8-2016-08-25">Version 0.8 (2016-08-25)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-7-1-2016-06-24">Version 0.7.1 (2016-06-24)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-7-2016-04-04">Version 0.7 (2016-04-04)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-6-0-2016-03-29">Version 0.6.0 (2016-03-29)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-5-1-2016-02-19">Version 0.5.1 (2016-02-19)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-4-1-2014-11-20">Version 0.4.1 (2014-11-20)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-4-2014-10-31">Version 0.4 (2014-10-31)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-3-2014-10-01">Version 0.3 (2014-10-01)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-2-2014-08-05">Version 0.2 (2014-08-05)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-1-2014-06-27">Version 0.1 (2014-06-27)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-0-1-2014-06-04">Version 0.0.1 (2014-06-04)</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyannote.metrics</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Changelog</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/changelog.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="version-0-14-2-2017-03-21">
+<h2>Version 0.14.2 (2017-03-21)<a class="headerlink" href="#version-0-14-2-2017-03-21" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat: better README and technical report</li>
+</ul>
+</div>
+<div class="section" id="version-0-14-1-2017-03-16">
+<h2>Version 0.14.1 (2017-03-16)<a class="headerlink" href="#version-0-14-1-2017-03-16" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>chore: rename SegmentationError to SegmentationErrorAnalysis</li>
+<li>fix: fix DetectionErrorRate support for kwargs</li>
+</ul>
+</div>
+<div class="section" id="version-0-14-2017-02-06">
+<h2>Version 0.14 (2017-02-06)<a class="headerlink" href="#version-0-14-2017-02-06" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat: add &#8220;parallel&#8221; option to not use multiprocessing</li>
+<li>feat: add &#8220;accuracy&#8221; in &#8220;detection&#8221; report</li>
+<li>setup: switch to pyannote.core 0.13</li>
+<li>setup: switch to pyannote.parser 0.6.5</li>
+</ul>
+</div>
+<div class="section" id="version-0-13-2-2017-01-30">
+<h2>Version 0.13.2 (2017-01-30)<a class="headerlink" href="#version-0-13-2-2017-01-30" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat: add pyannote-metrics.py evaluation script</li>
+<li>fix: fix BaseMetric.report() for metric without a &#8216;total&#8217; component</li>
+<li>fix: fix (Greedy)DiarizationErrorRate uem handling</li>
+<li>fix: fix (Greedy)DiarizationErrorRate parallel processing</li>
+<li>setup: switch to pyannote.core 0.12</li>
+<li>setup: update munkres &amp; matplotlib dependencies</li>
+</ul>
+</div>
+<div class="section" id="version-0-12-1-2017-01-27">
+<h2>Version 0.12.1 (2017-01-27)<a class="headerlink" href="#version-0-12-1-2017-01-27" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat: support for multiprocessing</li>
+<li>feat: add report() method</li>
+<li>feat: travis continuous integration (finally!)</li>
+<li>improve: speed up detection metrics</li>
+<li>feat: add unit tests for detection metrics</li>
+<li>fix: fix python 3 support</li>
+<li>setup: remove dependency to pyannote.algorithms</li>
+<li>setup: switch to pyannote.core 0.11</li>
+</ul>
+</div>
+<div class="section" id="version-0-11-2016-12-13">
+<h2>Version 0.11 (2016-12-13)<a class="headerlink" href="#version-0-11-2016-12-13" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat: add pyannote.metrics.binary_classification module</li>
+</ul>
+</div>
+<div class="section" id="version-0-10-3-2016-11-28">
+<h2>Version 0.10.3 (2016-11-28)<a class="headerlink" href="#version-0-10-3-2016-11-28" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>fix: fix (greedy) diarization error rate</li>
+<li>feat: add support for &#8216;collar&#8217; to (greedy) diarization error rate</li>
+</ul>
+</div>
+<div class="section" id="version-0-10-2-2016-11-10">
+<h2>Version 0.10.2 (2016-11-10)<a class="headerlink" href="#version-0-10-2-2016-11-10" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>fix: fix default &#8220;xlim&#8221; in &#8220;plot_distributions&#8221;</li>
+<li>setup: switch to pyannote.core 0.8 and pyannote.algorithms 0.6.6</li>
+</ul>
+</div>
+<div class="section" id="version-0-10-1-2016-11-05">
+<h2>Version 0.10.1 (2016-11-05)<a class="headerlink" href="#version-0-10-1-2016-11-05" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat: add &#8220;uem&#8221; support to diarization metrics</li>
+</ul>
+</div>
+<div class="section" id="version-0-9-2016-09-23">
+<h2>Version 0.9 (2016-09-23)<a class="headerlink" href="#version-0-9-2016-09-23" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat: add plotting functions for binary classification tasks</li>
+</ul>
+</div>
+<div class="section" id="version-0-8-2016-08-25">
+<h2>Version 0.8 (2016-08-25)<a class="headerlink" href="#version-0-8-2016-08-25" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat: detection accuracy</li>
+<li>refactor: detection metrics</li>
+<li>setup: update to pyannote.core 0.7.2</li>
+</ul>
+</div>
+<div class="section" id="version-0-7-1-2016-06-24">
+<h2>Version 0.7.1 (2016-06-24)<a class="headerlink" href="#version-0-7-1-2016-06-24" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>setup: update to pyannote.core 0.6.6</li>
+</ul>
+</div>
+<div class="section" id="version-0-7-2016-04-04">
+<h2>Version 0.7 (2016-04-04)<a class="headerlink" href="#version-0-7-2016-04-04" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat: greedy diarization error rate</li>
+</ul>
+</div>
+<div class="section" id="version-0-6-0-2016-03-29">
+<h2>Version 0.6.0 (2016-03-29)<a class="headerlink" href="#version-0-6-0-2016-03-29" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat: Python 3 support</li>
+<li>feat: unit tests</li>
+<li>wip: travis</li>
+</ul>
+</div>
+<div class="section" id="version-0-5-1-2016-02-19">
+<h2>Version 0.5.1 (2016-02-19)<a class="headerlink" href="#version-0-5-1-2016-02-19" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>refactor: diarization metrics</li>
+</ul>
+</div>
+<div class="section" id="version-0-4-1-2014-11-20">
+<h2>Version 0.4.1 (2014-11-20)<a class="headerlink" href="#version-0-4-1-2014-11-20" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>fix: identification error analysis matrix confusion</li>
+</ul>
+</div>
+<div class="section" id="version-0-4-2014-10-31">
+<h2>Version 0.4 (2014-10-31)<a class="headerlink" href="#version-0-4-2014-10-31" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat(error): identification regression analysis</li>
+<li>feat: new pyannote_eval.py CLI</li>
+</ul>
+</div>
+<div class="section" id="version-0-3-2014-10-01">
+<h2>Version 0.3 (2014-10-01)<a class="headerlink" href="#version-0-3-2014-10-01" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat(error): segmentation error analysis</li>
+</ul>
+</div>
+<div class="section" id="version-0-2-2014-08-05">
+<h2>Version 0.2 (2014-08-05)<a class="headerlink" href="#version-0-2-2014-08-05" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat(detection): add precision and recall</li>
+<li>fix(identification): fix precision and recall</li>
+</ul>
+</div>
+<div class="section" id="version-0-1-2014-06-27">
+<h2>Version 0.1 (2014-06-27)<a class="headerlink" href="#version-0-1-2014-06-27" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat(segmentation): add precision and recall</li>
+<li>feat(identification): add support for NIST collar</li>
+<li>feat(error): add module for detailed error analysis</li>
+</ul>
+</div>
+<div class="section" id="version-0-0-1-2014-06-04">
+<h2>Version 0.0.1 (2014-06-04)<a class="headerlink" href="#version-0-0-1-2014-06-04" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>first public version</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="reference.html" class="btn btn-neutral" title="Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, CNRS.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.14.2+3.g9d56cd2.dirty',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

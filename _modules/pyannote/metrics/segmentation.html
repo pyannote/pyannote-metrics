@@ -1,0 +1,535 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyannote.metrics.segmentation &mdash; pyannote.metrics 0.14.2+3.g9d56cd2.dirty documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="pyannote.metrics 0.14.2+3.g9d56cd2.dirty documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyannote.metrics
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.14.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command line tool</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyannote.metrics</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyannote.metrics.segmentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyannote.metrics.segmentation</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># encoding: utf-8</span>
+
+<span class="c1"># The MIT License (MIT)</span>
+
+<span class="c1"># Copyright (c) 2012-2017 CNRS</span>
+
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c1"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
+<span class="c1"># in the Software without restriction, including without limitation the rights</span>
+<span class="c1"># to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</span>
+<span class="c1"># copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c1"># furnished to do so, subject to the following conditions:</span>
+
+<span class="c1"># The above copyright notice and this permission notice shall be included in</span>
+<span class="c1"># all copies or substantial portions of the Software.</span>
+
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</span>
+<span class="c1"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c1"># LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c1"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE</span>
+<span class="c1"># SOFTWARE.</span>
+
+<span class="c1"># AUTHORS</span>
+<span class="c1"># Hervé BREDIN - http://herve.niderb.fr</span>
+<span class="c1"># Camille Guinaudeau - https://sites.google.com/site/cguinaudeau/</span>
+<span class="c1"># Mamadou Doumbia</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">BaseMetric</span>
+<span class="kn">from</span> <span class="nn">pyannote.core</span> <span class="k">import</span> <span class="n">Segment</span><span class="p">,</span> <span class="n">Timeline</span><span class="p">,</span> <span class="n">Annotation</span>
+<span class="kn">from</span> <span class="nn">pyannote.core.util</span> <span class="k">import</span> <span class="n">pairwise</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">UEMSupportMixin</span>
+
+
+<span class="n">PURITY_NAME</span> <span class="o">=</span> <span class="s1">&#39;segmentation purity&#39;</span>
+<span class="n">COVERAGE_NAME</span> <span class="o">=</span> <span class="s1">&#39;segmentation coverage&#39;</span>
+<span class="n">PTY_CVG_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;total duration&#39;</span>
+<span class="n">PTY_CVG_INTER</span> <span class="o">=</span> <span class="s1">&#39;intersection duration&#39;</span>
+
+<span class="n">PRECISION_NAME</span> <span class="o">=</span> <span class="s1">&#39;segmentation precision&#39;</span>
+<span class="n">RECALL_NAME</span> <span class="o">=</span> <span class="s1">&#39;segmentation recall&#39;</span>
+
+<span class="n">PR_BOUNDARIES</span> <span class="o">=</span> <span class="s1">&#39;number of boundaries&#39;</span>
+<span class="n">PR_MATCHES</span> <span class="o">=</span> <span class="s1">&#39;number of matches&#39;</span>
+
+
+<div class="viewcode-block" id="SegmentationCoverage"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.segmentation.SegmentationCoverage">[docs]</a><span class="k">class</span> <span class="nc">SegmentationCoverage</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Segmentation coverage</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tolerance : float, optional</span>
+<span class="sd">        When provided, preprocess reference by filling intra-label gaps shorter</span>
+<span class="sd">        than `tolerance` (in seconds).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.500</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SegmentationCoverage</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">=</span> <span class="n">tolerance</span>
+
+    <span class="k">def</span> <span class="nf">_partition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">coverage</span><span class="p">):</span>
+
+        <span class="c1"># boundaries (as set of timestamps)</span>
+        <span class="n">boundaries</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([])</span>
+        <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">timeline</span><span class="p">:</span>
+            <span class="n">boundaries</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
+            <span class="n">boundaries</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
+
+        <span class="c1"># partition (as timeline)</span>
+        <span class="n">partition</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">pairwise</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">boundaries</span><span class="p">)):</span>
+            <span class="n">segment</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+            <span class="n">partition</span><span class="p">[</span><span class="n">segment</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span>
+
+        <span class="k">return</span> <span class="n">partition</span><span class="o">.</span><span class="n">crop</span><span class="p">(</span><span class="n">coverage</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;intersection&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">anonymize_tracks</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">Annotation</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;reference must be an instance of `Annotation`&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">,</span> <span class="n">Annotation</span><span class="p">):</span>
+            <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">()</span>
+
+        <span class="c1"># reference where short intra-label gaps are removed</span>
+        <span class="n">filled</span> <span class="o">=</span> <span class="n">Timeline</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">reference</span><span class="o">.</span><span class="n">labels</span><span class="p">():</span>
+            <span class="n">label_timeline</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">label_timeline</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">gap</span> <span class="ow">in</span> <span class="n">label_timeline</span><span class="o">.</span><span class="n">gaps</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">gap</span><span class="o">.</span><span class="n">duration</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span><span class="p">:</span>
+                    <span class="n">label_timeline</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">gap</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">label_timeline</span><span class="o">.</span><span class="n">coverage</span><span class="p">():</span>
+                <span class="n">filled</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">segment</span><span class="p">)</span>
+
+        <span class="c1"># reference coverage after filling gaps</span>
+        <span class="n">coverage</span> <span class="o">=</span> <span class="n">filled</span><span class="o">.</span><span class="n">coverage</span><span class="p">()</span>
+
+        <span class="n">reference_partition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partition</span><span class="p">(</span><span class="n">filled</span><span class="p">,</span> <span class="n">coverage</span><span class="p">)</span>
+        <span class="n">hypothesis_partition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partition</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">,</span> <span class="n">coverage</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">reference_partition</span><span class="p">,</span> <span class="n">hypothesis_partition</span>
+
+    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">):</span>
+
+        <span class="n">detail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_components</span><span class="p">()</span>
+
+        <span class="c1"># cooccurrence matrix</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">reference</span> <span class="o">*</span> <span class="n">hypothesis</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">PTY_CVG_TOTAL</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">PTY_CVG_INTER</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">detail</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">COVERAGE_NAME</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">PTY_CVG_TOTAL</span><span class="p">,</span> <span class="n">PTY_CVG_INTER</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">detail</span><span class="p">[</span><span class="n">PTY_CVG_INTER</span><span class="p">]</span> <span class="o">/</span> <span class="n">detail</span><span class="p">[</span><span class="n">PTY_CVG_TOTAL</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="SegmentationPurity"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.segmentation.SegmentationPurity">[docs]</a><span class="k">class</span> <span class="nc">SegmentationPurity</span><span class="p">(</span><span class="n">SegmentationCoverage</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Segmentation purity</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tolerance : float, optional</span>
+<span class="sd">        When provided, preprocess reference by filling intra-label gaps shorter</span>
+<span class="sd">        than `tolerance` (in seconds).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">PURITY_NAME</span>
+
+    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">,</span> <span class="n">reference</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SegmentationPrecision"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.segmentation.SegmentationPrecision">[docs]</a><span class="k">class</span> <span class="nc">SegmentationPrecision</span><span class="p">(</span><span class="n">UEMSupportMixin</span><span class="p">,</span> <span class="n">BaseMetric</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Segmentation precision</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyannote.core import Timeline, Segment</span>
+<span class="sd">    &gt;&gt;&gt; from pyannote.metrics.segmentation import SegmentationPrecision</span>
+<span class="sd">    &gt;&gt;&gt; precision = SegmentationPrecision()</span>
+
+<span class="sd">    &gt;&gt;&gt; reference = Timeline()</span>
+<span class="sd">    &gt;&gt;&gt; reference.add(Segment(0, 1))</span>
+<span class="sd">    &gt;&gt;&gt; reference.add(Segment(1, 2))</span>
+<span class="sd">    &gt;&gt;&gt; reference.add(Segment(2, 4))</span>
+
+<span class="sd">    &gt;&gt;&gt; hypothesis = Timeline()</span>
+<span class="sd">    &gt;&gt;&gt; hypothesis.add(Segment(0, 1))</span>
+<span class="sd">    &gt;&gt;&gt; hypothesis.add(Segment(1, 2))</span>
+<span class="sd">    &gt;&gt;&gt; hypothesis.add(Segment(2, 3))</span>
+<span class="sd">    &gt;&gt;&gt; hypothesis.add(Segment(3, 4))</span>
+<span class="sd">    &gt;&gt;&gt; precision(reference, hypothesis)</span>
+<span class="sd">    0.6666666666666666</span>
+
+<span class="sd">    &gt;&gt;&gt; hypothesis = Timeline()</span>
+<span class="sd">    &gt;&gt;&gt; hypothesis.add(Segment(0, 4))</span>
+<span class="sd">    &gt;&gt;&gt; precision(reference, hypothesis)</span>
+<span class="sd">    1.0</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">PRECISION_NAME</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">PR_MATCHES</span><span class="p">,</span> <span class="n">PR_BOUNDARIES</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">SegmentationPrecision</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">=</span> <span class="n">tolerance</span>
+
+    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1"># extract timeline if needed</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">Annotation</span><span class="p">):</span>
+            <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">,</span> <span class="n">Annotation</span><span class="p">):</span>
+            <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">()</span>
+
+        <span class="n">detail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_components</span><span class="p">()</span>
+
+        <span class="c1"># number of matches so far...</span>
+        <span class="n">nMatches</span> <span class="o">=</span> <span class="mf">0.</span>  <span class="c1"># make sure it is a float (for later ratio)</span>
+
+        <span class="c1"># number of boundaries in reference and hypothesis</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">reference</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="c1"># number of boundaries in hypothesis</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">PR_BOUNDARIES</span><span class="p">]</span> <span class="o">=</span> <span class="n">M</span>
+
+        <span class="c1"># corner case (no boundary in hypothesis or in reference)</span>
+        <span class="k">if</span> <span class="n">M</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">N</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">detail</span><span class="p">[</span><span class="n">PR_MATCHES</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="k">return</span> <span class="n">detail</span>
+
+        <span class="c1"># reference and hypothesis boundaries</span>
+        <span class="n">refBoundaries</span> <span class="o">=</span> <span class="p">[</span><span class="n">segment</span><span class="o">.</span><span class="n">end</span> <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">reference</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">hypBoundaries</span> <span class="o">=</span> <span class="p">[</span><span class="n">segment</span><span class="o">.</span><span class="n">end</span> <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">hypothesis</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># temporal delta between all pairs of boundaries</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">refBoundary</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">refBoundaries</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">h</span><span class="p">,</span> <span class="n">hypBoundary</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">hypBoundaries</span><span class="p">):</span>
+                <span class="n">delta</span><span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">h</span><span class="p">]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">refBoundary</span> <span class="o">-</span> <span class="n">hypBoundary</span><span class="p">)</span>
+
+        <span class="c1"># make sure boundaries too far apart from each other cannot be matched</span>
+        <span class="c1"># (this is what np.inf is used for)</span>
+        <span class="n">delta</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">delta</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+
+        <span class="c1"># h always contains the minimum value in delta matrix</span>
+        <span class="c1"># h == np.inf means that no boundary can be matched</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
+
+        <span class="c1"># while there are still boundaries to match</span>
+        <span class="k">while</span> <span class="n">h</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">:</span>
+
+            <span class="c1"># increment match count</span>
+            <span class="n">nMatches</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># find boundaries to match</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">k</span> <span class="o">//</span> <span class="n">M</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">k</span> <span class="o">%</span> <span class="n">M</span>
+
+            <span class="c1"># make sure they cannot be matched again</span>
+            <span class="n">delta</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+            <span class="n">delta</span><span class="p">[:,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+
+            <span class="c1"># update minimum value in delta</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
+
+        <span class="n">detail</span><span class="p">[</span><span class="n">PR_MATCHES</span><span class="p">]</span> <span class="o">=</span> <span class="n">nMatches</span>
+        <span class="k">return</span> <span class="n">detail</span>
+
+    <span class="k">def</span> <span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">):</span>
+
+        <span class="n">numerator</span> <span class="o">=</span> <span class="n">detail</span><span class="p">[</span><span class="n">PR_MATCHES</span><span class="p">]</span>
+        <span class="n">denominator</span> <span class="o">=</span> <span class="n">detail</span><span class="p">[</span><span class="n">PR_BOUNDARIES</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">denominator</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">numerator</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mf">1.</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">numerator</span> <span class="o">/</span> <span class="n">denominator</span></div>
+
+
+<div class="viewcode-block" id="SegmentationRecall"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.segmentation.SegmentationRecall">[docs]</a><span class="k">class</span> <span class="nc">SegmentationRecall</span><span class="p">(</span><span class="n">SegmentationPrecision</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Segmentation recall</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyannote.core import Timeline, Segment</span>
+<span class="sd">    &gt;&gt;&gt; from pyannote.metrics.segmentation import SegmentationRecall</span>
+<span class="sd">    &gt;&gt;&gt; recall = SegmentationRecall()</span>
+
+<span class="sd">    &gt;&gt;&gt; reference = Timeline()</span>
+<span class="sd">    &gt;&gt;&gt; reference.add(Segment(0, 1))</span>
+<span class="sd">    &gt;&gt;&gt; reference.add(Segment(1, 2))</span>
+<span class="sd">    &gt;&gt;&gt; reference.add(Segment(2, 4))</span>
+
+<span class="sd">    &gt;&gt;&gt; hypothesis = Timeline()</span>
+<span class="sd">    &gt;&gt;&gt; hypothesis.add(Segment(0, 1))</span>
+<span class="sd">    &gt;&gt;&gt; hypothesis.add(Segment(1, 2))</span>
+<span class="sd">    &gt;&gt;&gt; hypothesis.add(Segment(2, 3))</span>
+<span class="sd">    &gt;&gt;&gt; hypothesis.add(Segment(3, 4))</span>
+<span class="sd">    &gt;&gt;&gt; recall(reference, hypothesis)</span>
+<span class="sd">    1.0</span>
+
+<span class="sd">    &gt;&gt;&gt; hypothesis = Timeline()</span>
+<span class="sd">    &gt;&gt;&gt; hypothesis.add(Segment(0, 4))</span>
+<span class="sd">    &gt;&gt;&gt; recall(reference, hypothesis)</span>
+<span class="sd">    0.0</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">RECALL_NAME</span>
+
+    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SegmentationRecall</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">compute_components</span><span class="p">(</span>
+            <span class="n">hypothesis</span><span class="p">,</span> <span class="n">reference</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, CNRS.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.14.2+3.g9d56cd2.dirty',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

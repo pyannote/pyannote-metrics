@@ -1,0 +1,290 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Command line tool &mdash; pyannote.metrics 0.14.2+3.g9d56cd2.dirty documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="pyannote.metrics 0.14.2+3.g9d56cd2.dirty documentation" href="index.html"/>
+        <link rel="next" title="Reference" href="reference.html"/>
+        <link rel="prev" title="Principles" href="basics.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pyannote.metrics
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.14.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Command line tool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#tasks">Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#datasets-and-protocols">Datasets and protocols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#file-formats">File formats</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyannote.metrics</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Command line tool</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cli.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="command-line-tool">
+<h1>Command line tool<a class="headerlink" href="#command-line-tool" title="Permalink to this headline">¶</a></h1>
+<p>There are two main issues that may arise with results reported in the literature:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Even though the same public datasets are used, the actual evaluation protocol may differ slightly from one paper to another.</li>
+<li>The implementation of the reported evaluation metrics may also differ.</li>
+</ul>
+</div></blockquote>
+<p>The first objective of the <cite>pyannote.metrics</cite> library is to address these two problems, and provide a convenient way for researchers to evaluate their approaches in a reproducible and comparable manner.</p>
+<p>Here is an example use of the command line interface that is provided to solve this problem.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ pyannote.metrics.py diarization --subset<span class="o">=</span>development Etape.SpeakerDiarization.TV hypothesis.mdtm
+
+Diarization <span class="o">(</span><span class="nv">collar</span> <span class="o">=</span> <span class="m">0</span> ms<span class="o">)</span>               error    purity    coverage     total    correct      %    fa.      %    miss.     %    conf.      %
+--------------------------------------  -------  --------  ----------  --------  ---------  -----  ------  -----  -------  ----  -------  -----
+BFMTV_BFMStory_2011-03-17_175900          <span class="m">14</span>.64     <span class="m">94</span>.74       <span class="m">90</span>.00   <span class="m">2582</span>.08    <span class="m">2300</span>.22  <span class="m">89</span>.08   <span class="m">96</span>.16   <span class="m">3</span>.72    <span class="m">80</span>.14  <span class="m">3</span>.10   <span class="m">201</span>.72   <span class="m">7</span>.81
+LCP_CaVousRegarde_2011-02-17_204700       <span class="m">17</span>.80     <span class="m">89</span>.13       <span class="m">86</span>.90   <span class="m">3280</span>.72    <span class="m">2848</span>.42  <span class="m">86</span>.82  <span class="m">151</span>.78   <span class="m">4</span>.63   <span class="m">208</span>.29  <span class="m">6</span>.35   <span class="m">224</span>.01   <span class="m">6</span>.83
+LCP_EntreLesLignes_2011-03-18_192900      <span class="m">23</span>.46     <span class="m">79</span>.52       <span class="m">79</span>.03   <span class="m">1704</span>.97    <span class="m">1337</span>.80  <span class="m">78</span>.46   <span class="m">32</span>.89   <span class="m">1</span>.93   <span class="m">157</span>.14  <span class="m">9</span>.22   <span class="m">210</span>.03  <span class="m">12</span>.32
+LCP_EntreLesLignes_2011-03-25_192900      <span class="m">26</span>.75     <span class="m">76</span>.97       <span class="m">75</span>.86   <span class="m">1704</span>.13    <span class="m">1292</span>.83  <span class="m">75</span>.86   <span class="m">44</span>.61   <span class="m">2</span>.62   <span class="m">158</span>.38  <span class="m">9</span>.29   <span class="m">252</span>.92  <span class="m">14</span>.84
+LCP_PileEtFace_2011-03-17_192900          <span class="m">10</span>.73     <span class="m">93</span>.33       <span class="m">92</span>.30   <span class="m">1611</span>.49    <span class="m">1487</span>.32  <span class="m">92</span>.30   <span class="m">48</span>.73   <span class="m">3</span>.02    <span class="m">55</span>.49  <span class="m">3</span>.44    <span class="m">68</span>.67   <span class="m">4</span>.26
+LCP_TopQuestions_2011-03-23_213900        <span class="m">18</span>.28     <span class="m">98</span>.25       <span class="m">94</span>.20    <span class="m">727</span>.26     <span class="m">668</span>.65  <span class="m">91</span>.94   <span class="m">74</span>.36  <span class="m">10</span>.22    <span class="m">16</span>.41  <span class="m">2</span>.26    <span class="m">42</span>.20   <span class="m">5</span>.80
+LCP_TopQuestions_2011-04-05_213900        <span class="m">27</span>.97     <span class="m">97</span>.95       <span class="m">79</span>.81    <span class="m">818</span>.03     <span class="m">638</span>.68  <span class="m">78</span>.08   <span class="m">49</span>.45   <span class="m">6</span>.04    <span class="m">17</span>.46  <span class="m">2</span>.13   <span class="m">161</span>.89  <span class="m">19</span>.79
+TV8_LaPlaceDuVillage_2011-03-14_172834    <span class="m">21</span>.43     <span class="m">92</span>.89       <span class="m">89</span>.64    <span class="m">996</span>.12     <span class="m">892</span>.04  <span class="m">89</span>.55  <span class="m">109</span>.36  <span class="m">10</span>.98    <span class="m">11</span>.80  <span class="m">1</span>.18    <span class="m">92</span>.28   <span class="m">9</span>.26
+TV8_LaPlaceDuVillage_2011-03-21_201334    <span class="m">66</span>.23     <span class="m">77</span>.24       <span class="m">70</span>.64   <span class="m">1296</span>.86     <span class="m">691</span>.76  <span class="m">53</span>.34  <span class="m">253</span>.80  <span class="m">19</span>.57    <span class="m">29</span>.16  <span class="m">2</span>.25   <span class="m">575</span>.95  <span class="m">44</span>.41
+TOTAL                                     <span class="m">23</span>.27     <span class="m">88</span>.18       <span class="m">84</span>.55  <span class="m">14721</span>.65   <span class="m">12157</span>.71  <span class="m">82</span>.58  <span class="m">861</span>.14   <span class="m">5</span>.85   <span class="m">734</span>.28  <span class="m">4</span>.99  <span class="m">1829</span>.67  <span class="m">12</span>.43
+</pre></div>
+</div>
+<div class="section" id="tasks">
+<h2>Tasks<a class="headerlink" href="#tasks" title="Permalink to this headline">¶</a></h2>
+<p>Not only can <code class="docutils literal"><span class="pre">pyannote.metrics.py</span></code> command line tool be used to compute the diarization error rate using NIST implementation, one can also evaluate the typical four sub-modules used in  most speaker diarization systems:</p>
+<img alt="_images/pipeline.pdf" src="_images/pipeline.pdf" />
+<p>Practically, the first positional argument (e.g. <code class="docutils literal"><span class="pre">diarization</span></code>, above) is a flag indicating which task should be evaluated.</p>
+<p>Apart from the <code class="docutils literal"><span class="pre">diarization</span></code> flag that is used for evaluating speaker diarization results, other available flags are <code class="docutils literal"><span class="pre">detection</span></code> (speech activity detection), <code class="docutils literal"><span class="pre">segmentation</span></code> (speaker change detection), and <code class="docutils literal"><span class="pre">identification</span></code> (supervised speaker identification).
+Depending on the task, a different set of evaluation metrics is computed.</p>
+</div>
+<div class="section" id="datasets-and-protocols">
+<h2>Datasets and protocols<a class="headerlink" href="#datasets-and-protocols" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">pyannote.metrics</span></code> provides an easy way to ensure the same protocol (i.e. manual groundtruth and training/development/test split) is used for evaluation.</p>
+<p>Internally, it relies on a collection of Python packages that all derive from the <code class="docutils literal"><span class="pre">pyannote.database</span></code> main package, that provides a convenient API to define training/development/test splits, along with groundtruth annotations.
+In the example above, the <cite>development</cite> set of the <cite>TV</cite> evaluation protocol of the ETAPE dataset is used.</p>
+<p>Results are both reported for each file in the selected subset, and aggregated into one final metric value.</p>
+<p>As of March 2017, <code class="docutils literal"><span class="pre">pyannote.database</span></code> packages exist for the ETAPE corpus, the REPERE corpus, and the AMI corpus. As more people contribute new <code class="docutils literal"><span class="pre">pyannote.database</span></code> packages, they will be added to the <cite>pyannote</cite> ecosystem.</p>
+</div>
+<div class="section" id="file-formats">
+<h2>File formats<a class="headerlink" href="#file-formats" title="Permalink to this headline">¶</a></h2>
+<p>While the MDTM file format is used in this example, several other file formats are available (and can be contributed) thanks to the internal use of the <a href="#id1"><span class="problematic" id="id2">``</span></a>pyannote.parser` package.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="reference.html" class="btn btn-neutral float-right" title="Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="basics.html" class="btn btn-neutral" title="Principles" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, CNRS.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.14.2+3.g9d56cd2.dirty',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

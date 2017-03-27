@@ -1,0 +1,562 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyannote.metrics.detection &mdash; pyannote.metrics 0.14.2+3.g9d56cd2.dirty documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="pyannote.metrics 0.14.2+3.g9d56cd2.dirty documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pyannote.metrics
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.14.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command line tool</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyannote.metrics</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyannote.metrics.detection</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyannote.metrics.detection</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># encoding: utf-8</span>
+
+<span class="c1"># The MIT License (MIT)</span>
+
+<span class="c1"># Copyright (c) 2012-2017 CNRS</span>
+
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c1"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
+<span class="c1"># in the Software without restriction, including without limitation the rights</span>
+<span class="c1"># to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</span>
+<span class="c1"># copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c1"># furnished to do so, subject to the following conditions:</span>
+
+<span class="c1"># The above copyright notice and this permission notice shall be included in</span>
+<span class="c1"># all copies or substantial portions of the Software.</span>
+
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</span>
+<span class="c1"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c1"># LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c1"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE</span>
+<span class="c1"># SOFTWARE.</span>
+
+<span class="c1"># AUTHORS</span>
+<span class="c1"># Hervé BREDIN - http://herve.niderb.fr</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">from</span> <span class="nn">pyannote.core</span> <span class="k">import</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">Timeline</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">BaseMetric</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">UEMSupportMixin</span>
+
+<span class="n">DER_NAME</span> <span class="o">=</span> <span class="s1">&#39;detection error rate&#39;</span>
+<span class="n">DER_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;total&#39;</span>
+<span class="n">DER_FALSE_ALARM</span> <span class="o">=</span> <span class="s1">&#39;false alarm&#39;</span>
+<span class="n">DER_MISS</span> <span class="o">=</span> <span class="s1">&#39;miss&#39;</span>
+
+
+<div class="viewcode-block" id="DetectionErrorRate"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.detection.DetectionErrorRate">[docs]</a><span class="k">class</span> <span class="nc">DetectionErrorRate</span><span class="p">(</span><span class="n">UEMSupportMixin</span><span class="p">,</span> <span class="n">BaseMetric</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Detection error rate</span>
+
+<span class="sd">    This metric can be used to evaluate binary classification tasks such as</span>
+<span class="sd">    speech activity detection, for instance. Inputs are expected to only</span>
+<span class="sd">    contain segments corresponding to the positive class (e.g. speech regions).</span>
+<span class="sd">    Gaps in the inputs considered as the negative class (e.g. non-speech</span>
+<span class="sd">    regions).</span>
+
+<span class="sd">    It is computed as (fa + miss) / total, where fa is the duration of false</span>
+<span class="sd">    alarm (e.g. non-speech classified as speech), miss is the duration of</span>
+<span class="sd">    missed detection (e.g. speech classified as non-speech), and total is the</span>
+<span class="sd">    total duration of the positive class in the reference.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    collar : float, optional</span>
+<span class="sd">        Duration (in seconds) of collars removed from evaluation around</span>
+<span class="sd">        boundaries of reference segments (one half before, one half after).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">DER_NAME</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">DER_TOTAL</span><span class="p">,</span> <span class="n">DER_FALSE_ALARM</span><span class="p">,</span> <span class="n">DER_MISS</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DetectionErrorRate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collar</span> <span class="o">=</span> <span class="n">collar</span>
+
+    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uemify</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span>
+                                                 <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
+                                                 <span class="n">returns_uem</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">coverage</span><span class="p">()</span>
+        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">coverage</span><span class="p">()</span>
+
+        <span class="n">reference_</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">focus</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
+        <span class="n">hypothesis_</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">focus</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
+
+        <span class="n">false_positive</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">r_</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">reference_</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">):</span>
+            <span class="n">false_positive</span> <span class="o">+=</span> <span class="p">(</span><span class="n">r_</span> <span class="o">&amp;</span> <span class="n">h</span><span class="p">)</span><span class="o">.</span><span class="n">duration</span>
+
+        <span class="n">false_negative</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">h_</span> <span class="ow">in</span> <span class="n">reference</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">hypothesis_</span><span class="p">):</span>
+            <span class="n">false_negative</span> <span class="o">+=</span> <span class="p">(</span><span class="n">r</span> <span class="o">&amp;</span> <span class="n">h_</span><span class="p">)</span><span class="o">.</span><span class="n">duration</span>
+
+        <span class="n">detail</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">DER_MISS</span><span class="p">]</span> <span class="o">=</span> <span class="n">false_negative</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">DER_FALSE_ALARM</span><span class="p">]</span> <span class="o">=</span> <span class="n">false_positive</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">DER_TOTAL</span><span class="p">]</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">duration</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">detail</span>
+
+    <span class="k">def</span> <span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">):</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">*</span> <span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="n">DER_FALSE_ALARM</span><span class="p">]</span> <span class="o">+</span> <span class="n">detail</span><span class="p">[</span><span class="n">DER_MISS</span><span class="p">])</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">*</span> <span class="n">detail</span><span class="p">[</span><span class="n">DER_TOTAL</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">total</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">error</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mf">0.</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mf">1.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">error</span> <span class="o">/</span> <span class="n">total</span></div>
+
+
+<span class="n">ACCURACY_NAME</span> <span class="o">=</span> <span class="s1">&#39;detection accuracy&#39;</span>
+<span class="n">ACCURACY_TRUE_POSITIVE</span> <span class="o">=</span> <span class="s1">&#39;true positive&#39;</span>
+<span class="n">ACCURACY_TRUE_NEGATIVE</span> <span class="o">=</span> <span class="s1">&#39;true negative&#39;</span>
+<span class="n">ACCURACY_FALSE_POSITIVE</span> <span class="o">=</span> <span class="s1">&#39;false positive&#39;</span>
+<span class="n">ACCURACY_FALSE_NEGATIVE</span> <span class="o">=</span> <span class="s1">&#39;false negative&#39;</span>
+
+
+<div class="viewcode-block" id="DetectionAccuracy"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.detection.DetectionAccuracy">[docs]</a><span class="k">class</span> <span class="nc">DetectionAccuracy</span><span class="p">(</span><span class="n">DetectionErrorRate</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Detection accuracy</span>
+
+<span class="sd">    This metric can be used to evaluate binary classification tasks such as</span>
+<span class="sd">    speech activity detection, for instance. Inputs are expected to only</span>
+<span class="sd">    contain segments corresponding to the positive class (e.g. speech regions).</span>
+<span class="sd">    Gaps in the inputs considered as the negative class (e.g. non-speech</span>
+<span class="sd">    regions).</span>
+
+<span class="sd">    It is computed as (tp + tn) / total, where tp is the duration of true</span>
+<span class="sd">    positive (e.g. speech classified as speech), tn is the duration of true</span>
+<span class="sd">    negative (e.g. non-speech classified as non-speech), and total is the total</span>
+<span class="sd">    duration of the input signal.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    collar : float, optional</span>
+<span class="sd">        Duration (in seconds) of collars removed from evaluation around</span>
+<span class="sd">        boundaries of reference segments (one half before, one half after).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ACCURACY_NAME</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">ACCURACY_TRUE_POSITIVE</span><span class="p">,</span> <span class="n">ACCURACY_TRUE_NEGATIVE</span><span class="p">,</span>
+                <span class="n">ACCURACY_FALSE_POSITIVE</span><span class="p">,</span> <span class="n">ACCURACY_FALSE_NEGATIVE</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uemify</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span>
+                                                 <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
+                                                 <span class="n">returns_uem</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">coverage</span><span class="p">()</span>
+        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">coverage</span><span class="p">()</span>
+
+        <span class="n">reference_</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">focus</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
+        <span class="n">hypothesis_</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">focus</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
+
+        <span class="n">true_positive</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">reference</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">):</span>
+            <span class="n">true_positive</span> <span class="o">+=</span> <span class="p">(</span><span class="n">r</span> <span class="o">&amp;</span> <span class="n">h</span><span class="p">)</span><span class="o">.</span><span class="n">duration</span>
+
+        <span class="n">true_negative</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">r_</span><span class="p">,</span> <span class="n">h_</span> <span class="ow">in</span> <span class="n">reference_</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">hypothesis_</span><span class="p">):</span>
+            <span class="n">true_negative</span> <span class="o">+=</span> <span class="p">(</span><span class="n">r_</span> <span class="o">&amp;</span> <span class="n">h_</span><span class="p">)</span><span class="o">.</span><span class="n">duration</span>
+
+        <span class="n">false_positive</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">r_</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">reference_</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">):</span>
+            <span class="n">false_positive</span> <span class="o">+=</span> <span class="p">(</span><span class="n">r_</span> <span class="o">&amp;</span> <span class="n">h</span><span class="p">)</span><span class="o">.</span><span class="n">duration</span>
+
+        <span class="n">false_negative</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">h_</span> <span class="ow">in</span> <span class="n">reference</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">hypothesis_</span><span class="p">):</span>
+            <span class="n">false_negative</span> <span class="o">+=</span> <span class="p">(</span><span class="n">r</span> <span class="o">&amp;</span> <span class="n">h_</span><span class="p">)</span><span class="o">.</span><span class="n">duration</span>
+
+        <span class="n">detail</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">ACCURACY_TRUE_NEGATIVE</span><span class="p">]</span> <span class="o">=</span> <span class="n">true_negative</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">ACCURACY_TRUE_POSITIVE</span><span class="p">]</span> <span class="o">=</span> <span class="n">true_positive</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">ACCURACY_FALSE_NEGATIVE</span><span class="p">]</span> <span class="o">=</span> <span class="n">false_negative</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">ACCURACY_FALSE_POSITIVE</span><span class="p">]</span> <span class="o">=</span> <span class="n">false_positive</span>
+
+        <span class="k">return</span> <span class="n">detail</span>
+
+    <span class="k">def</span> <span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">):</span>
+        <span class="n">numerator</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">*</span> <span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="n">ACCURACY_TRUE_NEGATIVE</span><span class="p">]</span> <span class="o">+</span>
+                          <span class="n">detail</span><span class="p">[</span><span class="n">ACCURACY_TRUE_POSITIVE</span><span class="p">])</span>
+        <span class="n">denominator</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">*</span> <span class="p">(</span><span class="n">detail</span><span class="p">[</span><span class="n">ACCURACY_TRUE_NEGATIVE</span><span class="p">]</span> <span class="o">+</span>
+                            <span class="n">detail</span><span class="p">[</span><span class="n">ACCURACY_TRUE_POSITIVE</span><span class="p">]</span> <span class="o">+</span>
+                            <span class="n">detail</span><span class="p">[</span><span class="n">ACCURACY_FALSE_NEGATIVE</span><span class="p">]</span> <span class="o">+</span>
+                            <span class="n">detail</span><span class="p">[</span><span class="n">ACCURACY_FALSE_POSITIVE</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">denominator</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">numerator</span> <span class="o">/</span> <span class="n">denominator</span></div>
+
+
+<span class="n">PRECISION_NAME</span> <span class="o">=</span> <span class="s1">&#39;detection precision&#39;</span>
+<span class="n">PRECISION_RETRIEVED</span> <span class="o">=</span> <span class="s1">&#39;retrieved&#39;</span>
+<span class="n">PRECISION_RELEVANT_RETRIEVED</span> <span class="o">=</span> <span class="s1">&#39;relevant retrieved&#39;</span>
+
+
+<div class="viewcode-block" id="DetectionPrecision"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.detection.DetectionPrecision">[docs]</a><span class="k">class</span> <span class="nc">DetectionPrecision</span><span class="p">(</span><span class="n">DetectionErrorRate</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Detection precision</span>
+
+<span class="sd">    This metric can be used to evaluate binary classification tasks such as</span>
+<span class="sd">    speech activity detection, for instance. Inputs are expected to only</span>
+<span class="sd">    contain segments corresponding to the positive class (e.g. speech regions).</span>
+<span class="sd">    Gaps in the inputs considered as the negative class (e.g. non-speech</span>
+<span class="sd">    regions).</span>
+
+<span class="sd">    It is computed as tp / (tp + fp), where tp is the duration of true positive</span>
+<span class="sd">    (e.g. speech classified as speech), and fp is the duration of false</span>
+<span class="sd">    positive (e.g. non-speech classified as speech).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    collar : float, optional</span>
+<span class="sd">        Duration (in seconds) of collars removed from evaluation around</span>
+<span class="sd">        boundaries of reference segments (one half before, one half after).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">PRECISION_NAME</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">PRECISION_RETRIEVED</span><span class="p">,</span> <span class="n">PRECISION_RELEVANT_RETRIEVED</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uemify</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span>
+                                                 <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
+                                                 <span class="n">returns_uem</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">coverage</span><span class="p">()</span>
+        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">coverage</span><span class="p">()</span>
+
+        <span class="n">reference_</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">focus</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
+
+        <span class="n">true_positive</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">reference</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">):</span>
+            <span class="n">true_positive</span> <span class="o">+=</span> <span class="p">(</span><span class="n">r</span> <span class="o">&amp;</span> <span class="n">h</span><span class="p">)</span><span class="o">.</span><span class="n">duration</span>
+
+        <span class="n">false_positive</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">r_</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">reference_</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">):</span>
+            <span class="n">false_positive</span> <span class="o">+=</span> <span class="p">(</span><span class="n">r_</span> <span class="o">&amp;</span> <span class="n">h</span><span class="p">)</span><span class="o">.</span><span class="n">duration</span>
+
+        <span class="n">detail</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">PRECISION_RETRIEVED</span><span class="p">]</span> <span class="o">=</span> <span class="n">true_positive</span> <span class="o">+</span> <span class="n">false_positive</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">PRECISION_RELEVANT_RETRIEVED</span><span class="p">]</span> <span class="o">=</span> <span class="n">true_positive</span>
+
+        <span class="k">return</span> <span class="n">detail</span>
+
+    <span class="k">def</span> <span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">):</span>
+        <span class="n">relevant_retrieved</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">*</span> <span class="n">detail</span><span class="p">[</span><span class="n">PRECISION_RELEVANT_RETRIEVED</span><span class="p">]</span>
+        <span class="n">retrieved</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">*</span> <span class="n">detail</span><span class="p">[</span><span class="n">PRECISION_RETRIEVED</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">retrieved</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">relevant_retrieved</span> <span class="o">/</span> <span class="n">retrieved</span></div>
+
+
+<span class="n">RECALL_NAME</span> <span class="o">=</span> <span class="s1">&#39;detection recall&#39;</span>
+<span class="n">RECALL_RELEVANT</span> <span class="o">=</span> <span class="s1">&#39;relevant&#39;</span>
+<span class="n">RECALL_RELEVANT_RETRIEVED</span> <span class="o">=</span> <span class="s1">&#39;relevant retrieved&#39;</span>
+
+
+<div class="viewcode-block" id="DetectionRecall"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.detection.DetectionRecall">[docs]</a><span class="k">class</span> <span class="nc">DetectionRecall</span><span class="p">(</span><span class="n">DetectionErrorRate</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Detection recall</span>
+
+<span class="sd">    This metric can be used to evaluate binary classification tasks such as</span>
+<span class="sd">    speech activity detection, for instance. Inputs are expected to only</span>
+<span class="sd">    contain segments corresponding to the positive class (e.g. speech regions).</span>
+<span class="sd">    Gaps in the inputs considered as the negative class (e.g. non-speech</span>
+<span class="sd">    regions).</span>
+
+<span class="sd">    It is computed as tp / (tp + fn), where tp is the duration of true positive</span>
+<span class="sd">    (e.g. speech classified as speech), and fn is the duration of false</span>
+<span class="sd">    negative (e.g. speech classified as non-speech).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    collar : float, optional</span>
+<span class="sd">        Duration (in seconds) of collars removed from evaluation around</span>
+<span class="sd">        boundaries of reference segments (one half before, one half after).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">RECALL_NAME</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">RECALL_RELEVANT</span><span class="p">,</span> <span class="n">RECALL_RELEVANT_RETRIEVED</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uemify</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span>
+                                                 <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
+                                                 <span class="n">returns_uem</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">coverage</span><span class="p">()</span>
+        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">coverage</span><span class="p">()</span>
+
+        <span class="n">hypothesis_</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">focus</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
+
+        <span class="n">true_positive</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">reference</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">):</span>
+            <span class="n">true_positive</span> <span class="o">+=</span> <span class="p">(</span><span class="n">r</span> <span class="o">&amp;</span> <span class="n">h</span><span class="p">)</span><span class="o">.</span><span class="n">duration</span>
+
+        <span class="n">false_negative</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">h_</span> <span class="ow">in</span> <span class="n">reference</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">hypothesis_</span><span class="p">):</span>
+            <span class="n">false_negative</span> <span class="o">+=</span> <span class="p">(</span><span class="n">r</span> <span class="o">&amp;</span> <span class="n">h_</span><span class="p">)</span><span class="o">.</span><span class="n">duration</span>
+
+        <span class="n">detail</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">RECALL_RELEVANT</span><span class="p">]</span> <span class="o">=</span> <span class="n">true_positive</span> <span class="o">+</span> <span class="n">false_negative</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">RECALL_RELEVANT_RETRIEVED</span><span class="p">]</span> <span class="o">=</span> <span class="n">true_positive</span>
+
+        <span class="k">return</span> <span class="n">detail</span>
+
+    <span class="k">def</span> <span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">):</span>
+        <span class="n">relevant_retrieved</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">*</span> <span class="n">detail</span><span class="p">[</span><span class="n">RECALL_RELEVANT_RETRIEVED</span><span class="p">]</span>
+        <span class="n">relevant</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">*</span> <span class="n">detail</span><span class="p">[</span><span class="n">RECALL_RELEVANT</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">relevant</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">relevant_retrieved</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mf">1.</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mf">0.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">relevant_retrieved</span> <span class="o">/</span> <span class="n">relevant</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, CNRS.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.14.2+3.g9d56cd2.dirty',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

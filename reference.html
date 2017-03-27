@@ -1,0 +1,957 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Reference &mdash; pyannote.metrics 0.14.2+3.g9d56cd2.dirty documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="pyannote.metrics 0.14.2+3.g9d56cd2.dirty documentation" href="index.html"/>
+        <link rel="next" title="Changelog" href="changelog.html"/>
+        <link rel="prev" title="Command line tool" href="cli.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pyannote.metrics
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.14.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command line tool</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#evaluation-metrics">Evaluation metrics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#detection">Detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#segmentation">Segmentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#diarization">Diarization</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#optimal-vs-greedy">Optimal vs. greedy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#purity-and-coverage">Purity and coverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#use-case">Use case</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#identification">Identification</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#error-analysis">Error analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plots">Plots</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyannote.metrics</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Reference</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/reference.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="reference">
+<h1>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="evaluation-metrics">
+<h2>Evaluation metrics<a class="headerlink" href="#evaluation-metrics" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+<p>Here is a typical speaker diarization pipeline:</p>
+<img alt="_images/pipeline.pdf" src="_images/pipeline.pdf" />
+<p>The first step is usually dedicated to speech activity detection, where the objective is to get rid of all non-speech regions.
+Then, speaker change detection aims at segmenting speech regions into homogeneous segments.
+The subsequent clustering step tries to group those speech segments according to the identity of the speaker.
+Finally, an optional supervised classification step may be applied to actually identity every speaker cluster in a supervised way.</p>
+<p>Looking at the final performance of the system is usually not enough for diagnostic purposes.
+In particular, it is often necessary to evaluate the performance of each module separately to identify their strenght and weakness, or to estimate the influence of their errors on the complete pipeline.</p>
+<p>Here, we provide the list of metrics that were implemented in <cite>pyannote.metrics</cite> with that very goal in mind.</p>
+<p>Because manual annotations cannot be precise at the audio sample level, it is common in speaker diarization research to remove from evaluation a 500ms collar around each speaker turn boundary (250ms before and after).
+Most of the metrics available in <cite>pyannote.metrics</cite> support a <cite>collar</cite> parameter, which defaults to 0.</p>
+<p>Moreover, though audio files can always be processed entirely (from beginning to end), there are cases where reference annotations are only available for some regions of the audio files.
+All metrics support the provision of an evaluation map that indicate which part of the audio file should be evaluated.</p>
+<div class="section" id="detection">
+<h3>Detection<a class="headerlink" href="#detection" title="Permalink to this headline">¶</a></h3>
+<p>Speech activity detection modules can be evaluated using, detection error rate, precision, and recall.</p>
+<div class="math">
+\[\text{detection error rate} = \frac{\text{false alarm} + \text{missed detection}}{\text{total}}\]</div>
+<p>where <span class="math">\(\text{false alarm}\)</span> is the duration of non-speech incorrectly classified as speech, <span class="math">\(\text{missed detection}\)</span> is the duration of
+speech incorrectly classified as non-speech, and <span class="math">\(\text{total}\)</span> is the total duration of speech in the reference.</p>
+<p>Note that these metrics do not take overlapping speech into account.
+In other words, overlapping speech regions are counted only once.</p>
+<span class="target" id="module-pyannote.metrics.detection"></span><dl class="class">
+<dt id="pyannote.metrics.detection.DetectionAccuracy">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.detection.</code><code class="descname">DetectionAccuracy</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionAccuracy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionAccuracy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detection accuracy</p>
+<p>This metric can be used to evaluate binary classification tasks such as
+speech activity detection, for instance. Inputs are expected to only
+contain segments corresponding to the positive class (e.g. speech regions).
+Gaps in the inputs considered as the negative class (e.g. non-speech
+regions).</p>
+<p>It is computed as (tp + tn) / total, where tp is the duration of true
+positive (e.g. speech classified as speech), tn is the duration of true
+negative (e.g. non-speech classified as non-speech), and total is the total
+duration of the input signal.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments (one half before, one half after).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyannote.metrics.detection.DetectionErrorRate">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.detection.</code><code class="descname">DetectionErrorRate</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionErrorRate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionErrorRate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detection error rate</p>
+<p>This metric can be used to evaluate binary classification tasks such as
+speech activity detection, for instance. Inputs are expected to only
+contain segments corresponding to the positive class (e.g. speech regions).
+Gaps in the inputs considered as the negative class (e.g. non-speech
+regions).</p>
+<p>It is computed as (fa + miss) / total, where fa is the duration of false
+alarm (e.g. non-speech classified as speech), miss is the duration of
+missed detection (e.g. speech classified as non-speech), and total is the
+total duration of the positive class in the reference.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments (one half before, one half after).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyannote.metrics.detection.DetectionPrecision">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.detection.</code><code class="descname">DetectionPrecision</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionPrecision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionPrecision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detection precision</p>
+<p>This metric can be used to evaluate binary classification tasks such as
+speech activity detection, for instance. Inputs are expected to only
+contain segments corresponding to the positive class (e.g. speech regions).
+Gaps in the inputs considered as the negative class (e.g. non-speech
+regions).</p>
+<p>It is computed as tp / (tp + fp), where tp is the duration of true positive
+(e.g. speech classified as speech), and fp is the duration of false
+positive (e.g. non-speech classified as speech).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments (one half before, one half after).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyannote.metrics.detection.DetectionRecall">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.detection.</code><code class="descname">DetectionRecall</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionRecall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionRecall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detection recall</p>
+<p>This metric can be used to evaluate binary classification tasks such as
+speech activity detection, for instance. Inputs are expected to only
+contain segments corresponding to the positive class (e.g. speech regions).
+Gaps in the inputs considered as the negative class (e.g. non-speech
+regions).</p>
+<p>It is computed as tp / (tp + fn), where tp is the duration of true positive
+(e.g. speech classified as speech), and fn is the duration of false
+negative (e.g. speech classified as non-speech).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments (one half before, one half after).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="segmentation">
+<h3>Segmentation<a class="headerlink" href="#segmentation" title="Permalink to this headline">¶</a></h3>
+<p>Change detection modules can be evaluated using two pairs of dual metrics: precision and recall, or purity and coverage.</p>
+<img alt="_images/segmentation.pdf" src="_images/segmentation.pdf" />
+<p>Precision and recall are standard metrics based on the number of correctly detected speaker boundaries. Recall is 75% because 3 out of 4 reference boundaries were correctly detected, and precision is 100% because all hypothesized boundaries are correct.</p>
+<p>The main weakness of that pair of metrics (and their combination into a f-score) is that it is very sensitive to the <cite>tolerance</cite> parameter, i.e. the maximum distance between two boundaries for them to be matched. From one segmentation paper to another, authors may used very different values, thus making the approaches difficult to compare.</p>
+<p>Instead, we think that segment-wise purity and coverage should be used instead.
+They have several advantages over precision and recall, including the fact that they do not depend on any <cite>tolerance</cite> parameter, and that they directly relate to the cluster-wise purity and coverage used for evaluating speaker diarization.</p>
+<p>Segment-wise coverage is computed for each segment in the reference as the ratio of the duration of the intersection with the most co-occurring hypothesis segment and the duration of the reference segment.
+For instance, coverage for reference segment 1 is 100% because it is entirely covered by hypothesis segment A.</p>
+<p>Purity is the dual metric that indicates how <cite>pure</cite> hypothesis segments are. For instance, segment A is only 65% pure because it is covered at 65% by segment 1 and 35% by segment 2.</p>
+<p>The final values are duration-weighted average over each segment.</p>
+<span class="target" id="module-pyannote.metrics.segmentation"></span><dl class="class">
+<dt id="pyannote.metrics.segmentation.SegmentationCoverage">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.segmentation.</code><code class="descname">SegmentationCoverage</code><span class="sig-paren">(</span><em>tolerance=0.5</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/segmentation.html#SegmentationCoverage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.segmentation.SegmentationCoverage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Segmentation coverage</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; When provided, preprocess reference by filling intra-label gaps shorter
+than <cite>tolerance</cite> (in seconds).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyannote.metrics.segmentation.SegmentationPrecision">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.segmentation.</code><code class="descname">SegmentationPrecision</code><span class="sig-paren">(</span><em>tolerance=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/segmentation.html#SegmentationPrecision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.segmentation.SegmentationPrecision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Segmentation precision</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyannote.core</span> <span class="k">import</span> <span class="n">Timeline</span><span class="p">,</span> <span class="n">Segment</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyannote.metrics.segmentation</span> <span class="k">import</span> <span class="n">SegmentationPrecision</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">precision</span> <span class="o">=</span> <span class="n">SegmentationPrecision</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span> <span class="o">=</span> <span class="n">Timeline</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span> <span class="o">=</span> <span class="n">Timeline</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">precision</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>
+<span class="go">0.6666666666666666</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span> <span class="o">=</span> <span class="n">Timeline</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">precision</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>
+<span class="go">1.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyannote.metrics.segmentation.SegmentationPurity">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.segmentation.</code><code class="descname">SegmentationPurity</code><span class="sig-paren">(</span><em>tolerance=0.5</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/segmentation.html#SegmentationPurity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.segmentation.SegmentationPurity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Segmentation purity</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; When provided, preprocess reference by filling intra-label gaps shorter
+than <cite>tolerance</cite> (in seconds).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyannote.metrics.segmentation.SegmentationRecall">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.segmentation.</code><code class="descname">SegmentationRecall</code><span class="sig-paren">(</span><em>tolerance=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/segmentation.html#SegmentationRecall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.segmentation.SegmentationRecall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Segmentation recall</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyannote.core</span> <span class="k">import</span> <span class="n">Timeline</span><span class="p">,</span> <span class="n">Segment</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyannote.metrics.segmentation</span> <span class="k">import</span> <span class="n">SegmentationRecall</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">recall</span> <span class="o">=</span> <span class="n">SegmentationRecall</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span> <span class="o">=</span> <span class="n">Timeline</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span> <span class="o">=</span> <span class="n">Timeline</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">recall</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>
+<span class="go">1.0</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span> <span class="o">=</span> <span class="n">Timeline</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">recall</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>
+<span class="go">0.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="diarization">
+<h3>Diarization<a class="headerlink" href="#diarization" title="Permalink to this headline">¶</a></h3>
+<p>Diarization error rate (DER) is the emph{de facto} standard metric for evaluating and comparing speaker diarization systems.
+It is defined as follows:</p>
+<div class="math">
+\[\text{DER} = \frac{\text{false alarm} + \text{missed detection} + \text{confusion}}{\text{total}}\]</div>
+<p>where <span class="math">\(\text{false alarm}\)</span> is the duration of non-speech incorrectly classified as speech, <span class="math">\(\text{missed detection}\)</span> is the duration of
+speech incorrectly classified as non-speech, <span class="math">\(\text{confusion}\)</span> is the duration of speaker confusion, and <span class="math">\(\text{total}\)</span> is the total duration of speech in the reference.</p>
+<p>Note that this metric does take overlapping speech into account, potentially leading to increased missed detection in case the speaker diarization system does not include an overlapping speech detection module.</p>
+<div class="section" id="optimal-vs-greedy">
+<h4>Optimal vs. greedy<a class="headerlink" href="#optimal-vs-greedy" title="Permalink to this headline">¶</a></h4>
+<p>Two implementations of the diarization error rate are available (optimal and greedy), depending on how the one-to-one mapping between reference and hypothesized speakers is computed.</p>
+<p>The <cite>optimal</cite> version uses the Hungarian algorithm to compute the mapping that minimize the confusion term, while the <cite>greedy</cite> version operates in a greedy manner, mapping reference and hypothesized speakers iteratively, by decreasing value of their cooccurrence duration.</p>
+<p>In practice, the <cite>greedy</cite> version is much faster than the <cite>optimal</cite> one, especially for files with a large number of speakers &#8211; though it may slightly over-estimate the value of the diarization error rate.</p>
+</div>
+<div class="section" id="purity-and-coverage">
+<h4>Purity and coverage<a class="headerlink" href="#purity-and-coverage" title="Permalink to this headline">¶</a></h4>
+<p>While the diarization error rate provides a convenient way to compare different diarization approaches, it is usually not enough to understand the type of errors commited by the system.</p>
+<p>Purity and coverage are two dual evaluation metrics that provide additional insight on the behavior of the system.</p>
+<div class="math">
+\[\begin{split} \text{purity} &amp; = &amp; \frac{\displaystyle \sum_{\text{cluster}} \max_{\text{speaker}} |\text{cluster} \cap \text{speaker}|  }{\displaystyle \sum_{\text{cluster}} |\text{cluster}|} \\
+\text{coverage} &amp; = &amp; \frac{\displaystyle \sum_{\text{speaker}} \max_{\text{cluster}} |\text{speaker} \cap \text{cluster}|  }{\displaystyle \sum_{\text{speaker}} |\text{speaker}|} \\\end{split}\]</div>
+<p>where <span class="math">\(|\text{speaker}|\)</span> (respectively <span class="math">\(|\text{cluster}|\)</span> is the speech duration of this particular reference speaker (resp. hypothesized cluster), and  <span class="math">\(|\text{speaker} \cap \text{cluster}|\)</span> is the duration of their intersection.</p>
+<p>Over-segmented results (e.g. too many speaker clusters) tend to lead to high purity and low coverage, while under-segmented results (e.g. when two speakers are merged into one large cluster) lead to low purity and higher coverage.</p>
+</div>
+<div class="section" id="use-case">
+<h4>Use case<a class="headerlink" href="#use-case" title="Permalink to this headline">¶</a></h4>
+<p>This figure depicts the evolution of a multi-stage speaker diarization system applied on the ETAPE dataset.
+It is roughly made of four consecutive modules (segmentation, BIC clustering, Viterbi resegmentation, and CLR clustering).</p>
+<img alt="_images/diagnostic.pdf" src="_images/diagnostic.pdf" />
+<p>From the upper part of the figure (DER as a function of the module), it is clear that each module improves the output of the previous one.</p>
+<p>Yet, the lower part of the figure clarifies the role of each module.
+BIC clustering tends to increase the size of the speaker clusters, at the expense of purity (-7%).
+Viterbi resegmentation addresses this limitation and greatly improves cluster purity (+5%), with very little impact on the actual cluster coverage (+2%).
+Finally, CLR clustering brings an additional +5% coverage improvement.</p>
+<span class="target" id="module-pyannote.metrics.diarization"></span><dl class="class">
+<dt id="pyannote.metrics.diarization.DiarizationCompleteness">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.diarization.</code><code class="descname">DiarizationCompleteness</code><span class="sig-paren">(</span><em>parallel=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationCompleteness"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationCompleteness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cluster completeness</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyannote.metrics.diarization.DiarizationCoverage">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.diarization.</code><code class="descname">DiarizationCoverage</code><span class="sig-paren">(</span><em>weighted=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationCoverage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationCoverage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cluster coverage</p>
+<p>A hypothesized annotation has perfect coverage if all segments from a
+given reference label are clustered in the same cluster.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>weighted</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a><em>, </em><em>optional</em>) &#8211; When True (default), each cluster is weighted by its overall duration.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyannote.metrics.diarization.DiarizationErrorRate">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.diarization.</code><code class="descname">DiarizationErrorRate</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationErrorRate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationErrorRate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Diarization error rate</p>
+<p>First, the optimal mapping between reference and hypothesis labels
+is obtained using the Hungarian algorithm. Then, the actual diarization
+error rate is computed as the identification error rate with each hypothesis
+label translated into the corresponding reference label.</p>
+<ul>
+<li><p class="first">Diarization error rate between <cite>reference</cite> and <cite>hypothesis</cite> annotations</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span> <span class="o">=</span> <span class="n">DiarizationErrorRate</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>           
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>          
+<span class="gp">&gt;&gt;&gt; </span><span class="n">value</span> <span class="o">=</span> <span class="n">metric</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span> 
+</pre></div>
+</div>
+</li>
+<li><p class="first">Compute global diarization error rate and confidence interval
+over multiple documents</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span> <span class="ow">in</span> <span class="o">...</span>      
+<span class="gp">... </span>   <span class="n">metric</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>      
+<span class="gp">&gt;&gt;&gt; </span><span class="n">global_value</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>            
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mean</span><span class="p">,</span> <span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">)</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">confidence_interval</span><span class="p">()</span> 
+</pre></div>
+</div>
+</li>
+<li><p class="first">Get diarization error rate detailed components</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">components</span> <span class="o">=</span> <span class="n">metric</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1">#doctest +SKIP</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Get accumulated components</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">components</span> <span class="o">=</span> <span class="n">metric</span><span class="p">[:]</span>                
+<span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span><span class="p">[</span><span class="s1">&#39;confusion&#39;</span><span class="p">]</span>                   
+</pre></div>
+</div>
+</li>
+</ul>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><code class="xref py py-class docutils literal"><span class="pre">pyannote.metric.base.BaseMetric</span></code></dt>
+<dd>details on accumulation</dd>
+<dt><code class="xref py py-class docutils literal"><span class="pre">pyannote.metric.identification.IdentificationErrorRate</span></code></dt>
+<dd>identification error rate</dd>
+</dl>
+</div>
+<dl class="method">
+<dt id="pyannote.metrics.diarization.DiarizationErrorRate.optimal_mapping">
+<code class="descname">optimal_mapping</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationErrorRate.optimal_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationErrorRate.optimal_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimal label mapping</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reference</strong> (<em>Annotation</em>) &#8211; </li>
+<li><strong>hypothesis</strong> (<em>Annotation</em>) &#8211; Reference and hypothesis diarization</li>
+<li><strong>uem</strong> (<em>Timeline</em>) &#8211; Evaluation map</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>mapping</strong> &#8211; Mapping between hypothesis (key) and reference (value) labels</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyannote.metrics.diarization.DiarizationHomogeneity">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.diarization.</code><code class="descname">DiarizationHomogeneity</code><span class="sig-paren">(</span><em>parallel=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationHomogeneity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationHomogeneity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cluster homogeneity</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyannote.metrics.diarization.DiarizationPurity">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.diarization.</code><code class="descname">DiarizationPurity</code><span class="sig-paren">(</span><em>weighted=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationPurity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationPurity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cluster purity</p>
+<p>A hypothesized annotation has perfect purity if all of its labels overlap
+only segments which are members of a single reference label.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>weighted</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a><em>, </em><em>optional</em>) &#8211; When True (default), each cluster is weighted by its overall duration.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyannote.metrics.diarization.GreedyDiarizationErrorRate">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.diarization.</code><code class="descname">GreedyDiarizationErrorRate</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#GreedyDiarizationErrorRate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.GreedyDiarizationErrorRate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Greedy diarization error rate</p>
+<p>First, the greedy mapping between reference and hypothesis labels is
+obtained. Then, the actual diarization error rate is computed as the
+identification error rate with each hypothesis label translated into the
+corresponding reference label.</p>
+<ul>
+<li><p class="first">Greedy diarization error rate between <cite>reference</cite> and <cite>hypothesis</cite> annotations</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span> <span class="o">=</span> <span class="n">GreedyDiarizationErrorRate</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>           
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>          
+<span class="gp">&gt;&gt;&gt; </span><span class="n">value</span> <span class="o">=</span> <span class="n">metric</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span> 
+</pre></div>
+</div>
+</li>
+<li><p class="first">Compute global greedy diarization error rate and confidence interval
+over multiple documents</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span> <span class="ow">in</span> <span class="o">...</span>      
+<span class="gp">... </span>   <span class="n">metric</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>      
+<span class="gp">&gt;&gt;&gt; </span><span class="n">global_value</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>            
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mean</span><span class="p">,</span> <span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">)</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">confidence_interval</span><span class="p">()</span> 
+</pre></div>
+</div>
+</li>
+<li><p class="first">Get greedy diarization error rate detailed components</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">components</span> <span class="o">=</span> <span class="n">metric</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1">#doctest +SKIP</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Get accumulated components</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">components</span> <span class="o">=</span> <span class="n">metric</span><span class="p">[:]</span>                
+<span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span><span class="p">[</span><span class="s1">&#39;confusion&#39;</span><span class="p">]</span>                   
+</pre></div>
+</div>
+</li>
+</ul>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><code class="xref py py-class docutils literal"><span class="pre">pyannote.metric.base.BaseMetric</span></code></dt>
+<dd>details on accumulation</dd>
+</dl>
+</div>
+<dl class="method">
+<dt id="pyannote.metrics.diarization.GreedyDiarizationErrorRate.greedy_mapping">
+<code class="descname">greedy_mapping</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#GreedyDiarizationErrorRate.greedy_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.GreedyDiarizationErrorRate.greedy_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Greedy label mapping</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reference</strong> (<em>Annotation</em>) &#8211; </li>
+<li><strong>hypothesis</strong> (<em>Annotation</em>) &#8211; Reference and hypothesis diarization</li>
+<li><strong>uem</strong> (<em>Timeline</em>) &#8211; Evaluation map</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>mapping</strong> &#8211; Mapping between hypothesis (key) and reference (value) labels</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-pyannote.metrics.matcher"></span><dl class="class">
+<dt id="pyannote.metrics.matcher.LabelMatcher">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.matcher.</code><code class="descname">LabelMatcher</code><a class="reference internal" href="_modules/pyannote/metrics/matcher.html#LabelMatcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.matcher.LabelMatcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>ID matcher base class.</p>
+<p>All ID matcher classes must inherit from this class and implement
+.match() &#8211; ie return True if two IDs match and False
+otherwise.</p>
+<dl class="method">
+<dt id="pyannote.metrics.matcher.LabelMatcher.match">
+<code class="descname">match</code><span class="sig-paren">(</span><em>rlabel</em>, <em>hlabel</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/matcher.html#LabelMatcher.match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.matcher.LabelMatcher.match" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>rlabel</strong> &#8211; Reference label</li>
+<li><strong>hlabel</strong> &#8211; Hypothesis label</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>match</strong> &#8211; True if labels match, False otherwise.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)">bool</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="identification">
+<h3>Identification<a class="headerlink" href="#identification" title="Permalink to this headline">¶</a></h3>
+<p>In case prior speaker models are available, the speech turn clustering module may be followed by a supervised speaker recognition module for cluster-wise supervised classification.</p>
+<p><cite>pyannote.metrics</cite> also provides a collection of evaluation metrics for this identification task. This includes precision, recall, and identification error rate (IER):</p>
+<div class="math">
+\[\text{IER} = \frac{\text{false alarm} + \text{missed detection} + \text{confusion}}{\text{total}}\]</div>
+<p>which is similar to the diarization error rate (DER) introduced previously, except that the <span class="math">\(\texttt{confusion}\)</span> term is computed directly by comparing reference and hypothesis labels, and does not rely on a prior one-to-one matching.</p>
+<span class="target" id="module-pyannote.metrics.identification"></span><dl class="class">
+<dt id="pyannote.metrics.identification.IdentificationErrorRate">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.identification.</code><code class="descname">IdentificationErrorRate</code><span class="sig-paren">(</span><em>confusion=1.0</em>, <em>miss=1.0</em>, <em>false_alarm=1.0</em>, <em>collar=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/identification.html#IdentificationErrorRate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.identification.IdentificationErrorRate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Identification error rate</p>
+<p><code class="docutils literal"><span class="pre">ier</span> <span class="pre">=</span> <span class="pre">(wc</span> <span class="pre">x</span> <span class="pre">confusion</span> <span class="pre">+</span> <span class="pre">wf</span> <span class="pre">x</span> <span class="pre">false_alarm</span> <span class="pre">+</span> <span class="pre">wm</span> <span class="pre">x</span> <span class="pre">miss)</span> <span class="pre">/</span> <span class="pre">total</span></code></p>
+<dl class="docutils">
+<dt>where</dt>
+<dd><ul class="first last simple">
+<li><cite>confusion</cite> is the total confusion duration in seconds</li>
+<li><cite>false_alarm</cite> is the total hypothesis duration where there are</li>
+<li><cite>miss</cite> is</li>
+<li><cite>total</cite> is the total duration of all tracks</li>
+<li>wc, wf and wm are optional weights (default to 1)</li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments.</li>
+<li><strong>miss</strong><strong>, </strong><strong>false_alarm</strong> (<em>confusion</em><em>,</em><em></em>) &#8211; Optional weights for confusion, miss and false alarm respectively.
+Default to 1. (no weight)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyannote.metrics.identification.IdentificationPrecision">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.identification.</code><code class="descname">IdentificationPrecision</code><span class="sig-paren">(</span><em>unknown=False</em>, <em>collar=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/identification.html#IdentificationPrecision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.identification.IdentificationPrecision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Identification Precision</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyannote.metrics.identification.IdentificationRecall">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.identification.</code><code class="descname">IdentificationRecall</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/identification.html#IdentificationRecall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.identification.IdentificationRecall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Identification Recall</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="error-analysis">
+<h2>Error analysis<a class="headerlink" href="#error-analysis" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pyannote.metrics.errors.segmentation"></span><span class="target" id="module-pyannote.metrics.errors.identification"></span><dl class="class">
+<dt id="pyannote.metrics.errors.identification.IdentificationErrorAnalysis">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.errors.identification.</code><code class="descname">IdentificationErrorAnalysis</code><span class="sig-paren">(</span><em>collar=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/errors/identification.html#IdentificationErrorAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.errors.identification.IdentificationErrorAnalysis" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyannote.metrics.errors.identification.IdentificationErrorAnalysis.difference">
+<code class="descname">difference</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em>, <em>uemified=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/errors/identification.html#IdentificationErrorAnalysis.difference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.errors.identification.IdentificationErrorAnalysis.difference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get error analysis as <cite>Annotation</cite></p>
+<p>Labels are (status, reference_label, hypothesis_label) tuples.
+<cite>status</cite> is either &#8216;correct&#8217;, &#8216;confusion&#8217;, &#8216;missed detection&#8217; or
+&#8216;false alarm&#8217;.
+<cite>reference_label</cite> is None in case of &#8216;false alarm&#8217;.
+<cite>hypothesis_label</cite> is None in case of &#8216;missed detection&#8217;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uemified</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a><em>, </em><em>optional</em>) &#8211; Returns &#8220;uemified&#8221; version of reference and hypothesis.
+Defaults to False.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>errors</strong></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><cite>Annotation</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="plots">
+<h2>Plots<a class="headerlink" href="#plots" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pyannote.metrics.plot.binary_classification"></span><dl class="function">
+<dt id="pyannote.metrics.plot.binary_classification.plot_det_curve">
+<code class="descclassname">pyannote.metrics.plot.binary_classification.</code><code class="descname">plot_det_curve</code><span class="sig-paren">(</span><em>y_true</em>, <em>scores</em>, <em>save_to</em>, <em>distances=False</em>, <em>dpi=150</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/plot/binary_classification.html#plot_det_curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.plot.binary_classification.plot_det_curve" title="Permalink to this definition">¶</a></dt>
+<dd><p>DET curve</p>
+<dl class="docutils">
+<dt>This function will create (and overwrite) the following files:</dt>
+<dd><ul class="first last simple">
+<li>{save_to}.det.png</li>
+<li>{save_to}.det.eps</li>
+<li>{save_to}.det.txt</li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>y_true</strong> (<em></em><em>(</em><em>n_samples</em><em>, </em><em></em><em>) </em><em>array-like</em>) &#8211; Boolean reference.</li>
+<li><strong>scores</strong> (<em></em><em>(</em><em>n_samples</em><em>, </em><em></em><em>) </em><em>array-like</em>) &#8211; Predicted score.</li>
+<li><strong>save_to</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Files path prefix.</li>
+<li><strong>distances</strong> (<em>boolean</em><em>, </em><em>optional</em>) &#8211; When True, indicate that <cite>scores</cite> are actually <cite>distances</cite></li>
+<li><strong>dpi</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a><em>, </em><em>optional</em>) &#8211; Resolution of .png file. Defaults to 150.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>eer</strong> &#8211; Equal error rate</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyannote.metrics.plot.binary_classification.plot_distributions">
+<code class="descclassname">pyannote.metrics.plot.binary_classification.</code><code class="descname">plot_distributions</code><span class="sig-paren">(</span><em>y_true</em>, <em>scores</em>, <em>save_to</em>, <em>xlim=None</em>, <em>nbins=100</em>, <em>ymax=3.0</em>, <em>dpi=150</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/plot/binary_classification.html#plot_distributions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.plot.binary_classification.plot_distributions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scores distributions</p>
+<dl class="docutils">
+<dt>This function will create (and overwrite) the following files:</dt>
+<dd><ul class="first last simple">
+<li>{save_to}.scores.png</li>
+<li>{save_to}.scores.eps</li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>y_true</strong> (<em></em><em>(</em><em>n_samples</em><em>, </em><em></em><em>) </em><em>array-like</em>) &#8211; Boolean reference.</li>
+<li><strong>scores</strong> (<em></em><em>(</em><em>n_samples</em><em>, </em><em></em><em>) </em><em>array-like</em>) &#8211; Predicted score.</li>
+<li><strong>save_to</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Files path prefix</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyannote.metrics.plot.binary_classification.plot_precision_recall_curve">
+<code class="descclassname">pyannote.metrics.plot.binary_classification.</code><code class="descname">plot_precision_recall_curve</code><span class="sig-paren">(</span><em>y_true</em>, <em>scores</em>, <em>save_to</em>, <em>distances=False</em>, <em>dpi=150</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/plot/binary_classification.html#plot_precision_recall_curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.plot.binary_classification.plot_precision_recall_curve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Precision/recall curve</p>
+<dl class="docutils">
+<dt>This function will create (and overwrite) the following files:</dt>
+<dd><ul class="first last simple">
+<li>{save_to}.precision_recall.png</li>
+<li>{save_to}.precision_recall.eps</li>
+<li>{save_to}.precision_recall.txt</li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>y_true</strong> (<em></em><em>(</em><em>n_samples</em><em>, </em><em></em><em>) </em><em>array-like</em>) &#8211; Boolean reference.</li>
+<li><strong>scores</strong> (<em></em><em>(</em><em>n_samples</em><em>, </em><em></em><em>) </em><em>array-like</em>) &#8211; Predicted score.</li>
+<li><strong>save_to</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Files path prefix.</li>
+<li><strong>distances</strong> (<em>boolean</em><em>, </em><em>optional</em>) &#8211; When True, indicate that <cite>scores</cite> are actually <cite>distances</cite></li>
+<li><strong>dpi</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a><em>, </em><em>optional</em>) &#8211; Resolution of .png file. Defaults to 150.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>auc</strong> &#8211; Area under precision/recall curve</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="changelog.html" class="btn btn-neutral float-right" title="Changelog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cli.html" class="btn btn-neutral" title="Command line tool" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, CNRS.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.14.2+3.g9d56cd2.dirty',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
