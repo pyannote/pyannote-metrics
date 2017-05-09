@@ -331,7 +331,7 @@ HOMOGENEITY_ENTROPY = 'entropy'
 HOMOGENEITY_CROSS_ENTROPY = 'cross-entropy'
 
 
-class DiarizationHomogeneity(BaseMetric):
+class DiarizationHomogeneity(UEMSupportMixin, BaseMetric):
     """Cluster homogeneity"""
 
     @classmethod
