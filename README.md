@@ -2,7 +2,7 @@
 
 > a toolkit for reproducible evaluation, diagnostic, and error analysis of speaker diarization systems
 
-An overview of `pyannote.metrics` is available as a [technical report](docs/pyannote-metrics.pdf): it is recommended to read it first, to quickly get an idea whether this tool is for you.
+An overview of `pyannote.metrics` is available as an [InterSpeech 2017 paper](docs/pyannote-metrics.pdf): it is recommended to read it first, to quickly get an idea whether this tool is for you.
 
 ## Installation
 
@@ -24,9 +24,13 @@ Sample notebooks are available [here](http://nbviewer.ipython.org/github/pyannot
 If you use `pyannote.metrics` in your research, please use the following citation:
 
 ```bibtex
-@techreport{pyannote.metrics,
+@inproceedings{pyannote.metrics,
   author = {Herv\'e Bredin},
   title = {{pyannote.metrics: a toolkit for reproducible evaluation, diagnostic, and error analysis of speaker diarization systems}},
-  url = {http://pyannote.github.io},
+  booktitle = {{Interspeech 2017, 18th Annual Conference of the International Speech Communication Association}},
+  year = {2017},
+  month = {August},
+  address = {Stockholm, Sweden},
+  url = {http://pyannote.github.io/pyannote-metrics},
 }
 ```
