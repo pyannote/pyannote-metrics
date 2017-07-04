@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pyannote.metrics.detection &mdash; pyannote.metrics 0.14.3 documentation</title>
+  <title>pyannote.metrics.detection &mdash; pyannote.metrics 1.0 documentation</title>
   
 
   
@@ -35,7 +35,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="pyannote.metrics 0.14.3 documentation" href="../../../index.html"/>
+    <link rel="top" title="pyannote.metrics 1.0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                0.14.3
+                1.0
               </div>
             
           
@@ -222,15 +222,15 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">DER_NAME</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">DER_TOTAL</span><span class="p">,</span> <span class="n">DER_FALSE_ALARM</span><span class="p">,</span> <span class="n">DER_MISS</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">DetectionErrorRate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DetectionErrorRate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">collar</span> <span class="o">=</span> <span class="n">collar</span>
 
     <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -239,11 +239,11 @@
                                                  <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
                                                  <span class="n">returns_uem</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">coverage</span><span class="p">()</span>
-        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">coverage</span><span class="p">()</span>
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">support</span><span class="p">()</span>
+        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">support</span><span class="p">()</span>
 
-        <span class="n">reference_</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">focus</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
-        <span class="n">hypothesis_</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">focus</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
+        <span class="n">reference_</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">support</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
+        <span class="n">hypothesis_</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">support</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
 
         <span class="n">false_positive</span> <span class="o">=</span> <span class="mf">0.</span>
         <span class="k">for</span> <span class="n">r_</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">reference_</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">):</span>
@@ -301,11 +301,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">ACCURACY_NAME</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">ACCURACY_TRUE_POSITIVE</span><span class="p">,</span> <span class="n">ACCURACY_TRUE_NEGATIVE</span><span class="p">,</span>
                 <span class="n">ACCURACY_FALSE_POSITIVE</span><span class="p">,</span> <span class="n">ACCURACY_FALSE_NEGATIVE</span><span class="p">]</span>
 
@@ -315,11 +315,11 @@
                                                  <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
                                                  <span class="n">returns_uem</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">coverage</span><span class="p">()</span>
-        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">coverage</span><span class="p">()</span>
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">support</span><span class="p">()</span>
+        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">support</span><span class="p">()</span>
 
-        <span class="n">reference_</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">focus</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
-        <span class="n">hypothesis_</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">focus</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
+        <span class="n">reference_</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">support</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
+        <span class="n">hypothesis_</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">support</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
 
         <span class="n">true_positive</span> <span class="o">=</span> <span class="mf">0.</span>
         <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">reference</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">):</span>
@@ -385,11 +385,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">PRECISION_NAME</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">PRECISION_RETRIEVED</span><span class="p">,</span> <span class="n">PRECISION_RELEVANT_RETRIEVED</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -398,10 +398,10 @@
                                                  <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
                                                  <span class="n">returns_uem</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">coverage</span><span class="p">()</span>
-        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">coverage</span><span class="p">()</span>
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">support</span><span class="p">()</span>
+        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">support</span><span class="p">()</span>
 
-        <span class="n">reference_</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">focus</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
+        <span class="n">reference_</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">support</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
 
         <span class="n">true_positive</span> <span class="o">=</span> <span class="mf">0.</span>
         <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">reference</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">):</span>
@@ -452,11 +452,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">RECALL_NAME</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">RECALL_RELEVANT</span><span class="p">,</span> <span class="n">RECALL_RELEVANT_RETRIEVED</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -465,10 +465,10 @@
                                                  <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
                                                  <span class="n">returns_uem</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">coverage</span><span class="p">()</span>
-        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">coverage</span><span class="p">()</span>
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">support</span><span class="p">()</span>
+        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">support</span><span class="p">()</span>
 
-        <span class="n">hypothesis_</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">focus</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
+        <span class="n">hypothesis_</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">support</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
 
         <span class="n">true_positive</span> <span class="o">=</span> <span class="mf">0.</span>
         <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">reference</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">):</span>
@@ -530,7 +530,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.14.3',
+            VERSION:'1.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
