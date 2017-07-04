@@ -77,8 +77,8 @@ class DetectionErrorRate(UEMSupportMixin, BaseMetric):
                                                  collar=self.collar, uem=uem,
                                                  returns_uem=True)
 
-        reference = reference.get_timeline(copy=False).coverage()
-        hypothesis = hypothesis.get_timeline(copy=False).coverage()
+        reference = reference.get_timeline(copy=False).support()
+        hypothesis = hypothesis.get_timeline(copy=False).support()
 
         reference_ = reference.gaps(focus=uem)
         hypothesis_ = hypothesis.gaps(focus=uem)
@@ -153,8 +153,8 @@ class DetectionAccuracy(DetectionErrorRate):
                                                  collar=self.collar, uem=uem,
                                                  returns_uem=True)
 
-        reference = reference.get_timeline(copy=False).coverage()
-        hypothesis = hypothesis.get_timeline(copy=False).coverage()
+        reference = reference.get_timeline(copy=False).support()
+        hypothesis = hypothesis.get_timeline(copy=False).support()
 
         reference_ = reference.gaps(focus=uem)
         hypothesis_ = hypothesis.gaps(focus=uem)
@@ -236,8 +236,8 @@ class DetectionPrecision(DetectionErrorRate):
                                                  collar=self.collar, uem=uem,
                                                  returns_uem=True)
 
-        reference = reference.get_timeline(copy=False).coverage()
-        hypothesis = hypothesis.get_timeline(copy=False).coverage()
+        reference = reference.get_timeline(copy=False).support()
+        hypothesis = hypothesis.get_timeline(copy=False).support()
 
         reference_ = reference.gaps(focus=uem)
 
@@ -303,8 +303,8 @@ class DetectionRecall(DetectionErrorRate):
                                                  collar=self.collar, uem=uem,
                                                  returns_uem=True)
 
-        reference = reference.get_timeline(copy=False).coverage()
-        hypothesis = hypothesis.get_timeline(copy=False).coverage()
+        reference = reference.get_timeline(copy=False).support()
+        hypothesis = hypothesis.get_timeline(copy=False).support()
 
         hypothesis_ = hypothesis.gaps(focus=uem)
 
