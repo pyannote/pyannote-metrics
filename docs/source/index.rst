@@ -20,7 +20,6 @@ Installation
 
 $ conda create -n pyannote python=3.5 anaconda
 $ source activate pyannote
-$ conda install gcc
 $ pip install pyannote.metrics
 
 Citation
