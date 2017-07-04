@@ -69,7 +69,7 @@ class UEMSupportMixin:
             t = segment.end
             collars.append(Segment(t - .5 * collar, t + .5 * collar))
 
-        return Timeline(segments=collars).support().gaps(focus=uem)
+        return Timeline(segments=collars).support().gaps(support=uem)
 
     def common_timeline(self, reference, hypothesis):
         """Return timeline common to both reference and hypothesis
