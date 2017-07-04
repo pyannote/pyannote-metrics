@@ -2,6 +2,13 @@
 Changelog
 #########
 
+Version 1.0 (2017-07-04)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- setup: switch to pyannote.core 1.0
+- feat: add score calibration for binary classification tasks
+- doc: update citation
+
 Version 0.14.4 (2017-03-27)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
