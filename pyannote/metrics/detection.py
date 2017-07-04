@@ -77,11 +77,11 @@ class DetectionErrorRate(UEMSupportMixin, BaseMetric):
                                                  collar=self.collar, uem=uem,
                                                  returns_uem=True)
 
-        reference = reference.get_timeline(copy=False).coverage()
-        hypothesis = hypothesis.get_timeline(copy=False).coverage()
+        reference = reference.get_timeline(copy=False).support()
+        hypothesis = hypothesis.get_timeline(copy=False).support()
 
-        reference_ = reference.gaps(focus=uem)
-        hypothesis_ = hypothesis.gaps(focus=uem)
+        reference_ = reference.gaps(support=uem)
+        hypothesis_ = hypothesis.gaps(support=uem)
 
         false_positive = 0.
         for r_, h in reference_.co_iter(hypothesis):
@@ -153,11 +153,11 @@ class DetectionAccuracy(DetectionErrorRate):
                                                  collar=self.collar, uem=uem,
                                                  returns_uem=True)
 
-        reference = reference.get_timeline(copy=False).coverage()
-        hypothesis = hypothesis.get_timeline(copy=False).coverage()
+        reference = reference.get_timeline(copy=False).support()
+        hypothesis = hypothesis.get_timeline(copy=False).support()
 
-        reference_ = reference.gaps(focus=uem)
-        hypothesis_ = hypothesis.gaps(focus=uem)
+        reference_ = reference.gaps(support=uem)
+        hypothesis_ = hypothesis.gaps(support=uem)
 
         true_positive = 0.
         for r, h in reference.co_iter(hypothesis):
@@ -236,10 +236,10 @@ class DetectionPrecision(DetectionErrorRate):
                                                  collar=self.collar, uem=uem,
                                                  returns_uem=True)
 
-        reference = reference.get_timeline(copy=False).coverage()
-        hypothesis = hypothesis.get_timeline(copy=False).coverage()
+        reference = reference.get_timeline(copy=False).support()
+        hypothesis = hypothesis.get_timeline(copy=False).support()
 
-        reference_ = reference.gaps(focus=uem)
+        reference_ = reference.gaps(support=uem)
 
         true_positive = 0.
         for r, h in reference.co_iter(hypothesis):
@@ -303,10 +303,10 @@ class DetectionRecall(DetectionErrorRate):
                                                  collar=self.collar, uem=uem,
                                                  returns_uem=True)
 
-        reference = reference.get_timeline(copy=False).coverage()
-        hypothesis = hypothesis.get_timeline(copy=False).coverage()
+        reference = reference.get_timeline(copy=False).support()
+        hypothesis = hypothesis.get_timeline(copy=False).support()
 
-        hypothesis_ = hypothesis.gaps(focus=uem)
+        hypothesis_ = hypothesis.gaps(support=uem)
 
         true_positive = 0.
         for r, h in reference.co_iter(hypothesis):

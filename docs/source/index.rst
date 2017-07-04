@@ -30,10 +30,13 @@ If you use `pyannote.metrics` in your research, please use the following citatio
 
 ::
 
-  @techreport{pyannote.metrics,
+  @inproceedings{pyannote.metrics,
     author = {Herv\'e Bredin},
-    title = {{pyannote.metrics: a toolkit for reproducible evaluation, diagnostic,
-              and error analysis of speaker diarization systems}},
+    title = {{pyannote.metrics: a toolkit for reproducible evaluation, diagnostic, and error analysis of speaker diarization systems}},
+    booktitle = {{Interspeech 2017, 18th Annual Conference of the International Speech Communication Association}},
+    year = {2017},
+    month = {August},
+    address = {Stockholm, Sweden},
     url = {http://pyannote.github.io/pyannote-metrics},
   }
 

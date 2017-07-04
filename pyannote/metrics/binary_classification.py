@@ -29,6 +29,10 @@
 
 import sklearn.metrics
 import numpy as np
+from sklearn.base import BaseEstimator
+from sklearn.calibration import CalibratedClassifierCV
+from sklearn.model_selection._split import _CVIterableWrapper
+from collections import Counter
 
 
 def det_curve(y_true, scores, distances=False):
@@ -111,3 +115,112 @@ def precision_recall_curve(y_true, scores, distances=False):
     auc = sklearn.metrics.auc(precision, recall, reorder=True)
 
     return precision, recall, thresholds, auc
+
+
+class _Passthrough(BaseEstimator):
+    """Dummy binary classifier used by score Calibration class"""
+
+    def __init__(self):
+        super(_Passthrough, self).__init__()
+        self.classes_ = np.array([False, True], dtype=np.bool)
+
+    def fit(self, scores, y_true):
+        return self
+
+    def decision_function(self, scores):
+        """Returns the input scores unchanged"""
+        return scores
+
+
+class Calibration(object):
+    """Probability calibration for binary classification tasks
+
+    Parameters
+    ----------
+    method : {'isotonic', 'sigmoid'}, optional
+        See `CalibratedClassifierCV`. Defaults to 'isotonic'.
+    equal_priors : bool, optional
+        Set to True to force equal priors. Default behavior is to estimate
+        priors from the data itself.
+
+    Usage
+    -----
+    >>> calibration = Calibration()
+    >>> calibration.fit(train_score, train_y)
+    >>> test_probability = calibration.transform(test_score)
+
+    See also
+    --------
+    CalibratedClassifierCV
+
+    """
+
+    def __init__(self, equal_priors=False, method='isotonic'):
+        super(Calibration, self).__init__()
+        self.method = method
+        self.equal_priors = equal_priors
+
+    def fit(self, scores, y_true):
+        """Train calibration
+
+        Parameters
+        ----------
+        scores : (n_samples, ) array-like
+            Uncalibrated scores.
+        y_true : (n_samples, ) array-like
+            True labels (dtype=bool).
+        """
+
+        # to force equal priors, randomly select (and average over)
+        # up to fifty balanced (i.e. #true == #false) calibration sets.
+        if self.equal_priors:
+
+            counter = Counter(y_true)
+            positive, negative = counter[True], counter[False]
+
+            if positive > negative:
+                majority, minority = True, False
+                n_majority, n_minority = positive, negative
+            else:
+                majority, minority = False, True
+                n_majority, n_minority = negative, positive
+
+            n_splits = min(50, n_majority // n_minority + 1)
+
+            minority_index = np.where(y_true == minority)[0]
+            majority_index = np.where(y_true == majority)[0]
+
+            cv = []
+            for _ in range(n_splits):
+                test_index = np.hstack([
+                    np.random.choice(majority_index,
+                                     size=n_minority,
+                                     replace=False),
+                    minority_index])
+                cv.append(([], test_index))
+            cv = _CVIterableWrapper(cv)
+
+        # to estimate priors from the data itself, use the whole set
+        else:
+            cv = 'prefit'
+
+        self.calibration_ = CalibratedClassifierCV(
+            base_estimator=_Passthrough(), method=self.method, cv=cv)
+        self.calibration_.fit(scores.reshape(-1, 1), y_true)
+
+        return self
+
+    def transform(self, scores):
+        """Calibrate scores into probabilities
+
+        Parameters
+        ----------
+        scores : (n_samples, ) array-like
+            Uncalibrated scores.
+
+        Returns
+        -------
+        probabilities : (n_samples, ) array-like
+            Calibrated scores (i.e. probabilities)
+        """
+        return self.calibration_.predict_proba(scores.reshape(-1, 1))[:, 1]

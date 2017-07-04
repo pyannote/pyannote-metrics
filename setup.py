@@ -43,7 +43,7 @@ setup(
         'scripts/pyannote-metrics.py',
     ],
     install_requires=[
-        'pyannote.core >= 0.13.1',
+        'pyannote.core >= 1.0.1',
         'pyannote.parser >= 0.6.5',
         'pandas >= 0.19',
         'scipy >= 0.10.0',
@@ -60,10 +60,10 @@ setup(
 
     # PyPI
     name='pyannote.metrics',
-    description=('PyAnnote metrics'),
+    description=('a toolkit for reproducible evaluation, diagnostic, and error analysis of speaker diarization systems'),
     author='Hervé Bredin',
     author_email='bredin@limsi.fr',
-    url='http://pyannote.github.io/',
+    url='https://pyannote.github.io/pyannote-metrics',
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",

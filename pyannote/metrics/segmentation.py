@@ -97,11 +97,11 @@ class SegmentationCoverage(BaseMetric):
                 if gap.duration < self.tolerance:
                     label_timeline.add(gap)
 
-            for segment in label_timeline.coverage():
+            for segment in label_timeline.support():
                 filled.add(segment)
 
         # reference coverage after filling gaps
-        coverage = filled.coverage()
+        coverage = filled.support()
 
         reference_partition = self._partition(filled, coverage)
         hypothesis_partition = self._partition(hypothesis, coverage)
