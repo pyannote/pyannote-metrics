@@ -36,7 +36,7 @@ from xarray import DataArray
 from .matcher import HungarianMapper
 from .matcher import GreedyMapper
 
-from .base import BaseMetric
+from .base import BaseMetric, f_measure
 from .utils import UEMSupportMixin
 from .identification import IdentificationErrorRate
 
@@ -324,6 +324,119 @@ class DiarizationCoverage(DiarizationPurity):
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
         return super(DiarizationCoverage, self)\
             .compute_components(hypothesis, reference, uem=uem, **kwargs)
+
+
+PURITY_COVERAGE_NAME = 'F[purity|coverage]'
+PURITY_COVERAGE_LARGEST_CLASS = 'largest_class'
+PURITY_COVERAGE_TOTAL_CLUSTER = 'total_cluster'
+PURITY_COVERAGE_LARGEST_CLUSTER = 'largest_cluster'
+PURITY_COVERAGE_TOTAL_CLASS = 'total_class'
+
+
+class DiarizationPurityCoverageFMeasure(UEMSupportMixin, BaseMetric):
+    """Compute diarization purity and coverage, and return their F-score.
+
+    Parameters
+    ----------
+    weighted : bool, optional
+        When True (default), each cluster/class is weighted by its overall duration.
+    beta : float, optional
+        When beta > 1, greater importance is given to coverage.
+        When beta < 1, greater importance is given to purity.
+        Defaults to 1.
+
+    Note
+    ----
+
+    See also
+    --------
+    pyannote.metrics.diarization.DiarizationPurity
+    pyannote.metrics.diarization.DiarizationCoverage
+    pyannote.metrics.base.f_measure
+
+    """
+
+    @classmethod
+    def metric_name(cls):
+        return PURITY_COVERAGE_NAME
+
+    @classmethod
+    def metric_components(cls):
+        return [PURITY_COVERAGE_LARGEST_CLASS,
+                PURITY_COVERAGE_TOTAL_CLUSTER,
+                PURITY_COVERAGE_LARGEST_CLUSTER,
+                PURITY_COVERAGE_TOTAL_CLASS]
+
+    def __init__(self, weighted=True, beta=1., **kwargs):
+        super(DiarizationPurityCoverageFMeasure, self).__init__(**kwargs)
+        self.weighted = weighted
+        self.beta = beta
+
+    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+
+        detail = self.init_components()
+
+        # crop reference and hypothesis to evaluated regions (uem)
+        reference, hypothesis = self.uemify(reference, hypothesis, uem=uem)
+
+        # cooccurrence matrix
+        matrix = reference.support() * hypothesis.support()
+
+        # duration of largest class in each cluster
+        largest_class = matrix.max(dim='i')
+        # duration of clusters
+        duration_cluster = matrix.sum(dim='i')
+
+        # duration of largest cluster in each class
+        largest_cluster = matrix.max(dim='j')
+        # duration of classes
+        duration_class = matrix.sum(dim='j')
+
+        if self.weighted:
+            # compute purity components
+            detail[PURITY_COVERAGE_LARGEST_CLASS] = 0.
+            if np.prod(matrix.shape):
+                detail[PURITY_COVERAGE_LARGEST_CLASS] = largest_class.sum().item()
+            detail[PURITY_COVERAGE_TOTAL_CLUSTER] = duration_cluster.sum().item()
+            # compute coverage components
+            detail[PURITY_COVERAGE_LARGEST_CLUSTER] = 0.
+            if np.prod(matrix.shape):
+                detail[PURITY_COVERAGE_LARGEST_CLUSTER] = largest_cluster.sum().item()
+            detail[PURITY_COVERAGE_TOTAL_CLASS] = duration_class.sum().item()
+
+        else:
+            # compute purity components
+            detail[PURITY_COVERAGE_LARGEST_CLASS] = (largest_class / duration_cluster).sum().item()
+            detail[PURITY_COVERAGE_TOTAL_CLUSTER] = len(largest_class)
+            # compute coverage components
+            detail[PURITY_COVERAGE_LARGEST_CLUSTER] = (largest_cluster / duration_class).sum().item()
+            detail[PURITY_COVERAGE_TOTAL_CLASS] = len(largest_cluster)
+
+        # compute purity
+        detail[PURITY_NAME] = \
+            1. if detail[PURITY_COVERAGE_TOTAL_CLUSTER] == 0. \
+            else detail[PURITY_COVERAGE_LARGEST_CLASS] / detail[PURITY_COVERAGE_TOTAL_CLUSTER]
+        # compute coverage
+        detail[COVERAGE_NAME] = \
+            1. if detail[PURITY_COVERAGE_TOTAL_CLASS] == 0. \
+            else detail[PURITY_COVERAGE_LARGEST_CLUSTER] / detail[PURITY_COVERAGE_TOTAL_CLASS]
+
+        return detail
+
+    def compute_metric(self, detail):
+
+        purity = \
+            1. if detail[PURITY_COVERAGE_TOTAL_CLUSTER] == 0. \
+            else detail[PURITY_COVERAGE_LARGEST_CLASS] / detail[PURITY_COVERAGE_TOTAL_CLUSTER]
+        coverage = \
+            1. if detail[PURITY_COVERAGE_TOTAL_CLASS] == 0. \
+            else detail[PURITY_COVERAGE_LARGEST_CLUSTER] / detail[PURITY_COVERAGE_TOTAL_CLASS]
+
+        return f_measure(purity, coverage, beta=self.beta)
+
+    def __abs__(self):
+        return self.compute_metric(self.accumulated_)
+
 
 
 HOMOGENEITY_NAME = 'homogeneity'

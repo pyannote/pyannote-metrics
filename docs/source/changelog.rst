@@ -2,6 +2,13 @@
 Changelog
 #########
 
+Version 1.1 (2017-07-20)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- feat: add new metrc 'DiarizationPurityCoverageFMeasure'
+- doc: update installation instructions
+- setup: switch to pyannote.core 1.0.4
+
 Version 1.0 (2017-07-04)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -7,9 +7,6 @@ An overview of `pyannote.metrics` is available as an [InterSpeech 2017 paper](do
 ## Installation
 
 ```bash
-$ conda create -n pyannote-metrics python=3.5 anaconda
-$ source activate pyannote-metrics
-$ conda install gcc
 $ pip install pyannote.metrics
 ```
 
