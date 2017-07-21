@@ -2,10 +2,16 @@
 Changelog
 #########
 
+Version 1.2 (2017-07-21)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- feat: add method DiarizationPurityCoverageFMeasure.compute_metrics to get
+  purity, coverage, and their F-measure (all at once)
+
 Version 1.1 (2017-07-20)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-- feat: add new metrc 'DiarizationPurityCoverageFMeasure'
+- feat: add new metric 'DiarizationPurityCoverageFMeasure'
 - doc: update installation instructions
 - setup: switch to pyannote.core 1.0.4
 
