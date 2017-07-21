@@ -424,19 +424,22 @@ class DiarizationPurityCoverageFMeasure(UEMSupportMixin, BaseMetric):
         return detail
 
     def compute_metric(self, detail):
+        _, _, value = self.compute_metrics(detail=detail)
+        return value
+
+    def compute_metrics(self, detail=None):
+
+        detail = self.accumulated_ if detail is None else detail
 
         purity = \
             1. if detail[PURITY_COVERAGE_TOTAL_CLUSTER] == 0. \
             else detail[PURITY_COVERAGE_LARGEST_CLASS] / detail[PURITY_COVERAGE_TOTAL_CLUSTER]
+
         coverage = \
             1. if detail[PURITY_COVERAGE_TOTAL_CLASS] == 0. \
             else detail[PURITY_COVERAGE_LARGEST_CLUSTER] / detail[PURITY_COVERAGE_TOTAL_CLASS]
 
-        return f_measure(purity, coverage, beta=self.beta)
-
-    def __abs__(self):
-        return self.compute_metric(self.accumulated_)
-
+        return purity, coverage, f_measure(purity, coverage, beta=self.beta)
 
 
 HOMOGENEITY_NAME = 'homogeneity'
