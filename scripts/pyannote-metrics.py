@@ -328,7 +328,7 @@ if __name__ == '__main__':
 
     if arguments['diarization']:
         greedy = arguments['--greedy']
-        diarization(protocol, subset, hypotheses, greedy=greedy
+        diarization(protocol, subset, hypotheses, greedy=greedy,
                     collar=collar, skip_overlap=skip_overlap)
 
     if arguments['identification']:
