@@ -20,6 +20,14 @@ def reference():
     reference[Segment(30, 40)] = 'C'
     return reference
 
+@pytest.fixture
+def reference_with_overlap():
+    reference = Annotation()
+    reference[Segment(0, 13)] = 'A'
+    reference[Segment(12, 20)] = 'B'
+    reference[Segment(24, 27)] = 'A'
+    reference[Segment(30, 40)] = 'C'
+    return reference
 
 @pytest.fixture
 def hypothesis():
@@ -77,3 +85,14 @@ def test_coverage(reference, hypothesis):
     diarizationCoverage = DiarizationCoverage()
     coverage = diarizationCoverage(reference, hypothesis)
     npt.assert_almost_equal(coverage, 0.7586, decimal=3)
+
+
+def test_skip_overlap(reference_with_overlap, hypothesis):
+    metric = DiarizationErrorRate(skip_overlap=True)
+    total = metric(reference_with_overlap, hypothesis, detailed=True)['total']
+    npt.assert_almost_equal(total, 32, decimal=3)
+
+def test_leep_overlap(reference_with_overlap, hypothesis):
+    metric = DiarizationErrorRate(skip_overlap=False)
+    total = metric(reference_with_overlap, hypothesis, detailed=True)['total']
+    npt.assert_almost_equal(total, 34, decimal=3)
