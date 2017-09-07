@@ -216,8 +216,8 @@ def segmentation(protocol, subset, hypotheses, tolerance=0.5):
 
 def diarization(protocol, subset, hypotheses, collar=0.0, greedy=False):
 
-    metrics = {'purity': DiarizationPurity(collar=collar),
-               'coverage': DiarizationCoverage(collar=collar)}
+    metrics = {'purity': DiarizationPurity(),
+               'coverage': DiarizationCoverage()}
 
     if greedy:
         metrics['error'] = GreedyDiarizationErrorRate(collar=collar)
