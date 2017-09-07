@@ -226,6 +226,7 @@ class IdentificationRecall(UEMSupportMixin, Recall):
     def __init__(self, collar=0., skip_overlap=False, **kwargs):
         super(IdentificationRecall, self).__init__(**kwargs)
         self.collar = collar
+        self.skip_overlap = skip_overlap
         self.matcher_ = LabelMatcher()
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
