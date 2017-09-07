@@ -51,6 +51,18 @@ class DiarizationErrorRate(IdentificationErrorRate):
     error rate is computed as the identification error rate with each hypothesis
     label translated into the corresponding reference label.
 
+    Parameters
+    ----------
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments.
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
+
+    Usage
+    -----
+
     * Diarization error rate between `reference` and `hypothesis` annotations
 
         >>> metric = DiarizationErrorRate()
@@ -86,8 +98,9 @@ class DiarizationErrorRate(IdentificationErrorRate):
     def metric_name(cls):
         return DER_NAME
 
-    def __init__(self, **kwargs):
-        super(DiarizationErrorRate, self).__init__(**kwargs)
+    def __init__(self, collar=0.0, skip_overlap=False, **kwargs):
+        super(DiarizationErrorRate, self).__init__(
+            collar=collar, skip_overlap=skip_overlap, **kwargs)
         self.mapper_ = HungarianMapper()
 
     def optimal_mapping(self, reference, hypothesis, uem=None):
@@ -121,8 +134,10 @@ class DiarizationErrorRate(IdentificationErrorRate):
 
         # crop reference and hypothesis to evaluated regions (uem)
         # remove collars around reference segment boundaries
+        # remove overlap regions (if requested)
         reference, hypothesis, uem = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar,
+            reference, hypothesis, uem=uem,
+            collar=self.collar, skip_overlap=self.skip_overlap,
             returns_uem=True)
         # NOTE that this 'uemification' must be done here because it
         # might have an impact on the search for the optimal mapping.
@@ -138,10 +153,11 @@ class DiarizationErrorRate(IdentificationErrorRate):
 
         # compute identification error rate based on mapped hypothesis
         # NOTE that collar is set to 0.0 because 'uemify' has already
-        # been applied
+        # been applied (same reason for setting skip_overlap to False)
         mapped = hypothesis.translate(mapping)
         return super(DiarizationErrorRate, self)\
-            .compute_components(reference, mapped, uem=uem, collar=0.0,
+            .compute_components(reference, mapped, uem=uem,
+                                collar=0.0, skip_overlap=False,
                                 **kwargs)
 
 
@@ -152,6 +168,18 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
     obtained. Then, the actual diarization error rate is computed as the
     identification error rate with each hypothesis label translated into the
     corresponding reference label.
+
+    Parameters
+    ----------
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments.
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
+
+    Usage
+    -----
 
     * Greedy diarization error rate between `reference` and `hypothesis` annotations
 
@@ -187,8 +215,9 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
     def metric_name(cls):
         return DER_NAME
 
-    def __init__(self, **kwargs):
-        super(GreedyDiarizationErrorRate, self).__init__(**kwargs)
+    def __init__(self, collar=0.0, skip_overlap=False, **kwargs):
+        super(GreedyDiarizationErrorRate, self).__init__(
+            collar=collar, skip_overlap=skip_overlap, **kwargs)
         self.mapper_ = GreedyMapper()
 
     def greedy_mapping(self, reference, hypothesis, uem=None):
@@ -215,11 +244,13 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
 
         # crop reference and hypothesis to evaluated regions (uem)
         # remove collars around reference segment boundaries
+        # remove overlap regions (if requested)
         reference, hypothesis, uem = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar,
+            reference, hypothesis, uem=uem,
+            collar=self.collar, skip_overlap=self.skip_overlap,
             returns_uem=True)
         # NOTE that this 'uemification' must be done here because it
-        # might have an impact on the search for the optimal mapping.
+        # might have an impact on the search for the greedy mapping.
 
         # make sure reference only contains string labels ('A', 'B', ...)
         reference = reference.anonymize_labels(generator='string')
@@ -232,11 +263,12 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
 
         # compute identification error rate based on mapped hypothesis
         # NOTE that collar is set to 0.0 because 'uemify' has already
-        # been applied
+        # been applied (same reason for setting skip_overlap to False)
         mapped = hypothesis.translate(mapping)
         return super(GreedyDiarizationErrorRate, self)\
-            .compute_components(reference, mapped, uem=uem, collar=0.0, **kwargs)
-
+            .compute_components(reference, mapped, uem=uem,
+                                collar=0.0, skip_overlap=False,
+                                **kwargs)
 
 PURITY_NAME = 'purity'
 PURITY_TOTAL = 'total'

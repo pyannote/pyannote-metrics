@@ -57,6 +57,9 @@ class DetectionErrorRate(UEMSupportMixin, BaseMetric):
     collar : float, optional
         Duration (in seconds) of collars removed from evaluation around
         boundaries of reference segments (one half before, one half after).
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
     """
 
     @classmethod
@@ -67,15 +70,17 @@ class DetectionErrorRate(UEMSupportMixin, BaseMetric):
     def metric_components(cls):
         return [DER_TOTAL, DER_FALSE_ALARM, DER_MISS]
 
-    def __init__(self, collar=0.0, **kwargs):
+    def __init__(self, collar=0.0, skip_overlap=False, **kwargs):
         super(DetectionErrorRate, self).__init__(**kwargs)
         self.collar = collar
+        self.skip_overlap = skip_overlap
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
 
-        reference, hypothesis, uem = self.uemify(reference, hypothesis,
-                                                 collar=self.collar, uem=uem,
-                                                 returns_uem=True)
+        reference, hypothesis, uem = self.uemify(
+            reference, hypothesis, uem=uem,
+            collar=self.collar, skip_overlap=self.skip_overlap,
+            returns_uem=True)
 
         reference = reference.get_timeline(copy=False).support()
         hypothesis = hypothesis.get_timeline(copy=False).support()
@@ -136,6 +141,9 @@ class DetectionAccuracy(DetectionErrorRate):
     collar : float, optional
         Duration (in seconds) of collars removed from evaluation around
         boundaries of reference segments (one half before, one half after).
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
     """
 
     @classmethod
@@ -149,9 +157,10 @@ class DetectionAccuracy(DetectionErrorRate):
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
 
-        reference, hypothesis, uem = self.uemify(reference, hypothesis,
-                                                 collar=self.collar, uem=uem,
-                                                 returns_uem=True)
+        reference, hypothesis, uem = self.uemify(
+            reference, hypothesis, uem=uem,
+            collar=self.collar, skip_overlap=self.skip_overlap,
+            returns_uem=True)
 
         reference = reference.get_timeline(copy=False).support()
         hypothesis = hypothesis.get_timeline(copy=False).support()
@@ -220,6 +229,9 @@ class DetectionPrecision(DetectionErrorRate):
     collar : float, optional
         Duration (in seconds) of collars removed from evaluation around
         boundaries of reference segments (one half before, one half after).
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
     """
 
     @classmethod
@@ -232,9 +244,10 @@ class DetectionPrecision(DetectionErrorRate):
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
 
-        reference, hypothesis, uem = self.uemify(reference, hypothesis,
-                                                 collar=self.collar, uem=uem,
-                                                 returns_uem=True)
+        reference, hypothesis, uem = self.uemify(
+            reference, hypothesis, uem=uem,
+            collar=self.collar, skip_overlap=self.skip_overlap,
+            returns_uem=True)
 
         reference = reference.get_timeline(copy=False).support()
         hypothesis = hypothesis.get_timeline(copy=False).support()
@@ -287,6 +300,9 @@ class DetectionRecall(DetectionErrorRate):
     collar : float, optional
         Duration (in seconds) of collars removed from evaluation around
         boundaries of reference segments (one half before, one half after).
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
     """
 
     @classmethod
@@ -299,9 +315,10 @@ class DetectionRecall(DetectionErrorRate):
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
 
-        reference, hypothesis, uem = self.uemify(reference, hypothesis,
-                                                 collar=self.collar, uem=uem,
-                                                 returns_uem=True)
+        reference, hypothesis, uem = self.uemify(
+            reference, hypothesis, uem=uem,
+            collar=self.collar, skip_overlap=self.skip_overlap,
+            returns_uem=True)
 
         reference = reference.get_timeline(copy=False).support()
         hypothesis = hypothesis.get_timeline(copy=False).support()

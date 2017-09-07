@@ -61,6 +61,9 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
     collar : float, optional
         Duration (in seconds) of collars removed from evaluation around
         boundaries of reference segments.
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
     confusion, miss, false_alarm: float, optional
         Optional weights for confusion, miss and false alarm respectively.
         Default to 1. (no weight)
@@ -79,22 +82,44 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
             IER_CONFUSION]
 
     def __init__(self, confusion=1., miss=1., false_alarm=1.,
-                 collar=0., **kwargs):
+                 collar=0., skip_overlap=False, **kwargs):
 
         super(IdentificationErrorRate, self).__init__(**kwargs)
-
         self.matcher_ = LabelMatcher()
         self.confusion = confusion
         self.miss = miss
         self.false_alarm = false_alarm
         self.collar = collar
+        self.skip_overlap = skip_overlap
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self, reference, hypothesis, uem=None,
+                           collar=None, skip_overlap=None, **kwargs):
+        """
+
+        Parameters
+        ----------
+        collar : float, optional
+            Override self.collar
+        skip_overlap : bool, optional
+            Override self.skip_overlap
+
+        See also
+        --------
+        :class:`pyannote.metric.diarization.DiarizationErrorRate` uses these
+        two options in its `compute_components` method.
+
+        """
 
         detail = self.init_components()
 
+        if collar is None:
+            collar = self.collar
+        if skip_overlap is None:
+            skip_overlap = self.skip_overlap
+
         R, H, common_timeline = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar,
+            reference, hypothesis, uem=uem,
+            collar=collar, skip_overlap=skip_overlap,
             returns_timeline=True)
 
         # loop on all segments
@@ -144,11 +169,15 @@ class IdentificationPrecision(UEMSupportMixin, Precision):
     collar : float, optional
         Duration (in seconds) of collars removed from evaluation around
         boundaries of reference segments.
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
     """
 
-    def __init__(self, unknown=False, collar=0., **kwargs):
+    def __init__(self, collar=0., skip_overlap=False, **kwargs):
         super(IdentificationPrecision, self).__init__(**kwargs)
         self.collar = collar
+        self.skip_overlap = skip_overlap
         self.matcher_ = LabelMatcher()
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
@@ -156,7 +185,8 @@ class IdentificationPrecision(UEMSupportMixin, Precision):
         detail = self.init_components()
 
         R, H, common_timeline = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar,
+            reference, hypothesis, uem=uem,
+            collar=self.collar, skip_overlap=self.skip_overlap,
             returns_timeline=True)
 
         # loop on all segments
@@ -188,11 +218,15 @@ class IdentificationRecall(UEMSupportMixin, Recall):
     collar : float, optional
         Duration (in seconds) of collars removed from evaluation around
         boundaries of reference segments.
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
     """
 
-    def __init__(self, collar=0., **kwargs):
+    def __init__(self, collar=0., skip_overlap=False, **kwargs):
         super(IdentificationRecall, self).__init__(**kwargs)
         self.collar = collar
+        self.skip_overlap = skip_overlap
         self.matcher_ = LabelMatcher()
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
@@ -200,7 +234,8 @@ class IdentificationRecall(UEMSupportMixin, Recall):
         detail = self.init_components()
 
         R, H, common_timeline = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar,
+            reference, hypothesis, uem=uem,
+            collar=self.collar, skip_overlap=self.skip_overlap,
             returns_timeline=True)
 
         # loop on all segments
