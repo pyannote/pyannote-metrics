@@ -96,3 +96,16 @@ def test_leep_overlap(reference_with_overlap, hypothesis):
     metric = DiarizationErrorRate(skip_overlap=False)
     total = metric(reference_with_overlap, hypothesis, detailed=True)['total']
     npt.assert_almost_equal(total, 34, decimal=3)
+
+def test_bug_16():
+    reference = Annotation()
+    reference[Segment(0, 10)] = 'A'
+    hypothesis = Annotation()
+
+    metric = DiarizationErrorRate(collar=1)
+    total = metric(reference, hypothesis, detailed=True)['total']
+    npt.assert_almost_equal(total, 9, decimal=3)
+
+    metric = DiarizationErrorRate(collar=0)
+    total = metric(reference, hypothesis, detailed=True)['total']
+    npt.assert_almost_equal(total, 10, decimal=3)
