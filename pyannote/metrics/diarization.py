@@ -545,19 +545,21 @@ class DiarizationHomogeneity(UEMSupportMixin, BaseMetric):
             collar=self.collar, skip_overlap=self.skip_overlap)
 
         # cooccurrence matrix
-        matrix = reference.support() * hypothesis.support()
+        matrix = np.array(reference.support() * hypothesis.support())
 
-        duration = matrix.sum()
-        rduration = matrix.sum(dim='j')
-        hduration = matrix.sum(dim='i')
+        duration = np.sum(matrix)
+        rduration = np.sum(matrix, axis=1)
+        hduration = np.sum(matrix, axis=0)
 
         # reference entropy and reference/hypothesis cross-entropy
-        ratio = rduration / duration
-        entropy = -(ratio * np.log(ratio)).sum()
-        detail[HOMOGENEITY_ENTROPY] = entropy.item()
+        ratio = np.ma.divide(rduration, duration).filled(0.)
+        detail[HOMOGENEITY_ENTROPY] = \
+            -np.sum(ratio * np.ma.log(ratio).filled(0.))
 
-        cross_entropy = -((matrix / duration) * np.log(matrix / hduration)).sum()
-        detail[HOMOGENEITY_CROSS_ENTROPY] = cross_entropy.item()
+        ratio = np.ma.divide(matrix, duration).filled(0.)
+        hratio = np.ma.divide(matrix, hduration).filled(0.)
+        detail[HOMOGENEITY_CROSS_ENTROPY] = \
+            -np.sum(ratio * np.ma.log(hratio).filled(0.))
 
         return detail
 
