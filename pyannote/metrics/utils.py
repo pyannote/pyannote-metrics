@@ -179,7 +179,9 @@ class UEMSupportMixin:
         if uem is None:
             r_extent = reference.get_timeline().extent()
             h_extent = hypothesis.get_timeline().extent()
-            uem = Timeline(segments=[r_extent | h_extent], uri=reference.uri)
+            extent = r_extent | h_extent
+            uem = Timeline(segments=[extent] if extent else [],
+                           uri=reference.uri)
             warnings.warn(
                 "'uem' was approximated by the union of 'reference' "
                 "and 'hypothesis' extents.")
