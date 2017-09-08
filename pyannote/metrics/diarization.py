@@ -509,7 +509,18 @@ HOMOGENEITY_CROSS_ENTROPY = 'cross-entropy'
 
 
 class DiarizationHomogeneity(UEMSupportMixin, BaseMetric):
-    """Cluster homogeneity"""
+    """Cluster homogeneity
+
+    Parameters
+    ----------
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments.
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
+
+    """
 
     @classmethod
     def metric_name(cls):
@@ -519,12 +530,19 @@ class DiarizationHomogeneity(UEMSupportMixin, BaseMetric):
     def metric_components(cls):
         return [HOMOGENEITY_ENTROPY, HOMOGENEITY_CROSS_ENTROPY]
 
+    def __init__(self, collar=0.0, skip_overlap=False, **kwargs):
+        super(DiarizationHomogeneity, self).__init__(**kwargs)
+        self.collar = collar
+        self.skip_overlap = skip_overlap
+
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
 
         detail = self.init_components()
 
         # crop reference and hypothesis to evaluated regions (uem)
-        reference, hypothesis = self.uemify(reference, hypothesis, uem=uem)
+        reference, hypothesis = self.uemify(
+            reference, hypothesis, uem=uem,
+            collar=self.collar, skip_overlap=self.skip_overlap)
 
         # cooccurrence matrix
         matrix = reference.support() * hypothesis.support()
@@ -559,7 +577,18 @@ COMPLETENESS_NAME = 'completeness'
 
 
 class DiarizationCompleteness(DiarizationHomogeneity):
-    """Cluster completeness"""
+    """Cluster completeness
+
+    Parameters
+    ----------
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments.
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
+
+    """
 
     @classmethod
     def metric_name(cls):
