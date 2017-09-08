@@ -285,6 +285,12 @@ class DiarizationPurity(UEMSupportMixin, BaseMetric):
     ----------
     weighted : bool, optional
         When True (default), each cluster is weighted by its overall duration.
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments.
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
     """
 
     @classmethod
@@ -295,16 +301,21 @@ class DiarizationPurity(UEMSupportMixin, BaseMetric):
     def metric_components(cls):
         return [PURITY_TOTAL, PURITY_CORRECT]
 
-    def __init__(self, weighted=True, **kwargs):
+    def __init__(self, collar=0.0, skip_overlap=False,
+                 weighted=True, **kwargs):
         super(DiarizationPurity, self).__init__(**kwargs)
         self.weighted = weighted
+        self.collar = collar
+        self.skip_overlap = skip_overlap
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
 
         detail = self.init_components()
 
         # crop reference and hypothesis to evaluated regions (uem)
-        reference, hypothesis = self.uemify(reference, hypothesis, uem=uem)
+        reference, hypothesis = self.uemify(
+            reference, hypothesis, uem=uem,
+            collar=self.collar, skip_overlap=self.skip_overlap)
 
         # cooccurrence matrix
         matrix = reference.support() * hypothesis.support()
@@ -344,14 +355,23 @@ class DiarizationCoverage(DiarizationPurity):
     ----------
     weighted : bool, optional
         When True (default), each cluster is weighted by its overall duration.
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments.
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
     """
 
     @classmethod
     def metric_name(cls):
         return COVERAGE_NAME
 
-    def __init__(self, weighted=True, **kwargs):
-        super(DiarizationCoverage, self).__init__(weighted=weighted, **kwargs)
+    def __init__(self, collar=0.0, skip_overlap=False,
+                 weighted=True, **kwargs):
+        super(DiarizationCoverage, self).__init__(
+            collar=collar, skip_overlap=skip_overlap,
+            weighted=weighted, **kwargs)
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
         return super(DiarizationCoverage, self)\
@@ -371,14 +391,18 @@ class DiarizationPurityCoverageFMeasure(UEMSupportMixin, BaseMetric):
     Parameters
     ----------
     weighted : bool, optional
-        When True (default), each cluster/class is weighted by its overall duration.
+        When True (default), each cluster/class is weighted by its overall
+        duration.
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments.
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
     beta : float, optional
         When beta > 1, greater importance is given to coverage.
         When beta < 1, greater importance is given to purity.
         Defaults to 1.
-
-    Note
-    ----
 
     See also
     --------
@@ -399,8 +423,11 @@ class DiarizationPurityCoverageFMeasure(UEMSupportMixin, BaseMetric):
                 PURITY_COVERAGE_LARGEST_CLUSTER,
                 PURITY_COVERAGE_TOTAL_CLASS]
 
-    def __init__(self, weighted=True, beta=1., **kwargs):
+    def __init__(self, collar=0.0, skip_overlap=False,
+                 weighted=True, beta=1., **kwargs):
         super(DiarizationPurityCoverageFMeasure, self).__init__(**kwargs)
+        self.collar = collar
+        self.skip_overlap = skip_overlap
         self.weighted = weighted
         self.beta = beta
 
@@ -409,7 +436,9 @@ class DiarizationPurityCoverageFMeasure(UEMSupportMixin, BaseMetric):
         detail = self.init_components()
 
         # crop reference and hypothesis to evaluated regions (uem)
-        reference, hypothesis = self.uemify(reference, hypothesis, uem=uem)
+        reference, hypothesis = self.uemify(
+            reference, hypothesis, uem=uem,
+            collar=self.collar, skip_overlap=self.skip_overlap)
 
         # cooccurrence matrix
         matrix = reference.support() * hypothesis.support()
