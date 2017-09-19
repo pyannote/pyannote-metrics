@@ -318,7 +318,7 @@ class DiarizationPurity(UEMSupportMixin, BaseMetric):
             collar=self.collar, skip_overlap=self.skip_overlap)
 
         # cooccurrence matrix
-        matrix = reference.support() * hypothesis.support()
+        matrix = reference * hypothesis
 
         # duration of largest class in each cluster
         largest = matrix.max(dim='i')
@@ -441,7 +441,7 @@ class DiarizationPurityCoverageFMeasure(UEMSupportMixin, BaseMetric):
             collar=self.collar, skip_overlap=self.skip_overlap)
 
         # cooccurrence matrix
-        matrix = reference.support() * hypothesis.support()
+        matrix = reference * hypothesis
 
         # duration of largest class in each cluster
         largest_class = matrix.max(dim='i')
@@ -545,7 +545,7 @@ class DiarizationHomogeneity(UEMSupportMixin, BaseMetric):
             collar=self.collar, skip_overlap=self.skip_overlap)
 
         # cooccurrence matrix
-        matrix = np.array(reference.support() * hypothesis.support())
+        matrix = np.array(reference * hypothesis)
 
         duration = np.sum(matrix)
         rduration = np.sum(matrix, axis=1)
