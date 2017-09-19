@@ -2,6 +2,17 @@
 Changelog
 #########
 
+Version 1.3 (2017-09-19)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- feat: add "skip_overlap" option to not evaluate overlapping speech regions
+- improve: bring performance improvement to diarization metrics
+- fix: fix a bug where collar was applied twice in DiarizationErrorRate
+- fix: add collar support to purity/coverage/homogeneity/completeness
+- fix: fix a bug happening in 'uemify' when both reference and hypothesis are empty
+- fix: fix a "division by zero" error in homogeneity/completeness
+- setup: switch to pyannote.core 1.1 (major performance improvements)
+
 Version 1.2 (2017-07-21)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 

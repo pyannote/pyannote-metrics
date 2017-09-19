@@ -30,10 +30,10 @@
 Evaluation
 
 Usage:
-  evaluation detection [options] [--collar=<seconds>] <database.task.protocol> <hypothesis.mdtm>
+  evaluation detection [options] [--collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.mdtm>
   evaluation segmentation [options] [--tolerance=<seconds>] <database.task.protocol> <hypothesis.mdtm>
-  evaluation diarization [options] [--greedy] [--collar=<seconds>] <database.task.protocol> <hypothesis.mdtm>
-  evaluation identification [options] [--collar=<seconds>] <database.task.protocol> <hypothesis.mdtm>
+  evaluation diarization [options] [--greedy] [--collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.mdtm>
+  evaluation identification [options] [--collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.mdtm>
   evaluation -h | --help
   evaluation --version
 
@@ -41,6 +41,7 @@ Options:
   <database.task.protocol>   Set evaluation protocol (e.g. "Etape.SpeakerDiarization.TV")
   --subset=<subset>          Evaluated subset (train|developement|test) [default: test]
   --collar=<seconds>         Collar, in seconds [default: 0.0].
+  --skip-overlap             Do not evaluate overlap regions.
   --tolerance=<seconds>      Tolerance, in seconds [default: 0.5].
   --greedy                   Use greedy diarization error rate.
   -h --help                  Show this screen.
@@ -155,12 +156,15 @@ def reindex(report, protocol, subset):
     protocol.progress = progress
     return report.reindex(new_index)
 
-def detection(protocol, subset, hypotheses, collar=0.0):
+def detection(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
 
-    metrics = {'error': DetectionErrorRate(collar=collar),
-               'accuracy': DetectionAccuracy(collar=collar),
-               'precision': DetectionPrecision(collar=collar),
-               'recall': DetectionRecall(collar=collar)}
+    metrics = {
+        'error': DetectionErrorRate(collar=collar, skip_overlap=skip_overlap),
+        'accuracy': DetectionAccuracy(collar=collar,
+                                      skip_overlap=skip_overlap),
+        'precision': DetectionPrecision(collar=collar,
+                                        skip_overlap=skip_overlap),
+        'recall': DetectionRecall(collar=collar, skip_overlap=skip_overlap)}
 
     reports = get_reports(protocol, subset, hypotheses, metrics)
 
@@ -178,7 +182,10 @@ def detection(protocol, subset, hypotheses, collar=0.0):
     columns = list(report.columns)
     report = report[[columns[0]] + columns[-3:] + columns[1:-3]]
 
-    headers = ['Detection (collar = {0:g} ms)'.format(1000*collar)] + \
+    summary = 'Detection (collar = {0:g} ms{1})'.format(
+        1000*collar, ', no overlap' if skip_overlap else '')
+
+    headers = [summary] + \
               [report.columns[i][0] for i in range(4)] + \
               ['%' if c[1] == '%' else c[0] for c in report.columns[4:]]
 
@@ -214,15 +221,20 @@ def segmentation(protocol, subset, hypotheses, tolerance=0.5):
                    floatfmt=".2f", numalign="decimal", stralign="left",
                    missingval="", showindex="default", disable_numparse=False))
 
-def diarization(protocol, subset, hypotheses, collar=0.0, greedy=False):
+def diarization(protocol, subset, hypotheses, greedy=False,
+                collar=0.0, skip_overlap=False):
 
-    metrics = {'purity': DiarizationPurity(collar=collar),
-               'coverage': DiarizationCoverage(collar=collar)}
+    metrics = {
+        'purity': DiarizationPurity(collar=collar, skip_overlap=skip_overlap),
+        'coverage': DiarizationCoverage(collar=collar,
+                                        skip_overlap=skip_overlap)}
 
     if greedy:
-        metrics['error'] = GreedyDiarizationErrorRate(collar=collar)
+        metrics['error'] = GreedyDiarizationErrorRate(
+            collar=collar, skip_overlap=skip_overlap)
     else:
-        metrics['error'] = DiarizationErrorRate(collar=collar)
+        metrics['error'] = DiarizationErrorRate(
+            collar=collar, skip_overlap=skip_overlap)
 
     reports = get_reports(protocol, subset, hypotheses, metrics)
 
@@ -238,8 +250,12 @@ def diarization(protocol, subset, hypotheses, collar=0.0, greedy=False):
 
     report = reindex(report, protocol, subset)
 
-    headers = ['Diarization ({0:s}collar = {1:g} ms)'.format(
-                    'greedy, ' if greedy else '', 1000*collar)] + \
+    summary = 'Diarization ({0:s}collar = {1:g} ms{2})'.format(
+                'greedy, ' if greedy else '',
+                1000 * collar,
+                ', no overlap' if skip_overlap else '')
+
+    headers = [summary] + \
               [report.columns[i][0] for i in range(3)] + \
               ['%' if c[1] == '%' else c[0] for c in report.columns[3:]]
 
@@ -248,11 +264,16 @@ def diarization(protocol, subset, hypotheses, collar=0.0, greedy=False):
                    missingval="", showindex="default", disable_numparse=False))
 
 
-def identification(protocol, subset, hypotheses, collar=0.0):
+def identification(protocol, subset, hypotheses,
+                   collar=0.0, skip_overlap=False):
 
-    metrics = {'error': IdentificationErrorRate(collar=collar),
-               'precision': IdentificationPrecision(collar=collar),
-               'recall': IdentificationRecall(collar=collar)}
+    metrics = {
+        'error': IdentificationErrorRate(collar=collar,
+                                         skip_overlap=skip_overlap),
+        'precision': IdentificationPrecision(collar=collar,
+                                             skip_overlap=skip_overlap),
+        'recall': IdentificationRecall(collar=collar,
+                                       skip_overlap=skip_overlap)}
 
     reports = get_reports(protocol, subset, hypotheses, metrics)
 
@@ -268,7 +289,11 @@ def identification(protocol, subset, hypotheses, collar=0.0):
 
     report = reindex(report, protocol, subset)
 
-    headers = ['Identification (collar = {0:g} ms)'.format(1000*collar)] + \
+    summary = 'Identification (collar = {1:g} ms{2})'.format(
+                1000 * collar,
+                ', no overlap' if skip_overlap else '')
+
+    headers = [summary] + \
               [report.columns[i][0] for i in range(3)] + \
               ['%' if c[1] == '%' else c[0] for c in report.columns[3:]]
 
@@ -289,6 +314,7 @@ if __name__ == '__main__':
     subset = arguments['--subset']
 
     collar = float(arguments['--collar'])
+    skip_overlap = arguments['--skip-overlap']
     tolerance = float(arguments['--tolerance'])
 
     # hypothesis
@@ -296,14 +322,17 @@ if __name__ == '__main__':
     hypotheses = MagicParser().read(hypothesis_mdtm, modality='speaker')
 
     if arguments['detection']:
-        detection(protocol, subset, hypotheses, collar=collar)
+        detection(protocol, subset, hypotheses,
+                  collar=collar, skip_overlap=skip_overlap)
 
     if arguments['segmentation']:
         segmentation(protocol, subset, hypotheses, tolerance=tolerance)
 
     if arguments['diarization']:
         greedy = arguments['--greedy']
-        diarization(protocol, subset, hypotheses, collar=collar, greedy=greedy)
+        diarization(protocol, subset, hypotheses, greedy=greedy,
+                    collar=collar, skip_overlap=skip_overlap)
 
     if arguments['identification']:
-        identification(protocol, subset, hypotheses, collar=collar)
+        identification(protocol, subset, hypotheses,
+                       collar=collar, skip_overlap=skip_overlap)

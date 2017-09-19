@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2014 CNRS
+# Copyright (c) 2012-2017 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -57,15 +57,19 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
     collar : float, optional
         Duration (in seconds) of collars removed from evaluation around
         boundaries of reference segments.
-
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
     """
 
-    def __init__(self, collar=0.):
+    def __init__(self, collar=0., skip_overlap=False):
 
         super(IdentificationErrorAnalysis, self).__init__()
         self.matcher_ = LabelMatcher()
         self.munkres = Munkres()
         self.collar = collar
+        self.skip_overlap=skip_overlap
+
 
     def difference(self, reference, hypothesis, uem=None, uemified=False):
         """Get error analysis as `Annotation`
@@ -89,7 +93,8 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
         """
 
         R, H, common_timeline = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar,
+            reference, hypothesis, uem=uem,
+            collar=self.collar, skip_overlap=self.skip_overlap,
             returns_timeline=True)
 
         errors = Annotation(uri=reference.uri, modality=reference.modality)

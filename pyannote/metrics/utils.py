@@ -35,7 +35,7 @@ from pyannote.core import Timeline, Segment
 class UEMSupportMixin:
     """Provides 'uemify' method with optional (à la NIST) collar"""
 
-    def extrude(self, uem, reference, collar=0.0):
+    def extrude(self, uem, reference, collar=0.0, skip_overlap=False):
         """Extrude reference boundary collars from uem
 
         reference     |----|     |--------------|       |-------------|
@@ -45,31 +45,52 @@ class UEMSupportMixin:
         Parameters
         ----------
         uem : Timeline
+            Evaluation map.
         reference : Annotation
+            Reference annotation.
         collar : float, optional
+            When provided, set the duration of collars centered around
+            reference segment boundaries that are extruded from both reference
+            and hypothesis. Defaults to 0. (i.e. no collar).
+        skip_overlap : bool, optional
+            Set to True to not evaluate overlap regions.
+            Defaults to False (i.e. keep overlap regions).
 
         Returns
         -------
         extruded_uem : Timeline
         """
 
-        if collar == 0.:
+        if collar == 0. and not skip_overlap:
             return uem
 
-        collars = []
+        collars, overlap_regions = [], []
 
-        # iterate over all segments in reference
-        for segment in reference.itersegments():
+        # build list of collars if needed
+        if collar > 0.:
+            # iterate over all segments in reference
+            for segment in reference.itersegments():
 
-            # add collar centered on start time
-            t = segment.start
-            collars.append(Segment(t - .5 * collar, t + .5 * collar))
+                # add collar centered on start time
+                t = segment.start
+                collars.append(Segment(t - .5 * collar, t + .5 * collar))
 
-            # add collar centered on end time
-            t = segment.end
-            collars.append(Segment(t - .5 * collar, t + .5 * collar))
+                # add collar centered on end time
+                t = segment.end
+                collars.append(Segment(t - .5 * collar, t + .5 * collar))
 
-        return Timeline(segments=collars).support().gaps(support=uem)
+        # build list of overlap regions if needed
+        if skip_overlap:
+            # iterate over pair of intersecting segments
+            for (segment1, track1), (segment2, track2) in reference.co_iter(reference):
+                if segment1 == segment2 and track1 == track2:
+                    continue
+                # add their intersection
+                overlap_regions.append(segment1 & segment2)
+
+        segments = collars + overlap_regions
+
+        return Timeline(segments=segments).support().gaps(support=uem)
 
     def common_timeline(self, reference, hypothesis):
         """Return timeline common to both reference and hypothesis
@@ -120,7 +141,7 @@ class UEMSupportMixin:
         return projection
 
     def uemify(self, reference, hypothesis, uem=None, collar=0.,
-               returns_uem=False, returns_timeline=False):
+               skip_overlap=False, returns_uem=False, returns_timeline=False):
         """Crop 'reference' and 'hypothesis' to 'uem' support
 
         Parameters
@@ -131,8 +152,11 @@ class UEMSupportMixin:
             Evaluation map.
         collar : float, optional
             When provided, set the duration of collars centered around
-            reference segment boundaries that are extruded from both reference and
-            hypothesis. Defaults to 0. (i.e. no collar).
+            reference segment boundaries that are extruded from both reference
+            and hypothesis. Defaults to 0. (i.e. no collar).
+        skip_overlap : bool, optional
+            Set to True to not evaluate overlap regions.
+            Defaults to False (i.e. keep overlap regions).
         returns_uem : bool, optional
             Set to True to return extruded uem as well.
             Defaults to False (i.e. only return reference and hypothesis)
@@ -155,13 +179,16 @@ class UEMSupportMixin:
         if uem is None:
             r_extent = reference.get_timeline().extent()
             h_extent = hypothesis.get_timeline().extent()
-            uem = Timeline(segments=[r_extent | h_extent], uri=reference.uri)
+            extent = r_extent | h_extent
+            uem = Timeline(segments=[extent] if extent else [],
+                           uri=reference.uri)
             warnings.warn(
                 "'uem' was approximated by the union of 'reference' "
                 "and 'hypothesis' extents.")
 
-        # extrude collars from uem
-        uem = self.extrude(uem, reference, collar=collar)
+        # extrude collars (and overlap regions) from uem
+        uem = self.extrude(uem, reference, collar=collar,
+                           skip_overlap=skip_overlap)
 
         # extrude regions outside of uem
         reference = reference.crop(uem, mode='intersection')
