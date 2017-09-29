@@ -32,6 +32,7 @@ import numpy as np
 from .base import BaseMetric
 from .binary_classification import det_curve, precision_recall_curve
 from pyannote.core import Segment
+from pyannote.core import SlidingWindowFeature
 
 
 class LowLatencySpeakerSpotting(BaseMetric):
