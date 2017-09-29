@@ -92,7 +92,7 @@ class LowLatencySpeakerSpotting(BaseMetric):
             # TODO | speed up latency pre-computation
 
         # for every threshold, compute when (if ever) alarm is triggered
-        maxcum = np.maximum.accumulate(scores)
+        maxcum = (np.maximum.accumulate(scores)).reshape((-1, 1))
         triggered = maxcum > self.thresholds
         indices = np.array([np.searchsorted(triggered[:,i], True)
                             for i, _ in enumerate(self.thresholds)])
