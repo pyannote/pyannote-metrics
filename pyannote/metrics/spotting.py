@@ -65,29 +65,33 @@ class LowLatencySpeakerSpotting(BaseMetric):
     def compute_metric(self, detail):
         return None
 
-    def compute_components(self, reference, scores, **kwargs):
+    def compute_components(self, reference, hypothesis, **kwargs):
         """
 
         Parameters
         ----------
         reference : Annotation
-        scores : SlidingWindowFeature
+        hypothesis : SlidingWindowFeature or (time, score) iterable
         """
 
+        if isinstance(hypothesis, SlidingWindowFeature):
+            hypothesis = [(window.end, value) for window, value in hypothesis]
+        timestamps, scores = zip(*hypothesis)
+
         # pre-compute latencies
-        speaker_latency = np.NAN * np.ones((len(scores.data), 1))
-        absolute_latency = np.NAN * np.ones((len(scores.data), 1))
+        speaker_latency = np.NAN * np.ones((len(timestamps), 1))
+        absolute_latency = np.NAN * np.ones((len(timestamps), 1))
         speaker_timeline = reference.get_timeline(copy=False)
         if speaker_timeline:
             first_time = speaker_timeline[0].start
-            for i, (window, _) in enumerate(scores):
-                so_far = Segment(first_time, window.end)
+            for i, t in enumerate(timestamps):
+                so_far = Segment(first_time, t)
                 speaker_latency[i] = speaker_timeline.crop(so_far).duration()
                 absolute_latency[i] = max(0, so_far.duration)
             # TODO | speed up latency pre-computation
 
         # for every threshold, compute when (if ever) alarm is triggered
-        maxcum = np.maximum.accumulate(scores.data)
+        maxcum = np.maximum.accumulate(scores)
         triggered = maxcum > self.thresholds
         indices = np.array([np.searchsorted(triggered[:,i], True)
                             for i, _ in enumerate(self.thresholds)])
@@ -133,7 +137,7 @@ class LowLatencySpeakerSpotting(BaseMetric):
             'false_negative': false_negative,
             'absolute_latency': absolute_latency,
             'speaker_latency': speaker_latency,
-            'score': np.max(scores.data)
+            'score': np.max(scores)
         }
 
     @property
