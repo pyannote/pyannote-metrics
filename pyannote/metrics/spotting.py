@@ -31,7 +31,7 @@ from __future__ import unicode_literals
 import numpy as np
 from .base import BaseMetric
 from .binary_classification import det_curve, precision_recall_curve
-from pyannote.core import Segment
+from pyannote.core import Segment, Annotation
 from pyannote.core import SlidingWindowFeature
 
 
@@ -70,7 +70,7 @@ class LowLatencySpeakerSpotting(BaseMetric):
 
         Parameters
         ----------
-        reference : Annotation
+        reference : Timeline or Annotation
         hypothesis : SlidingWindowFeature or (time, score) iterable
         """
 
@@ -81,12 +81,13 @@ class LowLatencySpeakerSpotting(BaseMetric):
         # pre-compute latencies
         speaker_latency = np.NAN * np.ones((len(timestamps), 1))
         absolute_latency = np.NAN * np.ones((len(timestamps), 1))
-        speaker_timeline = reference.get_timeline(copy=False)
-        if speaker_timeline:
-            first_time = speaker_timeline[0].start
+        if isinstance(reference, Annotation):
+            reference = reference.get_timeline(copy=False)
+        if reference:
+            first_time = reference[0].start
             for i, t in enumerate(timestamps):
                 so_far = Segment(first_time, t)
-                speaker_latency[i] = speaker_timeline.crop(so_far).duration()
+                speaker_latency[i] = reference.crop(so_far).duration()
                 absolute_latency[i] = max(0, so_far.duration)
             # TODO | speed up latency pre-computation
 
@@ -99,7 +100,7 @@ class LowLatencySpeakerSpotting(BaseMetric):
         # is alarm triggered at all?
         positive = triggered[-1, :]
 
-        if speaker_timeline:
+        if reference:
 
             target_trial = True
             true_negative = 0
