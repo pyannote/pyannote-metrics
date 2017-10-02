@@ -153,79 +153,58 @@ class LowLatencySpeakerSpotting(BaseMetric):
                                               if trial['target']]
         return np.nanmean(latencies, axis=0)
 
-    @property
-    def det_curve(self):
+    def det_curve(self, cost_miss=100, cost_fa=1, prior_target=0.01,
+                  return_latency=False):
         """DET curve
+
+        Parameters
+        ----------
+        cost_miss : float, optional
+            Cost of missed detections. Defaults to 100.
+        cost_fa : float, optional
+            Cost of false alarms. Defaults to 1.
+        prior_target : float, optional
+            Target trial prior. Defaults to 0.5.
+        return_latency : bool, optional
+            Set to True to return latency.
 
         Returns
         -------
+        thresholds : numpy array
+            Detection thresholds
         fpr : numpy array
             False alarm rate
         fnr : numpy array
             False rejection rate
-        thresholds : numpy array
-            Corresponding thresholds
         eer : float
             Equal error rate
+        cdet : numpy array
+            Cdet cost function
+        speaker_latency : numpy array
+        absolute_latency : numpy array
+            Speaker and absolute latency when return_latency is set to True.
         """
         y_true = np.array([trial['target'] for _, trial in self])
         scores = np.array([trial['score'] for _, trial in self])
-        return det_curve(y_true, scores, distances=False)
-
-    def cdet_curve(self, cost_miss=100, cost_fa=1, prior_target=0.5):
-        """Cdet curve
-
-        Parameters
-        ----------
-        cost_miss : float, optional
-            Cost of missed detections. Defaults to 100.
-        cost_fa : float, optional
-            Cost of false alarms. Defaults to 1.
-        prior_target : float, optional
-            Target trial prior. Defaults to 0.5.
-
-        Returns
-        -------
-        thresholds : numpy array
-            Corresponding thresholds
-        cdet : numpy array
-            Cdet cost
-        """
-
-        fpr, fnr, thresholds, eer = self.det_curve
+        fpr, fnr, thresholds, eer =  det_curve(y_true, scores, distances=False)
+        fpr, fnr, thresholds = fpr[::-1], fnr[::-1], thresholds[::-1]
         cdet = cost_miss * fnr * prior_target + \
                cost_fa * fpr * (1. - prior_target)
-        return thresholds[::-1], cdet[::-1]
 
-    def cdet_latency_curve(self, cost_miss=100, cost_fa=1, prior_target=0.5):
-        """Cdet = f(latency) curves
+        if return_latency:
+            # needed to align the thresholds used in the DET curve
+            # with (self.)thresholds used to compute latencies.
+            indices = np.searchsorted(thresholds, self.thresholds, side='left')
 
-        Parameters
-        ----------
-        cost_miss : float, optional
-            Cost of missed detections. Defaults to 100.
-        cost_fa : float, optional
-            Cost of false alarms. Defaults to 1.
-        prior_target : float, optional
-            Target trial prior. Defaults to 0.5.
+            thresholds = np.take(thresholds, indices, mode='clip')
+            fpr = np.take(fpr, indices, mode='clip')
+            fnr = np.take(fnr, indices, mode='clip')
+            cdet = np.take(cdet, indices, mode='clip')
+            return thresholds, fpr, fnr, eer, cdet, \
+                   self.speaker_latency, self.absolute_latency
 
-        Returns
-        -------
-        cdet : numpy array
-            Cdet cost
-        absolute_latency : numpy array
-            Absolute latency.
-        speaker_latency : numpy array
-            Speaker latency
-        """
-
-        thresholds, cdet = self.cdet_curve(
-            cost_miss=cost_miss, cost_fa=cost_fa, prior_target=prior_target)
-        indices = np.searchsorted(thresholds, self.thresholds, side='left')
-
-        return np.take(cdet, indices, mode='clip'), \
-               self.absolute_latency, \
-               self.speaker_latency
+        else:
+            return thresholds, fpr, fnr, eer, cdet
 
     @property
     def precision_recall_curve(self):
