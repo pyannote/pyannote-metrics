@@ -2,11 +2,12 @@
 Changelog
 #########
 
-Version 1.4 (2017-10-02)
+Version 1.4.1 (2017-10-02)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 - feat: add LowLatencySpeakerSpotting metric
 - feat: add "spotting" mode to pyannote-metrics.py
+- setup: switch to pyannote.database 1.0
 
 Version 1.3 (2017-09-19)
 ~~~~~~~~~~~~~~~~~~~~~~~~
