@@ -58,8 +58,8 @@ class LowLatencySpeakerSpotting(BaseMetric):
             'true_negative': 0.,
             'false_negative': 0.}
 
-    def __init__(self, thresholds=None, **kwargs):
-        super(LowLatencySpeakerSpotting, self).__init__(**kwargs)
+    def __init__(self, thresholds=None):
+        super(LowLatencySpeakerSpotting, self).__init__(parallel=False)
         self.thresholds = np.sort(thresholds)
 
     def compute_metric(self, detail):
