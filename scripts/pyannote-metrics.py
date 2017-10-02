@@ -48,8 +48,6 @@ Options:
   -h --help                  Show this screen.
   --version                  Show version.
 
-MDTM file format:
-
 All modes but "spotting" expect hypothesis using the MDTM file format.
 MDTM files contain one line per speech turn, using the following convention:
 
@@ -61,8 +59,6 @@ MDTM files contain one line per speech turn, using the following convention:
     * confidence: confidence score (can be anything, not used for now)
     * gender: speaker gender (can be anything, not used for now)
     * speaker_id: speaker identifier
-
-JSON file format:
 
 "spotting" mode expects hypothesis using the following JSON file format.
 It should contain a list of trial hypothesis, using the same trial order as
@@ -81,6 +77,13 @@ pyannote.database speaker spotting protocols (e.g. protocol.test_trial())
     * (ti, vi): (time, value) pair indicating that the system has output the
                 score vi at time ti (e.g. (10.2, 0.2) means that the system
                 gave a score of 0.2 at time 10.2s).
+
+Calling "spotting" mode will create a bunch of files.
+* <hypothesis.det.txt> contains DET curve using the following raw file format:
+    <threshold> <fpr> <fnr>
+* <hypothesis.lcy.txt> contains latency curves using this format:
+    <threshold> <fpr> <fnr> <speaker_latency> <absolute_latency>
+
 """
 
 
@@ -344,12 +347,8 @@ def identification(protocol, subset, hypotheses,
 
 def spotting(protocol, subset, hypotheses, output_prefix):
 
-    # TODO / estimate best set of thresholds
-
-    metric = LowLatencySpeakerSpotting(thresholds=np.linspace(0, 1, 20))
-
+    Scores = []
     trials = getattr(protocol, '{subset}_trial'.format(subset=subset))()
-
     for i, (current_trial, hypothesis) in enumerate(zip(trials, hypotheses)):
 
         # check trial/hypothesis target consistency
@@ -373,6 +372,7 @@ def spotting(protocol, subset, hypotheses, output_prefix):
                            should_be=current_trial['uri']))
 
         timestamps, scores = zip(*hypothesis['scores'])
+        Scores.append(scores)
 
         # check trial/hypothesis timerange consistency
         timerange = Segment(min(timestamps), max(timestamps))
@@ -387,20 +387,51 @@ def spotting(protocol, subset, hypotheses, output_prefix):
                 found=list(timerange),
                 should_be=list(try_with)))
 
+    # estimate best set of thresholds
+    scores = np.concatenate(Scores)
+    epsilons = np.array(
+        [n * 10**(-e) for e in range(4, 1, -1) for n in range(1, 10)])
+    percentile = np.concatenate([epsilons, np.arange(0.1, 100., 0.1), 100 - epsilons[::-1]])
+    thresholds = np.percentile(scores, percentile)
+
+    metric = LowLatencySpeakerSpotting(thresholds=thresholds)
+    trials = getattr(protocol, '{subset}_trial'.format(subset=subset))()
+    for i, (current_trial, hypothesis) in enumerate(zip(trials, hypotheses)):
         reference = current_trial['reference']
         metric(reference, hypothesis['scores'])
 
-    fpr, fnr, thresholds, eer = metric.det_curve
+    thresholds, fpr, fnr, eer, _ = metric.det_curve(return_latency=False)
+
     print('EER = {eer:.2f}%'.format(eer=100 * eer))
 
     # save DET curve to hypothesis.det.txt
     det_path = '{output_prefix}.det.txt'.format(output_prefix=output_prefix)
-    det_tmpl = '{t:.6f} {p:.6f} {n:.6f}\n'
+    det_tmpl = '{t:.9f} {p:.9f} {n:.9f}\n'
     with open(det_path, mode='w') as fp:
+        fp.write('# threshold false_positive_rate false_negative_rate\n')
         for t, p, n in zip(thresholds, fpr, fnr):
             line = det_tmpl.format(t=t, p=p, n=n)
             fp.write(line)
 
+    print('DET curve saved to {det_path}'.format(det_path=det_path))
+
+    thresholds, fpr, fnr, _, _, speaker_lcy, absolute_lcy = \
+        metric.det_curve(return_latency=True)
+
+    # save DET curve to hypothesis.det.txt
+    lcy_path = '{output_prefix}.lcy.txt'.format(output_prefix=output_prefix)
+    lcy_tmpl = '{t:.9f} {p:.9f} {n:.9f} {s:.6f} {a:.6f}\n'
+    with open(lcy_path, mode='w') as fp:
+        fp.write('# threshold false_positive_rate false_negative_rate speaker_latency absolute_latency\n')
+        for t, p, n, s, a in zip(thresholds, fpr, fnr, speaker_lcy, absolute_lcy):
+            if p == 1:
+                continue
+            if np.isnan(s):
+                continue
+            line = lcy_tmpl.format(t=t, p=p, n=n, s=s, a=a)
+            fp.write(line)
+
+    print('Latency curve saved to {lcy_path}'.format(lcy_path=lcy_path))
 
 if __name__ == '__main__':
 
