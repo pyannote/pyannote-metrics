@@ -30,10 +30,11 @@
 Evaluation
 
 Usage:
-  evaluation detection [options] [--collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.mdtm>
-  evaluation segmentation [options] [--tolerance=<seconds>] <database.task.protocol> <hypothesis.mdtm>
-  evaluation diarization [options] [--greedy] [--collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.mdtm>
-  evaluation identification [options] [--collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.mdtm>
+  evaluation detection [--subset=<subset> --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.mdtm>
+  evaluation segmentation [--subset=<subset> --tolerance=<seconds>] <database.task.protocol> <hypothesis.mdtm>
+  evaluation diarization [--subset=<subset> --greedy --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.mdtm>
+  evaluation identification [--subset=<subset> --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.mdtm>
+  evaluation spotting [--subset=<subset>] <database.task.protocol> <hypothesis.json>
   evaluation -h | --help
   evaluation --version
 
@@ -46,17 +47,59 @@ Options:
   --greedy                   Use greedy diarization error rate.
   -h --help                  Show this screen.
   --version                  Show version.
+
+All modes but "spotting" expect hypothesis using the MDTM file format.
+MDTM files contain one line per speech turn, using the following convention:
+
+<uri> 1 <start_time> <duration> speaker <confidence> <gender> <speaker_id>
+
+    * uri: file identifier (as given by pyannote.database protocols)
+    * start_time: speech turn start time in seconds
+    * duration: speech turn duration in seconds
+    * confidence: confidence score (can be anything, not used for now)
+    * gender: speaker gender (can be anything, not used for now)
+    * speaker_id: speaker identifier
+
+"spotting" mode expects hypothesis using the following JSON file format.
+It should contain a list of trial hypothesis, using the same trial order as
+pyannote.database speaker spotting protocols (e.g. protocol.test_trial())
+
+[
+    {'uri': '<uri>', 'model_id': '<model_id>', 'scores': [(<t1>, <v1>), (<t2>, <v2>), ... (<tn>, <vn>)]},
+    {'uri': '<uri>', 'model_id': '<model_id>', 'scores': [(<t1>, <v1>), (<t2>, <v2>), ... (<tn>, <vn>)]},
+    {'uri': '<uri>', 'model_id': '<model_id>', 'scores': [(<t1>, <v1>), (<t2>, <v2>), ... (<tn>, <vn>)]},
+    ...
+    {'uri': '<uri>', 'model_id': '<model_id>', 'scores': [(<t1>, <v1>), (<t2>, <v2>), ... (<tn>, <vn>)]},
+]
+
+    * uri: file identifier (as given by pyannote.database protocols)
+    * model_id: target identifier (as given by pyannote.database protocols)
+    * (ti, vi): (time, value) pair indicating that the system has output the
+                score vi at time ti (e.g. (10.2, 0.2) means that the system
+                gave a score of 0.2 at time 10.2s).
+
+Calling "spotting" mode will create a bunch of files.
+* <hypothesis.det.txt> contains DET curve using the following raw file format:
+    <threshold> <fpr> <fnr>
+* <hypothesis.lcy.txt> contains latency curves using this format:
+    <threshold> <fpr> <fnr> <speaker_latency> <absolute_latency>
+
 """
 
 
 # command line parsing
 from docopt import docopt
 
+import sys
+import json
 import warnings
 import functools
+import numpy as np
 import pandas as pd
 from tabulate import tabulate
 import multiprocessing as mp
+
+from pyannote.core import Segment
 
 # use for parsing hypothesis file
 from pyannote.parser import MagicParser
@@ -83,6 +126,8 @@ from pyannote.metrics.diarization import DiarizationCoverage
 from pyannote.metrics.identification import IdentificationErrorRate
 from pyannote.metrics.identification import IdentificationPrecision
 from pyannote.metrics.identification import IdentificationRecall
+
+from pyannote.metrics.spotting import LowLatencySpeakerSpotting
 
 showwarning_orig = warnings.showwarning
 
@@ -263,7 +308,6 @@ def diarization(protocol, subset, hypotheses, greedy=False,
                    floatfmt=".2f", numalign="decimal", stralign="left",
                    missingval="", showindex="default", disable_numparse=False))
 
-
 def identification(protocol, subset, hypotheses,
                    collar=0.0, skip_overlap=False):
 
@@ -301,6 +345,93 @@ def identification(protocol, subset, hypotheses,
                    floatfmt=".2f", numalign="decimal", stralign="left",
                    missingval="", showindex="default", disable_numparse=False))
 
+def spotting(protocol, subset, hypotheses, output_prefix):
+
+    Scores = []
+    trials = getattr(protocol, '{subset}_trial'.format(subset=subset))()
+    for i, (current_trial, hypothesis) in enumerate(zip(trials, hypotheses)):
+
+        # check trial/hypothesis target consistency
+        try:
+            assert current_trial['model_id'] == hypothesis['model_id']
+        except AssertionError as e:
+            msg = ('target mismatch in trial #{i} '
+                   '(found: {found}, should be: {should_be})')
+            raise ValueError(
+                msg.format(i=i, found=hypothesis['model_id'],
+                           should_be=current_trial['model_id']))
+
+        # check trial/hypothesis file consistency
+        try:
+            assert current_trial['uri'] == hypothesis['uri']
+        except AssertionError as e:
+            msg = ('file mismatch in trial #{i} '
+                   '(found: {found}, should be: {should_be})')
+            raise ValueError(
+                msg.format(i=i, found=hypothesis['uri'],
+                           should_be=current_trial['uri']))
+
+        timestamps, scores = zip(*hypothesis['scores'])
+        Scores.append(scores)
+
+        # check trial/hypothesis timerange consistency
+        timerange = Segment(min(timestamps), max(timestamps))
+        try_with = current_trial['try_with']
+        try:
+            assert timerange in try_with
+        except AssertionError as e:
+            msg = ('incorrect timerange in trial #{i} '
+                   '(found: {found}, should be: {should_be})')
+            raise ValueError(
+                msg.format(i=i,
+                found=list(timerange),
+                should_be=list(try_with)))
+
+    # estimate best set of thresholds
+    scores = np.concatenate(Scores)
+    epsilons = np.array(
+        [n * 10**(-e) for e in range(4, 1, -1) for n in range(1, 10)])
+    percentile = np.concatenate([epsilons, np.arange(0.1, 100., 0.1), 100 - epsilons[::-1]])
+    thresholds = np.percentile(scores, percentile)
+
+    metric = LowLatencySpeakerSpotting(thresholds=thresholds)
+    trials = getattr(protocol, '{subset}_trial'.format(subset=subset))()
+    for i, (current_trial, hypothesis) in enumerate(zip(trials, hypotheses)):
+        reference = current_trial['reference']
+        metric(reference, hypothesis['scores'])
+
+    thresholds, fpr, fnr, eer, _ = metric.det_curve(return_latency=False)
+
+    print('EER = {eer:.2f}%'.format(eer=100 * eer))
+
+    # save DET curve to hypothesis.det.txt
+    det_path = '{output_prefix}.det.txt'.format(output_prefix=output_prefix)
+    det_tmpl = '{t:.9f} {p:.9f} {n:.9f}\n'
+    with open(det_path, mode='w') as fp:
+        fp.write('# threshold false_positive_rate false_negative_rate\n')
+        for t, p, n in zip(thresholds, fpr, fnr):
+            line = det_tmpl.format(t=t, p=p, n=n)
+            fp.write(line)
+
+    print('DET curve saved to {det_path}'.format(det_path=det_path))
+
+    thresholds, fpr, fnr, _, _, speaker_lcy, absolute_lcy = \
+        metric.det_curve(return_latency=True)
+
+    # save DET curve to hypothesis.det.txt
+    lcy_path = '{output_prefix}.lcy.txt'.format(output_prefix=output_prefix)
+    lcy_tmpl = '{t:.9f} {p:.9f} {n:.9f} {s:.6f} {a:.6f}\n'
+    with open(lcy_path, mode='w') as fp:
+        fp.write('# threshold false_positive_rate false_negative_rate speaker_latency absolute_latency\n')
+        for t, p, n, s, a in zip(thresholds, fpr, fnr, speaker_lcy, absolute_lcy):
+            if p == 1:
+                continue
+            if np.isnan(s):
+                continue
+            line = lcy_tmpl.format(t=t, p=p, n=n, s=s, a=a)
+            fp.write(line)
+
+    print('Latency curve saved to {lcy_path}'.format(lcy_path=lcy_path))
 
 if __name__ == '__main__':
 
@@ -316,6 +447,17 @@ if __name__ == '__main__':
     collar = float(arguments['--collar'])
     skip_overlap = arguments['--skip-overlap']
     tolerance = float(arguments['--tolerance'])
+
+    if arguments['spotting']:
+
+        hypothesis_json = arguments['<hypothesis.json>']
+        with open(hypothesis_json, mode='r') as fp:
+            hypotheses = json.load(fp)
+
+        output_prefix = hypothesis_json[:-5]
+
+        spotting(protocol, subset, hypotheses, output_prefix)
+        sys.exit(0)
 
     # hypothesis
     hypothesis_mdtm = arguments['<hypothesis.mdtm>']
