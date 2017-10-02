@@ -44,6 +44,7 @@ setup(
     ],
     install_requires=[
         'pyannote.core >= 1.1',
+        'pyannote.database >= 1.0',
         'pyannote.parser >= 0.6.5',
         'pandas >= 0.19',
         'scipy >= 0.10.0',
