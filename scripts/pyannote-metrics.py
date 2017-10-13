@@ -65,17 +65,17 @@ It should contain a list of trial hypothesis, using the same trial order as
 pyannote.database speaker spotting protocols (e.g. protocol.test_trial())
 
 [
-    {'uri': '<uri>', 'model_id': '<model_id>', 'scores': [(<t1>, <v1>), (<t2>, <v2>), ... (<tn>, <vn>)]},
-    {'uri': '<uri>', 'model_id': '<model_id>', 'scores': [(<t1>, <v1>), (<t2>, <v2>), ... (<tn>, <vn>)]},
-    {'uri': '<uri>', 'model_id': '<model_id>', 'scores': [(<t1>, <v1>), (<t2>, <v2>), ... (<tn>, <vn>)]},
+    {'uri': '<uri>', 'model_id': '<model_id>', 'scores': [[<t1>, <v1>], [<t2>, <v2>], ... [<tn>, <vn>]]},
+    {'uri': '<uri>', 'model_id': '<model_id>', 'scores': [[<t1>, <v1>], [<t2>, <v2>], ... [<tn>, <vn>]]},
+    {'uri': '<uri>', 'model_id': '<model_id>', 'scores': [[<t1>, <v1>], [<t2>, <v2>], ... [<tn>, <vn>]]},
     ...
-    {'uri': '<uri>', 'model_id': '<model_id>', 'scores': [(<t1>, <v1>), (<t2>, <v2>), ... (<tn>, <vn>)]},
+    {'uri': '<uri>', 'model_id': '<model_id>', 'scores': [[<t1>, <v1>], [<t2>, <v2>], ... [<tn>, <vn>]]},
 ]
 
     * uri: file identifier (as given by pyannote.database protocols)
     * model_id: target identifier (as given by pyannote.database protocols)
-    * (ti, vi): (time, value) pair indicating that the system has output the
-                score vi at time ti (e.g. (10.2, 0.2) means that the system
+    * [ti, vi]: [time, value] pair indicating that the system has output the
+                score vi at time ti (e.g. [10.2, 0.2] means that the system
                 gave a score of 0.2 at time 10.2s).
 
 Calling "spotting" mode will create a bunch of files.
