@@ -2,8 +2,14 @@
 Changelog
 #########
 
+Version 1.4.2 (2017-10-13)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- improve: set latency of missed detections to maximum possible value
+- improve: improve instructions in pyannote-metrics.py --help
+
 Version 1.4.1 (2017-10-02)
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - feat: add LowLatencySpeakerSpotting metric
 - feat: add "spotting" mode to pyannote-metrics.py

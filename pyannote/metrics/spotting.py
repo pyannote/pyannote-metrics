@@ -112,9 +112,12 @@ class LowLatencySpeakerSpotting(BaseMetric):
             absolute_latency = np.take(absolute_latency, indices, mode='clip')
             speaker_latency = np.take(speaker_latency, indices, mode='clip')
 
-            # the notion of "latency" is not applicable to missed detections
-            absolute_latency[false_negative] = np.NAN
-            speaker_latency[false_negative] = np.NAN
+            # in case alarm is not triggered, set absolute latency to duration
+            # between first and last speech turn of the target speaker...
+            absolute_latency[false_negative] = reference.extent().duration
+
+            # ...and set speaker latency to target's total speech duration
+            speaker_latency[false_negative] = reference.duration()
 
         else:
 
