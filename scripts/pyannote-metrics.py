@@ -99,8 +99,6 @@ import pandas as pd
 from tabulate import tabulate
 import multiprocessing as mp
 
-from pyannote.core import Segment
-
 # use for parsing hypothesis file
 from pyannote.parser import MagicParser
 
@@ -382,17 +380,16 @@ def spotting(protocol, subset, hypotheses, output_prefix):
         Scores.append(scores)
 
         # check trial/hypothesis timerange consistency
-        timerange = Segment(min(timestamps), max(timestamps))
         try_with = current_trial['try_with']
         try:
-            assert timerange in try_with
+            assert min(timestamps) >= try_with.start
         except AssertionError as e:
-            msg = ('incorrect timerange in trial #{i} '
-                   '(found: {found}, should be: {should_be})')
+            msg = ('incorrect timestamp in trial #{i} '
+                   '(found: {found:g}, should be: >= {should_be:g})')
             raise ValueError(
                 msg.format(i=i,
-                found=list(timerange),
-                should_be=list(try_with)))
+                found=min(timestamps),
+                should_be=try_with.start))
 
     # estimate best set of thresholds
     scores = np.concatenate(Scores)
