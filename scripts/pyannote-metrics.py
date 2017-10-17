@@ -371,6 +371,13 @@ def spotting(protocol, subset, hypotheses, output_prefix):
                 msg.format(i=i, found=hypothesis['uri'],
                            should_be=current_trial['uri']))
 
+        # check at least one score is provided
+        try:
+            assert len(hypothesis['scores']) > 0
+        except AssertionError as e:
+            msg = ('empty list of scores in trial #{i}.')
+            raise ValueError(msg.format(i=i))
+
         timestamps, scores = zip(*hypothesis['scores'])
         Scores.append(scores)
 
