@@ -2,6 +2,11 @@
 Changelog
 #########
 
+Version 1.4.3 (2017-10-17)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- fix: add more safety checks to pyannote-metrics.py "spotting" mode
+
 Version 1.4.2 (2017-10-13)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
