@@ -34,7 +34,7 @@ Usage:
   pyannote-metrics.py segmentation [--subset=<subset> --tolerance=<seconds>] <database.task.protocol> <hypothesis.mdtm>
   pyannote-metrics.py diarization [--subset=<subset> --greedy --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.mdtm>
   pyannote-metrics.py identification [--subset=<subset> --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.mdtm>
-  pyannote-metrics.py spotting [--subset=<subset>] <database.task.protocol> <hypothesis.json>
+  pyannote-metrics.py spotting [--subset=<subset> --latency=<seconds>...] <database.task.protocol> <hypothesis.json>
   pyannote-metrics.py -h | --help
   pyannote-metrics.py --version
 
@@ -45,6 +45,7 @@ Options:
   --skip-overlap             Do not evaluate overlap regions.
   --tolerance=<seconds>      Tolerance, in seconds [default: 0.5].
   --greedy                   Use greedy diarization error rate.
+  --latency=<seconds>        Evaluate with fixed latency.
   -h --help                  Show this screen.
   --version                  Show version.
 
@@ -343,9 +344,11 @@ def identification(protocol, subset, hypotheses,
                    floatfmt=".2f", numalign="decimal", stralign="left",
                    missingval="", showindex="default", disable_numparse=False))
 
-def spotting(protocol, subset, hypotheses, output_prefix):
+def spotting(protocol, subset, latencies, hypotheses, output_prefix):
 
-    Scores = []
+    if not latencies:
+        Scores = []
+
     trials = getattr(protocol, '{subset}_trial'.format(subset=subset))()
     for i, (current_trial, hypothesis) in enumerate(zip(trials, hypotheses)):
 
@@ -377,7 +380,9 @@ def spotting(protocol, subset, hypotheses, output_prefix):
             raise ValueError(msg.format(i=i))
 
         timestamps, scores = zip(*hypothesis['scores'])
-        Scores.append(scores)
+
+        if not latencies:
+            Scores.append(scores)
 
         # check trial/hypothesis timerange consistency
         try_with = current_trial['try_with']
@@ -391,51 +396,95 @@ def spotting(protocol, subset, hypotheses, output_prefix):
                 found=min(timestamps),
                 should_be=try_with.start))
 
-    # estimate best set of thresholds
-    scores = np.concatenate(Scores)
-    epsilons = np.array(
-        [n * 10**(-e) for e in range(4, 1, -1) for n in range(1, 10)])
-    percentile = np.concatenate([epsilons, np.arange(0.1, 100., 0.1), 100 - epsilons[::-1]])
-    thresholds = np.percentile(scores, percentile)
 
-    metric = LowLatencySpeakerSpotting(thresholds=thresholds)
+    if not latencies:
+        # estimate best set of thresholds
+        scores = np.concatenate(Scores)
+        epsilons = np.array(
+            [n * 10**(-e) for e in range(4, 1, -1) for n in range(1, 10)])
+        percentile = np.concatenate([epsilons, np.arange(0.1, 100., 0.1), 100 - epsilons[::-1]])
+        thresholds = np.percentile(scores, percentile)
+
+    if not latencies:
+        metric = LowLatencySpeakerSpotting(thresholds=thresholds)
+
+    else:
+        metric = LowLatencySpeakerSpotting(latencies=latencies)
+
     trials = getattr(protocol, '{subset}_trial'.format(subset=subset))()
     for i, (current_trial, hypothesis) in enumerate(zip(trials, hypotheses)):
         reference = current_trial['reference']
         metric(reference, hypothesis['scores'])
 
-    thresholds, fpr, fnr, eer, _ = metric.det_curve(return_latency=False)
+    if not latencies:
 
-    print('EER = {eer:.2f}%'.format(eer=100 * eer))
+        thresholds, fpr, fnr, eer, _ = metric.det_curve(return_latency=False)
 
-    # save DET curve to hypothesis.det.txt
-    det_path = '{output_prefix}.det.txt'.format(output_prefix=output_prefix)
-    det_tmpl = '{t:.9f} {p:.9f} {n:.9f}\n'
-    with open(det_path, mode='w') as fp:
-        fp.write('# threshold false_positive_rate false_negative_rate\n')
-        for t, p, n in zip(thresholds, fpr, fnr):
-            line = det_tmpl.format(t=t, p=p, n=n)
-            fp.write(line)
+        # save DET curve to hypothesis.det.txt
+        det_path = '{output_prefix}.det.txt'.format(output_prefix=output_prefix)
+        det_tmpl = '{t:.9f} {p:.9f} {n:.9f}\n'
+        with open(det_path, mode='w') as fp:
+            fp.write('# threshold false_positive_rate false_negative_rate\n')
+            for t, p, n in zip(thresholds, fpr, fnr):
+                line = det_tmpl.format(t=t, p=p, n=n)
+                fp.write(line)
 
-    print('DET curve saved to {det_path}'.format(det_path=det_path))
+        print('> {det_path}'.format(det_path=det_path))
 
-    thresholds, fpr, fnr, _, _, speaker_lcy, absolute_lcy = \
-        metric.det_curve(return_latency=True)
+        thresholds, fpr, fnr, _, _, speaker_lcy, absolute_lcy = \
+            metric.det_curve(return_latency=True)
 
-    # save DET curve to hypothesis.det.txt
-    lcy_path = '{output_prefix}.lcy.txt'.format(output_prefix=output_prefix)
-    lcy_tmpl = '{t:.9f} {p:.9f} {n:.9f} {s:.6f} {a:.6f}\n'
-    with open(lcy_path, mode='w') as fp:
-        fp.write('# threshold false_positive_rate false_negative_rate speaker_latency absolute_latency\n')
-        for t, p, n, s, a in zip(thresholds, fpr, fnr, speaker_lcy, absolute_lcy):
-            if p == 1:
-                continue
-            if np.isnan(s):
-                continue
-            line = lcy_tmpl.format(t=t, p=p, n=n, s=s, a=a)
-            fp.write(line)
+        # save DET curve to hypothesis.det.txt
+        lcy_path = '{output_prefix}.lcy.txt'.format(output_prefix=output_prefix)
+        lcy_tmpl = '{t:.9f} {p:.9f} {n:.9f} {s:.6f} {a:.6f}\n'
+        with open(lcy_path, mode='w') as fp:
+            fp.write('# threshold false_positive_rate false_negative_rate speaker_latency absolute_latency\n')
+            for t, p, n, s, a in zip(thresholds, fpr, fnr, speaker_lcy, absolute_lcy):
+                if p == 1:
+                    continue
+                if np.isnan(s):
+                    continue
+                line = lcy_tmpl.format(t=t, p=p, n=n, s=s, a=a)
+                fp.write(line)
 
-    print('Latency curve saved to {lcy_path}'.format(lcy_path=lcy_path))
+        print('> {lcy_path}'.format(lcy_path=lcy_path))
+
+        print()
+        print('EER% = {eer:.2f}'.format(eer=100 * eer))
+
+    else:
+
+        results = metric.det_curve()
+        logs = []
+        for key in sorted(results):
+
+            result = results[key]
+            log = {'latency': key}
+            for latency in latencies:
+                thresholds, fpr, fnr, eer, _ = result[latency]
+                #print('EER @ {latency}s = {eer:.2f}%'.format(latency=latency,
+                #                                             eer=100 * eer))
+                log[latency] = eer
+                # save DET curve to hypothesis.det.{lcy}s.txt
+                det_path = '{output_prefix}.det.{key}.{latency:g}s.txt'.format(
+                    output_prefix=output_prefix, key=key, latency=latency)
+                det_tmpl = '{t:.9f} {p:.9f} {n:.9f}\n'
+                with open(det_path, mode='w') as fp:
+                    fp.write('# threshold false_positive_rate false_negative_rate\n')
+                    for t, p, n in zip(thresholds, fpr, fnr):
+                        line = det_tmpl.format(t=t, p=p, n=n)
+                        fp.write(line)
+            logs.append(log)
+            det_path = '{output_prefix}.det.{key}.XXs.txt'.format(
+                output_prefix=output_prefix, key=key)
+            print('> {det_path}'.format(det_path=det_path))
+
+        print()
+        df = 100 * pd.DataFrame.from_dict(logs).set_index('latency')[latencies]
+        print(tabulate(df, tablefmt="simple",
+                       headers=['latency'] + ['EER% @ {l:g}s'.format(l=l) for l in latencies],
+                       floatfmt=".2f", numalign="decimal", stralign="left",
+                       missingval="", showindex="default", disable_numparse=False))
 
 if __name__ == '__main__':
 
@@ -460,7 +509,9 @@ if __name__ == '__main__':
 
         output_prefix = hypothesis_json[:-5]
 
-        spotting(protocol, subset, hypotheses, output_prefix)
+        latencies = [float(l) for l in arguments['--latency']]
+
+        spotting(protocol, subset, latencies, hypotheses, output_prefix)
         sys.exit(0)
 
     # hypothesis

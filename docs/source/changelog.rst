@@ -2,6 +2,11 @@
 Changelog
 #########
 
+Version 1.5 (2017-10-20)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- feat: add fixed vs. variable latency switch for LLSS
+
 Version 1.4.3 (2017-10-17)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -28,6 +28,7 @@
 
 from __future__ import unicode_literals
 
+import sys
 import numpy as np
 from .base import BaseMetric
 from .binary_classification import det_curve, precision_recall_curve
@@ -36,47 +37,120 @@ from pyannote.core import SlidingWindowFeature
 
 
 class LowLatencySpeakerSpotting(BaseMetric):
-    """Evaluation of low-latency speaker spotting
+    """Evaluation of low-latency speaker spotting (LLSS) systems
+
+    LLSS systems can be evaluated in two ways: with fixed or variable latency.
+
+    * When latency is fixed a priori (default), only scores reported by the
+    system within the requested latency range are considered. Varying the
+    detection threshold has no impact on the actual latency of the system. It
+    only impacts the detection performance.
+
+    * In variable latency mode, the whole stream of scores is considered.
+    Varying the detection threshold will impact both the detection performance
+    and the detection latency. Each trial will result in the alarm being
+    triggered with a different latency. In case the alarm is not triggered at
+    all (missed detection), the latency is arbitrarily set to the value one
+    would obtain if it were triggered at the end of the last target speech
+    turn. The reported latency is the average latency over all target trials.
 
     Parameters
     ----------
-    thresholds : (n_thresholds, ) array
-        Detection thresholds.
+    latencies : float iterable, optional
+        Switch to fixed latency mode, using provided `latencies`.
+        Defaults to [1, 5, 10, 30, 60] (in seconds).
+    thresholds : float iterable, optional
+        Switch to variable latency mode, using provided detection `thresholds`.
+        Defaults to fixed latency mode.
     """
 
     @classmethod
     def metric_name(cls):
-        return "Low-latency speaker spotting 2"
+        return "Low-latency speaker spotting"
 
     @classmethod
     def metric_components(cls):
-        return {
-            'target': 0.,
-            'non_target': 0.,
-            'true_positive': 0.,
-            'false_positive': 0.,
-            'true_negative': 0.,
-            'false_negative': 0.}
+        return {'target': 0.}
 
-    def __init__(self, thresholds=None):
+    def __init__(self, thresholds=None, latencies=None):
         super(LowLatencySpeakerSpotting, self).__init__(parallel=False)
-        self.thresholds = np.sort(thresholds)
+
+        if thresholds is None and latencies is None:
+            latencies = [1, 5, 10, 30, 60]
+
+        if thresholds is not None and latencies is not None:
+            raise ValueError(
+                'One must choose between fixed and variable latency.')
+
+        if thresholds is not None:
+            self.thresholds = np.sort(thresholds)
+
+        if latencies is not None:
+            latencies = np.sort(latencies)
+
+        self.latencies = latencies
 
     def compute_metric(self, detail):
         return None
 
-    def compute_components(self, reference, hypothesis, **kwargs):
-        """
+    def _fixed_latency(self, reference, timestamps, scores):
 
-        Parameters
-        ----------
-        reference : Timeline or Annotation
-        hypothesis : SlidingWindowFeature or (time, score) iterable
-        """
+        if not reference:
+            target_trial = False
+            spk_score = np.max(scores) * np.ones((len(self.latencies), 1))
+            abs_score = spk_score
 
-        if isinstance(hypothesis, SlidingWindowFeature):
-            hypothesis = [(window.end, value) for window, value in hypothesis]
-        timestamps, scores = zip(*hypothesis)
+        else:
+            target_trial = True
+
+            # cumulative target speech duration after each speech turn
+            total = np.cumsum([segment.duration for segment in reference])
+
+            # maximum score in timerange [0, t]
+            # where t is when latency is reached
+            spk_score = []
+            abs_score = []
+
+            # index of speech turn when given latency is reached
+            for i, latency in zip(np.searchsorted(total, self.latencies),
+                                  self.latencies):
+
+                # maximum score in timerange [0, t]
+                # where t is when latency is reached
+                try:
+                    t = reference[i].end - (total[i] - latency)
+                    up_to = np.searchsorted(timestamps, t)
+                    if up_to < 1:
+                        s = -sys.float_info.max
+                    else:
+                        s = np.max(scores[:up_to])
+                except IndexError as e:
+                    s = np.max(scores)
+                spk_score.append(s)
+
+                # maximum score in timerange [0, t + latency]
+                # where t is when target speaker starts speaking
+                t = reference[0].start + latency
+
+                up_to = np.searchsorted(timestamps, t)
+                if up_to < 1:
+                    s = -sys.float_info.max
+                else:
+                    s = np.max(scores[:up_to])
+                abs_score.append(s)
+
+            spk_score = np.array(spk_score).reshape((-1, 1))
+            abs_score = np.array(abs_score).reshape((-1, 1))
+
+        return {
+            'target': target_trial,
+            'speaker_latency': self.latencies,
+            'spk_score': spk_score,
+            'absolute_latency': self.latencies,
+            'abs_score': abs_score,
+        }
+
+    def _variable_latency(self, reference, timestamps, scores, **kwargs):
 
         # pre-compute latencies
         speaker_latency = np.NAN * np.ones((len(timestamps), 1))
@@ -97,36 +171,27 @@ class LowLatencySpeakerSpotting(BaseMetric):
         indices = np.array([np.searchsorted(triggered[:,i], True)
                             for i, _ in enumerate(self.thresholds)])
 
-        # is alarm triggered at all?
-        positive = triggered[-1, :]
 
         if reference:
 
             target_trial = True
-            true_negative = 0
-            false_positive = 0
-
-            true_positive = positive
-            false_negative = ~true_positive
 
             absolute_latency = np.take(absolute_latency, indices, mode='clip')
             speaker_latency = np.take(speaker_latency, indices, mode='clip')
 
+            # is alarm triggered at all?
+            positive = triggered[-1, :]
+
             # in case alarm is not triggered, set absolute latency to duration
             # between first and last speech turn of the target speaker...
-            absolute_latency[false_negative] = reference.extent().duration
+            absolute_latency[~positive] = reference.extent().duration
 
             # ...and set speaker latency to target's total speech duration
-            speaker_latency[false_negative] = reference.duration()
+            speaker_latency[~positive] = reference.duration()
 
         else:
 
             target_trial = False
-            true_positive = 0
-            false_negative = 0
-
-            false_positive = positive
-            true_negative = ~false_positive
 
             # the notion of "latency" is not applicable to non-target trials
             absolute_latency = np.NAN
@@ -134,15 +199,29 @@ class LowLatencySpeakerSpotting(BaseMetric):
 
         return {
             'target': target_trial,
-            'non_target': ~target_trial,
-            'true_positive': true_positive,
-            'true_negative': true_negative,
-            'false_positive': false_positive,
-            'false_negative': false_negative,
             'absolute_latency': absolute_latency,
             'speaker_latency': speaker_latency,
             'score': np.max(scores)
         }
+
+    def compute_components(self, reference, hypothesis, **kwargs):
+        """
+
+        Parameters
+        ----------
+        reference : Timeline or Annotation
+        hypothesis : SlidingWindowFeature or (time, score) iterable
+        """
+
+        if isinstance(hypothesis, SlidingWindowFeature):
+            hypothesis = [(window.end, value) for window, value in hypothesis]
+        timestamps, scores = zip(*hypothesis)
+
+        if self.latencies is None:
+            return self._variable_latency(reference, timestamps, scores)
+
+        else:
+            return self._fixed_latency(reference, timestamps, scores)
 
     @property
     def absolute_latency(self):
@@ -170,6 +249,7 @@ class LowLatencySpeakerSpotting(BaseMetric):
             Target trial prior. Defaults to 0.5.
         return_latency : bool, optional
             Set to True to return latency.
+            Has no effect when latencies are given at initialization time.
 
         Returns
         -------
@@ -187,43 +267,49 @@ class LowLatencySpeakerSpotting(BaseMetric):
         absolute_latency : numpy array
             Speaker and absolute latency when return_latency is set to True.
         """
-        y_true = np.array([trial['target'] for _, trial in self])
-        scores = np.array([trial['score'] for _, trial in self])
-        fpr, fnr, thresholds, eer =  det_curve(y_true, scores, distances=False)
-        fpr, fnr, thresholds = fpr[::-1], fnr[::-1], thresholds[::-1]
-        cdet = cost_miss * fnr * prior_target + \
-               cost_fa * fpr * (1. - prior_target)
 
-        if return_latency:
-            # needed to align the thresholds used in the DET curve
-            # with (self.)thresholds used to compute latencies.
-            indices = np.searchsorted(thresholds, self.thresholds, side='left')
+        if self.latencies is None:
 
-            thresholds = np.take(thresholds, indices, mode='clip')
-            fpr = np.take(fpr, indices, mode='clip')
-            fnr = np.take(fnr, indices, mode='clip')
-            cdet = np.take(cdet, indices, mode='clip')
-            return thresholds, fpr, fnr, eer, cdet, \
-                   self.speaker_latency, self.absolute_latency
+            y_true = np.array([trial['target'] for _, trial in self])
+            scores = np.array([trial['score'] for _, trial in self])
+            fpr, fnr, thresholds, eer =  det_curve(y_true, scores, distances=False)
+            fpr, fnr, thresholds = fpr[::-1], fnr[::-1], thresholds[::-1]
+            cdet = cost_miss * fnr * prior_target + \
+                   cost_fa * fpr * (1. - prior_target)
+
+            if return_latency:
+                # needed to align the thresholds used in the DET curve
+                # with (self.)thresholds used to compute latencies.
+                indices = np.searchsorted(thresholds, self.thresholds, side='left')
+
+                thresholds = np.take(thresholds, indices, mode='clip')
+                fpr = np.take(fpr, indices, mode='clip')
+                fnr = np.take(fnr, indices, mode='clip')
+                cdet = np.take(cdet, indices, mode='clip')
+                return thresholds, fpr, fnr, eer, cdet, \
+                       self.speaker_latency, self.absolute_latency
+
+            else:
+                return thresholds, fpr, fnr, eer, cdet
 
         else:
-            return thresholds, fpr, fnr, eer, cdet
 
-    @property
-    def precision_recall_curve(self):
-        """Precision-recall curve
+            y_true = np.array([trial['target'] for _, trial in self])
+            spk_scores = np.array([trial['spk_score'] for _, trial in self])
+            abs_scores = np.array([trial['abs_score'] for _, trial in self])
 
-        Returns
-        -------
-        precision : numpy array
-            Precision
-        recall : numpy array
-            Recall
-        thresholds : numpy array
-            Corresponding thresholds
-        auc : float
-            Area under curve
-        """
-        y_true = np.array([trial['target'] for _, trial in self])
-        scores = np.array([trial['score'] for _, trial in self])
-        return precision_recall_curve(y_true, scores, distances=False)
+            result = {}
+            for key, scores in {'speaker': spk_scores,
+                                'absolute': abs_scores}.items():
+
+                result[key] = {}
+
+                for i, latency in enumerate(self.latencies):
+                    fpr, fnr, theta, eer =  det_curve(y_true, scores[:, i],
+                                                      distances=False)
+                    fpr, fnr, theta = fpr[::-1], fnr[::-1], theta[::-1]
+                    cdet = cost_miss * fnr * prior_target + \
+                           cost_fa * fpr * (1. - prior_target)
+                    result[key][latency] = theta, fpr, fnr, eer, cdet
+
+            return result
