@@ -2,8 +2,8 @@
 Changelog
 #########
 
-Version 1.6 (2018-02-05)
-~~~~~~~~~~~~~~~~~~~~~~~~
+Version 1.6.1 (2018-02-05)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - fix: fix Diarization{Purity | Coverage} with empty references
 - improve: improve support for speaker spotting experiments
