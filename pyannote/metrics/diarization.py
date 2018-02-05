@@ -317,6 +317,9 @@ class DiarizationPurity(UEMSupportMixin, BaseMetric):
             reference, hypothesis, uem=uem,
             collar=self.collar, skip_overlap=self.skip_overlap)
 
+        if not reference:
+            return detail
+
         # cooccurrence matrix
         matrix = reference * hypothesis
 
