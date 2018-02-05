@@ -33,6 +33,7 @@ from __future__ import print_function
 
 import scipy.stats
 import pandas as pd
+import numpy as np
 
 
 class BaseMetric(object):
@@ -163,14 +164,16 @@ class BaseMetric(object):
                 else:
                     row[key, ''] = value
                     if percent:
-                        row[key, '%'] = 100 * value / total
+                        if total > 0:
+                            row[key, '%'] = 100 * value / total
+                        else:
+                            row[key, '%'] = np.NaN
 
             report.append(row)
             uris.append(uri)
 
         row = {}
         components = self.accumulated_
-
 
         if percent:
             total = components['total']
