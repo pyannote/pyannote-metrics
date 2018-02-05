@@ -2,6 +2,14 @@
 Changelog
 #########
 
+Version 1.6 (2018-02-05)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- fix: fix Diarization{Purity | Coverage} with empty references
+- improve: improve support for speaker spotting experiments
+- chore: (temporarily?) remove parallel processing in pyannote.metrics.py
+- setup: drop support for Python 2
+
 Version 1.5 (2017-10-20)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
