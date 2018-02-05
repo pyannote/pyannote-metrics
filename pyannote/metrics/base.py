@@ -79,9 +79,11 @@ class BaseMetric(object):
             from pyannote.metrics import manager_
             self.accumulated_ = manager_.dict()
             self.results_ = manager_.list()
+            self.uris_ = manager_.dict()
         else:
             self.accumulated_ = dict()
             self.results_ = list()
+            self.uris_ = dict()
         for value in self.components_:
             self.accumulated_[value] = 0.
 
@@ -121,7 +123,14 @@ class BaseMetric(object):
         components[self.metric_name_] = self.compute_metric(components)
 
         # keep track of this computation
-        self.results_.append((reference.uri, components))
+        uri = reference.uri
+        if uri not in self.uris_:
+            self.uris_[uri] = 1
+        else:
+            self.uris_[uri] += 1
+            uri = uri + ' #{0:d}'.format(self.uris_[uri])
+
+        self.results_.append((uri, components))
 
         # accumulate components
         for name in self.components_:
