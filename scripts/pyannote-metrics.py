@@ -352,6 +352,8 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix):
     if not latencies:
         Scores = []
 
+    protocol.diarization = False
+
     trials = getattr(protocol, '{subset}_trial'.format(subset=subset))()
     for i, (current_trial, hypothesis) in enumerate(zip(trials, hypotheses)):
 
@@ -398,7 +400,6 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix):
                 msg.format(i=i,
                 found=min(timestamps),
                 should_be=try_with.start))
-
 
     if not latencies:
         # estimate best set of thresholds
