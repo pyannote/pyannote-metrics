@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2017 CNRS
+# Copyright (c) 2017-2018 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -98,7 +98,7 @@ import functools
 import numpy as np
 import pandas as pd
 from tabulate import tabulate
-import multiprocessing as mp
+# import multiprocessing as mp
 
 # use for parsing hypothesis file
 from pyannote.parser import MagicParser
@@ -182,23 +182,26 @@ def get_reports(protocol, subset, hypotheses, metrics):
     protocol.progress = progress
     n_items = len(items)
 
-    # heuristic to estimate the optimal number of processes
-    chunksize = 20
-    processes = max(1, min(mp.cpu_count(), n_items // chunksize))
+    for item in items:
+        process(item)
 
-    pool = mp.Pool(processes)
-    _ = pool.map(process, items, chunksize=chunksize)
+    # HB. 2018-02-05: parallel processing was removed because it is not clear
+    # how to handle the case where the same 'uri' is processed several times
+    # in a possibly different order for each sub-metric...
+    # # heuristic to estimate the optimal number of processes
+    # chunksize = 20
+    # processes = max(1, min(mp.cpu_count(), n_items // chunksize))
+    # pool = mp.Pool(processes)
+    # _ = pool.map(process, items, chunksize=chunksize)
 
     return {key: metric.report(display=False)
             for key, metric in metrics.items()}
 
-def reindex(report, protocol, subset):
-    progress = protocol.progress
-    protocol.progress = False
-    new_index = [item['uri'] for item in getattr(protocol, subset)()] + \
-                ['TOTAL']
-    protocol.progress = progress
-    return report.reindex(new_index)
+def reindex(report):
+    """Reindex report so that 'TOTAL' is the last row"""
+    index = list(report.index)
+    i = index.index('TOTAL')
+    return report.reindex(index[:i] + index[i+1:] + ['TOTAL'])
 
 def detection(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
 
@@ -221,7 +224,7 @@ def detection(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
     report['precision', '%'] = precision[metrics['precision'].name, '%']
     report['recall', '%'] = recall[metrics['recall'].name, '%']
 
-    report = reindex(report, protocol, subset)
+    report = reindex(report)
 
     columns = list(report.columns)
     report = report[[columns[0]] + columns[-3:] + columns[1:-3]]
@@ -257,7 +260,7 @@ def segmentation(protocol, subset, hypotheses, tolerance=0.5):
     recall = recall[metrics['recall'].name]
 
     report = pd.concat([coverage, purity, precision, recall], axis=1)
-    report = reindex(report, protocol, subset)
+    report = reindex(report)
 
     headers = ['Segmentation (tolerance = {0:g} ms)'.format(1000*tolerance),
                'coverage', 'purity', 'precision', 'recall']
@@ -292,7 +295,7 @@ def diarization(protocol, subset, hypotheses, greedy=False,
     columns = list(report.columns)
     report = report[[columns[0]] + columns[-2:] + columns[1:-2]]
 
-    report = reindex(report, protocol, subset)
+    report = reindex(report)
 
     summary = 'Diarization ({0:s}collar = {1:g} ms{2})'.format(
                 'greedy, ' if greedy else '',
@@ -330,7 +333,7 @@ def identification(protocol, subset, hypotheses,
     columns = list(report.columns)
     report = report[[columns[0]] + columns[-2:] + columns[1:-2]]
 
-    report = reindex(report, protocol, subset)
+    report = reindex(report)
 
     summary = 'Identification (collar = {1:g} ms{2})'.format(
                 1000 * collar,
