@@ -34,7 +34,7 @@ Usage:
   pyannote-metrics.py segmentation [--subset=<subset> --tolerance=<seconds>] <database.task.protocol> <hypothesis.mdtm>
   pyannote-metrics.py diarization [--subset=<subset> --greedy --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.mdtm>
   pyannote-metrics.py identification [--subset=<subset> --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.mdtm>
-  pyannote-metrics.py spotting [--subset=<subset> --latency=<seconds>...] <database.task.protocol> <hypothesis.json>
+  pyannote-metrics.py spotting [--subset=<subset> --latency=<seconds>... --filter=<expression>...] <database.task.protocol> <hypothesis.json>
   pyannote-metrics.py -h | --help
   pyannote-metrics.py --version
 
@@ -46,6 +46,10 @@ Options:
   --tolerance=<seconds>      Tolerance, in seconds [default: 0.5].
   --greedy                   Use greedy diarization error rate.
   --latency=<seconds>        Evaluate with fixed latency.
+  --filter=<expression>      Filter out target trials that do not match the
+                             expression; e.g. use --filter="speech>10" to skip
+                             target trials with less than 10s of speech from
+                             the target.
   -h --help                  Show this screen.
   --version                  Show version.
 
@@ -347,7 +351,8 @@ def identification(protocol, subset, hypotheses,
                    floatfmt=".2f", numalign="decimal", stralign="left",
                    missingval="", showindex="default", disable_numparse=False))
 
-def spotting(protocol, subset, latencies, hypotheses, output_prefix):
+def spotting(protocol, subset, latencies, hypotheses, output_prefix,
+             filter_func=None):
 
     if not latencies:
         Scores = []
@@ -417,6 +422,13 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix):
 
     trials = getattr(protocol, '{subset}_trial'.format(subset=subset))()
     for i, (current_trial, hypothesis) in enumerate(zip(trials, hypotheses)):
+
+        if filter_func is not None:
+            speech = current_trial['reference'].duration()
+            target_trial = speech > 0
+            if target_trial and filter_func(speech):
+                continue
+
         reference = current_trial['reference']
         metric(reference, hypothesis['scores'])
 
@@ -490,6 +502,7 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix):
                        floatfmt=".2f", numalign="decimal", stralign="left",
                        missingval="", showindex="default", disable_numparse=False))
 
+
 if __name__ == '__main__':
 
     arguments = docopt(__doc__, version='Evaluation')
@@ -515,7 +528,22 @@ if __name__ == '__main__':
 
         latencies = [float(l) for l in arguments['--latency']]
 
-        spotting(protocol, subset, latencies, hypotheses, output_prefix)
+        filters = arguments['--filter']
+        if filters:
+            from sympy import sympify, lambdify, symbols
+            speech = symbols('speech')
+            filter_funcs = []
+            filter_funcs = [
+                lambdify([speech], sympify(expression))
+                for expression in filters]
+            filter_func = lambda speech: \
+                any(~func(speech) for func in filter_funcs)
+        else:
+            filter_func = None
+
+        spotting(protocol, subset, latencies, hypotheses, output_prefix,
+                 filter_func=filter_func)
+
         sys.exit(0)
 
     # hypothesis
