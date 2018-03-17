@@ -73,7 +73,7 @@ class LowLatencySpeakerSpotting(BaseMetric):
         return {'target': 0.}
 
     def __init__(self, thresholds=None, latencies=None):
-        super(LowLatencySpeakerSpotting, self).__init__(parallel=False)
+        super(LowLatencySpeakerSpotting, self).__init__()
 
         if thresholds is None and latencies is None:
             latencies = [1, 5, 10, 30, 60]
