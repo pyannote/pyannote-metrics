@@ -54,6 +54,7 @@ setup(
         'docopt >= 0.6.2',
         'tabulate >= 0.7.7',
         'matplotlib >= 2.0.0',
+        'sympy >= 1.1',
     ],
     # versioneer
     version=versioneer.get_version(),

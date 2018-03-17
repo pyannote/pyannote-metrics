@@ -34,7 +34,7 @@ Usage:
   pyannote-metrics.py segmentation [--subset=<subset> --tolerance=<seconds>] <database.task.protocol> <hypothesis.mdtm>
   pyannote-metrics.py diarization [--subset=<subset> --greedy --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.mdtm>
   pyannote-metrics.py identification [--subset=<subset> --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.mdtm>
-  pyannote-metrics.py spotting [--subset=<subset> --latency=<seconds>...] <database.task.protocol> <hypothesis.json>
+  pyannote-metrics.py spotting [--subset=<subset> --latency=<seconds>... --filter=<expression>...] <database.task.protocol> <hypothesis.json>
   pyannote-metrics.py -h | --help
   pyannote-metrics.py --version
 
@@ -46,6 +46,10 @@ Options:
   --tolerance=<seconds>      Tolerance, in seconds [default: 0.5].
   --greedy                   Use greedy diarization error rate.
   --latency=<seconds>        Evaluate with fixed latency.
+  --filter=<expression>      Filter out target trials that do not match the
+                             expression; e.g. use --filter="speech>10" to skip
+                             target trials with less than 10s of speech from
+                             the target.
   -h --help                  Show this screen.
   --version                  Show version.
 
@@ -205,13 +209,15 @@ def reindex(report):
 
 def detection(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
 
+    options = {'collar': collar,
+               'skip_overlap': skip_overlap,
+               'parallel': True}
+
     metrics = {
-        'error': DetectionErrorRate(collar=collar, skip_overlap=skip_overlap),
-        'accuracy': DetectionAccuracy(collar=collar,
-                                      skip_overlap=skip_overlap),
-        'precision': DetectionPrecision(collar=collar,
-                                        skip_overlap=skip_overlap),
-        'recall': DetectionRecall(collar=collar, skip_overlap=skip_overlap)}
+        'error': DetectionErrorRate(**options),
+        'accuracy': DetectionAccuracy(**options),
+        'precision': DetectionPrecision(**options),
+        'recall': DetectionRecall(**options)}
 
     reports = get_reports(protocol, subset, hypotheses, metrics)
 
@@ -242,10 +248,12 @@ def detection(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
 
 def segmentation(protocol, subset, hypotheses, tolerance=0.5):
 
-    metrics = {'coverage': SegmentationCoverage(tolerance=tolerance),
-               'purity': SegmentationPurity(tolerance=tolerance),
-               'precision': SegmentationPrecision(tolerance=tolerance),
-               'recall': SegmentationRecall(tolerance=tolerance)}
+    options = {'tolerance': tolerance, 'parallel': True}
+
+    metrics = {'coverage': SegmentationCoverage(**options),
+               'purity': SegmentationPurity(**options),
+               'precision': SegmentationPrecision(**options),
+               'recall': SegmentationRecall(**options)}
 
     reports = get_reports(protocol, subset, hypotheses, metrics)
 
@@ -271,17 +279,18 @@ def segmentation(protocol, subset, hypotheses, tolerance=0.5):
 def diarization(protocol, subset, hypotheses, greedy=False,
                 collar=0.0, skip_overlap=False):
 
+    options = {'collar': collar,
+               'skip_overlap': skip_overlap,
+               'parallel': True}
+
     metrics = {
-        'purity': DiarizationPurity(collar=collar, skip_overlap=skip_overlap),
-        'coverage': DiarizationCoverage(collar=collar,
-                                        skip_overlap=skip_overlap)}
+        'purity': DiarizationPurity(**options),
+        'coverage': DiarizationCoverage(**options)}
 
     if greedy:
-        metrics['error'] = GreedyDiarizationErrorRate(
-            collar=collar, skip_overlap=skip_overlap)
+        metrics['error'] = GreedyDiarizationErrorRate(**options)
     else:
-        metrics['error'] = DiarizationErrorRate(
-            collar=collar, skip_overlap=skip_overlap)
+        metrics['error'] = DiarizationErrorRate(**options)
 
     reports = get_reports(protocol, subset, hypotheses, metrics)
 
@@ -313,13 +322,14 @@ def diarization(protocol, subset, hypotheses, greedy=False,
 def identification(protocol, subset, hypotheses,
                    collar=0.0, skip_overlap=False):
 
+    options = {'collar': collar,
+               'skip_overlap': skip_overlap,
+               'parallel': True}
+
     metrics = {
-        'error': IdentificationErrorRate(collar=collar,
-                                         skip_overlap=skip_overlap),
-        'precision': IdentificationPrecision(collar=collar,
-                                             skip_overlap=skip_overlap),
-        'recall': IdentificationRecall(collar=collar,
-                                       skip_overlap=skip_overlap)}
+        'error': IdentificationErrorRate(**options),
+        'precision': IdentificationPrecision(**options),
+        'recall': IdentificationRecall(**options)}
 
     reports = get_reports(protocol, subset, hypotheses, metrics)
 
@@ -347,7 +357,8 @@ def identification(protocol, subset, hypotheses,
                    floatfmt=".2f", numalign="decimal", stralign="left",
                    missingval="", showindex="default", disable_numparse=False))
 
-def spotting(protocol, subset, latencies, hypotheses, output_prefix):
+def spotting(protocol, subset, latencies, hypotheses, output_prefix,
+             filter_func=None):
 
     if not latencies:
         Scores = []
@@ -417,6 +428,13 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix):
 
     trials = getattr(protocol, '{subset}_trial'.format(subset=subset))()
     for i, (current_trial, hypothesis) in enumerate(zip(trials, hypotheses)):
+
+        if filter_func is not None:
+            speech = current_trial['reference'].duration()
+            target_trial = speech > 0
+            if target_trial and filter_func(speech):
+                continue
+
         reference = current_trial['reference']
         metric(reference, hypothesis['scores'])
 
@@ -490,6 +508,7 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix):
                        floatfmt=".2f", numalign="decimal", stralign="left",
                        missingval="", showindex="default", disable_numparse=False))
 
+
 if __name__ == '__main__':
 
     arguments = docopt(__doc__, version='Evaluation')
@@ -515,7 +534,22 @@ if __name__ == '__main__':
 
         latencies = [float(l) for l in arguments['--latency']]
 
-        spotting(protocol, subset, latencies, hypotheses, output_prefix)
+        filters = arguments['--filter']
+        if filters:
+            from sympy import sympify, lambdify, symbols
+            speech = symbols('speech')
+            filter_funcs = []
+            filter_funcs = [
+                lambdify([speech], sympify(expression))
+                for expression in filters]
+            filter_func = lambda speech: \
+                any(~func(speech) for func in filter_funcs)
+        else:
+            filter_func = None
+
+        spotting(protocol, subset, latencies, hypotheses, output_prefix,
+                 filter_func=filter_func)
+
         sys.exit(0)
 
     # hypothesis

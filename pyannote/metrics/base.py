@@ -63,7 +63,7 @@ class BaseMetric(object):
             cls.__name__ + " is missing a 'metric_components' class method. "
             "It should return the list of names of metric components.")
 
-    def __init__(self, parallel=True, **kwargs):
+    def __init__(self, parallel=False, **kwargs):
         super(BaseMetric, self).__init__()
         self.parallel = parallel
         self.metric_name_ = self.__class__.metric_name()
