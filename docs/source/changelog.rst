@@ -2,6 +2,12 @@
 Changelog
 #########
 
+Version 1.7 (2018-03-17)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- feat: add option to filter out target trials in "spotting" mode
+- chore: default to "parallel=False"
+
 Version 1.6.1 (2018-02-05)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
