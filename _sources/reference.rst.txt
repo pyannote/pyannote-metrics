@@ -12,7 +12,7 @@ Evaluation metrics
 
 Here is a typical speaker diarization pipeline:
 
-.. image:: images/pipeline.pdf
+.. image:: images/pipeline.png
 
 The first step is usually dedicated to speech activity detection, where the objective is to get rid of all non-speech regions.
 Then, speaker change detection aims at segmenting speech regions into homogeneous segments.
@@ -54,7 +54,7 @@ Segmentation
 
 Change detection modules can be evaluated using two pairs of dual metrics: precision and recall, or purity and coverage.
 
-.. image:: images/segmentation.pdf
+.. image:: images/segmentation.png
 
 Precision and recall are standard metrics based on the number of correctly detected speaker boundaries. Recall is 75% because 3 out of 4 reference boundaries were correctly detected, and precision is 100% because all hypothesized boundaries are correct.
 
@@ -119,7 +119,7 @@ Use case
 This figure depicts the evolution of a multi-stage speaker diarization system applied on the ETAPE dataset.
 It is roughly made of four consecutive modules (segmentation, BIC clustering, Viterbi resegmentation, and CLR clustering).
 
-.. image:: images/diagnostic.pdf
+.. image:: images/diagnostic.png
 
 From the upper part of the figure (DER as a function of the module), it is clear that each module improves the output of the previous one.
 

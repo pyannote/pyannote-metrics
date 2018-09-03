@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Tutorial &mdash; pyannote.metrics 1.0 documentation</title>
+  <title>Tutorial &mdash; pyannote.metrics 1.7 documentation</title>
   
 
   
@@ -24,28 +24,19 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="pyannote.metrics 1.0 documentation" href="index.html"/>
-        <link rel="up" title="Getting started" href="api.html"/>
-        <link rel="next" title="Principles" href="basics.html"/>
-        <link rel="prev" title="Getting started" href="api.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Principles" href="basics.html" />
+    <link rel="prev" title="Getting started" href="api.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -67,7 +58,7 @@
             
             
               <div class="version">
-                1.0
+                1.7
               </div>
             
           
@@ -113,7 +104,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pyannote.metrics</a>
@@ -121,9 +112,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -170,12 +162,12 @@
   <div class="section" id="tutorial">
 <h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
 <p>This tutorial will guide you through a simple example on how to use <cite>pyannote.metrics</cite> for evaluation purposes.</p>
-<p><cite>pyannote.metrics</cite> internally relies on <a class="reference external" href="http://pyannote.github.io/pyannote-core/reference.html#pyannote.core.Annotation" title="(in pyannote.core v1.0)"><code class="xref py py-class docutils literal"><span class="pre">pyannote.core.Annotation</span></code></a> data structure to store reference and hypothesis annotations.</p>
+<p><cite>pyannote.metrics</cite> internally relies on <a class="reference external" href="http://pyannote.github.io/pyannote-core/reference.html#pyannote.core.Annotation" title="(in pyannote.core v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.core.Annotation</span></code></a> data structure to store reference and hypothesis annotations.</p>
 <p>(<a class="reference external" href="./pyplots/tutorial.py">Source code</a>, <a class="reference external" href="./pyplots/tutorial.png">png</a>, <a class="reference external" href="./pyplots/tutorial.hires.png">hires.png</a>, <a class="reference external" href="./pyplots/tutorial.pdf">pdf</a>)</p>
 <div class="figure">
 <img alt="_images/tutorial.png" src="_images/tutorial.png" />
 </div>
-<div class="highlight-ipython"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pyannote.core</span> <span class="kn">import</span> <span class="n">Segment</span><span class="p">,</span> <span class="n">Timeline</span><span class="p">,</span> <span class="n">Annotation</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pyannote.core</span> <span class="kn">import</span> <span class="n">Segment</span><span class="p">,</span> <span class="n">Timeline</span><span class="p">,</span> <span class="n">Annotation</span>
 
 <span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">reference</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">()</span>
    <span class="o">...</span><span class="p">:</span> <span class="n">reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;A&#39;</span>
@@ -194,7 +186,7 @@
 </pre></div>
 </div>
 <p>Several evaluation metrics are available, including the diarization error rate:</p>
-<div class="highlight-ipython"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">13</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pyannote.metrics.diarization</span> <span class="kn">import</span> <span class="n">DiarizationErrorRate</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">13</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pyannote.metrics.diarization</span> <span class="kn">import</span> <span class="n">DiarizationErrorRate</span>
 
 <span class="n">In</span> <span class="p">[</span><span class="mi">14</span><span class="p">]:</span> <span class="n">metric</span> <span class="o">=</span> <span class="n">DiarizationErrorRate</span><span class="p">()</span>
 
@@ -202,15 +194,13 @@
 <span class="n">Out</span><span class="p">[</span><span class="mi">15</span><span class="p">]:</span> <span class="mf">0.5161290322580645</span>
 </pre></div>
 </div>
-<p>That&#8217;s it for the tutorial.
-<cite>pyannote.metrics</cite> can do much more than that! Keep reading...</p>
+<p>That’s it for the tutorial.
+<cite>pyannote.metrics</cite> can do much more than that! Keep reading…</p>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -232,7 +222,7 @@
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -250,7 +240,8 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.0',
+            VERSION:'1.7',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -260,23 +251,17 @@
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

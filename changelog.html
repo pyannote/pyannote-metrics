@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Changelog &mdash; pyannote.metrics 1.0 documentation</title>
+  <title>Changelog &mdash; pyannote.metrics 1.7 documentation</title>
   
 
   
@@ -24,26 +24,18 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="pyannote.metrics 1.0 documentation" href="index.html"/>
-        <link rel="prev" title="Reference" href="reference.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Reference" href="reference.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -65,7 +57,7 @@
             
             
               <div class="version">
-                1.0
+                1.7
               </div>
             
           
@@ -96,6 +88,16 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-7-1-2018-09-03">Version 1.7.1 (2018-09-03)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-7-2018-03-17">Version 1.7 (2018-03-17)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-6-1-2018-02-05">Version 1.6.1 (2018-02-05)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-5-2017-10-20">Version 1.5 (2017-10-20)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-4-3-2017-10-17">Version 1.4.3 (2017-10-17)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-4-2-2017-10-13">Version 1.4.2 (2017-10-13)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-4-1-2017-10-02">Version 1.4.1 (2017-10-02)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-3-2017-09-19">Version 1.3 (2017-09-19)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-2-2017-07-21">Version 1.2 (2017-07-21)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-1-2017-07-20">Version 1.1 (2017-07-20)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-1-0-2017-07-04">Version 1.0 (2017-07-04)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-14-4-2017-03-27">Version 0.14.4 (2017-03-27)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-14-3-2017-03-27">Version 0.14.3 (2017-03-27)</a></li>
@@ -133,7 +135,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pyannote.metrics</a>
@@ -141,9 +143,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -187,6 +190,83 @@
             
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="version-1-7-1-2018-09-03">
+<h2>Version 1.7.1 (2018-09-03)<a class="headerlink" href="#version-1-7-1-2018-09-03" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>fix: fix broken images in documentation</li>
+</ul>
+</div>
+<div class="section" id="version-1-7-2018-03-17">
+<h2>Version 1.7 (2018-03-17)<a class="headerlink" href="#version-1-7-2018-03-17" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat: add option to filter out target trials in “spotting” mode</li>
+<li>chore: default to “parallel=False”</li>
+</ul>
+</div>
+<div class="section" id="version-1-6-1-2018-02-05">
+<h2>Version 1.6.1 (2018-02-05)<a class="headerlink" href="#version-1-6-1-2018-02-05" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>fix: fix Diarization{Purity | Coverage} with empty references</li>
+<li>improve: improve support for speaker spotting experiments</li>
+<li>chore: (temporarily?) remove parallel processing in pyannote.metrics.py</li>
+<li>setup: drop support for Python 2</li>
+</ul>
+</div>
+<div class="section" id="version-1-5-2017-10-20">
+<h2>Version 1.5 (2017-10-20)<a class="headerlink" href="#version-1-5-2017-10-20" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat: add fixed vs. variable latency switch for LLSS</li>
+</ul>
+</div>
+<div class="section" id="version-1-4-3-2017-10-17">
+<h2>Version 1.4.3 (2017-10-17)<a class="headerlink" href="#version-1-4-3-2017-10-17" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>fix: add more safety checks to pyannote-metrics.py “spotting” mode</li>
+<li>setup: switch to pyannote.core 1.2, pyannote.database 1.1, pyannote.parser 0.7</li>
+</ul>
+</div>
+<div class="section" id="version-1-4-2-2017-10-13">
+<h2>Version 1.4.2 (2017-10-13)<a class="headerlink" href="#version-1-4-2-2017-10-13" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>improve: set latency of missed detections to maximum possible value</li>
+<li>improve: improve instructions in pyannote-metrics.py –help</li>
+</ul>
+</div>
+<div class="section" id="version-1-4-1-2017-10-02">
+<h2>Version 1.4.1 (2017-10-02)<a class="headerlink" href="#version-1-4-1-2017-10-02" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat: add LowLatencySpeakerSpotting metric</li>
+<li>feat: add “spotting” mode to pyannote-metrics.py</li>
+<li>setup: switch to pyannote.database 1.0</li>
+</ul>
+</div>
+<div class="section" id="version-1-3-2017-09-19">
+<h2>Version 1.3 (2017-09-19)<a class="headerlink" href="#version-1-3-2017-09-19" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat: add “skip_overlap” option to not evaluate overlapping speech regions</li>
+<li>improve: bring performance improvement to diarization metrics</li>
+<li>fix: fix a bug where collar was applied twice in DiarizationErrorRate</li>
+<li>fix: add collar support to purity/coverage/homogeneity/completeness</li>
+<li>fix: fix a bug happening in ‘uemify’ when both reference and hypothesis are empty</li>
+<li>fix: fix a “division by zero” error in homogeneity/completeness</li>
+<li>setup: switch to pyannote.core 1.1 (major performance improvements)</li>
+</ul>
+</div>
+<div class="section" id="version-1-2-2017-07-21">
+<h2>Version 1.2 (2017-07-21)<a class="headerlink" href="#version-1-2-2017-07-21" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat: add method DiarizationPurityCoverageFMeasure.compute_metrics to get
+purity, coverage, and their F-measure (all at once)</li>
+</ul>
+</div>
+<div class="section" id="version-1-1-2017-07-20">
+<h2>Version 1.1 (2017-07-20)<a class="headerlink" href="#version-1-1-2017-07-20" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>feat: add new metric ‘DiarizationPurityCoverageFMeasure’</li>
+<li>doc: update installation instructions</li>
+<li>setup: switch to pyannote.core 1.0.4</li>
+</ul>
+</div>
 <div class="section" id="version-1-0-2017-07-04">
 <h2>Version 1.0 (2017-07-04)<a class="headerlink" href="#version-1-0-2017-07-04" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -223,8 +303,8 @@
 <div class="section" id="version-0-14-2017-02-06">
 <h2>Version 0.14 (2017-02-06)<a class="headerlink" href="#version-0-14-2017-02-06" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>feat: add &#8220;parallel&#8221; option to not use multiprocessing</li>
-<li>feat: add &#8220;accuracy&#8221; in &#8220;detection&#8221; report</li>
+<li>feat: add “parallel” option to not use multiprocessing</li>
+<li>feat: add “accuracy” in “detection” report</li>
 <li>setup: switch to pyannote.core 0.13</li>
 <li>setup: switch to pyannote.parser 0.6.5</li>
 </ul>
@@ -233,7 +313,7 @@
 <h2>Version 0.13.2 (2017-01-30)<a class="headerlink" href="#version-0-13-2-2017-01-30" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>feat: add pyannote-metrics.py evaluation script</li>
-<li>fix: fix BaseMetric.report() for metric without a &#8216;total&#8217; component</li>
+<li>fix: fix BaseMetric.report() for metric without a ‘total’ component</li>
 <li>fix: fix (Greedy)DiarizationErrorRate uem handling</li>
 <li>fix: fix (Greedy)DiarizationErrorRate parallel processing</li>
 <li>setup: switch to pyannote.core 0.12</li>
@@ -263,20 +343,20 @@
 <h2>Version 0.10.3 (2016-11-28)<a class="headerlink" href="#version-0-10-3-2016-11-28" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>fix: fix (greedy) diarization error rate</li>
-<li>feat: add support for &#8216;collar&#8217; to (greedy) diarization error rate</li>
+<li>feat: add support for ‘collar’ to (greedy) diarization error rate</li>
 </ul>
 </div>
 <div class="section" id="version-0-10-2-2016-11-10">
 <h2>Version 0.10.2 (2016-11-10)<a class="headerlink" href="#version-0-10-2-2016-11-10" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>fix: fix default &#8220;xlim&#8221; in &#8220;plot_distributions&#8221;</li>
+<li>fix: fix default “xlim” in “plot_distributions”</li>
 <li>setup: switch to pyannote.core 0.8 and pyannote.algorithms 0.6.6</li>
 </ul>
 </div>
 <div class="section" id="version-0-10-1-2016-11-05">
 <h2>Version 0.10.1 (2016-11-05)<a class="headerlink" href="#version-0-10-1-2016-11-05" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>feat: add &#8220;uem&#8221; support to diarization metrics</li>
+<li>feat: add “uem” support to diarization metrics</li>
 </ul>
 </div>
 <div class="section" id="version-0-9-2016-09-23">
@@ -363,9 +443,7 @@
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -385,7 +463,7 @@
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -403,7 +481,8 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.0',
+            VERSION:'1.7',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -413,23 +492,17 @@
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

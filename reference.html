@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Reference &mdash; pyannote.metrics 1.0 documentation</title>
+  <title>Reference &mdash; pyannote.metrics 1.7 documentation</title>
   
 
   
@@ -24,27 +24,19 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="pyannote.metrics 1.0 documentation" href="index.html"/>
-        <link rel="next" title="Changelog" href="changelog.html"/>
-        <link rel="prev" title="Command line tool" href="cli.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Changelog" href="changelog.html" />
+    <link rel="prev" title="Command line tool" href="cli.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -66,7 +58,7 @@
             
             
               <div class="version">
-                1.0
+                1.7
               </div>
             
           
@@ -124,7 +116,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pyannote.metrics</a>
@@ -132,9 +124,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -183,7 +176,7 @@
 <div class="toctree-wrapper compound">
 </div>
 <p>Here is a typical speaker diarization pipeline:</p>
-<img alt="_images/pipeline.pdf" src="_images/pipeline.pdf" />
+<img alt="_images/pipeline.png" src="_images/pipeline.png" />
 <p>The first step is usually dedicated to speech activity detection, where the objective is to get rid of all non-speech regions.
 Then, speaker change detection aims at segmenting speech regions into homogeneous segments.
 The subsequent clustering step tries to group those speech segments according to the identity of the speaker.
@@ -198,15 +191,15 @@ All metrics support the provision of an evaluation map that indicate which part 
 <div class="section" id="detection">
 <h3>Detection<a class="headerlink" href="#detection" title="Permalink to this headline">¶</a></h3>
 <p>Speech activity detection modules can be evaluated using, detection error rate, precision, and recall.</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\text{detection error rate} = \frac{\text{false alarm} + \text{missed detection}}{\text{total}}\]</div>
-<p>where <span class="math">\(\text{false alarm}\)</span> is the duration of non-speech incorrectly classified as speech, <span class="math">\(\text{missed detection}\)</span> is the duration of
-speech incorrectly classified as non-speech, and <span class="math">\(\text{total}\)</span> is the total duration of speech in the reference.</p>
+<p>where <span class="math notranslate nohighlight">\(\text{false alarm}\)</span> is the duration of non-speech incorrectly classified as speech, <span class="math notranslate nohighlight">\(\text{missed detection}\)</span> is the duration of
+speech incorrectly classified as non-speech, and <span class="math notranslate nohighlight">\(\text{total}\)</span> is the total duration of speech in the reference.</p>
 <p>Note that these metrics do not take overlapping speech into account.
 In other words, overlapping speech regions are counted only once.</p>
 <span class="target" id="module-pyannote.metrics.detection"></span><dl class="class">
 <dt id="pyannote.metrics.detection.DetectionAccuracy">
-<em class="property">class </em><code class="descclassname">pyannote.metrics.detection.</code><code class="descname">DetectionAccuracy</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionAccuracy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionAccuracy" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyannote.metrics.detection.</code><code class="descname">DetectionAccuracy</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>skip_overlap=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionAccuracy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionAccuracy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Detection accuracy</p>
 <p>This metric can be used to evaluate binary classification tasks such as
 speech activity detection, for instance. Inputs are expected to only
@@ -221,16 +214,65 @@ duration of the input signal.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; Duration (in seconds) of collars removed from evaluation around
-boundaries of reference segments (one half before, one half after).</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments (one half before, one half after).</li>
+<li><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+Defaults to False (i.e. keep overlap regions).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyannote.metrics.detection.DetectionAccuracy.compute_components">
+<code class="descname">compute_components</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionAccuracy.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionAccuracy.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric components</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reference</strong> (<em>type depends on the metric</em>) – Manual <cite>reference</cite></li>
+<li><strong>hypothesis</strong> (same as <cite>reference</cite>) – Evaluated <cite>hypothesis</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>components</strong> – Dictionary where keys are component names and values are component
+values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="pyannote.metrics.detection.DetectionAccuracy.compute_metric">
+<code class="descname">compute_metric</code><span class="sig-paren">(</span><em>detail</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionAccuracy.compute_metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionAccuracy.compute_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric value from computed <cite>components</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+values</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>value</strong> – Metric value</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">type depends on the metric</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="class">
 <dt id="pyannote.metrics.detection.DetectionErrorRate">
-<em class="property">class </em><code class="descclassname">pyannote.metrics.detection.</code><code class="descname">DetectionErrorRate</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionErrorRate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionErrorRate" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyannote.metrics.detection.</code><code class="descname">DetectionErrorRate</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>skip_overlap=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionErrorRate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionErrorRate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Detection error rate</p>
 <p>This metric can be used to evaluate binary classification tasks such as
 speech activity detection, for instance. Inputs are expected to only
@@ -245,16 +287,65 @@ total duration of the positive class in the reference.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; Duration (in seconds) of collars removed from evaluation around
-boundaries of reference segments (one half before, one half after).</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments (one half before, one half after).</li>
+<li><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+Defaults to False (i.e. keep overlap regions).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyannote.metrics.detection.DetectionErrorRate.compute_components">
+<code class="descname">compute_components</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionErrorRate.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionErrorRate.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric components</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reference</strong> (<em>type depends on the metric</em>) – Manual <cite>reference</cite></li>
+<li><strong>hypothesis</strong> (same as <cite>reference</cite>) – Evaluated <cite>hypothesis</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>components</strong> – Dictionary where keys are component names and values are component
+values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="pyannote.metrics.detection.DetectionErrorRate.compute_metric">
+<code class="descname">compute_metric</code><span class="sig-paren">(</span><em>detail</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionErrorRate.compute_metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionErrorRate.compute_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric value from computed <cite>components</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+values</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>value</strong> – Metric value</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">type depends on the metric</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="class">
 <dt id="pyannote.metrics.detection.DetectionPrecision">
-<em class="property">class </em><code class="descclassname">pyannote.metrics.detection.</code><code class="descname">DetectionPrecision</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionPrecision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionPrecision" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyannote.metrics.detection.</code><code class="descname">DetectionPrecision</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>skip_overlap=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionPrecision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionPrecision" title="Permalink to this definition">¶</a></dt>
 <dd><p>Detection precision</p>
 <p>This metric can be used to evaluate binary classification tasks such as
 speech activity detection, for instance. Inputs are expected to only
@@ -268,16 +359,65 @@ positive (e.g. non-speech classified as speech).</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; Duration (in seconds) of collars removed from evaluation around
-boundaries of reference segments (one half before, one half after).</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments (one half before, one half after).</li>
+<li><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+Defaults to False (i.e. keep overlap regions).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyannote.metrics.detection.DetectionPrecision.compute_components">
+<code class="descname">compute_components</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionPrecision.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionPrecision.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric components</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reference</strong> (<em>type depends on the metric</em>) – Manual <cite>reference</cite></li>
+<li><strong>hypothesis</strong> (same as <cite>reference</cite>) – Evaluated <cite>hypothesis</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>components</strong> – Dictionary where keys are component names and values are component
+values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="pyannote.metrics.detection.DetectionPrecision.compute_metric">
+<code class="descname">compute_metric</code><span class="sig-paren">(</span><em>detail</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionPrecision.compute_metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionPrecision.compute_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric value from computed <cite>components</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+values</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>value</strong> – Metric value</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">type depends on the metric</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="class">
 <dt id="pyannote.metrics.detection.DetectionRecall">
-<em class="property">class </em><code class="descclassname">pyannote.metrics.detection.</code><code class="descname">DetectionRecall</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionRecall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionRecall" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyannote.metrics.detection.</code><code class="descname">DetectionRecall</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>skip_overlap=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionRecall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionRecall" title="Permalink to this definition">¶</a></dt>
 <dd><p>Detection recall</p>
 <p>This metric can be used to evaluate binary classification tasks such as
 speech activity detection, for instance. Inputs are expected to only
@@ -291,18 +431,67 @@ negative (e.g. speech classified as non-speech).</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; Duration (in seconds) of collars removed from evaluation around
-boundaries of reference segments (one half before, one half after).</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments (one half before, one half after).</li>
+<li><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+Defaults to False (i.e. keep overlap regions).</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
+<dl class="method">
+<dt id="pyannote.metrics.detection.DetectionRecall.compute_components">
+<code class="descname">compute_components</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionRecall.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionRecall.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric components</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reference</strong> (<em>type depends on the metric</em>) – Manual <cite>reference</cite></li>
+<li><strong>hypothesis</strong> (same as <cite>reference</cite>) – Evaluated <cite>hypothesis</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>components</strong> – Dictionary where keys are component names and values are component
+values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyannote.metrics.detection.DetectionRecall.compute_metric">
+<code class="descname">compute_metric</code><span class="sig-paren">(</span><em>detail</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionRecall.compute_metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionRecall.compute_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric value from computed <cite>components</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+values</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>value</strong> – Metric value</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">type depends on the metric</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 </div>
 <div class="section" id="segmentation">
 <h3>Segmentation<a class="headerlink" href="#segmentation" title="Permalink to this headline">¶</a></h3>
 <p>Change detection modules can be evaluated using two pairs of dual metrics: precision and recall, or purity and coverage.</p>
-<img alt="_images/segmentation.pdf" src="_images/segmentation.pdf" />
+<img alt="_images/segmentation.png" src="_images/segmentation.png" />
 <p>Precision and recall are standard metrics based on the number of correctly detected speaker boundaries. Recall is 75% because 3 out of 4 reference boundaries were correctly detected, and precision is 100% because all hypothesized boundaries are correct.</p>
 <p>The main weakness of that pair of metrics (and their combination into a f-score) is that it is very sensitive to the <cite>tolerance</cite> parameter, i.e. the maximum distance between two boundaries for them to be matched. From one segmentation paper to another, authors may used very different values, thus making the approaches difficult to compare.</p>
 <p>Instead, we think that segment-wise purity and coverage should be used instead.
@@ -319,29 +508,73 @@ For instance, coverage for reference segment 1 is 100% because it is entirely co
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; When provided, preprocess reference by filling intra-label gaps shorter
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – When provided, preprocess reference by filling intra-label gaps shorter
 than <cite>tolerance</cite> (in seconds).</td>
 </tr>
 </tbody>
 </table>
+<dl class="method">
+<dt id="pyannote.metrics.segmentation.SegmentationCoverage.compute_components">
+<code class="descname">compute_components</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/segmentation.html#SegmentationCoverage.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.segmentation.SegmentationCoverage.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric components</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reference</strong> (<em>type depends on the metric</em>) – Manual <cite>reference</cite></li>
+<li><strong>hypothesis</strong> (same as <cite>reference</cite>) – Evaluated <cite>hypothesis</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>components</strong> – Dictionary where keys are component names and values are component
+values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyannote.metrics.segmentation.SegmentationCoverage.compute_metric">
+<code class="descname">compute_metric</code><span class="sig-paren">(</span><em>detail</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/segmentation.html#SegmentationCoverage.compute_metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.segmentation.SegmentationCoverage.compute_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric value from computed <cite>components</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+values</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>value</strong> – Metric value</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">type depends on the metric</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="pyannote.metrics.segmentation.SegmentationPrecision">
 <em class="property">class </em><code class="descclassname">pyannote.metrics.segmentation.</code><code class="descname">SegmentationPrecision</code><span class="sig-paren">(</span><em>tolerance=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/segmentation.html#SegmentationPrecision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.segmentation.SegmentationPrecision" title="Permalink to this definition">¶</a></dt>
 <dd><p>Segmentation precision</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyannote.core</span> <span class="k">import</span> <span class="n">Timeline</span><span class="p">,</span> <span class="n">Segment</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyannote.core</span> <span class="k">import</span> <span class="n">Timeline</span><span class="p">,</span> <span class="n">Segment</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyannote.metrics.segmentation</span> <span class="k">import</span> <span class="n">SegmentationPrecision</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">precision</span> <span class="o">=</span> <span class="n">SegmentationPrecision</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span> <span class="o">=</span> <span class="n">Timeline</span><span class="p">()</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span> <span class="o">=</span> <span class="n">Timeline</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
 </pre></div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span> <span class="o">=</span> <span class="n">Timeline</span><span class="p">()</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span> <span class="o">=</span> <span class="n">Timeline</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
@@ -350,12 +583,56 @@ than <cite>tolerance</cite> (in seconds).</td>
 <span class="go">0.6666666666666666</span>
 </pre></div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span> <span class="o">=</span> <span class="n">Timeline</span><span class="p">()</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span> <span class="o">=</span> <span class="n">Timeline</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">precision</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>
 <span class="go">1.0</span>
 </pre></div>
 </div>
+<dl class="method">
+<dt id="pyannote.metrics.segmentation.SegmentationPrecision.compute_components">
+<code class="descname">compute_components</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/segmentation.html#SegmentationPrecision.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.segmentation.SegmentationPrecision.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric components</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reference</strong> (<em>type depends on the metric</em>) – Manual <cite>reference</cite></li>
+<li><strong>hypothesis</strong> (same as <cite>reference</cite>) – Evaluated <cite>hypothesis</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>components</strong> – Dictionary where keys are component names and values are component
+values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyannote.metrics.segmentation.SegmentationPrecision.compute_metric">
+<code class="descname">compute_metric</code><span class="sig-paren">(</span><em>detail</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/segmentation.html#SegmentationPrecision.compute_metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.segmentation.SegmentationPrecision.compute_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric value from computed <cite>components</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+values</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>value</strong> – Metric value</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">type depends on the metric</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -366,29 +643,54 @@ than <cite>tolerance</cite> (in seconds).</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; When provided, preprocess reference by filling intra-label gaps shorter
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – When provided, preprocess reference by filling intra-label gaps shorter
 than <cite>tolerance</cite> (in seconds).</td>
 </tr>
 </tbody>
 </table>
+<dl class="method">
+<dt id="pyannote.metrics.segmentation.SegmentationPurity.compute_components">
+<code class="descname">compute_components</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/segmentation.html#SegmentationPurity.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.segmentation.SegmentationPurity.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric components</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reference</strong> (<em>type depends on the metric</em>) – Manual <cite>reference</cite></li>
+<li><strong>hypothesis</strong> (same as <cite>reference</cite>) – Evaluated <cite>hypothesis</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>components</strong> – Dictionary where keys are component names and values are component
+values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="pyannote.metrics.segmentation.SegmentationRecall">
 <em class="property">class </em><code class="descclassname">pyannote.metrics.segmentation.</code><code class="descname">SegmentationRecall</code><span class="sig-paren">(</span><em>tolerance=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/segmentation.html#SegmentationRecall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.segmentation.SegmentationRecall" title="Permalink to this definition">¶</a></dt>
 <dd><p>Segmentation recall</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyannote.core</span> <span class="k">import</span> <span class="n">Timeline</span><span class="p">,</span> <span class="n">Segment</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyannote.core</span> <span class="k">import</span> <span class="n">Timeline</span><span class="p">,</span> <span class="n">Segment</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyannote.metrics.segmentation</span> <span class="k">import</span> <span class="n">SegmentationRecall</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">recall</span> <span class="o">=</span> <span class="n">SegmentationRecall</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span> <span class="o">=</span> <span class="n">Timeline</span><span class="p">()</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span> <span class="o">=</span> <span class="n">Timeline</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
 </pre></div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span> <span class="o">=</span> <span class="n">Timeline</span><span class="p">()</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span> <span class="o">=</span> <span class="n">Timeline</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
@@ -397,12 +699,37 @@ than <cite>tolerance</cite> (in seconds).</td>
 <span class="go">1.0</span>
 </pre></div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span> <span class="o">=</span> <span class="n">Timeline</span><span class="p">()</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span> <span class="o">=</span> <span class="n">Timeline</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">recall</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>
 <span class="go">0.0</span>
 </pre></div>
 </div>
+<dl class="method">
+<dt id="pyannote.metrics.segmentation.SegmentationRecall.compute_components">
+<code class="descname">compute_components</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/segmentation.html#SegmentationRecall.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.segmentation.SegmentationRecall.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric components</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reference</strong> (<em>type depends on the metric</em>) – Manual <cite>reference</cite></li>
+<li><strong>hypothesis</strong> (same as <cite>reference</cite>) – Evaluated <cite>hypothesis</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>components</strong> – Dictionary where keys are component names and values are component
+values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -410,32 +737,32 @@ than <cite>tolerance</cite> (in seconds).</td>
 <h3>Diarization<a class="headerlink" href="#diarization" title="Permalink to this headline">¶</a></h3>
 <p>Diarization error rate (DER) is the emph{de facto} standard metric for evaluating and comparing speaker diarization systems.
 It is defined as follows:</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\text{DER} = \frac{\text{false alarm} + \text{missed detection} + \text{confusion}}{\text{total}}\]</div>
-<p>where <span class="math">\(\text{false alarm}\)</span> is the duration of non-speech incorrectly classified as speech, <span class="math">\(\text{missed detection}\)</span> is the duration of
-speech incorrectly classified as non-speech, <span class="math">\(\text{confusion}\)</span> is the duration of speaker confusion, and <span class="math">\(\text{total}\)</span> is the total duration of speech in the reference.</p>
+<p>where <span class="math notranslate nohighlight">\(\text{false alarm}\)</span> is the duration of non-speech incorrectly classified as speech, <span class="math notranslate nohighlight">\(\text{missed detection}\)</span> is the duration of
+speech incorrectly classified as non-speech, <span class="math notranslate nohighlight">\(\text{confusion}\)</span> is the duration of speaker confusion, and <span class="math notranslate nohighlight">\(\text{total}\)</span> is the total duration of speech in the reference.</p>
 <p>Note that this metric does take overlapping speech into account, potentially leading to increased missed detection in case the speaker diarization system does not include an overlapping speech detection module.</p>
 <div class="section" id="optimal-vs-greedy">
 <h4>Optimal vs. greedy<a class="headerlink" href="#optimal-vs-greedy" title="Permalink to this headline">¶</a></h4>
 <p>Two implementations of the diarization error rate are available (optimal and greedy), depending on how the one-to-one mapping between reference and hypothesized speakers is computed.</p>
 <p>The <cite>optimal</cite> version uses the Hungarian algorithm to compute the mapping that minimize the confusion term, while the <cite>greedy</cite> version operates in a greedy manner, mapping reference and hypothesized speakers iteratively, by decreasing value of their cooccurrence duration.</p>
-<p>In practice, the <cite>greedy</cite> version is much faster than the <cite>optimal</cite> one, especially for files with a large number of speakers &#8211; though it may slightly over-estimate the value of the diarization error rate.</p>
+<p>In practice, the <cite>greedy</cite> version is much faster than the <cite>optimal</cite> one, especially for files with a large number of speakers – though it may slightly over-estimate the value of the diarization error rate.</p>
 </div>
 <div class="section" id="purity-and-coverage">
 <h4>Purity and coverage<a class="headerlink" href="#purity-and-coverage" title="Permalink to this headline">¶</a></h4>
 <p>While the diarization error rate provides a convenient way to compare different diarization approaches, it is usually not enough to understand the type of errors commited by the system.</p>
 <p>Purity and coverage are two dual evaluation metrics that provide additional insight on the behavior of the system.</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\begin{split} \text{purity} &amp; = &amp; \frac{\displaystyle \sum_{\text{cluster}} \max_{\text{speaker}} |\text{cluster} \cap \text{speaker}|  }{\displaystyle \sum_{\text{cluster}} |\text{cluster}|} \\
 \text{coverage} &amp; = &amp; \frac{\displaystyle \sum_{\text{speaker}} \max_{\text{cluster}} |\text{speaker} \cap \text{cluster}|  }{\displaystyle \sum_{\text{speaker}} |\text{speaker}|} \\\end{split}\]</div>
-<p>where <span class="math">\(|\text{speaker}|\)</span> (respectively <span class="math">\(|\text{cluster}|\)</span> is the speech duration of this particular reference speaker (resp. hypothesized cluster), and  <span class="math">\(|\text{speaker} \cap \text{cluster}|\)</span> is the duration of their intersection.</p>
+<p>where <span class="math notranslate nohighlight">\(|\text{speaker}|\)</span> (respectively <span class="math notranslate nohighlight">\(|\text{cluster}|\)</span> is the speech duration of this particular reference speaker (resp. hypothesized cluster), and  <span class="math notranslate nohighlight">\(|\text{speaker} \cap \text{cluster}|\)</span> is the duration of their intersection.</p>
 <p>Over-segmented results (e.g. too many speaker clusters) tend to lead to high purity and low coverage, while under-segmented results (e.g. when two speakers are merged into one large cluster) lead to low purity and higher coverage.</p>
 </div>
 <div class="section" id="use-case">
 <h4>Use case<a class="headerlink" href="#use-case" title="Permalink to this headline">¶</a></h4>
 <p>This figure depicts the evolution of a multi-stage speaker diarization system applied on the ETAPE dataset.
 It is roughly made of four consecutive modules (segmentation, BIC clustering, Viterbi resegmentation, and CLR clustering).</p>
-<img alt="_images/diagnostic.pdf" src="_images/diagnostic.pdf" />
+<img alt="_images/diagnostic.png" src="_images/diagnostic.png" />
 <p>From the upper part of the figure (DER as a function of the module), it is clear that each module improves the output of the previous one.</p>
 <p>Yet, the lower part of the figure clarifies the role of each module.
 BIC clustering tends to increase the size of the speaker clusters, at the expense of purity (-7%).
@@ -443,13 +770,52 @@ Viterbi resegmentation addresses this limitation and greatly improves cluster pu
 Finally, CLR clustering brings an additional +5% coverage improvement.</p>
 <span class="target" id="module-pyannote.metrics.diarization"></span><dl class="class">
 <dt id="pyannote.metrics.diarization.DiarizationCompleteness">
-<em class="property">class </em><code class="descclassname">pyannote.metrics.diarization.</code><code class="descname">DiarizationCompleteness</code><span class="sig-paren">(</span><em>parallel=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationCompleteness"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationCompleteness" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyannote.metrics.diarization.</code><code class="descname">DiarizationCompleteness</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>skip_overlap=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationCompleteness"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationCompleteness" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cluster completeness</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments.</li>
+<li><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+Defaults to False (i.e. keep overlap regions).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyannote.metrics.diarization.DiarizationCompleteness.compute_components">
+<code class="descname">compute_components</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationCompleteness.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationCompleteness.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric components</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reference</strong> (<em>type depends on the metric</em>) – Manual <cite>reference</cite></li>
+<li><strong>hypothesis</strong> (same as <cite>reference</cite>) – Evaluated <cite>hypothesis</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>components</strong> – Dictionary where keys are component names and values are component
+values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="pyannote.metrics.diarization.DiarizationCoverage">
-<em class="property">class </em><code class="descclassname">pyannote.metrics.diarization.</code><code class="descname">DiarizationCoverage</code><span class="sig-paren">(</span><em>weighted=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationCoverage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationCoverage" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyannote.metrics.diarization.</code><code class="descname">DiarizationCoverage</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>skip_overlap=False</em>, <em>weighted=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationCoverage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationCoverage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cluster coverage</p>
 <p>A hypothesized annotation has perfect coverage if all segments from a
 given reference label are clustered in the same cluster.</p>
@@ -457,59 +823,122 @@ given reference label are clustered in the same cluster.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>weighted</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a><em>, </em><em>optional</em>) &#8211; When True (default), each cluster is weighted by its overall duration.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>weighted</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – When True (default), each cluster is weighted by its overall duration.</li>
+<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments.</li>
+<li><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+Defaults to False (i.e. keep overlap regions).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyannote.metrics.diarization.DiarizationCoverage.compute_components">
+<code class="descname">compute_components</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationCoverage.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationCoverage.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric components</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reference</strong> (<em>type depends on the metric</em>) – Manual <cite>reference</cite></li>
+<li><strong>hypothesis</strong> (same as <cite>reference</cite>) – Evaluated <cite>hypothesis</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>components</strong> – Dictionary where keys are component names and values are component
+values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
+</dd></dl>
+
 <dl class="class">
 <dt id="pyannote.metrics.diarization.DiarizationErrorRate">
-<em class="property">class </em><code class="descclassname">pyannote.metrics.diarization.</code><code class="descname">DiarizationErrorRate</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationErrorRate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationErrorRate" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyannote.metrics.diarization.</code><code class="descname">DiarizationErrorRate</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>skip_overlap=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationErrorRate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationErrorRate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Diarization error rate</p>
 <p>First, the optimal mapping between reference and hypothesis labels
 is obtained using the Hungarian algorithm. Then, the actual diarization
 error rate is computed as the identification error rate with each hypothesis
 label translated into the corresponding reference label.</p>
-<ul>
-<li><p class="first">Diarization error rate between <cite>reference</cite> and <cite>hypothesis</cite> annotations</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span> <span class="o">=</span> <span class="n">DiarizationErrorRate</span><span class="p">()</span>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments.</li>
+<li><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+Defaults to False (i.e. keep overlap regions).</li>
+<li><strong>Usage</strong> – </li>
+<li><strong>-----</strong> – </li>
+<li><strong>Diarization error rate between reference and hypothesis annotations</strong> (<em>*</em>) – <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span> <span class="o">=</span> <span class="n">DiarizationErrorRate</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>           
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>          
 <span class="gp">&gt;&gt;&gt; </span><span class="n">value</span> <span class="o">=</span> <span class="n">metric</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span> 
 </pre></div>
 </div>
 </li>
-<li><p class="first">Compute global diarization error rate and confidence interval
-over multiple documents</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span> <span class="ow">in</span> <span class="o">...</span>      
+<li><strong>Compute global diarization error rate and confidence interval</strong> (<em>*</em>) – <p>over multiple documents</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span> <span class="ow">in</span> <span class="o">...</span>      
 <span class="gp">... </span>   <span class="n">metric</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>      
 <span class="gp">&gt;&gt;&gt; </span><span class="n">global_value</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>            
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mean</span><span class="p">,</span> <span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">)</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">confidence_interval</span><span class="p">()</span> 
 </pre></div>
 </div>
 </li>
-<li><p class="first">Get diarization error rate detailed components</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">components</span> <span class="o">=</span> <span class="n">metric</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1">#doctest +SKIP</span>
+<li><strong>Get diarization error rate detailed components</strong> (<em>*</em>) – <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">components</span> <span class="o">=</span> <span class="n">metric</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1">#doctest +SKIP</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Get accumulated components</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">components</span> <span class="o">=</span> <span class="n">metric</span><span class="p">[:]</span>                
+<li><strong>Get accumulated components</strong> (<em>*</em>) – <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">components</span> <span class="o">=</span> <span class="n">metric</span><span class="p">[:]</span>                
 <span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span><span class="p">[</span><span class="s1">&#39;confusion&#39;</span><span class="p">]</span>                   
 </pre></div>
 </div>
 </li>
 </ul>
+</td>
+</tr>
+</tbody>
+</table>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <dl class="last docutils">
-<dt><code class="xref py py-class docutils literal"><span class="pre">pyannote.metric.base.BaseMetric</span></code></dt>
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.metric.base.BaseMetric</span></code></dt>
 <dd>details on accumulation</dd>
-<dt><code class="xref py py-class docutils literal"><span class="pre">pyannote.metric.identification.IdentificationErrorRate</span></code></dt>
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.metric.identification.IdentificationErrorRate</span></code></dt>
 <dd>identification error rate</dd>
 </dl>
 </div>
+<dl class="method">
+<dt id="pyannote.metrics.diarization.DiarizationErrorRate.compute_components">
+<code class="descname">compute_components</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationErrorRate.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationErrorRate.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Override self.collar</li>
+<li><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Override self.skip_overlap</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.metric.diarization.DiarizationErrorRate</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">two()</span></code></p>
+</div>
+</dd></dl>
+
 <dl class="method">
 <dt id="pyannote.metrics.diarization.DiarizationErrorRate.optimal_mapping">
 <code class="descname">optimal_mapping</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationErrorRate.optimal_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationErrorRate.optimal_mapping" title="Permalink to this definition">¶</a></dt>
@@ -519,16 +948,16 @@ over multiple documents</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>reference</strong> (<em>Annotation</em>) &#8211; </li>
-<li><strong>hypothesis</strong> (<em>Annotation</em>) &#8211; Reference and hypothesis diarization</li>
-<li><strong>uem</strong> (<em>Timeline</em>) &#8211; Evaluation map</li>
+<li><strong>reference</strong> (<em>Annotation</em>) – </li>
+<li><strong>hypothesis</strong> (<em>Annotation</em>) – Reference and hypothesis diarization</li>
+<li><strong>uem</strong> (<em>Timeline</em>) – Evaluation map</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>mapping</strong> &#8211; Mapping between hypothesis (key) and reference (value) labels</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>mapping</strong> – Mapping between hypothesis (key) and reference (value) labels</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
 </td>
 </tr>
 </tbody>
@@ -539,13 +968,71 @@ over multiple documents</p>
 
 <dl class="class">
 <dt id="pyannote.metrics.diarization.DiarizationHomogeneity">
-<em class="property">class </em><code class="descclassname">pyannote.metrics.diarization.</code><code class="descname">DiarizationHomogeneity</code><span class="sig-paren">(</span><em>parallel=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationHomogeneity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationHomogeneity" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyannote.metrics.diarization.</code><code class="descname">DiarizationHomogeneity</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>skip_overlap=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationHomogeneity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationHomogeneity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cluster homogeneity</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments.</li>
+<li><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+Defaults to False (i.e. keep overlap regions).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyannote.metrics.diarization.DiarizationHomogeneity.compute_components">
+<code class="descname">compute_components</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationHomogeneity.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationHomogeneity.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric components</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reference</strong> (<em>type depends on the metric</em>) – Manual <cite>reference</cite></li>
+<li><strong>hypothesis</strong> (same as <cite>reference</cite>) – Evaluated <cite>hypothesis</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>components</strong> – Dictionary where keys are component names and values are component
+values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyannote.metrics.diarization.DiarizationHomogeneity.compute_metric">
+<code class="descname">compute_metric</code><span class="sig-paren">(</span><em>detail</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationHomogeneity.compute_metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationHomogeneity.compute_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric value from computed <cite>components</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+values</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>value</strong> – Metric value</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">type depends on the metric</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="pyannote.metrics.diarization.DiarizationPurity">
-<em class="property">class </em><code class="descclassname">pyannote.metrics.diarization.</code><code class="descname">DiarizationPurity</code><span class="sig-paren">(</span><em>weighted=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationPurity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationPurity" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyannote.metrics.diarization.</code><code class="descname">DiarizationPurity</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>skip_overlap=False</em>, <em>weighted=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationPurity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationPurity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cluster purity</p>
 <p>A hypothesized annotation has perfect purity if all of its labels overlap
 only segments which are members of a single reference label.</p>
@@ -553,57 +1040,212 @@ only segments which are members of a single reference label.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>weighted</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a><em>, </em><em>optional</em>) &#8211; When True (default), each cluster is weighted by its overall duration.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>weighted</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – When True (default), each cluster is weighted by its overall duration.</li>
+<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments.</li>
+<li><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+Defaults to False (i.e. keep overlap regions).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyannote.metrics.diarization.DiarizationPurity.compute_components">
+<code class="descname">compute_components</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationPurity.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationPurity.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric components</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reference</strong> (<em>type depends on the metric</em>) – Manual <cite>reference</cite></li>
+<li><strong>hypothesis</strong> (same as <cite>reference</cite>) – Evaluated <cite>hypothesis</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>components</strong> – Dictionary where keys are component names and values are component
+values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="pyannote.metrics.diarization.DiarizationPurity.compute_metric">
+<code class="descname">compute_metric</code><span class="sig-paren">(</span><em>detail</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationPurity.compute_metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationPurity.compute_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric value from computed <cite>components</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+values</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>value</strong> – Metric value</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">type depends on the metric</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyannote.metrics.diarization.DiarizationPurityCoverageFMeasure">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.diarization.</code><code class="descname">DiarizationPurityCoverageFMeasure</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>skip_overlap=False</em>, <em>weighted=True</em>, <em>beta=1.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationPurityCoverageFMeasure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationPurityCoverageFMeasure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute diarization purity and coverage, and return their F-score.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>weighted</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – When True (default), each cluster/class is weighted by its overall
+duration.</li>
+<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments.</li>
+<li><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+Defaults to False (i.e. keep overlap regions).</li>
+<li><strong>beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – When beta &gt; 1, greater importance is given to coverage.
+When beta &lt; 1, greater importance is given to purity.
+Defaults to 1.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#pyannote.metrics.diarization.DiarizationPurity" title="pyannote.metrics.diarization.DiarizationPurity"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.metrics.diarization.DiarizationPurity</span></code></a>, <a class="reference internal" href="#pyannote.metrics.diarization.DiarizationCoverage" title="pyannote.metrics.diarization.DiarizationCoverage"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.metrics.diarization.DiarizationCoverage</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.metrics.base.f_measure</span></code></p>
+</div>
+<dl class="method">
+<dt id="pyannote.metrics.diarization.DiarizationPurityCoverageFMeasure.compute_components">
+<code class="descname">compute_components</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationPurityCoverageFMeasure.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationPurityCoverageFMeasure.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric components</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reference</strong> (<em>type depends on the metric</em>) – Manual <cite>reference</cite></li>
+<li><strong>hypothesis</strong> (same as <cite>reference</cite>) – Evaluated <cite>hypothesis</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>components</strong> – Dictionary where keys are component names and values are component
+values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyannote.metrics.diarization.DiarizationPurityCoverageFMeasure.compute_metric">
+<code class="descname">compute_metric</code><span class="sig-paren">(</span><em>detail</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#DiarizationPurityCoverageFMeasure.compute_metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.DiarizationPurityCoverageFMeasure.compute_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric value from computed <cite>components</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+values</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>value</strong> – Metric value</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">type depends on the metric</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="class">
 <dt id="pyannote.metrics.diarization.GreedyDiarizationErrorRate">
-<em class="property">class </em><code class="descclassname">pyannote.metrics.diarization.</code><code class="descname">GreedyDiarizationErrorRate</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#GreedyDiarizationErrorRate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.GreedyDiarizationErrorRate" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyannote.metrics.diarization.</code><code class="descname">GreedyDiarizationErrorRate</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>skip_overlap=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#GreedyDiarizationErrorRate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.GreedyDiarizationErrorRate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Greedy diarization error rate</p>
 <p>First, the greedy mapping between reference and hypothesis labels is
 obtained. Then, the actual diarization error rate is computed as the
 identification error rate with each hypothesis label translated into the
 corresponding reference label.</p>
-<ul>
-<li><p class="first">Greedy diarization error rate between <cite>reference</cite> and <cite>hypothesis</cite> annotations</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span> <span class="o">=</span> <span class="n">GreedyDiarizationErrorRate</span><span class="p">()</span>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments.</li>
+<li><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+Defaults to False (i.e. keep overlap regions).</li>
+<li><strong>Usage</strong> – </li>
+<li><strong>-----</strong> – </li>
+<li><strong>Greedy diarization error rate between reference and hypothesis annotations</strong> (<em>*</em>) – <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span> <span class="o">=</span> <span class="n">GreedyDiarizationErrorRate</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">reference</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>           
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hypothesis</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>          
 <span class="gp">&gt;&gt;&gt; </span><span class="n">value</span> <span class="o">=</span> <span class="n">metric</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span> 
 </pre></div>
 </div>
 </li>
-<li><p class="first">Compute global greedy diarization error rate and confidence interval
-over multiple documents</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span> <span class="ow">in</span> <span class="o">...</span>      
+<li><strong>Compute global greedy diarization error rate and confidence interval</strong> (<em>*</em>) – <p>over multiple documents</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span> <span class="ow">in</span> <span class="o">...</span>      
 <span class="gp">... </span>   <span class="n">metric</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>      
 <span class="gp">&gt;&gt;&gt; </span><span class="n">global_value</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>            
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mean</span><span class="p">,</span> <span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">)</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">confidence_interval</span><span class="p">()</span> 
 </pre></div>
 </div>
 </li>
-<li><p class="first">Get greedy diarization error rate detailed components</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">components</span> <span class="o">=</span> <span class="n">metric</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1">#doctest +SKIP</span>
+<li><strong>Get greedy diarization error rate detailed components</strong> (<em>*</em>) – <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">components</span> <span class="o">=</span> <span class="n">metric</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1">#doctest +SKIP</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Get accumulated components</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">components</span> <span class="o">=</span> <span class="n">metric</span><span class="p">[:]</span>                
+<li><strong>Get accumulated components</strong> (<em>*</em>) – <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">components</span> <span class="o">=</span> <span class="n">metric</span><span class="p">[:]</span>                
 <span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span><span class="p">[</span><span class="s1">&#39;confusion&#39;</span><span class="p">]</span>                   
 </pre></div>
 </div>
 </li>
 </ul>
+</td>
+</tr>
+</tbody>
+</table>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <dl class="last docutils">
-<dt><code class="xref py py-class docutils literal"><span class="pre">pyannote.metric.base.BaseMetric</span></code></dt>
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.metric.base.BaseMetric</span></code></dt>
 <dd>details on accumulation</dd>
 </dl>
 </div>
+<dl class="method">
+<dt id="pyannote.metrics.diarization.GreedyDiarizationErrorRate.compute_components">
+<code class="descname">compute_components</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#GreedyDiarizationErrorRate.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.GreedyDiarizationErrorRate.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Override self.collar</li>
+<li><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Override self.skip_overlap</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.metric.diarization.DiarizationErrorRate</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">two()</span></code></p>
+</div>
+</dd></dl>
+
 <dl class="method">
 <dt id="pyannote.metrics.diarization.GreedyDiarizationErrorRate.greedy_mapping">
 <code class="descname">greedy_mapping</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/diarization.html#GreedyDiarizationErrorRate.greedy_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.diarization.GreedyDiarizationErrorRate.greedy_mapping" title="Permalink to this definition">¶</a></dt>
@@ -613,16 +1255,16 @@ over multiple documents</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>reference</strong> (<em>Annotation</em>) &#8211; </li>
-<li><strong>hypothesis</strong> (<em>Annotation</em>) &#8211; Reference and hypothesis diarization</li>
-<li><strong>uem</strong> (<em>Timeline</em>) &#8211; Evaluation map</li>
+<li><strong>reference</strong> (<em>Annotation</em>) – </li>
+<li><strong>hypothesis</strong> (<em>Annotation</em>) – Reference and hypothesis diarization</li>
+<li><strong>uem</strong> (<em>Timeline</em>) – Evaluation map</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>mapping</strong> &#8211; Mapping between hypothesis (key) and reference (value) labels</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>mapping</strong> – Mapping between hypothesis (key) and reference (value) labels</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
 </td>
 </tr>
 </tbody>
@@ -636,7 +1278,7 @@ over multiple documents</p>
 <em class="property">class </em><code class="descclassname">pyannote.metrics.matcher.</code><code class="descname">LabelMatcher</code><a class="reference internal" href="_modules/pyannote/metrics/matcher.html#LabelMatcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.matcher.LabelMatcher" title="Permalink to this definition">¶</a></dt>
 <dd><p>ID matcher base class.</p>
 <p>All ID matcher classes must inherit from this class and implement
-.match() &#8211; ie return True if two IDs match and False
+.match() – ie return True if two IDs match and False
 otherwise.</p>
 <dl class="method">
 <dt id="pyannote.metrics.matcher.LabelMatcher.match">
@@ -646,15 +1288,15 @@ otherwise.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>rlabel</strong> &#8211; Reference label</li>
-<li><strong>hlabel</strong> &#8211; Hypothesis label</li>
+<li><strong>rlabel</strong> – Reference label</li>
+<li><strong>hlabel</strong> – Hypothesis label</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>match</strong> &#8211; True if labels match, False otherwise.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>match</strong> – True if labels match, False otherwise.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)">bool</a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
 </td>
 </tr>
 </tbody>
@@ -669,14 +1311,14 @@ otherwise.</p>
 <h3>Identification<a class="headerlink" href="#identification" title="Permalink to this headline">¶</a></h3>
 <p>In case prior speaker models are available, the speech turn clustering module may be followed by a supervised speaker recognition module for cluster-wise supervised classification.</p>
 <p><cite>pyannote.metrics</cite> also provides a collection of evaluation metrics for this identification task. This includes precision, recall, and identification error rate (IER):</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\text{IER} = \frac{\text{false alarm} + \text{missed detection} + \text{confusion}}{\text{total}}\]</div>
-<p>which is similar to the diarization error rate (DER) introduced previously, except that the <span class="math">\(\texttt{confusion}\)</span> term is computed directly by comparing reference and hypothesis labels, and does not rely on a prior one-to-one matching.</p>
+<p>which is similar to the diarization error rate (DER) introduced previously, except that the <span class="math notranslate nohighlight">\(\texttt{confusion}\)</span> term is computed directly by comparing reference and hypothesis labels, and does not rely on a prior one-to-one matching.</p>
 <span class="target" id="module-pyannote.metrics.identification"></span><dl class="class">
 <dt id="pyannote.metrics.identification.IdentificationErrorRate">
-<em class="property">class </em><code class="descclassname">pyannote.metrics.identification.</code><code class="descname">IdentificationErrorRate</code><span class="sig-paren">(</span><em>confusion=1.0</em>, <em>miss=1.0</em>, <em>false_alarm=1.0</em>, <em>collar=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/identification.html#IdentificationErrorRate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.identification.IdentificationErrorRate" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyannote.metrics.identification.</code><code class="descname">IdentificationErrorRate</code><span class="sig-paren">(</span><em>confusion=1.0</em>, <em>miss=1.0</em>, <em>false_alarm=1.0</em>, <em>collar=0.0</em>, <em>skip_overlap=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/identification.html#IdentificationErrorRate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.identification.IdentificationErrorRate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identification error rate</p>
-<p><code class="docutils literal"><span class="pre">ier</span> <span class="pre">=</span> <span class="pre">(wc</span> <span class="pre">x</span> <span class="pre">confusion</span> <span class="pre">+</span> <span class="pre">wf</span> <span class="pre">x</span> <span class="pre">false_alarm</span> <span class="pre">+</span> <span class="pre">wm</span> <span class="pre">x</span> <span class="pre">miss)</span> <span class="pre">/</span> <span class="pre">total</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">ier</span> <span class="pre">=</span> <span class="pre">(wc</span> <span class="pre">x</span> <span class="pre">confusion</span> <span class="pre">+</span> <span class="pre">wf</span> <span class="pre">x</span> <span class="pre">false_alarm</span> <span class="pre">+</span> <span class="pre">wm</span> <span class="pre">x</span> <span class="pre">miss)</span> <span class="pre">/</span> <span class="pre">total</span></code></p>
 <dl class="docutils">
 <dt>where</dt>
 <dd><ul class="first last simple">
@@ -693,45 +1335,147 @@ otherwise.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; Duration (in seconds) of collars removed from evaluation around
+<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
 boundaries of reference segments.</li>
-<li><strong>miss</strong><strong>, </strong><strong>false_alarm</strong> (<em>confusion</em><em>,</em><em></em>) &#8211; Optional weights for confusion, miss and false alarm respectively.
+<li><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+Defaults to False (i.e. keep overlap regions).</li>
+<li><strong>miss</strong><strong>, </strong><strong>false_alarm</strong> (<em>confusion</em><em>,</em>) – Optional weights for confusion, miss and false alarm respectively.
 Default to 1. (no weight)</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
+<dl class="method">
+<dt id="pyannote.metrics.identification.IdentificationErrorRate.compute_components">
+<code class="descname">compute_components</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em>, <em>collar=None</em>, <em>skip_overlap=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/identification.html#IdentificationErrorRate.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.identification.IdentificationErrorRate.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Override self.collar</li>
+<li><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Override self.skip_overlap</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.metric.diarization.DiarizationErrorRate</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">two()</span></code></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyannote.metrics.identification.IdentificationErrorRate.compute_metric">
+<code class="descname">compute_metric</code><span class="sig-paren">(</span><em>detail</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/identification.html#IdentificationErrorRate.compute_metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.identification.IdentificationErrorRate.compute_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric value from computed <cite>components</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+values</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>value</strong> – Metric value</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">type depends on the metric</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="pyannote.metrics.identification.IdentificationPrecision">
-<em class="property">class </em><code class="descclassname">pyannote.metrics.identification.</code><code class="descname">IdentificationPrecision</code><span class="sig-paren">(</span><em>unknown=False</em>, <em>collar=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/identification.html#IdentificationPrecision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.identification.IdentificationPrecision" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyannote.metrics.identification.</code><code class="descname">IdentificationPrecision</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>skip_overlap=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/identification.html#IdentificationPrecision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.identification.IdentificationPrecision" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identification Precision</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; Duration (in seconds) of collars removed from evaluation around
-boundaries of reference segments.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments.</li>
+<li><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+Defaults to False (i.e. keep overlap regions).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyannote.metrics.identification.IdentificationPrecision.compute_components">
+<code class="descname">compute_components</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/identification.html#IdentificationPrecision.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.identification.IdentificationPrecision.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric components</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reference</strong> (<em>type depends on the metric</em>) – Manual <cite>reference</cite></li>
+<li><strong>hypothesis</strong> (same as <cite>reference</cite>) – Evaluated <cite>hypothesis</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>components</strong> – Dictionary where keys are component names and values are component
+values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
+</dd></dl>
+
 <dl class="class">
 <dt id="pyannote.metrics.identification.IdentificationRecall">
-<em class="property">class </em><code class="descclassname">pyannote.metrics.identification.</code><code class="descname">IdentificationRecall</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/identification.html#IdentificationRecall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.identification.IdentificationRecall" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyannote.metrics.identification.</code><code class="descname">IdentificationRecall</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>skip_overlap=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/identification.html#IdentificationRecall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.identification.IdentificationRecall" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identification Recall</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; Duration (in seconds) of collars removed from evaluation around
-boundaries of reference segments.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments.</li>
+<li><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+Defaults to False (i.e. keep overlap regions).</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
+<dl class="method">
+<dt id="pyannote.metrics.identification.IdentificationRecall.compute_components">
+<code class="descname">compute_components</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/identification.html#IdentificationRecall.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.identification.IdentificationRecall.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric components</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reference</strong> (<em>type depends on the metric</em>) – Manual <cite>reference</cite></li>
+<li><strong>hypothesis</strong> (same as <cite>reference</cite>) – Evaluated <cite>hypothesis</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>components</strong> – Dictionary where keys are component names and values are component
+values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -740,13 +1484,18 @@ boundaries of reference segments.</td>
 <h2>Error analysis<a class="headerlink" href="#error-analysis" title="Permalink to this headline">¶</a></h2>
 <span class="target" id="module-pyannote.metrics.errors.segmentation"></span><span class="target" id="module-pyannote.metrics.errors.identification"></span><dl class="class">
 <dt id="pyannote.metrics.errors.identification.IdentificationErrorAnalysis">
-<em class="property">class </em><code class="descclassname">pyannote.metrics.errors.identification.</code><code class="descname">IdentificationErrorAnalysis</code><span class="sig-paren">(</span><em>collar=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/errors/identification.html#IdentificationErrorAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.errors.identification.IdentificationErrorAnalysis" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyannote.metrics.errors.identification.</code><code class="descname">IdentificationErrorAnalysis</code><span class="sig-paren">(</span><em>collar=0.0</em>, <em>skip_overlap=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/errors/identification.html#IdentificationErrorAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.errors.identification.IdentificationErrorAnalysis" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a><em>, </em><em>optional</em>) &#8211; Duration (in seconds) of collars removed from evaluation around
-boundaries of reference segments.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments.</li>
+<li><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+Defaults to False (i.e. keep overlap regions).</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -755,15 +1504,15 @@ boundaries of reference segments.</td>
 <code class="descname">difference</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>uem=None</em>, <em>uemified=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/errors/identification.html#IdentificationErrorAnalysis.difference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.errors.identification.IdentificationErrorAnalysis.difference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get error analysis as <cite>Annotation</cite></p>
 <p>Labels are (status, reference_label, hypothesis_label) tuples.
-<cite>status</cite> is either &#8216;correct&#8217;, &#8216;confusion&#8217;, &#8216;missed detection&#8217; or
-&#8216;false alarm&#8217;.
-<cite>reference_label</cite> is None in case of &#8216;false alarm&#8217;.
-<cite>hypothesis_label</cite> is None in case of &#8216;missed detection&#8217;.</p>
+<cite>status</cite> is either ‘correct’, ‘confusion’, ‘missed detection’ or
+‘false alarm’.
+<cite>reference_label</cite> is None in case of ‘false alarm’.
+<cite>hypothesis_label</cite> is None in case of ‘missed detection’.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uemified</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a><em>, </em><em>optional</em>) &#8211; Returns &#8220;uemified&#8221; version of reference and hypothesis.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uemified</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Returns “uemified” version of reference and hypothesis.
 Defaults to False.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>errors</strong></td>
@@ -797,18 +1546,18 @@ Defaults to False.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>y_true</strong> (<em></em><em>(</em><em>n_samples</em><em>, </em><em></em><em>) </em><em>array-like</em>) &#8211; Boolean reference.</li>
-<li><strong>scores</strong> (<em></em><em>(</em><em>n_samples</em><em>, </em><em></em><em>) </em><em>array-like</em>) &#8211; Predicted score.</li>
-<li><strong>save_to</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Files path prefix.</li>
-<li><strong>distances</strong> (<em>boolean</em><em>, </em><em>optional</em>) &#8211; When True, indicate that <cite>scores</cite> are actually <cite>distances</cite></li>
-<li><strong>dpi</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a><em>, </em><em>optional</em>) &#8211; Resolution of .png file. Defaults to 150.</li>
+<li><strong>y_true</strong> (<em>(</em><em>n_samples</em><em>, </em><em>) </em><em>array-like</em>) – Boolean reference.</li>
+<li><strong>scores</strong> (<em>(</em><em>n_samples</em><em>, </em><em>) </em><em>array-like</em>) – Predicted score.</li>
+<li><strong>save_to</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Files path prefix.</li>
+<li><strong>distances</strong> (<em>boolean</em><em>, </em><em>optional</em>) – When True, indicate that <cite>scores</cite> are actually <cite>distances</cite></li>
+<li><strong>dpi</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – Resolution of .png file. Defaults to 150.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>eer</strong> &#8211; Equal error rate</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>eer</strong> – Equal error rate</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
 </td>
 </tr>
 </tbody>
@@ -832,9 +1581,9 @@ Defaults to False.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>y_true</strong> (<em></em><em>(</em><em>n_samples</em><em>, </em><em></em><em>) </em><em>array-like</em>) &#8211; Boolean reference.</li>
-<li><strong>scores</strong> (<em></em><em>(</em><em>n_samples</em><em>, </em><em></em><em>) </em><em>array-like</em>) &#8211; Predicted score.</li>
-<li><strong>save_to</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Files path prefix</li>
+<li><strong>y_true</strong> (<em>(</em><em>n_samples</em><em>, </em><em>) </em><em>array-like</em>) – Boolean reference.</li>
+<li><strong>scores</strong> (<em>(</em><em>n_samples</em><em>, </em><em>) </em><em>array-like</em>) – Predicted score.</li>
+<li><strong>save_to</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Files path prefix</li>
 </ul>
 </td>
 </tr>
@@ -860,18 +1609,18 @@ Defaults to False.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>y_true</strong> (<em></em><em>(</em><em>n_samples</em><em>, </em><em></em><em>) </em><em>array-like</em>) &#8211; Boolean reference.</li>
-<li><strong>scores</strong> (<em></em><em>(</em><em>n_samples</em><em>, </em><em></em><em>) </em><em>array-like</em>) &#8211; Predicted score.</li>
-<li><strong>save_to</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Files path prefix.</li>
-<li><strong>distances</strong> (<em>boolean</em><em>, </em><em>optional</em>) &#8211; When True, indicate that <cite>scores</cite> are actually <cite>distances</cite></li>
-<li><strong>dpi</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a><em>, </em><em>optional</em>) &#8211; Resolution of .png file. Defaults to 150.</li>
+<li><strong>y_true</strong> (<em>(</em><em>n_samples</em><em>, </em><em>) </em><em>array-like</em>) – Boolean reference.</li>
+<li><strong>scores</strong> (<em>(</em><em>n_samples</em><em>, </em><em>) </em><em>array-like</em>) – Predicted score.</li>
+<li><strong>save_to</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Files path prefix.</li>
+<li><strong>distances</strong> (<em>boolean</em><em>, </em><em>optional</em>) – When True, indicate that <cite>scores</cite> are actually <cite>distances</cite></li>
+<li><strong>dpi</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – Resolution of .png file. Defaults to 150.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>auc</strong> &#8211; Area under precision/recall curve</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>auc</strong> – Area under precision/recall curve</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
 </td>
 </tr>
 </tbody>
@@ -883,9 +1632,7 @@ Defaults to False.</td>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -907,7 +1654,7 @@ Defaults to False.</td>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -925,7 +1672,8 @@ Defaults to False.</td>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.0',
+            VERSION:'1.7',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -935,23 +1683,17 @@ Defaults to False.</td>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>
