@@ -34,7 +34,7 @@ Tasks
 
 Not only can ``pyannote.metrics.py`` command line tool be used to compute the diarization error rate using NIST implementation, one can also evaluate the typical four sub-modules used in  most speaker diarization systems:
 
-.. image:: images/pipeline.pdf
+.. image:: images/pipeline.png
 
 Practically, the first positional argument (e.g. ``diarization``, above) is a flag indicating which task should be evaluated.
 

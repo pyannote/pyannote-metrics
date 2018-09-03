@@ -2,6 +2,11 @@
 Changelog
 #########
 
+Version 1.7.1 (2018-09-03)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- fix: fix broken images in documentation
+
 Version 1.7 (2018-03-17)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
