@@ -43,8 +43,8 @@ setup(
         'scripts/pyannote-metrics.py',
     ],
     install_requires=[
-        'pyannote.core >= 1.2',
-        'pyannote.database >= 1.3',
+        'pyannote.core >= 1.4.1',
+        'pyannote.database >= 1.5.1',
         'pyannote.parser >= 0.7.1',
         'pandas >= 0.19',
         'scipy >= 0.10.0',
