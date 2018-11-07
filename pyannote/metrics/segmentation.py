@@ -27,21 +27,28 @@
 # Hervé BREDIN - http://herve.niderb.fr
 # Camille Guinaudeau - https://sites.google.com/site/cguinaudeau/
 # Mamadou Doumbia
+# Diego Fustes diego.fustes at toptal.com
 
-from __future__ import unicode_literals
 from __future__ import division
+from __future__ import unicode_literals
 
 import numpy as np
-from .base import BaseMetric
 from pyannote.core import Segment, Timeline, Annotation
 from pyannote.core.util import pairwise
-from .utils import UEMSupportMixin
 
+from .base import BaseMetric, f_measure
+from .utils import UEMSupportMixin
 
 PURITY_NAME = 'segmentation purity'
 COVERAGE_NAME = 'segmentation coverage'
+PURITY_COVERAGE_NAME = 'segmentation F[purity|coverage]'
 PTY_CVG_TOTAL = 'total duration'
 PTY_CVG_INTER = 'intersection duration'
+
+PTY_TOTAL = 'pty total duration'
+PTY_INTER = 'pty intersection duration'
+CVG_TOTAL = 'cvg total duration'
+CVG_INTER = 'cvg intersection duration'
 
 PRECISION_NAME = 'segmentation precision'
 RECALL_NAME = 'segmentation recall'
@@ -155,6 +162,78 @@ class SegmentationPurity(SegmentationCoverage):
         return self._process(hypothesis, reference)
 
 
+class SegmentationPurityCoverageFMeasure(SegmentationCoverage):
+    """
+    Compute segmentation purity and coverage, and return their F-score.
+
+
+    Parameters
+    ----------
+    tolerance : float, optional
+        When provided, preprocess reference by filling intra-label gaps shorter
+        than `tolerance` (in seconds).
+
+    beta : float, optional
+            When beta > 1, greater importance is given to coverage.
+            When beta < 1, greater importance is given to purity.
+            Defaults to 1.
+
+    See also
+--------
+pyannote.metrics.segmentation.SegmentationPurity
+pyannote.metrics.segmentation.SegmentationCoverage
+pyannote.metrics.base.f_measure
+    """
+
+    def __init__(self, tolerance=0.500, beta=1, **kwargs):
+        super(SegmentationPurityCoverageFMeasure, self).__init__(tolerance=tolerance, **kwargs)
+        self.beta = beta
+
+    def _process(self, reference, hypothesis):
+        reference, hypothesis = self._preprocess(reference, hypothesis)
+
+        detail = self.init_components()
+
+        # cooccurrence matrix coverage
+        K = reference * hypothesis
+        detail[CVG_TOTAL] = np.sum(K).item()
+        detail[CVG_INTER] = np.sum(np.max(K, axis=1)).item()
+
+        # cooccurrence matrix purity
+        detail[PTY_TOTAL] = detail[CVG_TOTAL]
+        detail[PTY_INTER] = np.sum(np.max(K, axis=0)).item()
+
+        return detail
+
+    def compute_components(self, reference, hypothesis, **kwargs):
+        return self._process(reference, hypothesis)
+
+    def compute_metric(self, detail):
+        _, _, value = self.compute_metrics(detail=detail)
+        return value
+
+    def compute_metrics(self, detail=None):
+        detail = self.accumulated_ if detail is None else detail
+
+        purity = \
+            1. if detail[PTY_TOTAL] == 0. \
+                else detail[PTY_INTER] / detail[PTY_TOTAL]
+
+        coverage = \
+            1. if detail[CVG_TOTAL] == 0. \
+                else detail[CVG_INTER] / detail[CVG_TOTAL]
+
+        return purity, coverage, f_measure(purity, coverage, beta=self.beta)
+
+    @classmethod
+    def metric_name(cls):
+        return PURITY_COVERAGE_NAME
+
+    @classmethod
+    def metric_components(cls):
+        return [PTY_TOTAL, PTY_INTER, CVG_TOTAL, CVG_INTER]
+
+
 class SegmentationPrecision(UEMSupportMixin, BaseMetric):
     """Segmentation precision
 
@@ -181,6 +260,7 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
     1.0
 
     """
+
     @classmethod
     def metric_name(cls):
         return PRECISION_NAME
@@ -239,7 +319,6 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
 
         # while there are still boundaries to match
         while h < np.inf:
-
             # increment match count
             nMatches += 1
 
@@ -298,6 +377,7 @@ class SegmentationRecall(SegmentationPrecision):
     0.0
 
     """
+
     @classmethod
     def metric_name(cls):
         return RECALL_NAME
