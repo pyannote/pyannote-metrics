@@ -200,7 +200,7 @@ pyannote.metrics.base.f_measure
         detail[CVG_INTER] = np.sum(np.max(K, axis=1)).item()
 
         # cooccurrence matrix purity
-        detail[PTY_TOTAL] = np.sum(L).item()
+        detail[PTY_TOTAL] = detail[CVG_TOTAL]
         detail[PTY_INTER] = np.sum(np.max(L, axis=1)).item()
 
         return detail
