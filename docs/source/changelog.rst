@@ -2,6 +2,12 @@
 Changelog
 #########
 
+Version 1.8 (2018-09-03)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- feat: add compound segmentation metric SegmentationPurityCoverageFMeasure (@diego-fustes)
+- fix: fix typo in IdentificationErrorAnalysis (@benjisympa)
+
 Version 1.7.1 (2018-09-03)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 

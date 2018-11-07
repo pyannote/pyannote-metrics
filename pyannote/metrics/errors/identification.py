@@ -25,6 +25,7 @@
 
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
+# Benjamin MAURICE - maurice@limsi.fr
 
 from __future__ import unicode_literals
 
@@ -65,7 +66,7 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
     def __init__(self, collar=0., skip_overlap=False):
 
         super(IdentificationErrorAnalysis, self).__init__()
-        self.matcher_ = LabelMatcher()
+        self.matcher = LabelMatcher()
         self.munkres = Munkres()
         self.collar = collar
         self.skip_overlap=skip_overlap
