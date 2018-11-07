@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pyannote.metrics.errors.identification &mdash; pyannote.metrics 1.7 documentation</title>
+  <title>pyannote.metrics.errors.identification &mdash; pyannote.metrics 1.8 documentation</title>
   
 
   
@@ -56,7 +56,7 @@
             
             
               <div class="version">
-                1.7
+                1.8
               </div>
             
           
@@ -177,6 +177,7 @@
 
 <span class="c1"># AUTHORS</span>
 <span class="c1"># Hervé BREDIN - http://herve.niderb.fr</span>
+<span class="c1"># Benjamin MAURICE - maurice@limsi.fr</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
 
@@ -217,7 +218,7 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">IdentificationErrorAnalysis</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">matcher_</span> <span class="o">=</span> <span class="n">LabelMatcher</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">matcher</span> <span class="o">=</span> <span class="n">LabelMatcher</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">munkres</span> <span class="o">=</span> <span class="n">Munkres</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">collar</span> <span class="o">=</span> <span class="n">collar</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span><span class="o">=</span><span class="n">skip_overlap</span>
@@ -497,7 +498,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../../',
-            VERSION:'1.7',
+            VERSION:'1.8',
             LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',

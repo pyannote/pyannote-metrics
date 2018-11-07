@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Principles &mdash; pyannote.metrics 1.7 documentation</title>
+  <title>Principles &mdash; pyannote.metrics 1.8 documentation</title>
   
 
   
@@ -58,7 +58,7 @@
             
             
               <div class="version">
-                1.7
+                1.8
               </div>
             
           
@@ -274,11 +274,11 @@ For instance, the diarization error rate is the combination of false alarm (non-
 <p>Using <code class="docutils literal notranslate"><span class="pre">detailed=True</span></code> will return the value of each component:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">35</span><span class="p">]:</span> <span class="n">metric</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 <span class="n">Out</span><span class="p">[</span><span class="mi">35</span><span class="p">]:</span> 
-<span class="p">{</span><span class="s1">&#39;false alarm&#39;</span><span class="p">:</span> <span class="mf">7.0</span><span class="p">,</span>
- <span class="s1">&#39;confusion&#39;</span><span class="p">:</span> <span class="mf">7.0</span><span class="p">,</span>
- <span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="mf">31.0</span><span class="p">,</span>
- <span class="s1">&#39;missed detection&#39;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+<span class="p">{</span><span class="s1">&#39;confusion&#39;</span><span class="p">:</span> <span class="mf">7.0</span><span class="p">,</span>
  <span class="s1">&#39;correct&#39;</span><span class="p">:</span> <span class="mf">22.0</span><span class="p">,</span>
+ <span class="s1">&#39;missed detection&#39;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+ <span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="mf">31.0</span><span class="p">,</span>
+ <span class="s1">&#39;false alarm&#39;</span><span class="p">:</span> <span class="mf">7.0</span><span class="p">,</span>
  <span class="s1">&#39;diarization error rate&#39;</span><span class="p">:</span> <span class="mf">0.5161290322580645</span><span class="p">}</span>
 </pre></div>
 </div>
@@ -291,11 +291,11 @@ In [37]: metric[&#39;confusion&#39;]
 
 In [38]: metric[:]
                                           Out[38]: 
-{&#39;false alarm&#39;: 11.0,
- &#39;confusion&#39;: 13.0,
- &#39;total&#39;: 61.0,
+{&#39;confusion&#39;: 13.0,
+ &#39;correct&#39;: 43.0,
  &#39;missed detection&#39;: 5.0,
- &#39;correct&#39;: 43.0}
+ &#39;total&#39;: 61.0,
+ &#39;false alarm&#39;: 11.0}
 </pre></div>
 </div>
 </div>
@@ -398,7 +398,7 @@ In [38]: metric[:]
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.7',
+            VERSION:'1.8',
             LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',

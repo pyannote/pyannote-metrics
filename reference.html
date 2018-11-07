@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Reference &mdash; pyannote.metrics 1.7 documentation</title>
+  <title>Reference &mdash; pyannote.metrics 1.8 documentation</title>
   
 
   
@@ -58,7 +58,7 @@
             
             
               <div class="version">
-                1.7
+                1.8
               </div>
             
           
@@ -668,6 +668,75 @@ values</p>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
 </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyannote.metrics.segmentation.SegmentationPurityCoverageFMeasure">
+<em class="property">class </em><code class="descclassname">pyannote.metrics.segmentation.</code><code class="descname">SegmentationPurityCoverageFMeasure</code><span class="sig-paren">(</span><em>tolerance=0.5</em>, <em>beta=1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/segmentation.html#SegmentationPurityCoverageFMeasure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.segmentation.SegmentationPurityCoverageFMeasure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute segmentation purity and coverage, and return their F-score.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – When provided, preprocess reference by filling intra-label gaps shorter
+than <cite>tolerance</cite> (in seconds).</li>
+<li><strong>beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – When beta &gt; 1, greater importance is given to coverage.
+When beta &lt; 1, greater importance is given to purity.
+Defaults to 1.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#pyannote.metrics.segmentation.SegmentationPurity" title="pyannote.metrics.segmentation.SegmentationPurity"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.metrics.segmentation.SegmentationPurity</span></code></a>, <a class="reference internal" href="#pyannote.metrics.segmentation.SegmentationCoverage" title="pyannote.metrics.segmentation.SegmentationCoverage"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.metrics.segmentation.SegmentationCoverage</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.metrics.base.f_measure</span></code></p>
+</div>
+<dl class="method">
+<dt id="pyannote.metrics.segmentation.SegmentationPurityCoverageFMeasure.compute_components">
+<code class="descname">compute_components</code><span class="sig-paren">(</span><em>reference</em>, <em>hypothesis</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/segmentation.html#SegmentationPurityCoverageFMeasure.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.segmentation.SegmentationPurityCoverageFMeasure.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric components</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reference</strong> (<em>type depends on the metric</em>) – Manual <cite>reference</cite></li>
+<li><strong>hypothesis</strong> (same as <cite>reference</cite>) – Evaluated <cite>hypothesis</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>components</strong> – Dictionary where keys are component names and values are component
+values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyannote.metrics.segmentation.SegmentationPurityCoverageFMeasure.compute_metric">
+<code class="descname">compute_metric</code><span class="sig-paren">(</span><em>detail</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/segmentation.html#SegmentationPurityCoverageFMeasure.compute_metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.segmentation.SegmentationPurityCoverageFMeasure.compute_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric value from computed <cite>components</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+values</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>value</strong> – Metric value</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">type depends on the metric</td>
 </tr>
 </tbody>
 </table>
@@ -1672,7 +1741,7 @@ Defaults to False.</td>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.7',
+            VERSION:'1.8',
             LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',

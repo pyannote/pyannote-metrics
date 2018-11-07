@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pyannote.metrics.segmentation &mdash; pyannote.metrics 1.7 documentation</title>
+  <title>pyannote.metrics.segmentation &mdash; pyannote.metrics 1.8 documentation</title>
   
 
   
@@ -56,7 +56,7 @@
             
             
               <div class="version">
-                1.7
+                1.8
               </div>
             
           
@@ -179,21 +179,28 @@
 <span class="c1"># Hervé BREDIN - http://herve.niderb.fr</span>
 <span class="c1"># Camille Guinaudeau - https://sites.google.com/site/cguinaudeau/</span>
 <span class="c1"># Mamadou Doumbia</span>
+<span class="c1"># Diego Fustes diego.fustes at toptal.com</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">BaseMetric</span>
 <span class="kn">from</span> <span class="nn">pyannote.core</span> <span class="k">import</span> <span class="n">Segment</span><span class="p">,</span> <span class="n">Timeline</span><span class="p">,</span> <span class="n">Annotation</span>
 <span class="kn">from</span> <span class="nn">pyannote.core.util</span> <span class="k">import</span> <span class="n">pairwise</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">UEMSupportMixin</span>
 
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">BaseMetric</span><span class="p">,</span> <span class="n">f_measure</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">UEMSupportMixin</span>
 
 <span class="n">PURITY_NAME</span> <span class="o">=</span> <span class="s1">&#39;segmentation purity&#39;</span>
 <span class="n">COVERAGE_NAME</span> <span class="o">=</span> <span class="s1">&#39;segmentation coverage&#39;</span>
+<span class="n">PURITY_COVERAGE_NAME</span> <span class="o">=</span> <span class="s1">&#39;segmentation F[purity|coverage]&#39;</span>
 <span class="n">PTY_CVG_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;total duration&#39;</span>
 <span class="n">PTY_CVG_INTER</span> <span class="o">=</span> <span class="s1">&#39;intersection duration&#39;</span>
+
+<span class="n">PTY_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;pty total duration&#39;</span>
+<span class="n">PTY_INTER</span> <span class="o">=</span> <span class="s1">&#39;pty intersection duration&#39;</span>
+<span class="n">CVG_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;cvg total duration&#39;</span>
+<span class="n">CVG_INTER</span> <span class="o">=</span> <span class="s1">&#39;cvg intersection duration&#39;</span>
 
 <span class="n">PRECISION_NAME</span> <span class="o">=</span> <span class="s1">&#39;segmentation precision&#39;</span>
 <span class="n">RECALL_NAME</span> <span class="o">=</span> <span class="s1">&#39;segmentation recall&#39;</span>
@@ -307,6 +314,78 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">,</span> <span class="n">reference</span><span class="p">)</span></div></div>
 
 
+<div class="viewcode-block" id="SegmentationPurityCoverageFMeasure"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.segmentation.SegmentationPurityCoverageFMeasure">[docs]</a><span class="k">class</span> <span class="nc">SegmentationPurityCoverageFMeasure</span><span class="p">(</span><span class="n">SegmentationCoverage</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute segmentation purity and coverage, and return their F-score.</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tolerance : float, optional</span>
+<span class="sd">        When provided, preprocess reference by filling intra-label gaps shorter</span>
+<span class="sd">        than `tolerance` (in seconds).</span>
+
+<span class="sd">    beta : float, optional</span>
+<span class="sd">            When beta &gt; 1, greater importance is given to coverage.</span>
+<span class="sd">            When beta &lt; 1, greater importance is given to purity.</span>
+<span class="sd">            Defaults to 1.</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    pyannote.metrics.segmentation.SegmentationPurity</span>
+<span class="sd">    pyannote.metrics.segmentation.SegmentationCoverage</span>
+<span class="sd">    pyannote.metrics.base.f_measure</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.500</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SegmentationPurityCoverageFMeasure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">beta</span>
+
+    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">):</span>
+        <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>
+
+        <span class="n">detail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_components</span><span class="p">()</span>
+
+        <span class="c1"># cooccurrence matrix coverage</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">reference</span> <span class="o">*</span> <span class="n">hypothesis</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">CVG_TOTAL</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">CVG_INTER</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+        <span class="c1"># cooccurrence matrix purity</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">PTY_TOTAL</span><span class="p">]</span> <span class="o">=</span> <span class="n">detail</span><span class="p">[</span><span class="n">CVG_TOTAL</span><span class="p">]</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">PTY_INTER</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">detail</span>
+
+<div class="viewcode-block" id="SegmentationPurityCoverageFMeasure.compute_components"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.segmentation.SegmentationPurityCoverageFMeasure.compute_components">[docs]</a>    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SegmentationPurityCoverageFMeasure.compute_metric"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.segmentation.SegmentationPurityCoverageFMeasure.compute_metric">[docs]</a>    <span class="k">def</span> <span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">):</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_metrics</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="n">detail</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+    <span class="k">def</span> <span class="nf">compute_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">detail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">accumulated_</span> <span class="k">if</span> <span class="n">detail</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">detail</span>
+
+        <span class="n">purity</span> <span class="o">=</span> \
+            <span class="mf">1.</span> <span class="k">if</span> <span class="n">detail</span><span class="p">[</span><span class="n">PTY_TOTAL</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.</span> \
+                <span class="k">else</span> <span class="n">detail</span><span class="p">[</span><span class="n">PTY_INTER</span><span class="p">]</span> <span class="o">/</span> <span class="n">detail</span><span class="p">[</span><span class="n">PTY_TOTAL</span><span class="p">]</span>
+
+        <span class="n">coverage</span> <span class="o">=</span> \
+            <span class="mf">1.</span> <span class="k">if</span> <span class="n">detail</span><span class="p">[</span><span class="n">CVG_TOTAL</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.</span> \
+                <span class="k">else</span> <span class="n">detail</span><span class="p">[</span><span class="n">CVG_INTER</span><span class="p">]</span> <span class="o">/</span> <span class="n">detail</span><span class="p">[</span><span class="n">CVG_TOTAL</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">purity</span><span class="p">,</span> <span class="n">coverage</span><span class="p">,</span> <span class="n">f_measure</span><span class="p">(</span><span class="n">purity</span><span class="p">,</span> <span class="n">coverage</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">PURITY_COVERAGE_NAME</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">PTY_TOTAL</span><span class="p">,</span> <span class="n">PTY_INTER</span><span class="p">,</span> <span class="n">CVG_TOTAL</span><span class="p">,</span> <span class="n">CVG_INTER</span><span class="p">]</span></div>
+
+
 <div class="viewcode-block" id="SegmentationPrecision"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.segmentation.SegmentationPrecision">[docs]</a><span class="k">class</span> <span class="nc">SegmentationPrecision</span><span class="p">(</span><span class="n">UEMSupportMixin</span><span class="p">,</span> <span class="n">BaseMetric</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Segmentation precision</span>
 
@@ -333,6 +412,7 @@
 <span class="sd">    1.0</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">PRECISION_NAME</span>
@@ -391,7 +471,6 @@
 
         <span class="c1"># while there are still boundaries to match</span>
         <span class="k">while</span> <span class="n">h</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">:</span>
-
             <span class="c1"># increment match count</span>
             <span class="n">nMatches</span> <span class="o">+=</span> <span class="mi">1</span>
 
@@ -450,6 +529,7 @@
 <span class="sd">    0.0</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">RECALL_NAME</span>
@@ -491,7 +571,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'1.7',
+            VERSION:'1.8',
             LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
