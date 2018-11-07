@@ -182,7 +182,7 @@ class SegmentationPurityCoverageFMeasure(SegmentationCoverage):
 --------
 pyannote.metrics.segmentation.SegmentationPurity
 pyannote.metrics.segmentation.SegmentationCoverage
-        pyannote.metrics.base.f_measure
+pyannote.metrics.base.f_measure
     """
 
     def __init__(self, tolerance=0.500, beta=1, **kwargs):
