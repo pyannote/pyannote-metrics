@@ -34,7 +34,7 @@ from __future__ import unicode_literals
 
 import numpy as np
 from pyannote.core import Segment, Timeline, Annotation
-from pyannote.core.util import pairwise
+from pyannote.core.utils.generators import pairwise
 
 from .base import BaseMetric, f_measure
 from .utils import UEMSupportMixin
