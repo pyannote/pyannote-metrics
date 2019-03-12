@@ -43,9 +43,9 @@ setup(
         'scripts/pyannote-metrics.py',
     ],
     install_requires=[
-        'pyannote.core >= 2.0',
         'pyannote.database >= 1.5.1',
         'pyannote.parser >= 0.7.1',
+        'pyannote.core >= 2.1',
         'pandas >= 0.19',
         'scipy >= 0.10.0',
         'scikit-learn >= 0.17.1',
@@ -72,8 +72,8 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "Topic :: Scientific/Engineering"
     ],
 )
