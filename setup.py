@@ -24,7 +24,7 @@
 # SOFTWARE.
 
 # AUTHORS
-# Hervé BREDIN - http://herve.niderb.fr
+# Herve BREDIN - http://herve.niderb.fr
 
 import versioneer
 versioneer.versionfile_source = 'pyannote/metrics/_version.py'
@@ -62,7 +62,7 @@ setup(
     # PyPI
     name='pyannote.metrics',
     description=('a toolkit for reproducible evaluation, diagnostic, and error analysis of speaker diarization systems'),
-    author='Hervé Bredin',
+    author='Herve Bredin',
     author_email='bredin@limsi.fr',
     url='https://pyannote.github.io/pyannote-metrics',
     classifiers=[
