@@ -166,7 +166,7 @@ def get_hypothesis(hypotheses, current_file):
 
     # no matching speech turns. return empty annotation
     if len(tmp_uri) == 0:
-        msg = 'Could not find hypothesis for file "{uri}"; assuming empty file.'
+        msg = f'Could not find hypothesis for file "{uri}"; assuming empty file.'
         warnings.warn(msg)
         return Annotation(uri=uri, modality='speaker')
 
@@ -177,7 +177,7 @@ def get_hypothesis(hypotheses, current_file):
         return hypothesis
 
     # more that one matching file. error.
-    msg = 'Found too many hypotheses matching file "{uri}" ({uris}).'
+    msg = f'Found too many hypotheses matching file "{uri}" ({uris}).'
     raise ValueError(msg.format(uri=uri, uris=tmp_uri))
 
 
