@@ -2,8 +2,8 @@
 Changelog
 #########
 
-Version 2.0 (2019-03-20)
-~~~~~~~~~~~~~~~~~~~~~~~~
+Version 2.0.1 (2019-03-20)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - BREAKING: drop support for all file formats but RTTM
 - BREAKING: drop Python 2.7 support
