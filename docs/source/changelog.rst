@@ -2,8 +2,16 @@
 Changelog
 #########
 
-Version 1.8 (2018-11-19)
+Version 2.0 (2019-03-20)
 ~~~~~~~~~~~~~~~~~~~~~~~~
+
+- BREAKING: drop support for all file formats but RTTM
+- BREAKING: drop Python 2.7 support
+- setup: switch to pyannote.database 2.0
+- setup: switch to pyannote.core 2.1
+
+Version 1.8.1 (2018-11-19)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - setup: switch to pyannote.core 2.0
 
