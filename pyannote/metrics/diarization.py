@@ -270,6 +270,154 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
                                 collar=0.0, skip_overlap=False,
                                 **kwargs)
 
+JER_NAME = 'jaccard error rate'
+JER_SPEAKER_ERROR = 'speaker error'
+JER_SPEAKER_COUNT = 'speaker count'
+
+
+class JaccardErrorRate(DiarizationErrorRate):
+    """Jaccard error rate
+
+    Reference
+    ---------
+    Second DIHARD Challenge Evaluation Plan. Version 1.1
+    N. Ryant, K. Church, C. Cieri, A. Cristia, J. Du, S. Ganapathy, M. Liberman
+    https://coml.lscp.ens.fr/dihard/2019/second_dihard_eval_plan_v1.1.pdf
+
+    "The Jaccard error rate is based on the Jaccard index, a similarity measure
+    used to evaluate the output of image segmentation systems. An optimal
+    mapping between reference and system speakers is determined and for each
+    pair the Jaccard index is computed. The Jaccard error rate is then defined
+    as 1 minus the average of these scores. While similar to DER, it weights
+    every speaker’s contribution equally, regardless of how much speech they
+    actually produced.
+
+    More concretely, assume we have N reference speakers and M system speakers.
+    An optimal mapping between speakers is determined using the Hungarian
+    algorithm so that each reference speaker is paired with at most one system
+    speaker and each system speaker with at most one reference speaker. Then,
+    for each reference speaker ref the speaker-specific Jaccard error rate
+    JERref is computed as JERref = (FA + MISS) / TOTAL where
+        * TOTAL is the duration of the union of reference and system speaker
+        segments; if the reference speaker was not paired with a system
+        speaker, it is the duration of all reference speaker segments
+        * FA is the total system speaker time not attributed to the reference
+        speaker; if the reference speaker was not paired with a system speaker,
+        it is 0
+        * MISS is the total reference speaker time not attributed to the system
+        speaker; if the reference speaker was not paired with a system speaker,
+        it is equal to TOTAL
+
+    The Jaccard error rate then is the average of the speaker specific Jaccard
+    error rates.
+
+    JER and DER are highly correlated with JER typically being higher,
+    especially in recordings where one or more speakers is particularly
+    dominant. Where it tends to track DER is in outliers where the diarization
+    is especially bad, resulting in one or more unmapped system speakers whose
+    speech is not then penalized. In these cases, where DER can easily exceed
+    500%, JER will never exceed 100% and may be far lower if the reference
+    speakers are handled correctly."
+
+    Parameters
+    ----------
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments.
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
+
+    Usage
+    -----
+    >>> metric = JaccardErrorRate()
+    >>> reference = Annotation(...)           # doctest: +SKIP
+    >>> hypothesis = Annotation(...)          # doctest: +SKIP
+    >>> jer = metric(reference, hypothesis)   # doctest: +SKIP
+
+    """
+
+    @classmethod
+    def metric_name(cls):
+        return JER_NAME
+
+    @classmethod
+    def metric_components(cls):
+        return [
+            JER_SPEAKER_COUNT,
+            JER_SPEAKER_ERROR,
+        ]
+
+    def __init__(self, collar=0.0, skip_overlap=False, **kwargs):
+        super().__init__(
+            collar=collar, skip_overlap=skip_overlap, **kwargs)
+        self.mapper_ = HungarianMapper()
+
+    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+
+        # crop reference and hypothesis to evaluated regions (uem)
+        # remove collars around reference segment boundaries
+        # remove overlap regions (if requested)
+        reference, hypothesis, uem = self.uemify(
+            reference, hypothesis, uem=uem,
+            collar=self.collar, skip_overlap=self.skip_overlap,
+            returns_uem=True)
+        # NOTE that this 'uemification' must be done here because it
+        # might have an impact on the search for the optimal mapping.
+
+        # make sure reference only contains string labels ('A', 'B', ...)
+        reference = reference.anonymize_labels(generator='string')
+
+        # make sure hypothesis only contains integer labels (1, 2, ...)
+        hypothesis = hypothesis.anonymize_labels(generator='int')
+
+        # optimal (str --> int) mapping
+        mapping = self.optimal_mapping(hypothesis, reference)
+
+        detail = self.init_components()
+
+        for ref_speaker in reference.labels():
+
+            hyp_speaker = mapping.get(ref_speaker, None)
+
+            if hyp_speaker is None:
+                # if the reference speaker was not paired with a system speaker
+                # [total] is the duration of all reference speaker segments
+
+                # if the reference speaker was not paired with a system speaker
+                # [fa] is 0
+
+                # if the reference speaker was not paired with a system speaker
+                # [miss] is equal to total
+
+                # overall: jer = (fa + miss) / total = (0 + total) / total = 1
+                jer = 1.
+
+            else:
+                # total is the duration of the union of reference and system
+                # speaker segments
+                r = reference.label_timeline(ref_speaker)
+                h = hypothesis.label_timeline(hyp_speaker)
+                total = r.union(h).support().duration()
+
+                # fa is the total system speaker time not attributed to the
+                # reference speaker
+                fa = h.duration() - h.crop(r).duration()
+
+                # miss is the total reference speaker time not attributed to
+                # the system speaker
+                miss = r.duration() - r.crop(h).duration()
+
+                jer = (fa + miss) / total
+
+            detail[JER_SPEAKER_COUNT] += 1
+            detail[JER_SPEAKER_ERROR] += jer
+
+        return detail
+
+    def compute_metric(self, detail):
+        return detail[JER_SPEAKER_ERROR] / detail[JER_SPEAKER_COUNT]
+
 PURITY_NAME = 'purity'
 PURITY_TOTAL = 'total'
 PURITY_CORRECT = 'correct'
