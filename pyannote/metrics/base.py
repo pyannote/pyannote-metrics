@@ -195,7 +195,11 @@ class BaseMetric(object):
             else:
                 row[key, ''] = value
                 if percent:
-                    row[key, '%'] = 100 * value / total
+                    if total > 0:
+                        row[key, '%'] = 100 * value / total
+                    else:
+                        row[key, '%'] = np.NaN
+
         row[self.name, '%'] = 100 * abs(self)
         report.append(row)
         uris.append('TOTAL')
