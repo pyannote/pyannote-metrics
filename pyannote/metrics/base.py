@@ -128,7 +128,7 @@ class BaseMetric(object):
             self.uris_[uri] = 1
         else:
             self.uris_[uri] += 1
-            uri = uri + ' #{0:d}'.format(self.uris_[uri])
+            uri = uri , ' #{0:d}'.format(self.uris_[uri])
 
         self.results_.append((uri, components))
 
