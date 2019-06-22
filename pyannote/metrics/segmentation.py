@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2017 CNRS
+# Copyright (c) 2012-2019 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,9 +28,6 @@
 # Camille Guinaudeau - https://sites.google.com/site/cguinaudeau/
 # Mamadou Doumbia
 # Diego Fustes diego.fustes at toptal.com
-
-from __future__ import division
-from __future__ import unicode_literals
 
 import numpy as np
 from pyannote.core import Segment, Timeline, Annotation
