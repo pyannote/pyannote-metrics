@@ -141,10 +141,10 @@ class DiarizationErrorRate(IdentificationErrorRate):
         # might have an impact on the search for the optimal mapping.
 
         # make sure reference only contains string labels ('A', 'B', ...)
-        reference = reference.anonymize_labels(generator='string')
+        reference = reference.rename_labels(generator='string')
 
         # make sure hypothesis only contains integer labels (1, 2, ...)
-        hypothesis = hypothesis.anonymize_labels(generator='int')
+        hypothesis = hypothesis.rename_labels(generator='int')
 
         # optimal (int --> str) mapping
         mapping = self.optimal_mapping(reference, hypothesis)
@@ -152,7 +152,7 @@ class DiarizationErrorRate(IdentificationErrorRate):
         # compute identification error rate based on mapped hypothesis
         # NOTE that collar is set to 0.0 because 'uemify' has already
         # been applied (same reason for setting skip_overlap to False)
-        mapped = hypothesis.translate(mapping)
+        mapped = hypothesis.rename_labels(mapping=mapping)
         return super(DiarizationErrorRate, self)\
             .compute_components(reference, mapped, uem=uem,
                                 collar=0.0, skip_overlap=False,
@@ -251,10 +251,10 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
         # might have an impact on the search for the greedy mapping.
 
         # make sure reference only contains string labels ('A', 'B', ...)
-        reference = reference.anonymize_labels(generator='string')
+        reference = reference.rename_labels(generator='string')
 
         # make sure hypothesis only contains integer labels (1, 2, ...)
-        hypothesis = hypothesis.anonymize_labels(generator='int')
+        hypothesis = hypothesis.rename_labels(generator='int')
 
         # greedy (int --> str) mapping
         mapping = self.greedy_mapping(reference, hypothesis)
@@ -262,7 +262,7 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
         # compute identification error rate based on mapped hypothesis
         # NOTE that collar is set to 0.0 because 'uemify' has already
         # been applied (same reason for setting skip_overlap to False)
-        mapped = hypothesis.translate(mapping)
+        mapped = hypothesis.rename_labels(mapping=mapping)
         return super(GreedyDiarizationErrorRate, self)\
             .compute_components(reference, mapped, uem=uem,
                                 collar=0.0, skip_overlap=False,
@@ -364,10 +364,10 @@ class JaccardErrorRate(DiarizationErrorRate):
         # might have an impact on the search for the optimal mapping.
 
         # make sure reference only contains string labels ('A', 'B', ...)
-        reference = reference.anonymize_labels(generator='string')
+        reference = reference.rename_labels(generator='string')
 
         # make sure hypothesis only contains integer labels (1, 2, ...)
-        hypothesis = hypothesis.anonymize_labels(generator='int')
+        hypothesis = hypothesis.rename_labels(generator='int')
 
         # optimal (str --> int) mapping
         mapping = self.optimal_mapping(hypothesis, reference)
