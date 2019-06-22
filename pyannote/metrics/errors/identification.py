@@ -28,7 +28,7 @@
 # Benjamin MAURICE - maurice@limsi.fr
 
 import numpy as np
-from munkres import Munkres
+from scipy.optimize import linear_sum_assignment
 
 from ..matcher import LabelMatcher
 from pyannote.core import Annotation
@@ -65,7 +65,6 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
 
         super(IdentificationErrorAnalysis, self).__init__()
         self.matcher = LabelMatcher()
-        self.munkres = Munkres()
         self.collar = collar
         self.skip_overlap=skip_overlap
 
@@ -171,9 +170,7 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
                 for i2, e2 in enumerate(new_errors):
                     match[i1, i2] = self._match_errors(e1, e2)
 
-            mapping = self.munkres.compute(2 - match)
-
-            for i1, i2 in mapping:
+            for i1, i2 in zip(*linear_sum_assignment(-match)):
 
                 if i1 >= n1:
                     track = behaviors.new_track(segment,
