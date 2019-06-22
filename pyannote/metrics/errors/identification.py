@@ -32,7 +32,6 @@ from scipy.optimize import linear_sum_assignment
 
 from ..matcher import LabelMatcher
 from pyannote.core import Annotation
-from xarray import DataArray
 
 from ..matcher import MATCH_CORRECT, MATCH_CONFUSION, \
     MATCH_MISSED_DETECTION, MATCH_FALSE_ALARM
@@ -260,6 +259,16 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
         ] + hLabels
 
         # initialize empty matrix
+
+        try:
+            from xarray import DataArray
+        except ImportError as e:
+            msg = (
+                "Please install xarray dependency to use class "
+                "'IdentificationErrorAnalysis'."
+            )
+            raise ImportError(msg)
+
         matrix = DataArray(
             np.zeros((len(rLabels), len(hLabels))),
             coords=[('reference', rLabels), ('hypothesis', hLabels)])
