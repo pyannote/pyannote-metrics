@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2014-2018 CNRS
+# Copyright (c) 2014-2019 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -43,13 +43,11 @@ setup(
         'scripts/pyannote-metrics.py',
     ],
     install_requires=[
-        'pyannote.core >= 2.1',
+        'pyannote.core >= 3.0',
         'pyannote.database >= 2.0',
         'pandas >= 0.19',
-        'scipy >= 0.10.0',
+        'scipy >= 1.1.0',
         'scikit-learn >= 0.17.1',
-        'networkx >= 1.11',
-        'munkres >= 1.0.8',
         'docopt >= 0.6.2',
         'tabulate >= 0.7.7',
         'matplotlib >= 2.0.0',

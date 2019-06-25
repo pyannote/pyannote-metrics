@@ -2,6 +2,13 @@
 Changelog
 #########
 
+Version 2.1 (2019-06-24)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- chore: rewrite mapping and matching routines
+- fix: remove buggy xarray dependency
+- setup: switch to pyannote.core 3.0
+
 Version 2.0.2 (2019-04-15)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 

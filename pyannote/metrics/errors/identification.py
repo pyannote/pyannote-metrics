@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2017 CNRS
+# Copyright (c) 2012-2019 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -27,14 +27,11 @@
 # Hervé BREDIN - http://herve.niderb.fr
 # Benjamin MAURICE - maurice@limsi.fr
 
-from __future__ import unicode_literals
-
 import numpy as np
-from munkres import Munkres
+from scipy.optimize import linear_sum_assignment
 
 from ..matcher import LabelMatcher
 from pyannote.core import Annotation
-from xarray import DataArray
 
 from ..matcher import MATCH_CORRECT, MATCH_CONFUSION, \
     MATCH_MISSED_DETECTION, MATCH_FALSE_ALARM
@@ -67,7 +64,6 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
 
         super(IdentificationErrorAnalysis, self).__init__()
         self.matcher = LabelMatcher()
-        self.munkres = Munkres()
         self.collar = collar
         self.skip_overlap=skip_overlap
 
@@ -173,9 +169,7 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
                 for i2, e2 in enumerate(new_errors):
                     match[i1, i2] = self._match_errors(e1, e2)
 
-            mapping = self.munkres.compute(2 - match)
-
-            for i1, i2 in mapping:
+            for i1, i2 in zip(*linear_sum_assignment(-match)):
 
                 if i1 >= n1:
                     track = behaviors.new_track(segment,
@@ -265,6 +259,16 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
         ] + hLabels
 
         # initialize empty matrix
+
+        try:
+            from xarray import DataArray
+        except ImportError as e:
+            msg = (
+                "Please install xarray dependency to use class "
+                "'IdentificationErrorAnalysis'."
+            )
+            raise ImportError(msg)
+
         matrix = DataArray(
             np.zeros((len(rLabels), len(hLabels))),
             coords=[('reference', rLabels), ('hypothesis', hLabels)])
