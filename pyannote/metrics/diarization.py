@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2017 CNRS
+# Copyright (c) 2012-2019 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,12 +26,9 @@
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
 
-from __future__ import unicode_literals
-
 """Metrics for diarization"""
 
 import numpy as np
-from xarray import DataArray
 
 from .matcher import HungarianMapper
 from .matcher import GreedyMapper
@@ -127,8 +124,7 @@ class DiarizationErrorRate(IdentificationErrorRate):
             reference, hypothesis = self.uemify(reference, hypothesis, uem=uem)
 
         # call hungarian mapper
-        mapping = self.mapper_(hypothesis, reference)
-        return mapping
+        return self.mapper_(hypothesis, reference)
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
 
@@ -143,10 +139,10 @@ class DiarizationErrorRate(IdentificationErrorRate):
         # might have an impact on the search for the optimal mapping.
 
         # make sure reference only contains string labels ('A', 'B', ...)
-        reference = reference.anonymize_labels(generator='string')
+        reference = reference.rename_labels(generator='string')
 
         # make sure hypothesis only contains integer labels (1, 2, ...)
-        hypothesis = hypothesis.anonymize_labels(generator='int')
+        hypothesis = hypothesis.rename_labels(generator='int')
 
         # optimal (int --> str) mapping
         mapping = self.optimal_mapping(reference, hypothesis)
@@ -154,7 +150,7 @@ class DiarizationErrorRate(IdentificationErrorRate):
         # compute identification error rate based on mapped hypothesis
         # NOTE that collar is set to 0.0 because 'uemify' has already
         # been applied (same reason for setting skip_overlap to False)
-        mapped = hypothesis.translate(mapping)
+        mapped = hypothesis.rename_labels(mapping=mapping)
         return super(DiarizationErrorRate, self)\
             .compute_components(reference, mapped, uem=uem,
                                 collar=0.0, skip_overlap=False,
@@ -253,10 +249,10 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
         # might have an impact on the search for the greedy mapping.
 
         # make sure reference only contains string labels ('A', 'B', ...)
-        reference = reference.anonymize_labels(generator='string')
+        reference = reference.rename_labels(generator='string')
 
         # make sure hypothesis only contains integer labels (1, 2, ...)
-        hypothesis = hypothesis.anonymize_labels(generator='int')
+        hypothesis = hypothesis.rename_labels(generator='int')
 
         # greedy (int --> str) mapping
         mapping = self.greedy_mapping(reference, hypothesis)
@@ -264,7 +260,7 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
         # compute identification error rate based on mapped hypothesis
         # NOTE that collar is set to 0.0 because 'uemify' has already
         # been applied (same reason for setting skip_overlap to False)
-        mapped = hypothesis.translate(mapping)
+        mapped = hypothesis.rename_labels(mapping=mapping)
         return super(GreedyDiarizationErrorRate, self)\
             .compute_components(reference, mapped, uem=uem,
                                 collar=0.0, skip_overlap=False,
@@ -366,10 +362,10 @@ class JaccardErrorRate(DiarizationErrorRate):
         # might have an impact on the search for the optimal mapping.
 
         # make sure reference only contains string labels ('A', 'B', ...)
-        reference = reference.anonymize_labels(generator='string')
+        reference = reference.rename_labels(generator='string')
 
         # make sure hypothesis only contains integer labels (1, 2, ...)
-        hypothesis = hypothesis.anonymize_labels(generator='int')
+        hypothesis = hypothesis.rename_labels(generator='int')
 
         # optimal (str --> int) mapping
         mapping = self.optimal_mapping(hypothesis, reference)
@@ -472,17 +468,17 @@ class DiarizationPurity(UEMSupportMixin, BaseMetric):
         matrix = reference * hypothesis
 
         # duration of largest class in each cluster
-        largest = matrix.max(dim='i')
-        duration = matrix.sum(dim='i')
+        largest = matrix.max(axis=0)
+        duration = matrix.sum(axis=0)
 
         if self.weighted:
             detail[PURITY_CORRECT] = 0.
             if np.prod(matrix.shape):
-                detail[PURITY_CORRECT] = largest.sum().item()
-            detail[PURITY_TOTAL] = duration.sum().item()
+                detail[PURITY_CORRECT] = largest.sum()
+            detail[PURITY_TOTAL] = duration.sum()
 
         else:
-            detail[PURITY_CORRECT] = (largest / duration).sum().item()
+            detail[PURITY_CORRECT] = (largest / duration).sum()
             detail[PURITY_TOTAL] = len(largest)
 
         return detail
@@ -595,33 +591,33 @@ class DiarizationPurityCoverageFMeasure(UEMSupportMixin, BaseMetric):
         matrix = reference * hypothesis
 
         # duration of largest class in each cluster
-        largest_class = matrix.max(dim='i')
+        largest_class = matrix.max(axis=0)
         # duration of clusters
-        duration_cluster = matrix.sum(dim='i')
+        duration_cluster = matrix.sum(axis=0)
 
         # duration of largest cluster in each class
-        largest_cluster = matrix.max(dim='j')
+        largest_cluster = matrix.max(axis=1)
         # duration of classes
-        duration_class = matrix.sum(dim='j')
+        duration_class = matrix.sum(axis=1)
 
         if self.weighted:
             # compute purity components
             detail[PURITY_COVERAGE_LARGEST_CLASS] = 0.
             if np.prod(matrix.shape):
-                detail[PURITY_COVERAGE_LARGEST_CLASS] = largest_class.sum().item()
-            detail[PURITY_COVERAGE_TOTAL_CLUSTER] = duration_cluster.sum().item()
+                detail[PURITY_COVERAGE_LARGEST_CLASS] = largest_class.sum()
+            detail[PURITY_COVERAGE_TOTAL_CLUSTER] = duration_cluster.sum()
             # compute coverage components
             detail[PURITY_COVERAGE_LARGEST_CLUSTER] = 0.
             if np.prod(matrix.shape):
-                detail[PURITY_COVERAGE_LARGEST_CLUSTER] = largest_cluster.sum().item()
-            detail[PURITY_COVERAGE_TOTAL_CLASS] = duration_class.sum().item()
+                detail[PURITY_COVERAGE_LARGEST_CLUSTER] = largest_cluster.sum()
+            detail[PURITY_COVERAGE_TOTAL_CLASS] = duration_class.sum()
 
         else:
             # compute purity components
-            detail[PURITY_COVERAGE_LARGEST_CLASS] = (largest_class / duration_cluster).sum().item()
+            detail[PURITY_COVERAGE_LARGEST_CLASS] = (largest_class / duration_cluster).sum()
             detail[PURITY_COVERAGE_TOTAL_CLUSTER] = len(largest_class)
             # compute coverage components
-            detail[PURITY_COVERAGE_LARGEST_CLUSTER] = (largest_cluster / duration_class).sum().item()
+            detail[PURITY_COVERAGE_LARGEST_CLUSTER] = (largest_cluster / duration_class).sum()
             detail[PURITY_COVERAGE_TOTAL_CLASS] = len(largest_cluster)
 
         # compute purity
@@ -696,7 +692,7 @@ class DiarizationHomogeneity(UEMSupportMixin, BaseMetric):
             collar=self.collar, skip_overlap=self.skip_overlap)
 
         # cooccurrence matrix
-        matrix = np.array(reference * hypothesis)
+        matrix = reference * hypothesis
 
         duration = np.sum(matrix)
         rduration = np.sum(matrix, axis=1)

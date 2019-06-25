@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2017 CNRS
+# Copyright (c) 2012-2019 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,8 +25,6 @@
 
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
-
-from __future__ import unicode_literals
 
 from .base import BaseMetric
 from .base import Precision, PRECISION_RETRIEVED, PRECISION_RELEVANT_RETRIEVED
