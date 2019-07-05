@@ -120,6 +120,8 @@ class BaseMetric(object):
 
         # keep track of this computation
         uri = reference.uri
+        if uri is None:
+           uri = "???"
         if uri not in self.uris_:
             self.uris_[uri] = 1
         else:
