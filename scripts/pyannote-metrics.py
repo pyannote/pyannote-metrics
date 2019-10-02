@@ -32,6 +32,7 @@ Evaluation
 Usage:
   pyannote-metrics.py detection [--subset=<subset> --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.rttm>
   pyannote-metrics.py segmentation [--subset=<subset> --tolerance=<seconds>] <database.task.protocol> <hypothesis.rttm>
+  pyannote-metrics.py overlap [--subset=<subset> --collar=<seconds>] <database.task.protocol> <hypothesis.rttm>
   pyannote-metrics.py diarization [--subset=<subset> --greedy --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.rttm>
   pyannote-metrics.py identification [--subset=<subset> --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.rttm>
   pyannote-metrics.py spotting [--subset=<subset> --latency=<seconds>... --filter=<expression>...] <database.task.protocol> <hypothesis.json>
@@ -102,6 +103,7 @@ import pandas as pd
 from tabulate import tabulate
 # import multiprocessing as mp
 
+from pyannote.core import Timeline
 from pyannote.core import Annotation
 from pyannote.database.util import load_rttm
 
@@ -137,6 +139,31 @@ def showwarning(message, category, *args, **kwargs):
     print(category.__name__ + ':', str(message))
 
 warnings.showwarning = showwarning
+
+
+def to_overlap(current_file: dict) -> Annotation:
+    """Get overlapped speech reference annotation
+
+    Parameters
+    ----------
+    current_file : `dict`
+        File yielded by pyannote.database protocols.
+
+    Returns
+    -------
+    overlap : `pyannote.core.Annotation`
+        Overlapped speech reference.
+    """
+
+    reference = current_file['annotation']
+    overlap = Timeline(uri=reference.uri)
+    for (s1, t1), (s2, t2) in reference.co_iter(reference):
+        l1 = reference[s1, t1]
+        l2 = reference[s2, t2]
+        if l1 == l2:
+            continue
+        overlap.add(s1 & s2)
+    return overlap.support().to_annotation()
 
 
 def get_hypothesis(hypotheses, current_file):
@@ -528,16 +555,27 @@ if __name__ == '__main__':
 
     arguments = docopt(__doc__, version='Evaluation')
 
-    # protocol
-    protocol_name = arguments['<database.task.protocol>']
-    protocol = get_protocol(protocol_name, progress=True)
-
-    # subset (train, development, or test)
-    subset = arguments['--subset']
-
     collar = float(arguments['--collar'])
     skip_overlap = arguments['--skip-overlap']
     tolerance = float(arguments['--tolerance'])
+
+    # protocol
+    protocol_name = arguments['<database.task.protocol>']
+
+    preprocessors = None
+    if arguments['overlap']:
+        if skip_overlap:
+            msg = (
+                'Option --skip-overlap is not supported '
+                'when evaluating overlapped speech detection.')
+            sys.exit(msg)
+        preprocessors = {'annotation': to_overlap}
+
+    protocol = get_protocol(protocol_name, progress=True,
+                            preprocessors=preprocessors)
+
+    # subset (train, development, or test)
+    subset = arguments['--subset']
 
     if arguments['spotting']:
 
@@ -584,6 +622,10 @@ if __name__ == '__main__':
         sys.exit(msg)
 
     if arguments['detection']:
+        detection(protocol, subset, hypotheses,
+                  collar=collar, skip_overlap=skip_overlap)
+
+    if arguments['overlap']:
         detection(protocol, subset, hypotheses,
                   collar=collar, skip_overlap=skip_overlap)
 
