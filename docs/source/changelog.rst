@@ -2,6 +2,13 @@
 Changelog
 #########
 
+Version 2.2 (2019-12-13)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- feat: add support for evaluation of overlapped speech detection
+- feat: setup continuous integration
+- setup: switch to pyannote.core 3.2
+
 Version 2.1 (2019-06-24)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
