@@ -86,9 +86,6 @@ class SegmentationErrorAnalysis(object):
         # extent
         extent = reference.extent()
 
-        # correct (neither under- nor over-segmented)
-        correct = under.union(over).gaps(support=extent)
-
         # frontier error (both under- and over-segmented)
         frontier = under.crop(over)
 
@@ -101,8 +98,6 @@ class SegmentationErrorAnalysis(object):
         only_over = over.crop(not_under)
 
         status = Annotation(uri=reference.uri)
-        # for segment in correct:
-        #     status[segment, '_'] = 'correct'
         for segment in frontier:
             status[segment, '_'] = 'shift'
         for segment in only_over:

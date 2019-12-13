@@ -65,8 +65,7 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
         super(IdentificationErrorAnalysis, self).__init__()
         self.matcher = LabelMatcher()
         self.collar = collar
-        self.skip_overlap=skip_overlap
-
+        self.skip_overlap = skip_overlap
 
     def difference(self, reference, hypothesis, uem=None, uemified=False):
         """Get error analysis as `Annotation`
@@ -262,7 +261,7 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
 
         try:
             from xarray import DataArray
-        except ImportError as e:
+        except ImportError:
             msg = (
                 "Please install xarray dependency to use class "
                 "'IdentificationErrorAnalysis'."

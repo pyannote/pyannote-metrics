@@ -83,7 +83,6 @@ class BaseMetric(object):
         for value in self.components_:
             self.accumulated_[value] = 0.
 
-
     def __get_name(self):
         return self.__class__.metric_name()
     name = property(fget=__get_name, doc="Metric name.")
@@ -120,6 +119,8 @@ class BaseMetric(object):
 
         # keep track of this computation
         uri = reference.uri
+        if uri is None:
+            uri = "???"
         if uri not in self.uris_:
             self.uris_[uri] = 1
         else:
@@ -266,7 +267,7 @@ class BaseMetric(object):
 
         """
         raise NotImplementedError(
-            cls.__name__ + " is missing a 'compute_components' method."
+            self.__class__.__name__ + " is missing a 'compute_components' method."
             "It should return a dictionary where keys are component names "
             "and values are component values.")
 
@@ -285,7 +286,7 @@ class BaseMetric(object):
             Metric value
         """
         raise NotImplementedError(
-            cls.__name__ + " is missing a 'compute_metric' method. "
+            self.__class__.__name__ + " is missing a 'compute_metric' method. "
             "It should return the actual value of the metric based "
             "on the precomputed component dictionary given as input.")
 
@@ -351,6 +352,7 @@ class Precision(BaseMetric):
                 raise ValueError('')
         else:
             return numerator/denominator
+
 
 RECALL_NAME = 'recall'
 RECALL_RELEVANT = '# relevant'

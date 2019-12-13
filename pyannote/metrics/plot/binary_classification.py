@@ -27,16 +27,16 @@
 # Hervé BREDIN - http://herve.niderb.fr
 
 
-import matplotlib
 import warnings
+import numpy as np
+from pyannote.metrics.binary_classification import det_curve
+from pyannote.metrics.binary_classification import precision_recall_curve
+
+import matplotlib
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-
-import numpy as np
-from pyannote.metrics.binary_classification import det_curve
-from pyannote.metrics.binary_classification import precision_recall_curve
 
 
 def plot_distributions(y_true, scores, save_to, xlim=None, nbins=100, ymax=3., dpi=150):
@@ -156,7 +156,6 @@ def plot_precision_recall_curve(y_true, scores, save_to,
     auc : float
         Area under precision/recall curve
     """
-
 
     precision, recall, thresholds, auc = precision_recall_curve(
         y_true, scores, distances=distances)

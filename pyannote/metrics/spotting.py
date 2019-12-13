@@ -29,7 +29,7 @@
 import sys
 import numpy as np
 from .base import BaseMetric
-from .binary_classification import det_curve, precision_recall_curve
+from .binary_classification import det_curve
 from pyannote.core import Segment, Annotation
 from pyannote.core import SlidingWindowFeature
 
@@ -122,7 +122,7 @@ class LowLatencySpeakerSpotting(BaseMetric):
                         s = -sys.float_info.max
                     else:
                         s = np.max(scores[:up_to])
-                except IndexError as e:
+                except IndexError:
                     s = np.max(scores)
                 spk_score.append(s)
 
@@ -166,9 +166,8 @@ class LowLatencySpeakerSpotting(BaseMetric):
         # for every threshold, compute when (if ever) alarm is triggered
         maxcum = (np.maximum.accumulate(scores)).reshape((-1, 1))
         triggered = maxcum > self.thresholds
-        indices = np.array([np.searchsorted(triggered[:,i], True)
+        indices = np.array([np.searchsorted(triggered[:, i], True)
                             for i, _ in enumerate(self.thresholds)])
-
 
         if reference:
 
@@ -224,13 +223,13 @@ class LowLatencySpeakerSpotting(BaseMetric):
     @property
     def absolute_latency(self):
         latencies = [trial['absolute_latency'] for _, trial in self
-                                               if trial['target']]
+                     if trial['target']]
         return np.nanmean(latencies, axis=0)
 
     @property
     def speaker_latency(self):
         latencies = [trial['speaker_latency'] for _, trial in self
-                                              if trial['target']]
+                     if trial['target']]
         return np.nanmean(latencies, axis=0)
 
     def det_curve(self, cost_miss=100, cost_fa=1, prior_target=0.01,
@@ -270,10 +269,10 @@ class LowLatencySpeakerSpotting(BaseMetric):
 
             y_true = np.array([trial['target'] for _, trial in self])
             scores = np.array([trial['score'] for _, trial in self])
-            fpr, fnr, thresholds, eer =  det_curve(y_true, scores, distances=False)
+            fpr, fnr, thresholds, eer = det_curve(y_true, scores, distances=False)
             fpr, fnr, thresholds = fpr[::-1], fnr[::-1], thresholds[::-1]
             cdet = cost_miss * fnr * prior_target + \
-                   cost_fa * fpr * (1. - prior_target)
+                cost_fa * fpr * (1. - prior_target)
 
             if return_latency:
                 # needed to align the thresholds used in the DET curve
@@ -285,7 +284,7 @@ class LowLatencySpeakerSpotting(BaseMetric):
                 fnr = np.take(fnr, indices, mode='clip')
                 cdet = np.take(cdet, indices, mode='clip')
                 return thresholds, fpr, fnr, eer, cdet, \
-                       self.speaker_latency, self.absolute_latency
+                    self.speaker_latency, self.absolute_latency
 
             else:
                 return thresholds, fpr, fnr, eer, cdet
@@ -303,11 +302,11 @@ class LowLatencySpeakerSpotting(BaseMetric):
                 result[key] = {}
 
                 for i, latency in enumerate(self.latencies):
-                    fpr, fnr, theta, eer =  det_curve(y_true, scores[:, i],
-                                                      distances=False)
+                    fpr, fnr, theta, eer = det_curve(y_true, scores[:, i],
+                                                     distances=False)
                     fpr, fnr, theta = fpr[::-1], fnr[::-1], theta[::-1]
                     cdet = cost_miss * fnr * prior_target + \
-                           cost_fa * fpr * (1. - prior_target)
+                        cost_fa * fpr * (1. - prior_target)
                     result[key][latency] = theta, fpr, fnr, eer, cdet
 
             return result

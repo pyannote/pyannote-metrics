@@ -214,11 +214,11 @@ class SegmentationPurityCoverageFMeasure(SegmentationCoverage):
 
         purity = \
             1. if detail[PTY_TOTAL] == 0. \
-                else detail[PTY_INTER] / detail[PTY_TOTAL]
+            else detail[PTY_INTER] / detail[PTY_TOTAL]
 
         coverage = \
             1. if detail[CVG_TOTAL] == 0. \
-                else detail[CVG_INTER] / detail[CVG_TOTAL]
+            else detail[CVG_INTER] / detail[CVG_TOTAL]
 
         return purity, coverage, f_measure(purity, coverage, beta=self.beta)
 

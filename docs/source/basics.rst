@@ -38,6 +38,7 @@ As such, they share a common set of methods.
 For instance, once instantiated, they can be called directly to compute the value of the evaluation metric.
 
 .. ipython::
+   :okwarning:
 
    In [10]: from pyannote.metrics.diarization import DiarizationErrorRate
 
@@ -52,6 +53,7 @@ Accumulation & reporting
 The same metric instance can be used to evaluate multiple files.
 
 .. ipython::
+   :okwarning:
 
    In [11]: other_reference = Annotation(uri='file2')
       ....: other_reference[Segment(0, 5)] = 'A'
@@ -116,12 +118,14 @@ For instance, the diarization error rate is the combination of false alarm (non-
 Using ``detailed=True`` will return the value of each component:
 
 .. ipython::
+   :okwarning:
 
    In [13]: metric(reference, hypothesis, detailed=True)
 
 The accumulated value of each component can also be obtained using the overriden :func:`~pyannote.metrics.base.BaseMetric.__getitem__` operator:
 
 .. ipython::
+   :okwarning:
 
    In [13]: metric(other_reference, other_hypothesis)
 
