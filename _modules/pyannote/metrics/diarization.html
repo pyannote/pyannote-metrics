@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pyannote.metrics.diarization &mdash; pyannote.metrics 1.8 documentation</title>
+  <title>pyannote.metrics.diarization &mdash; pyannote.metrics 2.2 documentation</title>
   
 
   
@@ -17,32 +17,35 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -56,7 +59,7 @@
             
             
               <div class="version">
-                1.8
+                2.2
               </div>
             
           
@@ -155,7 +158,7 @@
 
 <span class="c1"># The MIT License (MIT)</span>
 
-<span class="c1"># Copyright (c) 2012-2017 CNRS</span>
+<span class="c1"># Copyright (c) 2012-2019 CNRS</span>
 
 <span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
 <span class="c1"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
@@ -178,19 +181,16 @@
 <span class="c1"># AUTHORS</span>
 <span class="c1"># Hervé BREDIN - http://herve.niderb.fr</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
-
 <span class="sd">&quot;&quot;&quot;Metrics for diarization&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">xarray</span> <span class="k">import</span> <span class="n">DataArray</span>
 
-<span class="kn">from</span> <span class="nn">.matcher</span> <span class="k">import</span> <span class="n">HungarianMapper</span>
-<span class="kn">from</span> <span class="nn">.matcher</span> <span class="k">import</span> <span class="n">GreedyMapper</span>
+<span class="kn">from</span> <span class="nn">.matcher</span> <span class="kn">import</span> <span class="n">HungarianMapper</span>
+<span class="kn">from</span> <span class="nn">.matcher</span> <span class="kn">import</span> <span class="n">GreedyMapper</span>
 
-<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">BaseMetric</span><span class="p">,</span> <span class="n">f_measure</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">UEMSupportMixin</span>
-<span class="kn">from</span> <span class="nn">.identification</span> <span class="k">import</span> <span class="n">IdentificationErrorRate</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">BaseMetric</span><span class="p">,</span> <span class="n">f_measure</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">UEMSupportMixin</span>
+<span class="kn">from</span> <span class="nn">.identification</span> <span class="kn">import</span> <span class="n">IdentificationErrorRate</span>
 
 <span class="n">DER_NAME</span> <span class="o">=</span> <span class="s1">&#39;diarization error rate&#39;</span>
 
@@ -250,7 +250,7 @@
     <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">DER_NAME</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">DiarizationErrorRate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">collar</span><span class="o">=</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="n">skip_overlap</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mapper_</span> <span class="o">=</span> <span class="n">HungarianMapper</span><span class="p">()</span>
@@ -279,8 +279,7 @@
             <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uemify</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
 
         <span class="c1"># call hungarian mapper</span>
-        <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapper_</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">,</span> <span class="n">reference</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">mapping</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapper_</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">,</span> <span class="n">reference</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DiarizationErrorRate.compute_components"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationErrorRate.compute_components">[docs]</a>    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
@@ -295,10 +294,10 @@
         <span class="c1"># might have an impact on the search for the optimal mapping.</span>
 
         <span class="c1"># make sure reference only contains string labels (&#39;A&#39;, &#39;B&#39;, ...)</span>
-        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">anonymize_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s1">&#39;string&#39;</span><span class="p">)</span>
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s1">&#39;string&#39;</span><span class="p">)</span>
 
         <span class="c1"># make sure hypothesis only contains integer labels (1, 2, ...)</span>
-        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">anonymize_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
 
         <span class="c1"># optimal (int --&gt; str) mapping</span>
         <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimal_mapping</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>
@@ -306,7 +305,7 @@
         <span class="c1"># compute identification error rate based on mapped hypothesis</span>
         <span class="c1"># NOTE that collar is set to 0.0 because &#39;uemify&#39; has already</span>
         <span class="c1"># been applied (same reason for setting skip_overlap to False)</span>
-        <span class="n">mapped</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+        <span class="n">mapped</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">mapping</span><span class="o">=</span><span class="n">mapping</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">DiarizationErrorRate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>\
             <span class="o">.</span><span class="n">compute_components</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">mapped</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
                                 <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -367,7 +366,7 @@
     <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">DER_NAME</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">GreedyDiarizationErrorRate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">collar</span><span class="o">=</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="n">skip_overlap</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mapper_</span> <span class="o">=</span> <span class="n">GreedyMapper</span><span class="p">()</span>
@@ -405,10 +404,10 @@
         <span class="c1"># might have an impact on the search for the greedy mapping.</span>
 
         <span class="c1"># make sure reference only contains string labels (&#39;A&#39;, &#39;B&#39;, ...)</span>
-        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">anonymize_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s1">&#39;string&#39;</span><span class="p">)</span>
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s1">&#39;string&#39;</span><span class="p">)</span>
 
         <span class="c1"># make sure hypothesis only contains integer labels (1, 2, ...)</span>
-        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">anonymize_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
 
         <span class="c1"># greedy (int --&gt; str) mapping</span>
         <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">greedy_mapping</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>
@@ -416,11 +415,161 @@
         <span class="c1"># compute identification error rate based on mapped hypothesis</span>
         <span class="c1"># NOTE that collar is set to 0.0 because &#39;uemify&#39; has already</span>
         <span class="c1"># been applied (same reason for setting skip_overlap to False)</span>
-        <span class="n">mapped</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+        <span class="n">mapped</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">mapping</span><span class="o">=</span><span class="n">mapping</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">GreedyDiarizationErrorRate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>\
             <span class="o">.</span><span class="n">compute_components</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">mapped</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
                                 <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                 <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<span class="n">JER_NAME</span> <span class="o">=</span> <span class="s1">&#39;jaccard error rate&#39;</span>
+<span class="n">JER_SPEAKER_ERROR</span> <span class="o">=</span> <span class="s1">&#39;speaker error&#39;</span>
+<span class="n">JER_SPEAKER_COUNT</span> <span class="o">=</span> <span class="s1">&#39;speaker count&#39;</span>
+
+
+<div class="viewcode-block" id="JaccardErrorRate"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.JaccardErrorRate">[docs]</a><span class="k">class</span> <span class="nc">JaccardErrorRate</span><span class="p">(</span><span class="n">DiarizationErrorRate</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Jaccard error rate</span>
+
+<span class="sd">    Reference</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Second DIHARD Challenge Evaluation Plan. Version 1.1</span>
+<span class="sd">    N. Ryant, K. Church, C. Cieri, A. Cristia, J. Du, S. Ganapathy, M. Liberman</span>
+<span class="sd">    https://coml.lscp.ens.fr/dihard/2019/second_dihard_eval_plan_v1.1.pdf</span>
+
+<span class="sd">    &quot;The Jaccard error rate is based on the Jaccard index, a similarity measure</span>
+<span class="sd">    used to evaluate the output of image segmentation systems. An optimal</span>
+<span class="sd">    mapping between reference and system speakers is determined and for each</span>
+<span class="sd">    pair the Jaccard index is computed. The Jaccard error rate is then defined</span>
+<span class="sd">    as 1 minus the average of these scores. While similar to DER, it weights</span>
+<span class="sd">    every speaker’s contribution equally, regardless of how much speech they</span>
+<span class="sd">    actually produced.</span>
+
+<span class="sd">    More concretely, assume we have N reference speakers and M system speakers.</span>
+<span class="sd">    An optimal mapping between speakers is determined using the Hungarian</span>
+<span class="sd">    algorithm so that each reference speaker is paired with at most one system</span>
+<span class="sd">    speaker and each system speaker with at most one reference speaker. Then,</span>
+<span class="sd">    for each reference speaker ref the speaker-specific Jaccard error rate</span>
+<span class="sd">    JERref is computed as JERref = (FA + MISS) / TOTAL where</span>
+<span class="sd">        * TOTAL is the duration of the union of reference and system speaker</span>
+<span class="sd">        segments; if the reference speaker was not paired with a system</span>
+<span class="sd">        speaker, it is the duration of all reference speaker segments</span>
+<span class="sd">        * FA is the total system speaker time not attributed to the reference</span>
+<span class="sd">        speaker; if the reference speaker was not paired with a system speaker,</span>
+<span class="sd">        it is 0</span>
+<span class="sd">        * MISS is the total reference speaker time not attributed to the system</span>
+<span class="sd">        speaker; if the reference speaker was not paired with a system speaker,</span>
+<span class="sd">        it is equal to TOTAL</span>
+
+<span class="sd">    The Jaccard error rate then is the average of the speaker specific Jaccard</span>
+<span class="sd">    error rates.</span>
+
+<span class="sd">    JER and DER are highly correlated with JER typically being higher,</span>
+<span class="sd">    especially in recordings where one or more speakers is particularly</span>
+<span class="sd">    dominant. Where it tends to track DER is in outliers where the diarization</span>
+<span class="sd">    is especially bad, resulting in one or more unmapped system speakers whose</span>
+<span class="sd">    speech is not then penalized. In these cases, where DER can easily exceed</span>
+<span class="sd">    500%, JER will never exceed 100% and may be far lower if the reference</span>
+<span class="sd">    speakers are handled correctly.&quot;</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    collar : float, optional</span>
+<span class="sd">        Duration (in seconds) of collars removed from evaluation around</span>
+<span class="sd">        boundaries of reference segments.</span>
+<span class="sd">    skip_overlap : bool, optional</span>
+<span class="sd">        Set to True to not evaluate overlap regions.</span>
+<span class="sd">        Defaults to False (i.e. keep overlap regions).</span>
+
+<span class="sd">    Usage</span>
+<span class="sd">    -----</span>
+<span class="sd">    &gt;&gt;&gt; metric = JaccardErrorRate()</span>
+<span class="sd">    &gt;&gt;&gt; reference = Annotation(...)           # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; hypothesis = Annotation(...)          # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; jer = metric(reference, hypothesis)   # doctest: +SKIP</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">JER_NAME</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">JER_SPEAKER_COUNT</span><span class="p">,</span>
+            <span class="n">JER_SPEAKER_ERROR</span><span class="p">,</span>
+        <span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">collar</span><span class="o">=</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="n">skip_overlap</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapper_</span> <span class="o">=</span> <span class="n">HungarianMapper</span><span class="p">()</span>
+
+<div class="viewcode-block" id="JaccardErrorRate.compute_components"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.JaccardErrorRate.compute_components">[docs]</a>    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1"># crop reference and hypothesis to evaluated regions (uem)</span>
+        <span class="c1"># remove collars around reference segment boundaries</span>
+        <span class="c1"># remove overlap regions (if requested)</span>
+        <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uemify</span><span class="p">(</span>
+            <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
+            <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span><span class="p">,</span>
+            <span class="n">returns_uem</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># NOTE that this &#39;uemification&#39; must be done here because it</span>
+        <span class="c1"># might have an impact on the search for the optimal mapping.</span>
+
+        <span class="c1"># make sure reference only contains string labels (&#39;A&#39;, &#39;B&#39;, ...)</span>
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s1">&#39;string&#39;</span><span class="p">)</span>
+
+        <span class="c1"># make sure hypothesis only contains integer labels (1, 2, ...)</span>
+        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+
+        <span class="c1"># optimal (str --&gt; int) mapping</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimal_mapping</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">,</span> <span class="n">reference</span><span class="p">)</span>
+
+        <span class="n">detail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_components</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">ref_speaker</span> <span class="ow">in</span> <span class="n">reference</span><span class="o">.</span><span class="n">labels</span><span class="p">():</span>
+
+            <span class="n">hyp_speaker</span> <span class="o">=</span> <span class="n">mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ref_speaker</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">hyp_speaker</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># if the reference speaker was not paired with a system speaker</span>
+                <span class="c1"># [total] is the duration of all reference speaker segments</span>
+
+                <span class="c1"># if the reference speaker was not paired with a system speaker</span>
+                <span class="c1"># [fa] is 0</span>
+
+                <span class="c1"># if the reference speaker was not paired with a system speaker</span>
+                <span class="c1"># [miss] is equal to total</span>
+
+                <span class="c1"># overall: jer = (fa + miss) / total = (0 + total) / total = 1</span>
+                <span class="n">jer</span> <span class="o">=</span> <span class="mf">1.</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># total is the duration of the union of reference and system</span>
+                <span class="c1"># speaker segments</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">label_timeline</span><span class="p">(</span><span class="n">ref_speaker</span><span class="p">)</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">label_timeline</span><span class="p">(</span><span class="n">hyp_speaker</span><span class="p">)</span>
+                <span class="n">total</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">h</span><span class="p">)</span><span class="o">.</span><span class="n">support</span><span class="p">()</span><span class="o">.</span><span class="n">duration</span><span class="p">()</span>
+
+                <span class="c1"># fa is the total system speaker time not attributed to the</span>
+                <span class="c1"># reference speaker</span>
+                <span class="n">fa</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="n">duration</span><span class="p">()</span> <span class="o">-</span> <span class="n">h</span><span class="o">.</span><span class="n">crop</span><span class="p">(</span><span class="n">r</span><span class="p">)</span><span class="o">.</span><span class="n">duration</span><span class="p">()</span>
+
+                <span class="c1"># miss is the total reference speaker time not attributed to</span>
+                <span class="c1"># the system speaker</span>
+                <span class="n">miss</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">duration</span><span class="p">()</span> <span class="o">-</span> <span class="n">r</span><span class="o">.</span><span class="n">crop</span><span class="p">(</span><span class="n">h</span><span class="p">)</span><span class="o">.</span><span class="n">duration</span><span class="p">()</span>
+
+                <span class="n">jer</span> <span class="o">=</span> <span class="p">(</span><span class="n">fa</span> <span class="o">+</span> <span class="n">miss</span><span class="p">)</span> <span class="o">/</span> <span class="n">total</span>
+
+            <span class="n">detail</span><span class="p">[</span><span class="n">JER_SPEAKER_COUNT</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">detail</span><span class="p">[</span><span class="n">JER_SPEAKER_ERROR</span><span class="p">]</span> <span class="o">+=</span> <span class="n">jer</span>
+
+        <span class="k">return</span> <span class="n">detail</span></div>
+
+<div class="viewcode-block" id="JaccardErrorRate.compute_metric"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.JaccardErrorRate.compute_metric">[docs]</a>    <span class="k">def</span> <span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">detail</span><span class="p">[</span><span class="n">JER_SPEAKER_ERROR</span><span class="p">]</span> <span class="o">/</span> <span class="n">detail</span><span class="p">[</span><span class="n">JER_SPEAKER_COUNT</span><span class="p">]</span></div></div>
+
 
 <span class="n">PURITY_NAME</span> <span class="o">=</span> <span class="s1">&#39;purity&#39;</span>
 <span class="n">PURITY_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;total&#39;</span>
@@ -453,7 +602,7 @@
     <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">PURITY_TOTAL</span><span class="p">,</span> <span class="n">PURITY_CORRECT</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">weighted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">DiarizationPurity</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">weighted</span> <span class="o">=</span> <span class="n">weighted</span>
@@ -476,17 +625,17 @@
         <span class="n">matrix</span> <span class="o">=</span> <span class="n">reference</span> <span class="o">*</span> <span class="n">hypothesis</span>
 
         <span class="c1"># duration of largest class in each cluster</span>
-        <span class="n">largest</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;i&#39;</span><span class="p">)</span>
-        <span class="n">duration</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;i&#39;</span><span class="p">)</span>
+        <span class="n">largest</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighted</span><span class="p">:</span>
             <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_CORRECT</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
-                <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_CORRECT</span><span class="p">]</span> <span class="o">=</span> <span class="n">largest</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_TOTAL</span><span class="p">]</span> <span class="o">=</span> <span class="n">duration</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+                <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_CORRECT</span><span class="p">]</span> <span class="o">=</span> <span class="n">largest</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_TOTAL</span><span class="p">]</span> <span class="o">=</span> <span class="n">duration</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_CORRECT</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">largest</span> <span class="o">/</span> <span class="n">duration</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_CORRECT</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">largest</span> <span class="o">/</span> <span class="n">duration</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
             <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_TOTAL</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">largest</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">detail</span></div>
@@ -522,7 +671,7 @@
     <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">COVERAGE_NAME</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">weighted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">DiarizationCoverage</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">collar</span><span class="o">=</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="n">skip_overlap</span><span class="p">,</span>
@@ -578,7 +727,7 @@
                 <span class="n">PURITY_COVERAGE_LARGEST_CLUSTER</span><span class="p">,</span>
                 <span class="n">PURITY_COVERAGE_TOTAL_CLASS</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">weighted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">DiarizationPurityCoverageFMeasure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">collar</span> <span class="o">=</span> <span class="n">collar</span>
@@ -599,33 +748,33 @@
         <span class="n">matrix</span> <span class="o">=</span> <span class="n">reference</span> <span class="o">*</span> <span class="n">hypothesis</span>
 
         <span class="c1"># duration of largest class in each cluster</span>
-        <span class="n">largest_class</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;i&#39;</span><span class="p">)</span>
+        <span class="n">largest_class</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="c1"># duration of clusters</span>
-        <span class="n">duration_cluster</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;i&#39;</span><span class="p">)</span>
+        <span class="n">duration_cluster</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="c1"># duration of largest cluster in each class</span>
-        <span class="n">largest_cluster</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;j&#39;</span><span class="p">)</span>
+        <span class="n">largest_cluster</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="c1"># duration of classes</span>
-        <span class="n">duration_class</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;j&#39;</span><span class="p">)</span>
+        <span class="n">duration_class</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighted</span><span class="p">:</span>
             <span class="c1"># compute purity components</span>
             <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLASS</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
-                <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLASS</span><span class="p">]</span> <span class="o">=</span> <span class="n">largest_class</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_TOTAL_CLUSTER</span><span class="p">]</span> <span class="o">=</span> <span class="n">duration_cluster</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+                <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLASS</span><span class="p">]</span> <span class="o">=</span> <span class="n">largest_class</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_TOTAL_CLUSTER</span><span class="p">]</span> <span class="o">=</span> <span class="n">duration_cluster</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
             <span class="c1"># compute coverage components</span>
             <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLUSTER</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
-                <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLUSTER</span><span class="p">]</span> <span class="o">=</span> <span class="n">largest_cluster</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_TOTAL_CLASS</span><span class="p">]</span> <span class="o">=</span> <span class="n">duration_class</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+                <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLUSTER</span><span class="p">]</span> <span class="o">=</span> <span class="n">largest_cluster</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_TOTAL_CLASS</span><span class="p">]</span> <span class="o">=</span> <span class="n">duration_class</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># compute purity components</span>
-            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLASS</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">largest_class</span> <span class="o">/</span> <span class="n">duration_cluster</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLASS</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">largest_class</span> <span class="o">/</span> <span class="n">duration_cluster</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
             <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_TOTAL_CLUSTER</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">largest_class</span><span class="p">)</span>
             <span class="c1"># compute coverage components</span>
-            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLUSTER</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">largest_cluster</span> <span class="o">/</span> <span class="n">duration_class</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLUSTER</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">largest_cluster</span> <span class="o">/</span> <span class="n">duration_class</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
             <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_TOTAL_CLASS</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">largest_cluster</span><span class="p">)</span>
 
         <span class="c1"># compute purity</span>
@@ -685,7 +834,7 @@
     <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">HOMOGENEITY_ENTROPY</span><span class="p">,</span> <span class="n">HOMOGENEITY_CROSS_ENTROPY</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">DiarizationHomogeneity</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">collar</span> <span class="o">=</span> <span class="n">collar</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span> <span class="o">=</span> <span class="n">skip_overlap</span>
@@ -700,7 +849,7 @@
             <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span><span class="p">)</span>
 
         <span class="c1"># cooccurrence matrix</span>
-        <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">reference</span> <span class="o">*</span> <span class="n">hypothesis</span><span class="p">)</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">reference</span> <span class="o">*</span> <span class="n">hypothesis</span>
 
         <span class="n">duration</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
         <span class="n">rduration</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -766,7 +915,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017, CNRS.
+        &copy; Copyright 2017, CNRS
 
     </p>
   </div>
@@ -783,33 +932,16 @@
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../../',
-            VERSION:'1.8',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

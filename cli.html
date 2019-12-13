@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Command line tool &mdash; pyannote.metrics 1.8 documentation</title>
+  <title>Command line tool &mdash; pyannote.metrics 2.2 documentation</title>
   
 
   
@@ -17,34 +17,37 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Reference" href="reference.html" />
     <link rel="prev" title="Principles" href="basics.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -58,7 +61,7 @@
             
             
               <div class="version">
-                1.8
+                2.2
               </div>
             
           
@@ -163,13 +166,13 @@
 <p>There are two main issues that may arise with results reported in the literature:</p>
 <blockquote>
 <div><ul class="simple">
-<li>Even though the same public datasets are used, the actual evaluation protocol may differ slightly from one paper to another.</li>
-<li>The implementation of the reported evaluation metrics may also differ.</li>
+<li><p>Even though the same public datasets are used, the actual evaluation protocol may differ slightly from one paper to another.</p></li>
+<li><p>The implementation of the reported evaluation metrics may also differ.</p></li>
 </ul>
 </div></blockquote>
 <p>The first objective of the <cite>pyannote.metrics</cite> library is to address these two problems, and provide a convenient way for researchers to evaluate their approaches in a reproducible and comparable manner.</p>
 <p>Here is an example use of the command line interface that is provided to solve this problem.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pyannote.metrics.py diarization --subset<span class="o">=</span>development Etape.SpeakerDiarization.TV hypothesis.mdtm
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pyannote.metrics.py diarization --subset<span class="o">=</span>development Etape.SpeakerDiarization.TV hypothesis.rttm
 
 Diarization <span class="o">(</span><span class="nv">collar</span> <span class="o">=</span> <span class="m">0</span> ms<span class="o">)</span>               error    purity    coverage     total    correct      %    fa.      %    miss.     %    conf.      %
 --------------------------------------  -------  --------  ----------  --------  ---------  -----  ------  -----  -------  ----  -------  -----
@@ -203,7 +206,7 @@ In the example above, the <cite>development</cite> set of the <cite>TV</cite> ev
 </div>
 <div class="section" id="file-formats">
 <h2>File formats<a class="headerlink" href="#file-formats" title="Permalink to this headline">¶</a></h2>
-<p>While the MDTM file format is used in this example, several other file formats are available (and can be contributed) thanks to the internal use of the <a href="#id1"><span class="problematic" id="id2">``</span></a>pyannote.parser` package.</p>
+<p>Hypothesis files must use the [Rich Transcription Time Marked](<a class="reference external" href="https://web.archive.org/web/20170119114252/http://www.itl.nist.gov/iad/mig/tests/rt/2009/docs/rt09-meeting-eval-plan-v2.pdf">https://web.archive.org/web/20170119114252/http://www.itl.nist.gov/iad/mig/tests/rt/2009/docs/rt09-meeting-eval-plan-v2.pdf</a>) (RTTM) format.</p>
 </div>
 </div>
 
@@ -218,7 +221,7 @@ In the example above, the <cite>development</cite> set of the <cite>TV</cite> ev
         <a href="reference.html" class="btn btn-neutral float-right" title="Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="basics.html" class="btn btn-neutral" title="Principles" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="basics.html" class="btn btn-neutral float-left" title="Principles" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -227,7 +230,7 @@ In the example above, the <cite>development</cite> set of the <cite>TV</cite> ev
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017, CNRS.
+        &copy; Copyright 2017, CNRS
 
     </p>
   </div>
@@ -244,33 +247,16 @@ In the example above, the <cite>development</cite> set of the <cite>TV</cite> ev
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'1.8',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

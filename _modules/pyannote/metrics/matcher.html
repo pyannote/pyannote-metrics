@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pyannote.metrics.matcher &mdash; pyannote.metrics 1.8 documentation</title>
+  <title>pyannote.metrics.matcher &mdash; pyannote.metrics 2.2 documentation</title>
   
 
   
@@ -17,32 +17,35 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -56,7 +59,7 @@
             
             
               <div class="version">
-                1.8
+                2.2
               </div>
             
           
@@ -155,7 +158,7 @@
 
 <span class="c1"># The MIT License (MIT)</span>
 
-<span class="c1"># Copyright (c) 2012-2017 CNRS</span>
+<span class="c1"># Copyright (c) 2012-2019 CNRS</span>
 
 <span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
 <span class="c1"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
@@ -178,11 +181,8 @@
 <span class="c1"># AUTHORS</span>
 <span class="c1"># Hervé BREDIN - http://herve.niderb.fr</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
-
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">munkres</span> <span class="k">import</span> <span class="n">Munkres</span>
-<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">linear_sum_assignment</span>
 
 <span class="n">MATCH_CORRECT</span> <span class="o">=</span> <span class="s1">&#39;correct&#39;</span>
 <span class="n">MATCH_CONFUSION</span> <span class="o">=</span> <span class="s1">&#39;confusion&#39;</span>
@@ -199,10 +199,6 @@
 <span class="sd">    .match() -- ie return True if two IDs match and False</span>
 <span class="sd">    otherwise.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">LabelMatcher</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_munkres</span> <span class="o">=</span> <span class="n">Munkres</span><span class="p">()</span>
 
 <div class="viewcode-block" id="LabelMatcher.match"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.matcher.LabelMatcher.match">[docs]</a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rlabel</span><span class="p">,</span> <span class="n">hlabel</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -222,7 +218,7 @@
         <span class="c1"># Two IDs match if they are equal to each other</span>
         <span class="k">return</span> <span class="n">rlabel</span> <span class="o">==</span> <span class="n">hlabel</span></div>
 
-    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rlabels</span><span class="p">,</span> <span class="n">hlabels</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rlabels</span><span class="p">,</span> <span class="n">hlabels</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -261,7 +257,7 @@
         <span class="k">if</span> <span class="n">N</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">details</span><span class="p">)</span>
 
-        <span class="c1"># this is to make sure rlables and hlabels are lists</span>
+        <span class="c1"># this is to make sure rlabels and hlabels are lists</span>
         <span class="c1"># as we will access them later by index</span>
         <span class="n">rlabels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">rlabels</span><span class="p">)</span>
         <span class="n">hlabels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">hlabels</span><span class="p">)</span>
@@ -274,11 +270,8 @@
                 <span class="n">match</span><span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">h</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">rlabel</span><span class="p">,</span> <span class="n">hlabel</span><span class="p">)</span>
 
         <span class="c1"># find one-to-one mapping that maximize total number of matches</span>
-        <span class="c1"># using the Hungarian algorithm</span>
-        <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_munkres</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">match</span><span class="p">)</span>
-
-        <span class="c1"># loop on matches</span>
-        <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">:</span>
+        <span class="c1"># using the Hungarian algorithm and computes error accordingly</span>
+        <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">linear_sum_assignment</span><span class="p">(</span><span class="o">~</span><span class="n">match</span><span class="p">)):</span>
 
             <span class="c1"># hypothesis label is matched with unexisting reference label</span>
             <span class="c1"># ==&gt; this is a false alarm</span>
@@ -312,95 +305,38 @@
 
 <span class="k">class</span> <span class="nc">HungarianMapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">HungarianMapper</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_munkres</span> <span class="o">=</span> <span class="n">Munkres</span><span class="p">()</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">def</span> <span class="nf">_helper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
+        <span class="n">cooccurrence</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">B</span>
+        <span class="n">a_labels</span><span class="p">,</span> <span class="n">b_labels</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">labels</span><span class="p">(),</span> <span class="n">B</span><span class="o">.</span><span class="n">labels</span><span class="p">()</span>
 
-        <span class="c1"># transpose matrix in case A has more labels than B</span>
-        <span class="n">Na</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">labels</span><span class="p">())</span>
-        <span class="n">Nb</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">labels</span><span class="p">())</span>
-        <span class="k">if</span> <span class="n">Na</span> <span class="o">&gt;</span> <span class="n">Nb</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">{</span><span class="n">a</span><span class="p">:</span> <span class="n">b</span> <span class="k">for</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_helper</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-
-        <span class="n">matrix</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">B</span>
-        <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_munkres</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">matrix</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;i&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">matrix</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;j&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">mapping</span> <span class="k">if</span> <span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
-
-        <span class="c1"># build bi-partite cooccurrence graph</span>
-        <span class="c1"># ------------------------------------</span>
-
-        <span class="c1"># labels from A are linked with labels from B</span>
-        <span class="c1"># if and only if the co-occur</span>
-        <span class="n">cooccurrence_graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
-
-        <span class="c1"># for a_label in A.labels():</span>
-        <span class="c1">#     a = (&#39;A&#39;, a_label)</span>
-        <span class="c1">#     cooccurrence_graph.add_node(a)</span>
-        <span class="c1">#</span>
-        <span class="c1"># for b_label in B.labels():</span>
-        <span class="c1">#     b = (&#39;B&#39;, b_label)</span>
-        <span class="c1">#     cooccurrence_graph.add_node(b)</span>
-
-        <span class="k">for</span> <span class="n">a_track</span><span class="p">,</span> <span class="n">b_track</span> <span class="ow">in</span> <span class="n">A</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">B</span><span class="p">):</span>
-            <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="n">a_track</span><span class="p">])</span>
-            <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">B</span><span class="p">[</span><span class="n">b_track</span><span class="p">])</span>
-            <span class="n">cooccurrence_graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
-
-        <span class="c1"># divide &amp; conquer</span>
-        <span class="c1"># ------------------</span>
-
-        <span class="c1"># split a (potentially large) association problem into smaller ones</span>
-
-        <span class="n">mapping</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-
-        <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">nx</span><span class="o">.</span><span class="n">connected_components</span><span class="p">(</span><span class="n">cooccurrence_graph</span><span class="p">):</span>
-
-            <span class="c1"># extract smaller problems</span>
-            <span class="n">a_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">label</span> <span class="k">for</span> <span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span> <span class="ow">in</span> <span class="n">component</span> <span class="k">if</span> <span class="n">src</span> <span class="o">==</span> <span class="s1">&#39;A&#39;</span><span class="p">]</span>
-            <span class="n">b_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">label</span> <span class="k">for</span> <span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span> <span class="ow">in</span> <span class="n">component</span> <span class="k">if</span> <span class="n">src</span> <span class="o">==</span> <span class="s1">&#39;B&#39;</span><span class="p">]</span>
-            <span class="n">sub_A</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">subset</span><span class="p">(</span><span class="n">a_labels</span><span class="p">)</span>
-            <span class="n">sub_B</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">subset</span><span class="p">(</span><span class="n">b_labels</span><span class="p">)</span>
-
-            <span class="n">local_mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_helper</span><span class="p">(</span><span class="n">sub_A</span><span class="p">,</span> <span class="n">sub_B</span><span class="p">)</span>
-            <span class="n">mapping</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">local_mapping</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">linear_sum_assignment</span><span class="p">(</span><span class="o">-</span><span class="n">cooccurrence</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">cooccurrence</span><span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">mapping</span><span class="p">[</span><span class="n">a_labels</span><span class="p">[</span><span class="n">a</span><span class="p">]]</span> <span class="o">=</span> <span class="n">b_labels</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">mapping</span>
 
 
 <span class="k">class</span> <span class="nc">GreedyMapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
-
-        <span class="n">matrix</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">B</span>
-        <span class="n">Na</span><span class="p">,</span> <span class="n">Nb</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span>
-        <span class="n">N</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">Na</span><span class="p">,</span> <span class="n">Nb</span><span class="p">)</span>
-
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
         <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">cooccurrence</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">B</span>
+        <span class="n">Na</span><span class="p">,</span> <span class="n">Nb</span> <span class="o">=</span> <span class="n">cooccurrence</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">a_labels</span><span class="p">,</span> <span class="n">b_labels</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">labels</span><span class="p">(),</span> <span class="n">B</span><span class="o">.</span><span class="n">labels</span><span class="p">()</span>
 
-            <span class="n">ab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-            <span class="n">a</span> <span class="o">=</span> <span class="n">ab</span> <span class="o">//</span> <span class="p">(</span><span class="n">Nb</span><span class="o">-</span><span class="n">i</span><span class="p">)</span>
-            <span class="n">b</span> <span class="o">=</span> <span class="n">ab</span> <span class="o">%</span> <span class="p">(</span><span class="n">Nb</span><span class="o">-</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">Na</span><span class="p">,</span> <span class="n">Nb</span><span class="p">)):</span>
+            <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unravel_index</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">cooccurrence</span><span class="p">),</span> <span class="p">(</span><span class="n">Na</span><span class="p">,</span> <span class="n">Nb</span><span class="p">))</span>
 
-            <span class="n">cost</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">cooccurrence</span><span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">mapping</span><span class="p">[</span><span class="n">a_labels</span><span class="p">[</span><span class="n">a</span><span class="p">]]</span> <span class="o">=</span> <span class="n">b_labels</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>
+                <span class="n">cooccurrence</span><span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mf">0.</span>
+                <span class="n">cooccurrence</span><span class="p">[:,</span> <span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+                <span class="k">continue</span>
 
-            <span class="k">if</span> <span class="n">cost</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">break</span>
-
-            <span class="n">alabel</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;i&#39;</span><span class="p">][</span><span class="n">a</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-            <span class="n">blabel</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;j&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-
-            <span class="n">mapping</span><span class="p">[</span><span class="n">alabel</span><span class="p">]</span> <span class="o">=</span> <span class="n">blabel</span>
-
-            <span class="n">matrix</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="n">alabel</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="s1">&#39;i&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="n">blabel</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="s1">&#39;j&#39;</span><span class="p">)</span>
+            <span class="k">break</span>
 
         <span class="k">return</span> <span class="n">mapping</span>
 </pre></div>
@@ -415,7 +351,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017, CNRS.
+        &copy; Copyright 2017, CNRS
 
     </p>
   </div>
@@ -432,33 +368,16 @@
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../../',
-            VERSION:'1.8',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

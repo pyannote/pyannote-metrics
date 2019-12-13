@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pyannote.metrics.errors.identification &mdash; pyannote.metrics 1.8 documentation</title>
+  <title>pyannote.metrics.errors.identification &mdash; pyannote.metrics 2.2 documentation</title>
   
 
   
@@ -17,32 +17,35 @@
   
 
   
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
-
-  
-  <script src="../../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -56,7 +59,7 @@
             
             
               <div class="version">
-                1.8
+                2.2
               </div>
             
           
@@ -155,7 +158,7 @@
 
 <span class="c1"># The MIT License (MIT)</span>
 
-<span class="c1"># Copyright (c) 2012-2017 CNRS</span>
+<span class="c1"># Copyright (c) 2012-2019 CNRS</span>
 
 <span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
 <span class="c1"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
@@ -179,19 +182,16 @@
 <span class="c1"># Hervé BREDIN - http://herve.niderb.fr</span>
 <span class="c1"># Benjamin MAURICE - maurice@limsi.fr</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
-
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">munkres</span> <span class="k">import</span> <span class="n">Munkres</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">linear_sum_assignment</span>
 
-<span class="kn">from</span> <span class="nn">..matcher</span> <span class="k">import</span> <span class="n">LabelMatcher</span>
-<span class="kn">from</span> <span class="nn">pyannote.core</span> <span class="k">import</span> <span class="n">Annotation</span>
-<span class="kn">from</span> <span class="nn">xarray</span> <span class="k">import</span> <span class="n">DataArray</span>
+<span class="kn">from</span> <span class="nn">..matcher</span> <span class="kn">import</span> <span class="n">LabelMatcher</span>
+<span class="kn">from</span> <span class="nn">pyannote.core</span> <span class="kn">import</span> <span class="n">Annotation</span>
 
-<span class="kn">from</span> <span class="nn">..matcher</span> <span class="k">import</span> <span class="n">MATCH_CORRECT</span><span class="p">,</span> <span class="n">MATCH_CONFUSION</span><span class="p">,</span> \
+<span class="kn">from</span> <span class="nn">..matcher</span> <span class="kn">import</span> <span class="n">MATCH_CORRECT</span><span class="p">,</span> <span class="n">MATCH_CONFUSION</span><span class="p">,</span> \
     <span class="n">MATCH_MISSED_DETECTION</span><span class="p">,</span> <span class="n">MATCH_FALSE_ALARM</span>
 
-<span class="kn">from</span> <span class="nn">..identification</span> <span class="k">import</span> <span class="n">UEMSupportMixin</span>
+<span class="kn">from</span> <span class="nn">..identification</span> <span class="kn">import</span> <span class="n">UEMSupportMixin</span>
 
 <span class="n">REFERENCE_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;reference&#39;</span>
 <span class="n">HYPOTHESIS_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;hypothesis&#39;</span>
@@ -215,14 +215,12 @@
 <span class="sd">        Defaults to False (i.e. keep overlap regions).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">IdentificationErrorAnalysis</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">matcher</span> <span class="o">=</span> <span class="n">LabelMatcher</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">munkres</span> <span class="o">=</span> <span class="n">Munkres</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">collar</span> <span class="o">=</span> <span class="n">collar</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span><span class="o">=</span><span class="n">skip_overlap</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span> <span class="o">=</span> <span class="n">skip_overlap</span>
 
 <div class="viewcode-block" id="IdentificationErrorAnalysis.difference"><a class="viewcode-back" href="../../../../reference.html#pyannote.metrics.errors.identification.IdentificationErrorAnalysis.difference">[docs]</a>    <span class="k">def</span> <span class="nf">difference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">uemified</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get error analysis as `Annotation`</span>
@@ -325,9 +323,7 @@
                 <span class="k">for</span> <span class="n">i2</span><span class="p">,</span> <span class="n">e2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">new_errors</span><span class="p">):</span>
                     <span class="n">match</span><span class="p">[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_errors</span><span class="p">(</span><span class="n">e1</span><span class="p">,</span> <span class="n">e2</span><span class="p">)</span>
 
-            <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">munkres</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="mi">2</span> <span class="o">-</span> <span class="n">match</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">i1</span><span class="p">,</span> <span class="n">i2</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i1</span><span class="p">,</span> <span class="n">i2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">linear_sum_assignment</span><span class="p">(</span><span class="o">-</span><span class="n">match</span><span class="p">)):</span>
 
                 <span class="k">if</span> <span class="n">i1</span> <span class="o">&gt;=</span> <span class="n">n1</span><span class="p">:</span>
                     <span class="n">track</span> <span class="o">=</span> <span class="n">behaviors</span><span class="o">.</span><span class="n">new_track</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span>
@@ -417,6 +413,16 @@
         <span class="p">]</span> <span class="o">+</span> <span class="n">hLabels</span>
 
         <span class="c1"># initialize empty matrix</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">xarray</span> <span class="kn">import</span> <span class="n">DataArray</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;Please install xarray dependency to use class &quot;</span>
+                <span class="s2">&quot;&#39;IdentificationErrorAnalysis&#39;.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
         <span class="n">matrix</span> <span class="o">=</span> <span class="n">DataArray</span><span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">rLabels</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">hLabels</span><span class="p">))),</span>
             <span class="n">coords</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;reference&#39;</span><span class="p">,</span> <span class="n">rLabels</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;hypothesis&#39;</span><span class="p">,</span> <span class="n">hLabels</span><span class="p">)])</span>
@@ -476,7 +482,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017, CNRS.
+        &copy; Copyright 2017, CNRS
 
     </p>
   </div>
@@ -493,33 +499,16 @@
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../../../',
-            VERSION:'1.8',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

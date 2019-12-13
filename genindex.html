@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; pyannote.metrics 1.8 documentation</title>
+  <title>Index &mdash; pyannote.metrics 2.2 documentation</title>
   
 
   
@@ -18,32 +18,35 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -57,7 +60,7 @@
             
             
               <div class="version">
-                1.8
+                2.2
               </div>
             
           
@@ -158,6 +161,7 @@
  | <a href="#D"><strong>D</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#O"><strong>O</strong></a>
@@ -190,6 +194,8 @@
         <li><a href="reference.html#pyannote.metrics.diarization.DiarizationPurityCoverageFMeasure.compute_components">(pyannote.metrics.diarization.DiarizationPurityCoverageFMeasure method)</a>
 </li>
         <li><a href="reference.html#pyannote.metrics.diarization.GreedyDiarizationErrorRate.compute_components">(pyannote.metrics.diarization.GreedyDiarizationErrorRate method)</a>
+</li>
+        <li><a href="reference.html#pyannote.metrics.diarization.JaccardErrorRate.compute_components">(pyannote.metrics.diarization.JaccardErrorRate method)</a>
 </li>
         <li><a href="reference.html#pyannote.metrics.identification.IdentificationErrorRate.compute_components">(pyannote.metrics.identification.IdentificationErrorRate method)</a>
 </li>
@@ -224,6 +230,8 @@
         <li><a href="reference.html#pyannote.metrics.diarization.DiarizationPurity.compute_metric">(pyannote.metrics.diarization.DiarizationPurity method)</a>
 </li>
         <li><a href="reference.html#pyannote.metrics.diarization.DiarizationPurityCoverageFMeasure.compute_metric">(pyannote.metrics.diarization.DiarizationPurityCoverageFMeasure method)</a>
+</li>
+        <li><a href="reference.html#pyannote.metrics.diarization.JaccardErrorRate.compute_metric">(pyannote.metrics.diarization.JaccardErrorRate method)</a>
 </li>
         <li><a href="reference.html#pyannote.metrics.identification.IdentificationErrorRate.compute_metric">(pyannote.metrics.identification.IdentificationErrorRate method)</a>
 </li>
@@ -291,6 +299,14 @@
       <li><a href="reference.html#pyannote.metrics.identification.IdentificationPrecision">IdentificationPrecision (class in pyannote.metrics.identification)</a>
 </li>
       <li><a href="reference.html#pyannote.metrics.identification.IdentificationRecall">IdentificationRecall (class in pyannote.metrics.identification)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="J">J</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference.html#pyannote.metrics.diarization.JaccardErrorRate">JaccardErrorRate (class in pyannote.metrics.diarization)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -379,7 +395,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017, CNRS.
+        &copy; Copyright 2017, CNRS
 
     </p>
   </div>
@@ -396,33 +412,16 @@
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'1.8',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
