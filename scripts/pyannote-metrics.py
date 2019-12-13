@@ -562,7 +562,7 @@ if __name__ == '__main__':
     # protocol
     protocol_name = arguments['<database.task.protocol>']
 
-    preprocessors = None
+    preprocessors = dict()
     if arguments['overlap']:
         if skip_overlap:
             msg = (
