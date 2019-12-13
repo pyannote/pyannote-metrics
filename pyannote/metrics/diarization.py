@@ -266,6 +266,7 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
                                 collar=0.0, skip_overlap=False,
                                 **kwargs)
 
+
 JER_NAME = 'jaccard error rate'
 JER_SPEAKER_ERROR = 'speaker error'
 JER_SPEAKER_COUNT = 'speaker count'
@@ -413,6 +414,7 @@ class JaccardErrorRate(DiarizationErrorRate):
 
     def compute_metric(self, detail):
         return detail[JER_SPEAKER_ERROR] / detail[JER_SPEAKER_COUNT]
+
 
 PURITY_NAME = 'purity'
 PURITY_TOTAL = 'total'

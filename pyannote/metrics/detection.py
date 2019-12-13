@@ -26,7 +26,6 @@
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
 
-from pyannote.core import Annotation, Timeline
 from .base import BaseMetric
 from .utils import UEMSupportMixin
 
