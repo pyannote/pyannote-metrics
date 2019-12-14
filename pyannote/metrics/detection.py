@@ -25,6 +25,9 @@
 
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
+from typing import Optional, Dict
+
+from pyannote.core import Timeline, Segment, Annotation
 
 from .base import BaseMetric
 from .utils import UEMSupportMixin
@@ -72,7 +75,11 @@ class DetectionErrorRate(UEMSupportMixin, BaseMetric):
         self.collar = collar
         self.skip_overlap = skip_overlap
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Timeline,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> Dict:
 
         reference, hypothesis, uem = self.uemify(
             reference, hypothesis, uem=uem,
@@ -100,7 +107,7 @@ class DetectionErrorRate(UEMSupportMixin, BaseMetric):
 
         return detail
 
-    def compute_metric(self, detail):
+    def compute_metric(self, detail: Dict):
         error = 1. * (detail[DER_FALSE_ALARM] + detail[DER_MISS])
         total = 1. * detail[DER_TOTAL]
         if total == 0.:

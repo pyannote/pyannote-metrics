@@ -25,14 +25,14 @@
 
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
-
+from typing import Union, Dict
 
 import scipy.stats
 import pandas as pd
 import numpy as np
 
 
-class BaseMetric(object):
+class BaseMetric:
     """
     :class:`BaseMetric` is the base class for most pyannote evaluation metrics.
 
@@ -51,16 +51,16 @@ class BaseMetric(object):
     def metric_name(cls):
         raise NotImplementedError(
             cls.__name__ + " is missing a 'metric_name' class method. "
-            "It should return the name of the metric as string.")
+                           "It should return the name of the metric as string.")
 
     @classmethod
     def metric_components(cls):
         raise NotImplementedError(
             cls.__name__ + " is missing a 'metric_components' class method. "
-            "It should return the list of names of metric components.")
+                           "It should return the list of names of metric components.")
 
-    def __init__(self, parallel=False, **kwargs):
-        super(BaseMetric, self).__init__()
+    def __init__(self, parallel: bool = False, **kwargs):
+        super().__init__()
         self.parallel = parallel
         self.metric_name_ = self.__class__.metric_name()
         self.components_ = set(self.__class__.metric_components())
@@ -83,11 +83,13 @@ class BaseMetric(object):
         for value in self.components_:
             self.accumulated_[value] = 0.
 
-    def __get_name(self):
+    @property
+    def name(self) -> str:
+        """Metric name."""
         return self.__class__.metric_name()
-    name = property(fget=__get_name, doc="Metric name.")
 
-    def __call__(self, reference, hypothesis, detailed=False, **kwargs):
+    def __call__(self, reference, hypothesis, detailed=False, **kwargs) \
+            -> Union[float, Dict]:
         """Compute metric value and accumulate components
 
         Parameters
@@ -138,7 +140,7 @@ class BaseMetric(object):
 
         return components[self.metric_name_]
 
-    def report(self, display=False):
+    def report(self, display: bool = False):
         """Evaluation report
 
         Parameters
@@ -225,7 +227,7 @@ class BaseMetric(object):
         """Compute metric value from accumulated components"""
         return self.compute_metric(self.accumulated_)
 
-    def __getitem__(self, component):
+    def __getitem__(self, component: str):
         """Get value of accumulated `component`.
 
         Parameters
@@ -249,7 +251,7 @@ class BaseMetric(object):
         for uri, component in self.results_:
             yield uri, component
 
-    def compute_components(self, reference, hypothesis, **kwargs):
+    def compute_components(self, reference, hypothesis, **kwargs) -> Dict:
         """Compute metric components
 
         Parameters
@@ -268,8 +270,8 @@ class BaseMetric(object):
         """
         raise NotImplementedError(
             self.__class__.__name__ + " is missing a 'compute_components' method."
-            "It should return a dictionary where keys are component names "
-            "and values are component values.")
+                                      "It should return a dictionary where keys are component names "
+                                      "and values are component values.")
 
     def compute_metric(self, components):
         """Compute metric value from computed `components`
@@ -287,8 +289,8 @@ class BaseMetric(object):
         """
         raise NotImplementedError(
             self.__class__.__name__ + " is missing a 'compute_metric' method. "
-            "It should return the actual value of the metric based "
-            "on the precomputed component dictionary given as input.")
+                                      "It should return the actual value of the metric based "
+                                      "on the precomputed component dictionary given as input.")
 
     def confidence_interval(self, alpha=0.9):
         """Compute confidence interval on accumulated metric values
@@ -351,7 +353,7 @@ class Precision(BaseMetric):
             else:
                 raise ValueError('')
         else:
-            return numerator/denominator
+            return numerator / denominator
 
 
 RECALL_NAME = 'recall'
@@ -389,7 +391,7 @@ class Recall(BaseMetric):
             else:
                 raise ValueError('')
         else:
-            return numerator/denominator
+            return numerator / denominator
 
 
 def f_measure(precision, recall, beta=1.):
@@ -400,4 +402,4 @@ def f_measure(precision, recall, beta=1.):
 
     where P is `precision`, R is `recall` and b is `beta`
     """
-    return (1+beta*beta)*precision*recall / (beta*beta*precision+recall)
+    return (1 + beta * beta) * precision * recall / (beta * beta * precision + recall)
