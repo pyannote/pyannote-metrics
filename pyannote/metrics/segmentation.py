@@ -28,6 +28,7 @@
 # Camille Guinaudeau - https://sites.google.com/site/cguinaudeau/
 # Mamadou Doumbia
 # Diego Fustes diego.fustes at toptal.com
+from typing import List
 
 import numpy as np
 from pyannote.core import Segment, Timeline, Annotation
@@ -35,7 +36,9 @@ from pyannote.core.utils.generators import pairwise
 
 from .base import BaseMetric, f_measure
 from .utils import UEMSupportMixin
+from .types import MetricComponents
 
+# TODO: can't we put these as class attributes?
 PURITY_NAME = 'segmentation purity'
 COVERAGE_NAME = 'segmentation coverage'
 PURITY_COVERAGE_NAME = 'segmentation F[purity|coverage]'
@@ -65,8 +68,8 @@ class SegmentationCoverage(BaseMetric):
 
     """
 
-    def __init__(self, tolerance=0.500, **kwargs):
-        super(SegmentationCoverage, self).__init__(**kwargs)
+    def __init__(self, tolerance: float = 0.500, **kwargs):
+        super().__init__(**kwargs)
         self.tolerance = tolerance
 
     def _partition(self, timeline, coverage):
@@ -128,14 +131,15 @@ class SegmentationCoverage(BaseMetric):
         return COVERAGE_NAME
 
     @classmethod
-    def metric_components(cls):
+    def metric_components(cls) -> List[str]:
         return [PTY_CVG_TOTAL, PTY_CVG_INTER]
 
+    # TODO: figure out type of ref and hypothesis
     def compute_components(self, reference, hypothesis, **kwargs):
         reference, hypothesis = self._preprocess(reference, hypothesis)
         return self._process(reference, hypothesis)
 
-    def compute_metric(self, detail):
+    def compute_metric(self, detail: MetricComponents):
         return detail[PTY_CVG_INTER] / detail[PTY_CVG_TOTAL]
 
 
@@ -151,9 +155,10 @@ class SegmentationPurity(SegmentationCoverage):
     """
 
     @classmethod
-    def metric_name(cls):
+    def metric_name(cls) -> str:
         return PURITY_NAME
 
+    # TODO : Use type from parent class
     def compute_components(self, reference, hypothesis, **kwargs):
         reference, hypothesis = self._preprocess(reference, hypothesis)
         return self._process(hypothesis, reference)
@@ -214,20 +219,20 @@ class SegmentationPurityCoverageFMeasure(SegmentationCoverage):
 
         purity = \
             1. if detail[PTY_TOTAL] == 0. \
-            else detail[PTY_INTER] / detail[PTY_TOTAL]
+                else detail[PTY_INTER] / detail[PTY_TOTAL]
 
         coverage = \
             1. if detail[CVG_TOTAL] == 0. \
-            else detail[CVG_INTER] / detail[CVG_TOTAL]
+                else detail[CVG_INTER] / detail[CVG_TOTAL]
 
         return purity, coverage, f_measure(purity, coverage, beta=self.beta)
 
     @classmethod
-    def metric_name(cls):
+    def metric_name(cls) -> str:
         return PURITY_COVERAGE_NAME
 
     @classmethod
-    def metric_components(cls):
+    def metric_components(cls) -> List[str]:
         return [PTY_TOTAL, PTY_INTER, CVG_TOTAL, CVG_INTER]
 
 

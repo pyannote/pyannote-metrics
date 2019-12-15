@@ -25,13 +25,15 @@
 
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
-from pyannote.core import Timeline, Segment, Annotation
+from pyannote.core import Timeline, Annotation
 
 from .base import BaseMetric
+from .types import MetricComponents
 from .utils import UEMSupportMixin
 
+# TODO: can't we put these as class attributes?
 DER_NAME = 'detection error rate'
 DER_TOTAL = 'total'
 DER_FALSE_ALARM = 'false alarm'
@@ -63,11 +65,11 @@ class DetectionErrorRate(UEMSupportMixin, BaseMetric):
     """
 
     @classmethod
-    def metric_name(cls):
+    def metric_name(cls) -> str:
         return DER_NAME
 
     @classmethod
-    def metric_components(cls):
+    def metric_components(cls) -> List[str]:
         return [DER_TOTAL, DER_FALSE_ALARM, DER_MISS]
 
     def __init__(self, collar=0.0, skip_overlap=False, **kwargs):
@@ -100,14 +102,15 @@ class DetectionErrorRate(UEMSupportMixin, BaseMetric):
         for r, h_ in reference.co_iter(hypothesis_):
             false_negative += (r & h_).duration
 
-        detail = {}
-        detail[DER_MISS] = false_negative
-        detail[DER_FALSE_ALARM] = false_positive
-        detail[DER_TOTAL] = reference.duration()
+        detail = {
+            DER_MISS: false_negative,
+            DER_FALSE_ALARM: false_positive,
+            DER_TOTAL: reference.duration()
+        }
 
         return detail
 
-    def compute_metric(self, detail: Dict):
+    def compute_metric(self, detail: Dict) -> float:
         error = 1. * (detail[DER_FALSE_ALARM] + detail[DER_MISS])
         total = 1. * detail[DER_TOTAL]
         if total == 0.:
@@ -151,15 +154,19 @@ class DetectionAccuracy(DetectionErrorRate):
     """
 
     @classmethod
-    def metric_name(cls):
+    def metric_name(cls) -> str:
         return ACCURACY_NAME
 
     @classmethod
-    def metric_components(cls):
+    def metric_components(cls) -> List[str]:
         return [ACCURACY_TRUE_POSITIVE, ACCURACY_TRUE_NEGATIVE,
                 ACCURACY_FALSE_POSITIVE, ACCURACY_FALSE_NEGATIVE]
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Timeline,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> MetricComponents:
 
         reference, hypothesis, uem = self.uemify(
             reference, hypothesis, uem=uem,
@@ -188,15 +195,15 @@ class DetectionAccuracy(DetectionErrorRate):
         for r, h_ in reference.co_iter(hypothesis_):
             false_negative += (r & h_).duration
 
-        detail = {}
-        detail[ACCURACY_TRUE_NEGATIVE] = true_negative
-        detail[ACCURACY_TRUE_POSITIVE] = true_positive
-        detail[ACCURACY_FALSE_NEGATIVE] = false_negative
-        detail[ACCURACY_FALSE_POSITIVE] = false_positive
+        detail = {
+            ACCURACY_TRUE_NEGATIVE: true_negative,
+            ACCURACY_TRUE_POSITIVE: true_positive,
+            ACCURACY_FALSE_NEGATIVE: false_negative,
+            ACCURACY_FALSE_POSITIVE: false_positive}
 
         return detail
 
-    def compute_metric(self, detail):
+    def compute_metric(self, detail: MetricComponents) -> float:
         numerator = 1. * (detail[ACCURACY_TRUE_NEGATIVE] +
                           detail[ACCURACY_TRUE_POSITIVE])
         denominator = 1. * (detail[ACCURACY_TRUE_NEGATIVE] +
@@ -239,14 +246,18 @@ class DetectionPrecision(DetectionErrorRate):
     """
 
     @classmethod
-    def metric_name(cls):
+    def metric_name(cls) -> str:
         return PRECISION_NAME
 
     @classmethod
-    def metric_components(cls):
+    def metric_components(cls) -> List[str]:
         return [PRECISION_RETRIEVED, PRECISION_RELEVANT_RETRIEVED]
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Timeline,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> MetricComponents:
 
         reference, hypothesis, uem = self.uemify(
             reference, hypothesis, uem=uem,
@@ -266,13 +277,12 @@ class DetectionPrecision(DetectionErrorRate):
         for r_, h in reference_.co_iter(hypothesis):
             false_positive += (r_ & h).duration
 
-        detail = {}
-        detail[PRECISION_RETRIEVED] = true_positive + false_positive
-        detail[PRECISION_RELEVANT_RETRIEVED] = true_positive
+        detail = {PRECISION_RETRIEVED: true_positive + false_positive,
+                  PRECISION_RELEVANT_RETRIEVED: true_positive}
 
         return detail
 
-    def compute_metric(self, detail):
+    def compute_metric(self, detail: MetricComponents) -> float:
         relevant_retrieved = 1. * detail[PRECISION_RELEVANT_RETRIEVED]
         retrieved = 1. * detail[PRECISION_RETRIEVED]
         if retrieved == 0.:
@@ -317,7 +327,11 @@ class DetectionRecall(DetectionErrorRate):
     def metric_components(cls):
         return [RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED]
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Timeline,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> MetricComponents:
 
         reference, hypothesis, uem = self.uemify(
             reference, hypothesis, uem=uem,
@@ -337,13 +351,13 @@ class DetectionRecall(DetectionErrorRate):
         for r, h_ in reference.co_iter(hypothesis_):
             false_negative += (r & h_).duration
 
-        detail = {}
-        detail[RECALL_RELEVANT] = true_positive + false_negative
-        detail[RECALL_RELEVANT_RETRIEVED] = true_positive
+        detail = {
+            RECALL_RELEVANT: true_positive + false_negative,
+            RECALL_RELEVANT_RETRIEVED: true_positive}
 
         return detail
 
-    def compute_metric(self, detail):
+    def compute_metric(self, detail: MetricComponents) -> float:
         relevant_retrieved = 1. * detail[RECALL_RELEVANT_RETRIEVED]
         relevant = 1. * detail[RECALL_RELEVANT]
         if relevant == 0.:

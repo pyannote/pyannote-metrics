@@ -25,6 +25,9 @@
 
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
+from typing import List, Optional
+
+from pyannote.core import Annotation, Timeline
 
 from .base import BaseMetric
 from .base import Precision, PRECISION_RETRIEVED, PRECISION_RELEVANT_RETRIEVED
@@ -32,8 +35,10 @@ from .base import Recall, RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED
 from .matcher import LabelMatcher, \
     MATCH_TOTAL, MATCH_CORRECT, MATCH_CONFUSION, \
     MATCH_MISSED_DETECTION, MATCH_FALSE_ALARM
+from .types import MetricComponents
 from .utils import UEMSupportMixin
 
+# TODO: can't we put these as class attributes?
 IER_TOTAL = MATCH_TOTAL
 IER_CORRECT = MATCH_CORRECT
 IER_CONFUSION = MATCH_CONFUSION
@@ -68,21 +73,26 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
     """
 
     @classmethod
-    def metric_name(cls):
+    def metric_name(cls) -> str:
         return IER_NAME
 
     @classmethod
-    def metric_components(cls):
+    def metric_components(cls) -> List[str]:
         return [
             IER_TOTAL,
             IER_CORRECT,
             IER_FALSE_ALARM, IER_MISS,
             IER_CONFUSION]
 
-    def __init__(self, confusion=1., miss=1., false_alarm=1.,
-                 collar=0., skip_overlap=False, **kwargs):
+    def __init__(self,
+                 confusion: float = 1.,
+                 miss: float = 1.,
+                 false_alarm: float = 1.,
+                 collar: float = 0.,
+                 skip_overlap: bool = False,
+                 **kwargs):
 
-        super(IdentificationErrorRate, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.matcher_ = LabelMatcher()
         self.confusion = confusion
         self.miss = miss
@@ -90,8 +100,13 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
         self.collar = collar
         self.skip_overlap = skip_overlap
 
-    def compute_components(self, reference, hypothesis, uem=None,
-                           collar=None, skip_overlap=None, **kwargs):
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Timeline,
+                           uem: Optional[Timeline] = None,
+                           collar: Optional[float] = None,
+                           skip_overlap: Optional[float] = None,
+                           **kwargs) -> MetricComponents:
         """
 
         Parameters
@@ -122,7 +137,6 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
 
         # loop on all segments
         for segment in common_timeline:
-
             # segment duration
             duration = segment.duration
 
@@ -142,12 +156,12 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
 
         return detail
 
-    def compute_metric(self, detail):
+    def compute_metric(self, detail: MetricComponents) -> float:
 
         numerator = 1. * (
-            self.confusion * detail[IER_CONFUSION] +
-            self.false_alarm * detail[IER_FALSE_ALARM] +
-            self.miss * detail[IER_MISS]
+                self.confusion * detail[IER_CONFUSION] +
+                self.false_alarm * detail[IER_FALSE_ALARM] +
+                self.miss * detail[IER_MISS]
         )
         denominator = 1. * detail[IER_TOTAL]
         if denominator == 0.:
@@ -172,14 +186,17 @@ class IdentificationPrecision(UEMSupportMixin, Precision):
         Defaults to False (i.e. keep overlap regions).
     """
 
-    def __init__(self, collar=0., skip_overlap=False, **kwargs):
-        super(IdentificationPrecision, self).__init__(**kwargs)
+    def __init__(self, collar: float = 0., skip_overlap: bool = False, **kwargs):
+        super().__init__(**kwargs)
         self.collar = collar
         self.skip_overlap = skip_overlap
         self.matcher_ = LabelMatcher()
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Timeline,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> MetricComponents:
         detail = self.init_components()
 
         R, H, common_timeline = self.uemify(
@@ -189,7 +206,6 @@ class IdentificationPrecision(UEMSupportMixin, Precision):
 
         # loop on all segments
         for segment in common_timeline:
-
             # segment duration
             duration = segment.duration
 
@@ -221,14 +237,17 @@ class IdentificationRecall(UEMSupportMixin, Recall):
         Defaults to False (i.e. keep overlap regions).
     """
 
-    def __init__(self, collar=0., skip_overlap=False, **kwargs):
-        super(IdentificationRecall, self).__init__(**kwargs)
+    def __init__(self, collar: float = 0., skip_overlap: bool = False, **kwargs):
+        super().__init__(**kwargs)
         self.collar = collar
         self.skip_overlap = skip_overlap
         self.matcher_ = LabelMatcher()
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Timeline,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> MetricComponents:
         detail = self.init_components()
 
         R, H, common_timeline = self.uemify(
@@ -238,7 +257,6 @@ class IdentificationRecall(UEMSupportMixin, Recall):
 
         # loop on all segments
         for segment in common_timeline:
-
             # segment duration
             duration = segment.duration
 

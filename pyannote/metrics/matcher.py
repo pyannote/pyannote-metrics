@@ -36,16 +36,16 @@ MATCH_FALSE_ALARM = 'false alarm'
 MATCH_TOTAL = 'total'
 
 
-class LabelMatcher(object):
+class LabelMatcher:
     """
-    ID matcher base class.
+    ID matcher base class mixin.
 
     All ID matcher classes must inherit from this class and implement
     .match() -- ie return True if two IDs match and False
     otherwise.
     """
 
-    def match(self, rlabel, hlabel):
+    def match(self, rlabel, hlabel) -> bool:
         """
         Parameters
         ----------
@@ -148,7 +148,7 @@ class LabelMatcher(object):
         return (counts, details)
 
 
-class HungarianMapper(object):
+class HungarianMapper:
 
     def __call__(self, A, B):
         mapping = {}
@@ -163,7 +163,7 @@ class HungarianMapper(object):
         return mapping
 
 
-class GreedyMapper(object):
+class GreedyMapper:
 
     def __call__(self, A, B):
         mapping = {}

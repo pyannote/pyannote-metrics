@@ -27,16 +27,19 @@
 # Hervé BREDIN - http://herve.niderb.fr
 
 """Metrics for diarization"""
+from typing import Optional
 
 import numpy as np
-
-from .matcher import HungarianMapper
-from .matcher import GreedyMapper
+from pyannote.core import Annotation, Timeline
 
 from .base import BaseMetric, f_measure
-from .utils import UEMSupportMixin
 from .identification import IdentificationErrorRate
+from .matcher import GreedyMapper
+from .matcher import HungarianMapper
+from .types import MetricComponents
+from .utils import UEMSupportMixin
 
+# TODO: can't we put these as class attributes?
 DER_NAME = 'diarization error rate'
 
 
@@ -92,12 +95,12 @@ class DiarizationErrorRate(IdentificationErrorRate):
     """
 
     @classmethod
-    def metric_name(cls):
+    def metric_name(cls) -> str:
         return DER_NAME
 
-    def __init__(self, collar=0.0, skip_overlap=False, **kwargs):
-        super(DiarizationErrorRate, self).__init__(
-            collar=collar, skip_overlap=skip_overlap, **kwargs)
+    def __init__(self, collar: float = 0.0, skip_overlap: bool = False,
+                 **kwargs):
+        super().__init__(collar=collar, skip_overlap=skip_overlap, **kwargs)
         self.mapper_ = HungarianMapper()
 
     def optimal_mapping(self, reference, hypothesis, uem=None):
@@ -126,8 +129,11 @@ class DiarizationErrorRate(IdentificationErrorRate):
         # call hungarian mapper
         return self.mapper_(hypothesis, reference)
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Timeline,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> MetricComponents:
         # crop reference and hypothesis to evaluated regions (uem)
         # remove collars around reference segment boundaries
         # remove overlap regions (if requested)
@@ -151,7 +157,7 @@ class DiarizationErrorRate(IdentificationErrorRate):
         # NOTE that collar is set to 0.0 because 'uemify' has already
         # been applied (same reason for setting skip_overlap to False)
         mapped = hypothesis.rename_labels(mapping=mapping)
-        return super(DiarizationErrorRate, self)\
+        return super(DiarizationErrorRate, self) \
             .compute_components(reference, mapped, uem=uem,
                                 collar=0.0, skip_overlap=False,
                                 **kwargs)
@@ -237,7 +243,6 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
         return self.mapper_(hypothesis, reference)
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-
         # crop reference and hypothesis to evaluated regions (uem)
         # remove collars around reference segment boundaries
         # remove overlap regions (if requested)
@@ -261,7 +266,7 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
         # NOTE that collar is set to 0.0 because 'uemify' has already
         # been applied (same reason for setting skip_overlap to False)
         mapped = hypothesis.rename_labels(mapping=mapping)
-        return super(GreedyDiarizationErrorRate, self)\
+        return super(GreedyDiarizationErrorRate, self) \
             .compute_components(reference, mapped, uem=uem,
                                 collar=0.0, skip_overlap=False,
                                 **kwargs)
@@ -523,7 +528,7 @@ class DiarizationCoverage(DiarizationPurity):
             weighted=weighted, **kwargs)
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-        return super(DiarizationCoverage, self)\
+        return super(DiarizationCoverage, self) \
             .compute_components(hypothesis, reference, uem=uem, **kwargs)
 
 
@@ -625,11 +630,11 @@ class DiarizationPurityCoverageFMeasure(UEMSupportMixin, BaseMetric):
         # compute purity
         detail[PURITY_NAME] = \
             1. if detail[PURITY_COVERAGE_TOTAL_CLUSTER] == 0. \
-            else detail[PURITY_COVERAGE_LARGEST_CLASS] / detail[PURITY_COVERAGE_TOTAL_CLUSTER]
+                else detail[PURITY_COVERAGE_LARGEST_CLASS] / detail[PURITY_COVERAGE_TOTAL_CLUSTER]
         # compute coverage
         detail[COVERAGE_NAME] = \
             1. if detail[PURITY_COVERAGE_TOTAL_CLASS] == 0. \
-            else detail[PURITY_COVERAGE_LARGEST_CLUSTER] / detail[PURITY_COVERAGE_TOTAL_CLASS]
+                else detail[PURITY_COVERAGE_LARGEST_CLUSTER] / detail[PURITY_COVERAGE_TOTAL_CLASS]
 
         return detail
 
@@ -643,11 +648,11 @@ class DiarizationPurityCoverageFMeasure(UEMSupportMixin, BaseMetric):
 
         purity = \
             1. if detail[PURITY_COVERAGE_TOTAL_CLUSTER] == 0. \
-            else detail[PURITY_COVERAGE_LARGEST_CLASS] / detail[PURITY_COVERAGE_TOTAL_CLUSTER]
+                else detail[PURITY_COVERAGE_LARGEST_CLASS] / detail[PURITY_COVERAGE_TOTAL_CLUSTER]
 
         coverage = \
             1. if detail[PURITY_COVERAGE_TOTAL_CLASS] == 0. \
-            else detail[PURITY_COVERAGE_LARGEST_CLUSTER] / detail[PURITY_COVERAGE_TOTAL_CLASS]
+                else detail[PURITY_COVERAGE_LARGEST_CLUSTER] / detail[PURITY_COVERAGE_TOTAL_CLASS]
 
         return purity, coverage, f_measure(purity, coverage, beta=self.beta)
 
@@ -746,5 +751,5 @@ class DiarizationCompleteness(DiarizationHomogeneity):
         return COMPLETENESS_NAME
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-        return super(DiarizationCompleteness, self)\
+        return super(DiarizationCompleteness, self) \
             .compute_components(hypothesis, reference, uem=uem, **kwargs)

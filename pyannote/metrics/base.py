@@ -27,9 +27,11 @@
 # Hervé BREDIN - http://herve.niderb.fr
 from typing import Union, Dict
 
-import scipy.stats
-import pandas as pd
 import numpy as np
+import pandas as pd
+import scipy.stats
+
+from .types import MetricComponents
 
 
 class BaseMetric:
@@ -66,7 +68,7 @@ class BaseMetric:
         self.components_ = set(self.__class__.metric_components())
         self.reset()
 
-    def init_components(self):
+    def init_components(self) -> MetricComponents:
         return {value: 0. for value in self.components_}
 
     def reset(self):

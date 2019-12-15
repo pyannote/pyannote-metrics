@@ -25,17 +25,18 @@
 
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
-
+from typing import Union
 
 from pyannote.core import Annotation, Timeline
 
 
-class SegmentationErrorAnalysis(object):
+class SegmentationErrorAnalysis:
 
     def __init__(self):
-        super(SegmentationErrorAnalysis, self).__init__()
+        super().__init__()
 
-    def __call__(self, reference, hypothesis):
+    def __call__(self, reference: Union[Timeline, Annotation],
+                 hypothesis: Union[Timeline, Annotation]) -> Annotation:
 
         if isinstance(reference, Annotation):
             reference = reference.get_timeline()
