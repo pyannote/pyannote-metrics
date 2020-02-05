@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2019 CNRS
+# Copyright (c) 2012-2020 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
 
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
+# Marvin LAVECHIN
 
 from .base import BaseMetric, f_measure
 from .utils import UEMSupportMixin
@@ -348,7 +349,7 @@ class DetectionRecall(DetectionErrorRate):
             return relevant_retrieved / relevant
 
 
-DFS_NAME = 'detection f score'
+DFS_NAME = 'F[precision|recall]'
 DFS_PRECISION_RETRIEVED = 'retrieved'
 DFS_RECALL_RELEVANT = 'relevant'
 DFS_RELEVANT_RETRIEVED = 'relevant retrieved'
@@ -453,4 +454,4 @@ class DetectionPrecisionRecallFMeasure(UEMSupportMixin, BaseMetric):
         else:
             recall = relevant_retrieved / recall_relevant
 
-        return precision, recall, f_measure(precision, recall, beta=1.)
+        return precision, recall, f_measure(precision, recall, beta=self.beta)
