@@ -431,7 +431,7 @@ class DetectionPrecisionRecallFMeasure(UEMSupportMixin, BaseMetric):
         _, _, value = self.compute_metrics(detail=detail)
         return value
 
-    def compute_metric(self, detail=None):
+    def compute_metrics(self, detail=None):
 
         detail = self.accumulated_ if detail is None else detail
         precision_retrieved = detail[DFS_PRECISION_RETRIEVED]
