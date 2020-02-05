@@ -121,6 +121,3 @@ def test_fscore(reference, hypothesis):
     
     fscore = detectionFMeasure(reference, hypothesis)
     npt.assert_almost_equal(fscore, 0.848, decimal=3)
-
-    precision, recall, fscore = detectionFMeasure.compute_metrics(reference, hypothesis)
-    npt.assert_almost_equal([precision, recall, fscore], [0.8235, 0.875, 0.848], decimal=3)
