@@ -109,7 +109,7 @@ Purity and coverage are two dual evaluation metrics that provide additional insi
    \text{purity} & = & \frac{\displaystyle \sum_{\text{cluster}} \max_{\text{speaker}} |\text{cluster} \cap \text{speaker}|  }{\displaystyle \sum_{\text{cluster}} |\text{cluster}|} \\
   \text{coverage} & = & \frac{\displaystyle \sum_{\text{speaker}} \max_{\text{cluster}} |\text{speaker} \cap \text{cluster}|  }{\displaystyle \sum_{\text{speaker}} |\text{speaker}|} \\
 
-where :math:`|\text{speaker}|` (respectively :math:`|\text{cluster}|` is the speech duration of this particular reference speaker (resp. hypothesized cluster), and  :math:`|\text{speaker} \cap \text{cluster}|` is the duration of their intersection.
+where :math:`|\text{speaker}|` (respectively :math:`|\text{cluster}|`) is the speech duration of this particular reference speaker (resp. hypothesized cluster), and  :math:`|\text{speaker} \cap \text{cluster}|` is the duration of their intersection.
 
 Over-segmented results (e.g. too many speaker clusters) tend to lead to high purity and low coverage, while under-segmented results (e.g. when two speakers are merged into one large cluster) lead to low purity and higher coverage.
 

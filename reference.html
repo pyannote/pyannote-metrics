@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Reference &mdash; pyannote.metrics 2.2+1.g5b75456 documentation</title>
+  <title>Reference &mdash; pyannote.metrics 2.3 documentation</title>
   
 
   
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                2.2
+                2.3
               </div>
             
           
@@ -374,6 +374,68 @@ values</p>
 <dl class="method">
 <dt id="pyannote.metrics.detection.DetectionPrecision.compute_metric">
 <code class="sig-name descname">compute_metric</code><span class="sig-paren">(</span><em class="sig-param">detail</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionPrecision.compute_metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionPrecision.compute_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric value from computed <cite>components</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+values</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>value</strong> – Metric value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type depends on the metric</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyannote.metrics.detection.DetectionPrecisionRecallFMeasure">
+<em class="property">class </em><code class="sig-prename descclassname">pyannote.metrics.detection.</code><code class="sig-name descname">DetectionPrecisionRecallFMeasure</code><span class="sig-paren">(</span><em class="sig-param">collar=0.0</em>, <em class="sig-param">skip_overlap=False</em>, <em class="sig-param">beta=1.0</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionPrecisionRecallFMeasure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionPrecisionRecallFMeasure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute detection precision and recall, and return their F-score</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments (one half before, one half after).</p></li>
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+Defaults to False (i.e. keep overlap regions).</p></li>
+<li><p><strong>beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – When beta &gt; 1, greater importance is given to recall.
+When beta &lt; 1, greater importance is given to precision.
+Defaults to 1.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#pyannote.metrics.detection.DetectionPrecision" title="pyannote.metrics.detection.DetectionPrecision"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.metrics.detection.DetectionPrecision</span></code></a>, <a class="reference internal" href="#pyannote.metrics.detection.DetectionRecall" title="pyannote.metrics.detection.DetectionRecall"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.metrics.detection.DetectionRecall</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.metrics.base.f_measure</span></code></p>
+</div>
+<dl class="method">
+<dt id="pyannote.metrics.detection.DetectionPrecisionRecallFMeasure.compute_components">
+<code class="sig-name descname">compute_components</code><span class="sig-paren">(</span><em class="sig-param">reference</em>, <em class="sig-param">hypothesis</em>, <em class="sig-param">uem=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionPrecisionRecallFMeasure.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionPrecisionRecallFMeasure.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric components</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference</strong> (<em>type depends on the metric</em>) – Manual <cite>reference</cite></p></li>
+<li><p><strong>hypothesis</strong> (same as <cite>reference</cite>) – Evaluated <cite>hypothesis</cite></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>components</strong> – Dictionary where keys are component names and values are component
+values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyannote.metrics.detection.DetectionPrecisionRecallFMeasure.compute_metric">
+<code class="sig-name descname">compute_metric</code><span class="sig-paren">(</span><em class="sig-param">detail</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionPrecisionRecallFMeasure.compute_metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionPrecisionRecallFMeasure.compute_metric" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute metric value from computed <cite>components</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -758,7 +820,7 @@ speech incorrectly classified as non-speech, <span class="math notranslate nohig
 <div class="math notranslate nohighlight">
 \[\begin{split} \text{purity} &amp; = &amp; \frac{\displaystyle \sum_{\text{cluster}} \max_{\text{speaker}} |\text{cluster} \cap \text{speaker}|  }{\displaystyle \sum_{\text{cluster}} |\text{cluster}|} \\
 \text{coverage} &amp; = &amp; \frac{\displaystyle \sum_{\text{speaker}} \max_{\text{cluster}} |\text{speaker} \cap \text{cluster}|  }{\displaystyle \sum_{\text{speaker}} |\text{speaker}|} \\\end{split}\]</div>
-<p>where <span class="math notranslate nohighlight">\(|\text{speaker}|\)</span> (respectively <span class="math notranslate nohighlight">\(|\text{cluster}|\)</span> is the speech duration of this particular reference speaker (resp. hypothesized cluster), and  <span class="math notranslate nohighlight">\(|\text{speaker} \cap \text{cluster}|\)</span> is the duration of their intersection.</p>
+<p>where <span class="math notranslate nohighlight">\(|\text{speaker}|\)</span> (respectively <span class="math notranslate nohighlight">\(|\text{cluster}|\)</span>) is the speech duration of this particular reference speaker (resp. hypothesized cluster), and  <span class="math notranslate nohighlight">\(|\text{speaker} \cap \text{cluster}|\)</span> is the duration of their intersection.</p>
 <p>Over-segmented results (e.g. too many speaker clusters) tend to lead to high purity and low coverage, while under-segmented results (e.g. when two speakers are merged into one large cluster) lead to low purity and higher coverage.</p>
 </div>
 <div class="section" id="use-case">

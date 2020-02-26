@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pyannote.metrics.detection &mdash; pyannote.metrics 2.2+1.g5b75456 documentation</title>
+  <title>pyannote.metrics.detection &mdash; pyannote.metrics 2.3 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                2.2
+                2.3
               </div>
             
           
@@ -158,7 +158,7 @@
 
 <span class="c1"># The MIT License (MIT)</span>
 
-<span class="c1"># Copyright (c) 2012-2019 CNRS</span>
+<span class="c1"># Copyright (c) 2012-2020 CNRS</span>
 
 <span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
 <span class="c1"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
@@ -180,8 +180,9 @@
 
 <span class="c1"># AUTHORS</span>
 <span class="c1"># Hervé BREDIN - http://herve.niderb.fr</span>
+<span class="c1"># Marvin LAVECHIN</span>
 
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">BaseMetric</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">BaseMetric</span><span class="p">,</span> <span class="n">f_measure</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">UEMSupportMixin</span>
 
 <span class="n">DER_NAME</span> <span class="o">=</span> <span class="s1">&#39;detection error rate&#39;</span>
@@ -501,6 +502,114 @@
                 <span class="k">return</span> <span class="mf">0.</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">relevant_retrieved</span> <span class="o">/</span> <span class="n">relevant</span></div></div>
+
+
+<span class="n">DFS_NAME</span> <span class="o">=</span> <span class="s1">&#39;F[precision|recall]&#39;</span>
+<span class="n">DFS_PRECISION_RETRIEVED</span> <span class="o">=</span> <span class="s1">&#39;retrieved&#39;</span>
+<span class="n">DFS_RECALL_RELEVANT</span> <span class="o">=</span> <span class="s1">&#39;relevant&#39;</span>
+<span class="n">DFS_RELEVANT_RETRIEVED</span> <span class="o">=</span> <span class="s1">&#39;relevant retrieved&#39;</span>
+
+
+<div class="viewcode-block" id="DetectionPrecisionRecallFMeasure"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.detection.DetectionPrecisionRecallFMeasure">[docs]</a><span class="k">class</span> <span class="nc">DetectionPrecisionRecallFMeasure</span><span class="p">(</span><span class="n">UEMSupportMixin</span><span class="p">,</span> <span class="n">BaseMetric</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute detection precision and recall, and return their F-score</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    collar : float, optional</span>
+<span class="sd">        Duration (in seconds) of collars removed from evaluation around</span>
+<span class="sd">        boundaries of reference segments (one half before, one half after).</span>
+<span class="sd">    skip_overlap : bool, optional</span>
+<span class="sd">        Set to True to not evaluate overlap regions.</span>
+<span class="sd">        Defaults to False (i.e. keep overlap regions).</span>
+<span class="sd">    beta : float, optional</span>
+<span class="sd">        When beta &gt; 1, greater importance is given to recall.</span>
+<span class="sd">        When beta &lt; 1, greater importance is given to precision.</span>
+<span class="sd">        Defaults to 1.</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    pyannote.metrics.detection.DetectionPrecision</span>
+<span class="sd">    pyannote.metrics.detection.DetectionRecall</span>
+<span class="sd">    pyannote.metrics.base.f_measure</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">DFS_NAME</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">DFS_PRECISION_RETRIEVED</span><span class="p">,</span> <span class="n">DFS_RECALL_RELEVANT</span><span class="p">,</span> <span class="n">DFS_RELEVANT_RETRIEVED</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">beta</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DetectionPrecisionRecallFMeasure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collar</span> <span class="o">=</span> <span class="n">collar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span> <span class="o">=</span> <span class="n">skip_overlap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">beta</span>
+
+<div class="viewcode-block" id="DetectionPrecisionRecallFMeasure.compute_components"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.detection.DetectionPrecisionRecallFMeasure.compute_components">[docs]</a>    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uemify</span><span class="p">(</span>
+            <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
+            <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span><span class="p">,</span>
+            <span class="n">returns_uem</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">support</span><span class="p">()</span>
+        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">support</span><span class="p">()</span>
+
+        <span class="n">reference_</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">support</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
+        <span class="n">hypothesis_</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">support</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
+
+        <span class="c1"># Better to recompute everything from scratch instead of calling the</span>
+        <span class="c1"># DetectionPrecision &amp; DetectionRecall classes (we skip one of the loop</span>
+        <span class="c1"># that computes the amount of true positives).</span>
+        <span class="n">true_positive</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">reference</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">):</span>
+            <span class="n">true_positive</span> <span class="o">+=</span> <span class="p">(</span><span class="n">r</span> <span class="o">&amp;</span> <span class="n">h</span><span class="p">)</span><span class="o">.</span><span class="n">duration</span>
+
+        <span class="n">false_positive</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">r_</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">reference_</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">):</span>
+            <span class="n">false_positive</span> <span class="o">+=</span> <span class="p">(</span><span class="n">r_</span> <span class="o">&amp;</span> <span class="n">h</span><span class="p">)</span><span class="o">.</span><span class="n">duration</span>
+
+        <span class="n">false_negative</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">h_</span> <span class="ow">in</span> <span class="n">reference</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">hypothesis_</span><span class="p">):</span>
+            <span class="n">false_negative</span> <span class="o">+=</span> <span class="p">(</span><span class="n">r</span> <span class="o">&amp;</span> <span class="n">h_</span><span class="p">)</span><span class="o">.</span><span class="n">duration</span>
+
+        <span class="n">detail</span> <span class="o">=</span> <span class="p">{</span><span class="n">DFS_PRECISION_RETRIEVED</span><span class="p">:</span> <span class="n">true_positive</span> <span class="o">+</span> <span class="n">false_positive</span><span class="p">,</span>
+                  <span class="n">DFS_RECALL_RELEVANT</span><span class="p">:</span> <span class="n">true_positive</span> <span class="o">+</span> <span class="n">false_negative</span><span class="p">,</span>
+                  <span class="n">DFS_RELEVANT_RETRIEVED</span><span class="p">:</span> <span class="n">true_positive</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">detail</span></div>
+
+<div class="viewcode-block" id="DetectionPrecisionRecallFMeasure.compute_metric"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.detection.DetectionPrecisionRecallFMeasure.compute_metric">[docs]</a>    <span class="k">def</span> <span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">):</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_metrics</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="n">detail</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+    <span class="k">def</span> <span class="nf">compute_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">detail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">accumulated_</span> <span class="k">if</span> <span class="n">detail</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">detail</span>
+        <span class="n">precision_retrieved</span> <span class="o">=</span> <span class="n">detail</span><span class="p">[</span><span class="n">DFS_PRECISION_RETRIEVED</span><span class="p">]</span>
+        <span class="n">recall_relevant</span> <span class="o">=</span> <span class="n">detail</span><span class="p">[</span><span class="n">DFS_RECALL_RELEVANT</span><span class="p">]</span>
+        <span class="n">relevant_retrieved</span> <span class="o">=</span> <span class="n">detail</span><span class="p">[</span><span class="n">DFS_RELEVANT_RETRIEVED</span><span class="p">]</span>
+
+        <span class="c1"># Special cases : precision</span>
+        <span class="k">if</span> <span class="n">precision_retrieved</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="n">precision</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">precision</span> <span class="o">=</span> <span class="n">relevant_retrieved</span> <span class="o">/</span> <span class="n">precision_retrieved</span>
+
+        <span class="c1"># Special cases : recall</span>
+        <span class="k">if</span> <span class="n">recall_relevant</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">relevant_retrieved</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">recall</span> <span class="o">=</span> <span class="mf">1.</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">recall</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">recall</span> <span class="o">=</span> <span class="n">relevant_retrieved</span> <span class="o">/</span> <span class="n">recall_relevant</span>
+
+        <span class="k">return</span> <span class="n">precision</span><span class="p">,</span> <span class="n">recall</span><span class="p">,</span> <span class="n">f_measure</span><span class="p">(</span><span class="n">precision</span><span class="p">,</span> <span class="n">recall</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
