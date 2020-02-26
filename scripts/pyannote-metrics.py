@@ -116,6 +116,7 @@ from pyannote.metrics.detection import DetectionAccuracy
 from pyannote.metrics.detection import DetectionRecall
 from pyannote.metrics.detection import DetectionPrecision
 
+
 from pyannote.metrics.segmentation import SegmentationPurity
 from pyannote.metrics.segmentation import SegmentationCoverage
 from pyannote.metrics.segmentation import SegmentationPrecision
@@ -215,6 +216,7 @@ def process_one(item, hypotheses=None, metrics=None):
     return {key: metric(reference, hypothesis, uem=uem)
             for key, metric in metrics.items()}
 
+
 def get_reports(protocol, subset, hypotheses, metrics):
 
     process = functools.partial(process_one,
@@ -243,11 +245,13 @@ def get_reports(protocol, subset, hypotheses, metrics):
     return {key: metric.report(display=False)
             for key, metric in metrics.items()}
 
+
 def reindex(report):
     """Reindex report so that 'TOTAL' is the last row"""
     index = list(report.index)
     i = index.index('TOTAL')
     return report.reindex(index[:i] + index[i+1:] + ['TOTAL'])
+
 
 def detection(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
 
