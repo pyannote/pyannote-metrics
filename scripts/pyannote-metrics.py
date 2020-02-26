@@ -255,9 +255,7 @@ def reindex(report):
 
 def detection(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
 
-    options = {'collar': collar,
-               'skip_overlap': skip_overlap,
-               'parallel': True}
+    options = {'collar': collar, 'skip_overlap': skip_overlap}
 
     metrics = {
         'error': DetectionErrorRate(**options),
@@ -294,7 +292,7 @@ def detection(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
 
 def segmentation(protocol, subset, hypotheses, tolerance=0.5):
 
-    options = {'tolerance': tolerance, 'parallel': True}
+    options = {'tolerance': tolerance}
 
     metrics = {'coverage': SegmentationCoverage(**options),
                'purity': SegmentationPurity(**options),
@@ -325,9 +323,7 @@ def segmentation(protocol, subset, hypotheses, tolerance=0.5):
 def diarization(protocol, subset, hypotheses, greedy=False,
                 collar=0.0, skip_overlap=False):
 
-    options = {'collar': collar,
-               'skip_overlap': skip_overlap,
-               'parallel': True}
+    options = {'collar': collar, 'skip_overlap': skip_overlap}
 
     metrics = {
         'purity': DiarizationPurity(**options),
@@ -368,9 +364,7 @@ def diarization(protocol, subset, hypotheses, greedy=False,
 def identification(protocol, subset, hypotheses,
                    collar=0.0, skip_overlap=False):
 
-    options = {'collar': collar,
-               'skip_overlap': skip_overlap,
-               'parallel': True}
+    options = {'collar': collar, 'skip_overlap': skip_overlap}
 
     metrics = {
         'error': IdentificationErrorRate(**options),

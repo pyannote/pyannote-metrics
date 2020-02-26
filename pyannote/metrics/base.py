@@ -30,16 +30,14 @@
 import scipy.stats
 import pandas as pd
 import numpy as np
+import multiprocessing
+
+lock = multiprocessing.RLock()
 
 
 class BaseMetric(object):
     """
     :class:`BaseMetric` is the base class for most pyannote evaluation metrics.
-
-    Parameters
-    ----------
-    parallel : bool, optional
-        Defaults to True
 
     Attributes
     ----------
@@ -59,9 +57,8 @@ class BaseMetric(object):
             cls.__name__ + " is missing a 'metric_components' class method. "
             "It should return the list of names of metric components.")
 
-    def __init__(self, parallel=False, **kwargs):
+    def __init__(self, **kwargs):
         super(BaseMetric, self).__init__()
-        self.parallel = parallel
         self.metric_name_ = self.__class__.metric_name()
         self.components_ = set(self.__class__.metric_components())
         self.reset()
@@ -71,17 +68,13 @@ class BaseMetric(object):
 
     def reset(self):
         """Reset accumulated components and metric values"""
-        if self.parallel:
-            from pyannote.metrics import manager_
-            self.accumulated_ = manager_.dict()
-            self.results_ = manager_.list()
-            self.uris_ = manager_.dict()
-        else:
+
+        with lock:
             self.accumulated_ = dict()
             self.results_ = list()
             self.uris_ = dict()
-        for value in self.components_:
-            self.accumulated_[value] = 0.
+            for value in self.components_:
+                self.accumulated_[value] = 0.
 
     def __get_name(self):
         return self.__class__.metric_name()
@@ -117,21 +110,23 @@ class BaseMetric(object):
         # compute rate based on components
         components[self.metric_name_] = self.compute_metric(components)
 
-        # keep track of this computation
-        uri = reference.uri
-        if uri is None:
-            uri = "???"
-        if uri not in self.uris_:
-            self.uris_[uri] = 1
-        else:
-            self.uris_[uri] += 1
-            uri = uri + ' #{0:d}'.format(self.uris_[uri])
+        with lock:
 
-        self.results_.append((uri, components))
+            # keep track of this computation
+            uri = reference.uri
+            if uri is None:
+                uri = "???"
+            if uri not in self.uris_:
+                self.uris_[uri] = 1
+            else:
+                self.uris_[uri] += 1
+                uri = uri + ' #{0:d}'.format(self.uris_[uri])
 
-        # accumulate components
-        for name in self.components_:
-            self.accumulated_[name] += components[name]
+            self.results_.append((uri, components))
+
+            # accumulate components
+            for name in self.components_:
+                self.accumulated_[name] += components[name]
 
         if detailed:
             return components

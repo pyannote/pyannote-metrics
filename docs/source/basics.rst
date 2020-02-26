@@ -138,7 +138,7 @@ Parallel processing
 -------------------
 
 When you have lots of files to evaluate, and you still want to accumulate them internally, they can be processed in parallel.
-`pyannote.metrics` metrics initialized with `parallel=True` are thread-safe. See the code of `pyannote.metrics.py` command line tool for inspiration.
+`pyannote.metrics` metrics initialized are thread-safe.
 
 .. note::
 
