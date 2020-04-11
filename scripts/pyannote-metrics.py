@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2017-2018 CNRS
+# Copyright (c) 2017-2019 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,16 +24,17 @@
 # SOFTWARE.
 
 # AUTHORS
-# Hervé BREDIN - http://herve.niderb.fr
+# Herve BREDIN - http://herve.niderb.fr
 
 """
 Evaluation
 
 Usage:
-  pyannote-metrics.py detection [--subset=<subset> --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.mdtm>
-  pyannote-metrics.py segmentation [--subset=<subset> --tolerance=<seconds>] <database.task.protocol> <hypothesis.mdtm>
-  pyannote-metrics.py diarization [--subset=<subset> --greedy --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.mdtm>
-  pyannote-metrics.py identification [--subset=<subset> --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.mdtm>
+  pyannote-metrics.py detection [--subset=<subset> --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.rttm>
+  pyannote-metrics.py segmentation [--subset=<subset> --tolerance=<seconds>] <database.task.protocol> <hypothesis.rttm>
+  pyannote-metrics.py overlap [--subset=<subset> --collar=<seconds>] <database.task.protocol> <hypothesis.rttm>
+  pyannote-metrics.py diarization [--subset=<subset> --greedy --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.rttm>
+  pyannote-metrics.py identification [--subset=<subset> --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.rttm>
   pyannote-metrics.py spotting [--subset=<subset> --latency=<seconds>... --filter=<expression>...] <database.task.protocol> <hypothesis.json>
   pyannote-metrics.py -h | --help
   pyannote-metrics.py --version
@@ -53,16 +54,14 @@ Options:
   -h --help                  Show this screen.
   --version                  Show version.
 
-All modes but "spotting" expect hypothesis using the MDTM file format.
-MDTM files contain one line per speech turn, using the following convention:
+All modes but "spotting" expect hypothesis using the RTTM file format.
+RTTM files contain one line per speech turn, using the following convention:
 
-<uri> 1 <start_time> <duration> speaker <confidence> <gender> <speaker_id>
+SPEAKER {uri} 1 {start_time} {duration} <NA> <NA> {speaker_id} <NA> <NA>
 
     * uri: file identifier (as given by pyannote.database protocols)
     * start_time: speech turn start time in seconds
     * duration: speech turn duration in seconds
-    * confidence: confidence score (can be anything, not used for now)
-    * gender: speaker gender (can be anything, not used for now)
     * speaker_id: speaker identifier
 
 "spotting" mode expects hypothesis using the following JSON file format.
@@ -104,8 +103,9 @@ import pandas as pd
 from tabulate import tabulate
 # import multiprocessing as mp
 
-# use for parsing hypothesis file
-from pyannote.parser import MagicParser
+from pyannote.core import Timeline
+from pyannote.core import Annotation
+from pyannote.database.util import load_rttm
 
 # evaluation protocols
 from pyannote.database import get_protocol
@@ -115,6 +115,7 @@ from pyannote.metrics.detection import DetectionErrorRate
 from pyannote.metrics.detection import DetectionAccuracy
 from pyannote.metrics.detection import DetectionRecall
 from pyannote.metrics.detection import DetectionPrecision
+
 
 from pyannote.metrics.segmentation import SegmentationPurity
 from pyannote.metrics.segmentation import SegmentationCoverage
@@ -140,31 +141,73 @@ def showwarning(message, category, *args, **kwargs):
 
 warnings.showwarning = showwarning
 
-def get_hypothesis(hypotheses, item):
 
-    uri = item['uri']
+def to_overlap(current_file: dict) -> Annotation:
+    """Get overlapped speech reference annotation
 
-    if uri in hypotheses.uris:
-        hypothesis = hypotheses(uri=uri)
-    else:
-        # if the exact 'uri' is not available in hypothesis,
-        # look for matching substring
-        tmp_uri = [u for u in hypotheses.uris if u in uri]
-        if len(tmp_uri) == 0:
-            msg = 'Could not find hypothesis for file "{uri}".'
-            raise ValueError(msg.format(uri=uri))
-        elif len(tmp_uri) > 1:
-            msg = 'Found too many hypotheses matching file "{uri}" ({uris}).'
-            raise ValueError(msg.format(uri=uri, uris=tmp_uri))
-        else:
-            tmp_uri = tmp_uri[0]
-            msg = 'Could not find hypothesis for file "{uri}"; using "{tmp_uri}" instead.'
-            warnings.warn(msg.format(tmp_uri=tmp_uri, uri=uri))
+    Parameters
+    ----------
+    current_file : `dict`
+        File yielded by pyannote.database protocols.
 
-        hypothesis = hypotheses(uri=tmp_uri)
+    Returns
+    -------
+    overlap : `pyannote.core.Annotation`
+        Overlapped speech reference.
+    """
+
+    reference = current_file['annotation']
+    overlap = Timeline(uri=reference.uri)
+    for (s1, t1), (s2, t2) in reference.co_iter(reference):
+        l1 = reference[s1, t1]
+        l2 = reference[s2, t2]
+        if l1 == l2:
+            continue
+        overlap.add(s1 & s2)
+    return overlap.support().to_annotation()
+
+
+def get_hypothesis(hypotheses, current_file):
+    """Get hypothesis for given file
+
+    Parameters
+    ----------
+    hypotheses : `dict`
+        Speaker diarization hypothesis provided by `load_rttm`.
+    current_file : `dict`
+        File description as given by pyannote.database protocols.
+
+    Returns
+    -------
+    hypothesis : `pyannote.core.Annotation`
+        Hypothesis corresponding to `current_file`.
+    """
+
+    uri = current_file['uri']
+
+    if uri in hypotheses:
+        return hypotheses[uri]
+
+    # if the exact 'uri' is not available in hypothesis,
+    # look for matching substring
+    tmp_uri = [u for u in hypotheses if u in uri]
+
+    # no matching speech turns. return empty annotation
+    if len(tmp_uri) == 0:
+        msg = f'Could not find hypothesis for file "{uri}"; assuming empty file.'
+        warnings.warn(msg)
+        return Annotation(uri=uri, modality='speaker')
+
+    # exactly one matching file. return it
+    if len(tmp_uri) == 1:
+        hypothesis = hypotheses[tmp_uri[0]]
         hypothesis.uri = uri
+        return hypothesis
 
-    return hypothesis
+    # more that one matching file. error.
+    msg = f'Found too many hypotheses matching file "{uri}" ({uris}).'
+    raise ValueError(msg.format(uri=uri, uris=tmp_uri))
+
 
 def process_one(item, hypotheses=None, metrics=None):
     reference = item['annotation']
@@ -172,6 +215,7 @@ def process_one(item, hypotheses=None, metrics=None):
     uem = get_annotated(item)
     return {key: metric(reference, hypothesis, uem=uem)
             for key, metric in metrics.items()}
+
 
 def get_reports(protocol, subset, hypotheses, metrics):
 
@@ -201,11 +245,13 @@ def get_reports(protocol, subset, hypotheses, metrics):
     return {key: metric.report(display=False)
             for key, metric in metrics.items()}
 
+
 def reindex(report):
     """Reindex report so that 'TOTAL' is the last row"""
     index = list(report.index)
     i = index.index('TOTAL')
     return report.reindex(index[:i] + index[i+1:] + ['TOTAL'])
+
 
 def detection(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
 
@@ -513,16 +559,27 @@ if __name__ == '__main__':
 
     arguments = docopt(__doc__, version='Evaluation')
 
-    # protocol
-    protocol_name = arguments['<database.task.protocol>']
-    protocol = get_protocol(protocol_name, progress=True)
-
-    # subset (train, development, or test)
-    subset = arguments['--subset']
-
     collar = float(arguments['--collar'])
     skip_overlap = arguments['--skip-overlap']
     tolerance = float(arguments['--tolerance'])
+
+    # protocol
+    protocol_name = arguments['<database.task.protocol>']
+
+    preprocessors = dict()
+    if arguments['overlap']:
+        if skip_overlap:
+            msg = (
+                'Option --skip-overlap is not supported '
+                'when evaluating overlapped speech detection.')
+            sys.exit(msg)
+        preprocessors = {'annotation': to_overlap}
+
+    protocol = get_protocol(protocol_name, progress=True,
+                            preprocessors=preprocessors)
+
+    # subset (train, development, or test)
+    subset = arguments['--subset']
 
     if arguments['spotting']:
 
@@ -552,11 +609,27 @@ if __name__ == '__main__':
 
         sys.exit(0)
 
-    # hypothesis
-    hypothesis_mdtm = arguments['<hypothesis.mdtm>']
-    hypotheses = MagicParser().read(hypothesis_mdtm, modality='speaker')
+    hypothesis_rttm = arguments['<hypothesis.rttm>']
+
+    try:
+        hypotheses = load_rttm(hypothesis_rttm)
+
+    except FileNotFoundError:
+        msg = f'Could not find file {hypothesis_rttm}.'
+        sys.exit(msg)
+
+    except:
+        msg = (
+            f'Failed to load {hypothesis_rttm}, please check its format '
+            f'(only RTTM files are supported).'
+        )
+        sys.exit(msg)
 
     if arguments['detection']:
+        detection(protocol, subset, hypotheses,
+                  collar=collar, skip_overlap=skip_overlap)
+
+    if arguments['overlap']:
         detection(protocol, subset, hypotheses,
                   collar=collar, skip_overlap=skip_overlap)
 

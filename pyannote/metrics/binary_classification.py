@@ -26,13 +26,12 @@
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
 
-
-import sklearn.metrics
 import numpy as np
+from collections import Counter
+import sklearn.metrics
 from sklearn.base import BaseEstimator
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.model_selection._split import _CVIterableWrapper
-from collections import Counter
 
 
 def det_curve(y_true, scores, distances=False):

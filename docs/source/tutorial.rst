@@ -31,6 +31,7 @@ Several evaluation metrics are available, including the diarization error rate:
 
 
 .. ipython::
+   :okwarning:
 
    In [13]: from pyannote.metrics.diarization import DiarizationErrorRate
 

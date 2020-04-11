@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2017 CNRS
+# Copyright (c) 2012-2019 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,11 +26,8 @@
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
 
-from __future__ import unicode_literals
-
 import numpy as np
-from munkres import Munkres
-import networkx as nx
+from scipy.optimize import linear_sum_assignment
 
 MATCH_CORRECT = 'correct'
 MATCH_CONFUSION = 'confusion'
@@ -47,10 +44,6 @@ class LabelMatcher(object):
     .match() -- ie return True if two IDs match and False
     otherwise.
     """
-
-    def __init__(self):
-        super(LabelMatcher, self).__init__()
-        self._munkres = Munkres()
 
     def match(self, rlabel, hlabel):
         """
@@ -109,7 +102,7 @@ class LabelMatcher(object):
         if N == 0:
             return (counts, details)
 
-        # this is to make sure rlables and hlabels are lists
+        # this is to make sure rlabels and hlabels are lists
         # as we will access them later by index
         rlabels = list(rlabels)
         hlabels = list(hlabels)
@@ -122,11 +115,8 @@ class LabelMatcher(object):
                 match[r, h] = self.match(rlabel, hlabel)
 
         # find one-to-one mapping that maximize total number of matches
-        # using the Hungarian algorithm
-        mapping = self._munkres.compute(1 - match)
-
-        # loop on matches
-        for r, h in mapping:
+        # using the Hungarian algorithm and computes error accordingly
+        for r, h in zip(*linear_sum_assignment(~match)):
 
             # hypothesis label is matched with unexisting reference label
             # ==> this is a false alarm
@@ -160,64 +150,15 @@ class LabelMatcher(object):
 
 class HungarianMapper(object):
 
-    def __init__(self):
-        super(HungarianMapper, self).__init__()
-        self._munkres = Munkres()
-
-    def _helper(self, A, B):
-
-        # transpose matrix in case A has more labels than B
-        Na = len(A.labels())
-        Nb = len(B.labels())
-        if Na > Nb:
-            return {a: b for (b, a) in self._helper(B, A).items()}
-
-        matrix = A * B
-        mapping = self._munkres.compute(matrix.max() - matrix)
-
-        return dict(
-            (matrix.coords['i'][i].item(), matrix.coords['j'][j].item())
-            for i, j in mapping if matrix[i, j] > 0)
-
     def __call__(self, A, B):
+        mapping = {}
 
-        # build bi-partite cooccurrence graph
-        # ------------------------------------
+        cooccurrence = A * B
+        a_labels, b_labels = A.labels(), B.labels()
 
-        # labels from A are linked with labels from B
-        # if and only if the co-occur
-        cooccurrence_graph = nx.Graph()
-
-        # for a_label in A.labels():
-        #     a = ('A', a_label)
-        #     cooccurrence_graph.add_node(a)
-        #
-        # for b_label in B.labels():
-        #     b = ('B', b_label)
-        #     cooccurrence_graph.add_node(b)
-
-        for a_track, b_track in A.co_iter(B):
-            a = ('A', A[a_track])
-            b = ('B', B[b_track])
-            cooccurrence_graph.add_edge(a, b)
-
-        # divide & conquer
-        # ------------------
-
-        # split a (potentially large) association problem into smaller ones
-
-        mapping = dict()
-
-        for component in nx.connected_components(cooccurrence_graph):
-
-            # extract smaller problems
-            a_labels = [label for (src, label) in component if src == 'A']
-            b_labels = [label for (src, label) in component if src == 'B']
-            sub_A = A.subset(a_labels)
-            sub_B = B.subset(b_labels)
-
-            local_mapping = self._helper(sub_A, sub_B)
-            mapping.update(local_mapping)
+        for a, b in zip(*linear_sum_assignment(-cooccurrence)):
+            if cooccurrence[a, b] > 0:
+                mapping[a_labels[a]] = b_labels[b]
 
         return mapping
 
@@ -225,29 +166,21 @@ class HungarianMapper(object):
 class GreedyMapper(object):
 
     def __call__(self, A, B):
-
-        matrix = A * B
-        Na, Nb = matrix.shape
-        N = min(Na, Nb)
-
         mapping = {}
 
-        for i in range(N):
+        cooccurrence = A * B
+        Na, Nb = cooccurrence.shape
+        a_labels, b_labels = A.labels(), B.labels()
 
-            ab = np.argmax(matrix.data)
-            a = ab // (Nb-i)
-            b = ab % (Nb-i)
+        for i in range(min(Na, Nb)):
+            a, b = np.unravel_index(np.argmax(cooccurrence), (Na, Nb))
 
-            cost = matrix[a, b].item()
+            if cooccurrence[a, b] > 0:
+                mapping[a_labels[a]] = b_labels[b]
+                cooccurrence[a, :] = 0.
+                cooccurrence[:, b] = 0.
+                continue
 
-            if cost == 0:
-                break
-
-            alabel = matrix.coords['i'][a].item()
-            blabel = matrix.coords['j'][b].item()
-
-            mapping[alabel] = blabel
-
-            matrix = matrix.drop([alabel], dim='i').drop([blabel], dim='j')
+            break
 
         return mapping

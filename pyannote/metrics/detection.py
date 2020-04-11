@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2017 CNRS
+# Copyright (c) 2012-2020 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,11 +25,9 @@
 
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
+# Marvin LAVECHIN
 
-from __future__ import unicode_literals
-
-from pyannote.core import Annotation, Timeline
-from .base import BaseMetric
+from .base import BaseMetric, f_measure
 from .utils import UEMSupportMixin
 
 DER_NAME = 'detection error rate'
@@ -349,3 +347,111 @@ class DetectionRecall(DetectionErrorRate):
                 return 0.
         else:
             return relevant_retrieved / relevant
+
+
+DFS_NAME = 'F[precision|recall]'
+DFS_PRECISION_RETRIEVED = 'retrieved'
+DFS_RECALL_RELEVANT = 'relevant'
+DFS_RELEVANT_RETRIEVED = 'relevant retrieved'
+
+
+class DetectionPrecisionRecallFMeasure(UEMSupportMixin, BaseMetric):
+    """Compute detection precision and recall, and return their F-score
+
+    Parameters
+    ----------
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments (one half before, one half after).
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
+    beta : float, optional
+        When beta > 1, greater importance is given to recall.
+        When beta < 1, greater importance is given to precision.
+        Defaults to 1.
+
+    See also
+    --------
+    pyannote.metrics.detection.DetectionPrecision
+    pyannote.metrics.detection.DetectionRecall
+    pyannote.metrics.base.f_measure
+
+    """
+
+    @classmethod
+    def metric_name(cls):
+        return DFS_NAME
+
+    @classmethod
+    def metric_components(cls):
+        return [DFS_PRECISION_RETRIEVED, DFS_RECALL_RELEVANT, DFS_RELEVANT_RETRIEVED]
+
+    def __init__(self, collar=0.0, skip_overlap=False,
+                 beta=1., **kwargs):
+        super(DetectionPrecisionRecallFMeasure, self).__init__(**kwargs)
+        self.collar = collar
+        self.skip_overlap = skip_overlap
+        self.beta = beta
+
+    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+
+        reference, hypothesis, uem = self.uemify(
+            reference, hypothesis, uem=uem,
+            collar=self.collar, skip_overlap=self.skip_overlap,
+            returns_uem=True)
+
+        reference = reference.get_timeline(copy=False).support()
+        hypothesis = hypothesis.get_timeline(copy=False).support()
+
+        reference_ = reference.gaps(support=uem)
+        hypothesis_ = hypothesis.gaps(support=uem)
+
+        # Better to recompute everything from scratch instead of calling the
+        # DetectionPrecision & DetectionRecall classes (we skip one of the loop
+        # that computes the amount of true positives).
+        true_positive = 0.
+        for r, h in reference.co_iter(hypothesis):
+            true_positive += (r & h).duration
+
+        false_positive = 0.
+        for r_, h in reference_.co_iter(hypothesis):
+            false_positive += (r_ & h).duration
+
+        false_negative = 0.
+        for r, h_ in reference.co_iter(hypothesis_):
+            false_negative += (r & h_).duration
+
+        detail = {DFS_PRECISION_RETRIEVED: true_positive + false_positive,
+                  DFS_RECALL_RELEVANT: true_positive + false_negative,
+                  DFS_RELEVANT_RETRIEVED: true_positive}
+
+        return detail
+
+    def compute_metric(self, detail):
+        _, _, value = self.compute_metrics(detail=detail)
+        return value
+
+    def compute_metrics(self, detail=None):
+
+        detail = self.accumulated_ if detail is None else detail
+        precision_retrieved = detail[DFS_PRECISION_RETRIEVED]
+        recall_relevant = detail[DFS_RECALL_RELEVANT]
+        relevant_retrieved = detail[DFS_RELEVANT_RETRIEVED]
+
+        # Special cases : precision
+        if precision_retrieved == 0.:
+            precision = 1
+        else:
+            precision = relevant_retrieved / precision_retrieved
+
+        # Special cases : recall
+        if recall_relevant == 0.:
+            if relevant_retrieved == 0:
+                recall = 1.
+            else:
+                recall = 0.
+        else:
+            recall = relevant_retrieved / recall_relevant
+
+        return precision, recall, f_measure(precision, recall, beta=self.beta)

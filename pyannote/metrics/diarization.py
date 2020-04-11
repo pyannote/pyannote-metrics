@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2017 CNRS
+# Copyright (c) 2012-2019 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,12 +26,9 @@
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
 
-from __future__ import unicode_literals
-
 """Metrics for diarization"""
 
 import numpy as np
-from xarray import DataArray
 
 from .matcher import HungarianMapper
 from .matcher import GreedyMapper
@@ -127,8 +124,7 @@ class DiarizationErrorRate(IdentificationErrorRate):
             reference, hypothesis = self.uemify(reference, hypothesis, uem=uem)
 
         # call hungarian mapper
-        mapping = self.mapper_(hypothesis, reference)
-        return mapping
+        return self.mapper_(hypothesis, reference)
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
 
@@ -143,10 +139,10 @@ class DiarizationErrorRate(IdentificationErrorRate):
         # might have an impact on the search for the optimal mapping.
 
         # make sure reference only contains string labels ('A', 'B', ...)
-        reference = reference.anonymize_labels(generator='string')
+        reference = reference.rename_labels(generator='string')
 
         # make sure hypothesis only contains integer labels (1, 2, ...)
-        hypothesis = hypothesis.anonymize_labels(generator='int')
+        hypothesis = hypothesis.rename_labels(generator='int')
 
         # optimal (int --> str) mapping
         mapping = self.optimal_mapping(reference, hypothesis)
@@ -154,7 +150,7 @@ class DiarizationErrorRate(IdentificationErrorRate):
         # compute identification error rate based on mapped hypothesis
         # NOTE that collar is set to 0.0 because 'uemify' has already
         # been applied (same reason for setting skip_overlap to False)
-        mapped = hypothesis.translate(mapping)
+        mapped = hypothesis.rename_labels(mapping=mapping)
         return super(DiarizationErrorRate, self)\
             .compute_components(reference, mapped, uem=uem,
                                 collar=0.0, skip_overlap=False,
@@ -253,10 +249,10 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
         # might have an impact on the search for the greedy mapping.
 
         # make sure reference only contains string labels ('A', 'B', ...)
-        reference = reference.anonymize_labels(generator='string')
+        reference = reference.rename_labels(generator='string')
 
         # make sure hypothesis only contains integer labels (1, 2, ...)
-        hypothesis = hypothesis.anonymize_labels(generator='int')
+        hypothesis = hypothesis.rename_labels(generator='int')
 
         # greedy (int --> str) mapping
         mapping = self.greedy_mapping(reference, hypothesis)
@@ -264,11 +260,161 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
         # compute identification error rate based on mapped hypothesis
         # NOTE that collar is set to 0.0 because 'uemify' has already
         # been applied (same reason for setting skip_overlap to False)
-        mapped = hypothesis.translate(mapping)
+        mapped = hypothesis.rename_labels(mapping=mapping)
         return super(GreedyDiarizationErrorRate, self)\
             .compute_components(reference, mapped, uem=uem,
                                 collar=0.0, skip_overlap=False,
                                 **kwargs)
+
+
+JER_NAME = 'jaccard error rate'
+JER_SPEAKER_ERROR = 'speaker error'
+JER_SPEAKER_COUNT = 'speaker count'
+
+
+class JaccardErrorRate(DiarizationErrorRate):
+    """Jaccard error rate
+
+    Reference
+    ---------
+    Second DIHARD Challenge Evaluation Plan. Version 1.1
+    N. Ryant, K. Church, C. Cieri, A. Cristia, J. Du, S. Ganapathy, M. Liberman
+    https://coml.lscp.ens.fr/dihard/2019/second_dihard_eval_plan_v1.1.pdf
+
+    "The Jaccard error rate is based on the Jaccard index, a similarity measure
+    used to evaluate the output of image segmentation systems. An optimal
+    mapping between reference and system speakers is determined and for each
+    pair the Jaccard index is computed. The Jaccard error rate is then defined
+    as 1 minus the average of these scores. While similar to DER, it weights
+    every speaker’s contribution equally, regardless of how much speech they
+    actually produced.
+
+    More concretely, assume we have N reference speakers and M system speakers.
+    An optimal mapping between speakers is determined using the Hungarian
+    algorithm so that each reference speaker is paired with at most one system
+    speaker and each system speaker with at most one reference speaker. Then,
+    for each reference speaker ref the speaker-specific Jaccard error rate
+    JERref is computed as JERref = (FA + MISS) / TOTAL where
+        * TOTAL is the duration of the union of reference and system speaker
+        segments; if the reference speaker was not paired with a system
+        speaker, it is the duration of all reference speaker segments
+        * FA is the total system speaker time not attributed to the reference
+        speaker; if the reference speaker was not paired with a system speaker,
+        it is 0
+        * MISS is the total reference speaker time not attributed to the system
+        speaker; if the reference speaker was not paired with a system speaker,
+        it is equal to TOTAL
+
+    The Jaccard error rate then is the average of the speaker specific Jaccard
+    error rates.
+
+    JER and DER are highly correlated with JER typically being higher,
+    especially in recordings where one or more speakers is particularly
+    dominant. Where it tends to track DER is in outliers where the diarization
+    is especially bad, resulting in one or more unmapped system speakers whose
+    speech is not then penalized. In these cases, where DER can easily exceed
+    500%, JER will never exceed 100% and may be far lower if the reference
+    speakers are handled correctly."
+
+    Parameters
+    ----------
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments.
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
+
+    Usage
+    -----
+    >>> metric = JaccardErrorRate()
+    >>> reference = Annotation(...)           # doctest: +SKIP
+    >>> hypothesis = Annotation(...)          # doctest: +SKIP
+    >>> jer = metric(reference, hypothesis)   # doctest: +SKIP
+
+    """
+
+    @classmethod
+    def metric_name(cls):
+        return JER_NAME
+
+    @classmethod
+    def metric_components(cls):
+        return [
+            JER_SPEAKER_COUNT,
+            JER_SPEAKER_ERROR,
+        ]
+
+    def __init__(self, collar=0.0, skip_overlap=False, **kwargs):
+        super().__init__(
+            collar=collar, skip_overlap=skip_overlap, **kwargs)
+        self.mapper_ = HungarianMapper()
+
+    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+
+        # crop reference and hypothesis to evaluated regions (uem)
+        # remove collars around reference segment boundaries
+        # remove overlap regions (if requested)
+        reference, hypothesis, uem = self.uemify(
+            reference, hypothesis, uem=uem,
+            collar=self.collar, skip_overlap=self.skip_overlap,
+            returns_uem=True)
+        # NOTE that this 'uemification' must be done here because it
+        # might have an impact on the search for the optimal mapping.
+
+        # make sure reference only contains string labels ('A', 'B', ...)
+        reference = reference.rename_labels(generator='string')
+
+        # make sure hypothesis only contains integer labels (1, 2, ...)
+        hypothesis = hypothesis.rename_labels(generator='int')
+
+        # optimal (str --> int) mapping
+        mapping = self.optimal_mapping(hypothesis, reference)
+
+        detail = self.init_components()
+
+        for ref_speaker in reference.labels():
+
+            hyp_speaker = mapping.get(ref_speaker, None)
+
+            if hyp_speaker is None:
+                # if the reference speaker was not paired with a system speaker
+                # [total] is the duration of all reference speaker segments
+
+                # if the reference speaker was not paired with a system speaker
+                # [fa] is 0
+
+                # if the reference speaker was not paired with a system speaker
+                # [miss] is equal to total
+
+                # overall: jer = (fa + miss) / total = (0 + total) / total = 1
+                jer = 1.
+
+            else:
+                # total is the duration of the union of reference and system
+                # speaker segments
+                r = reference.label_timeline(ref_speaker)
+                h = hypothesis.label_timeline(hyp_speaker)
+                total = r.union(h).support().duration()
+
+                # fa is the total system speaker time not attributed to the
+                # reference speaker
+                fa = h.duration() - h.crop(r).duration()
+
+                # miss is the total reference speaker time not attributed to
+                # the system speaker
+                miss = r.duration() - r.crop(h).duration()
+
+                jer = (fa + miss) / total
+
+            detail[JER_SPEAKER_COUNT] += 1
+            detail[JER_SPEAKER_ERROR] += jer
+
+        return detail
+
+    def compute_metric(self, detail):
+        return detail[JER_SPEAKER_ERROR] / detail[JER_SPEAKER_COUNT]
+
 
 PURITY_NAME = 'purity'
 PURITY_TOTAL = 'total'
@@ -324,17 +470,17 @@ class DiarizationPurity(UEMSupportMixin, BaseMetric):
         matrix = reference * hypothesis
 
         # duration of largest class in each cluster
-        largest = matrix.max(dim='i')
-        duration = matrix.sum(dim='i')
+        largest = matrix.max(axis=0)
+        duration = matrix.sum(axis=0)
 
         if self.weighted:
             detail[PURITY_CORRECT] = 0.
             if np.prod(matrix.shape):
-                detail[PURITY_CORRECT] = largest.sum().item()
-            detail[PURITY_TOTAL] = duration.sum().item()
+                detail[PURITY_CORRECT] = largest.sum()
+            detail[PURITY_TOTAL] = duration.sum()
 
         else:
-            detail[PURITY_CORRECT] = (largest / duration).sum().item()
+            detail[PURITY_CORRECT] = (largest / duration).sum()
             detail[PURITY_TOTAL] = len(largest)
 
         return detail
@@ -447,33 +593,33 @@ class DiarizationPurityCoverageFMeasure(UEMSupportMixin, BaseMetric):
         matrix = reference * hypothesis
 
         # duration of largest class in each cluster
-        largest_class = matrix.max(dim='i')
+        largest_class = matrix.max(axis=0)
         # duration of clusters
-        duration_cluster = matrix.sum(dim='i')
+        duration_cluster = matrix.sum(axis=0)
 
         # duration of largest cluster in each class
-        largest_cluster = matrix.max(dim='j')
+        largest_cluster = matrix.max(axis=1)
         # duration of classes
-        duration_class = matrix.sum(dim='j')
+        duration_class = matrix.sum(axis=1)
 
         if self.weighted:
             # compute purity components
             detail[PURITY_COVERAGE_LARGEST_CLASS] = 0.
             if np.prod(matrix.shape):
-                detail[PURITY_COVERAGE_LARGEST_CLASS] = largest_class.sum().item()
-            detail[PURITY_COVERAGE_TOTAL_CLUSTER] = duration_cluster.sum().item()
+                detail[PURITY_COVERAGE_LARGEST_CLASS] = largest_class.sum()
+            detail[PURITY_COVERAGE_TOTAL_CLUSTER] = duration_cluster.sum()
             # compute coverage components
             detail[PURITY_COVERAGE_LARGEST_CLUSTER] = 0.
             if np.prod(matrix.shape):
-                detail[PURITY_COVERAGE_LARGEST_CLUSTER] = largest_cluster.sum().item()
-            detail[PURITY_COVERAGE_TOTAL_CLASS] = duration_class.sum().item()
+                detail[PURITY_COVERAGE_LARGEST_CLUSTER] = largest_cluster.sum()
+            detail[PURITY_COVERAGE_TOTAL_CLASS] = duration_class.sum()
 
         else:
             # compute purity components
-            detail[PURITY_COVERAGE_LARGEST_CLASS] = (largest_class / duration_cluster).sum().item()
+            detail[PURITY_COVERAGE_LARGEST_CLASS] = (largest_class / duration_cluster).sum()
             detail[PURITY_COVERAGE_TOTAL_CLUSTER] = len(largest_class)
             # compute coverage components
-            detail[PURITY_COVERAGE_LARGEST_CLUSTER] = (largest_cluster / duration_class).sum().item()
+            detail[PURITY_COVERAGE_LARGEST_CLUSTER] = (largest_cluster / duration_class).sum()
             detail[PURITY_COVERAGE_TOTAL_CLASS] = len(largest_cluster)
 
         # compute purity
@@ -548,7 +694,7 @@ class DiarizationHomogeneity(UEMSupportMixin, BaseMetric):
             collar=self.collar, skip_overlap=self.skip_overlap)
 
         # cooccurrence matrix
-        matrix = np.array(reference * hypothesis)
+        matrix = reference * hypothesis
 
         duration = np.sum(matrix)
         rduration = np.sum(matrix, axis=1)

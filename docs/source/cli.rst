@@ -13,7 +13,7 @@ Here is an example use of the command line interface that is provided to solve t
 
 .. code-block:: bash
 
-    $ pyannote.metrics.py diarization --subset=development Etape.SpeakerDiarization.TV hypothesis.mdtm
+    $ pyannote.metrics.py diarization --subset=development Etape.SpeakerDiarization.TV hypothesis.rttm
 
     Diarization (collar = 0 ms)               error    purity    coverage     total    correct      %    fa.      %    miss.     %    conf.      %
     --------------------------------------  -------  --------  ----------  --------  ---------  -----  ------  -----  -------  ----  -------  -----
@@ -34,7 +34,7 @@ Tasks
 
 Not only can ``pyannote.metrics.py`` command line tool be used to compute the diarization error rate using NIST implementation, one can also evaluate the typical four sub-modules used in  most speaker diarization systems:
 
-.. image:: images/pipeline.pdf
+.. image:: images/pipeline.png
 
 Practically, the first positional argument (e.g. ``diarization``, above) is a flag indicating which task should be evaluated.
 
@@ -53,8 +53,7 @@ Results are both reported for each file in the selected subset, and aggregated i
 
 As of March 2017, ``pyannote.database`` packages exist for the ETAPE corpus, the REPERE corpus, and the AMI corpus. As more people contribute new ``pyannote.database`` packages, they will be added to the `pyannote` ecosystem.
 
-
 File formats
 ------------
 
-While the MDTM file format is used in this example, several other file formats are available (and can be contributed) thanks to the internal use of the ``pyannote.parser` package.
+Hypothesis files must use the [Rich Transcription Time Marked](https://web.archive.org/web/20170119114252/http://www.itl.nist.gov/iad/mig/tests/rt/2009/docs/rt09-meeting-eval-plan-v2.pdf) (RTTM) format.

@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2017 CNRS
+# Copyright (c) 2012-2019 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,10 +25,6 @@
 
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
-
-
-from __future__ import unicode_literals
-from __future__ import print_function
 
 
 import scipy.stats
@@ -87,7 +83,6 @@ class BaseMetric(object):
         for value in self.components_:
             self.accumulated_[value] = 0.
 
-
     def __get_name(self):
         return self.__class__.metric_name()
     name = property(fget=__get_name, doc="Metric name.")
@@ -124,6 +119,8 @@ class BaseMetric(object):
 
         # keep track of this computation
         uri = reference.uri
+        if uri is None:
+            uri = "???"
         if uri not in self.uris_:
             self.uris_[uri] = 1
         else:
@@ -195,7 +192,11 @@ class BaseMetric(object):
             else:
                 row[key, ''] = value
                 if percent:
-                    row[key, '%'] = 100 * value / total
+                    if total > 0:
+                        row[key, '%'] = 100 * value / total
+                    else:
+                        row[key, '%'] = np.NaN
+
         row[self.name, '%'] = 100 * abs(self)
         report.append(row)
         uris.append('TOTAL')
@@ -266,7 +267,7 @@ class BaseMetric(object):
 
         """
         raise NotImplementedError(
-            cls.__name__ + " is missing a 'compute_components' method."
+            self.__class__.__name__ + " is missing a 'compute_components' method."
             "It should return a dictionary where keys are component names "
             "and values are component values.")
 
@@ -285,7 +286,7 @@ class BaseMetric(object):
             Metric value
         """
         raise NotImplementedError(
-            cls.__name__ + " is missing a 'compute_metric' method. "
+            self.__class__.__name__ + " is missing a 'compute_metric' method. "
             "It should return the actual value of the metric based "
             "on the precomputed component dictionary given as input.")
 
@@ -352,6 +353,7 @@ class Precision(BaseMetric):
         else:
             return numerator/denominator
 
+
 RECALL_NAME = 'recall'
 RECALL_RELEVANT = '# relevant'
 RECALL_RELEVANT_RETRIEVED = '# relevant retrieved'
@@ -398,4 +400,6 @@ def f_measure(precision, recall, beta=1.):
 
     where P is `precision`, R is `recall` and b is `beta`
     """
+    if precision + recall == 0.0:
+        return 0
     return (1+beta*beta)*precision*recall / (beta*beta*precision+recall)

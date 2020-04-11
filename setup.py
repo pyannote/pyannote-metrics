@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2014-2018 CNRS
+# Copyright (c) 2014-2019 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
 # SOFTWARE.
 
 # AUTHORS
-# Hervé BREDIN - http://herve.niderb.fr
+# Herve BREDIN - http://herve.niderb.fr
 
 import versioneer
 versioneer.versionfile_source = 'pyannote/metrics/_version.py'
@@ -43,14 +43,11 @@ setup(
         'scripts/pyannote-metrics.py',
     ],
     install_requires=[
-        'pyannote.core >= 1.2',
-        'pyannote.database >= 1.3',
-        'pyannote.parser >= 0.7.1',
+        'pyannote.core >= 3.2',
+        'pyannote.database >= 2.0',
         'pandas >= 0.19',
-        'scipy >= 0.10.0',
+        'scipy >= 1.1.0',
         'scikit-learn >= 0.17.1',
-        'networkx >= 1.11',
-        'munkres >= 1.0.8',
         'docopt >= 0.6.2',
         'tabulate >= 0.7.7',
         'matplotlib >= 2.0.0',
@@ -63,7 +60,7 @@ setup(
     # PyPI
     name='pyannote.metrics',
     description=('a toolkit for reproducible evaluation, diagnostic, and error analysis of speaker diarization systems'),
-    author='Hervé Bredin',
+    author='Herve Bredin',
     author_email='bredin@limsi.fr',
     url='https://pyannote.github.io/pyannote-metrics',
     classifiers=[
@@ -72,8 +69,8 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "Topic :: Scientific/Engineering"
     ],
 )

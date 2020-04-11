@@ -2,6 +2,56 @@
 Changelog
 #########
 
+Version 2.3 (2020-02-26)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- feat: add DetectionPrecisionRecallFMeasure compound metric (@MarvinLvn)
+- fix: fix corner "in f-measure" case when both precision and recall are zero (@MarvinLvn)
+- fix: fix a typo in documentation (@wq2012)
+
+Version 2.2 (2019-12-13)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- feat: add support for evaluation of overlapped speech detection
+- feat: setup continuous integration
+- setup: switch to pyannote.core 3.2
+
+Version 2.1 (2019-06-24)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- chore: rewrite mapping and matching routines
+- fix: remove buggy xarray dependency
+- setup: switch to pyannote.core 3.0
+
+Version 2.0.2 (2019-04-15)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- fix: avoid division by zero
+
+Version 2.0.1 (2019-03-20)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- BREAKING: drop support for all file formats but RTTM
+- BREAKING: drop Python 2.7 support
+- setup: switch to pyannote.database 2.0
+- setup: switch to pyannote.core 2.1
+
+Version 1.8.1 (2018-11-19)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- setup: switch to pyannote.core 2.0
+
+Version 1.8 (2018-09-03)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- feat: add compound segmentation metric SegmentationPurityCoverageFMeasure (@diego-fustes)
+- fix: fix typo in IdentificationErrorAnalysis (@benjisympa)
+
+Version 1.7.1 (2018-09-03)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- fix: fix broken images in documentation
+
 Version 1.7 (2018-03-17)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2016 CNRS
+# Copyright (c) 2012-2019 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,8 @@
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
 
-from __future__ import unicode_literals
+from multiprocessing import Manager
+from .base import f_measure
 
 from ._version import get_versions
 __version__ = get_versions()['version']
@@ -36,7 +37,7 @@ del get_versions
 # please open a pull request.
 # I had to use this global multiprocessing manager for it to be accessible
 # from anywhere, and make parallel computation of evaluation metric a reality
-from multiprocessing import Manager
 manager_ = Manager()
 
-from .base import f_measure
+
+__all__ = ['f_measure']
