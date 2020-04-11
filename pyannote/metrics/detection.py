@@ -455,3 +455,123 @@ class DetectionPrecisionRecallFMeasure(UEMSupportMixin, BaseMetric):
             recall = relevant_retrieved / recall_relevant
 
         return precision, recall, f_measure(precision, recall, beta=self.beta)
+
+
+DCF_NAME = 'decision cost function'
+DCF_POS_TOTAL = 'positive class total' # Total duration of positive class.
+DCF_NEG_TOTAL = 'negative class total' # Total duration of negative class.
+DCF_FALSE_ALARM = 'false alarm' # Total duration of false alarms.
+DCF_MISS = 'miss' # Total duration of misses.
+
+class DecisionCostFunction(UEMSupportMixin, BaseMetric):
+    """Decision cost function (DCF).
+
+    This metric can be used to evaluate binary classification tasks such as
+    speech activity detection. Inputs are expected to only contain segments
+    corresponding to the positive class (e.g. speech regions). Gaps in the
+    inputs considered as the negative class (e.g. non-speech regions).
+
+    Decision cost function (DCF), as defined by NIST for OpenSAT 2019, is a
+    linear combination of :math:`fa_{rate}`, the false alarm rate, and
+    :math:`miss_{rate}`, the miss rate:
+
+    .. math::
+       DCF = 0.25*fa_{rate} + 0.75*miss_{rate}
+
+    Parameters
+    ----------
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments (one half before, one half after).
+        Defaults to 0.0.
+
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
+
+    fa_weight : float, optional
+        Weight for false alarm rate.
+        Defaults to 0.25.
+
+    miss_weight : float, optional
+        Weight for miss rate.
+        Defaults to 0.75.
+
+    kwargs
+        Keyword arguments passed to `BaseMetric`.
+
+    References
+    ----------
+    "OpenSAT19 Evaluation Plan v2." https://www.nist.gov/system/files/documents/2018/11/05/opensat19_evaluation_plan_v2_11-5-18.pdf
+    """
+    def __init__(self, collar=0.0, skip_overlap=False, fa_weight=0.25,
+                 miss_weight=0.75, **kwargs):
+        super(DecisionCostFunction, self).__init__(**kwargs)
+        self.collar = collar
+        self.skip_overlap = skip_overlap
+        self.fa_weight = fa_weight
+        self.miss_weight = miss_weight
+
+    @classmethod
+    def metric_name(cls):
+        return DCF_NAME
+
+    @classmethod
+    def metric_components(cls):
+        return [DCF_POS_TOTAL, DCF_NEG_TOTAL, DCF_FALSE_ALARM, DCF_MISS]
+
+    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+        reference, hypothesis, uem = self.uemify(
+            reference, hypothesis, uem=uem,
+            collar=self.collar, skip_overlap=self.skip_overlap,
+            returns_uem=True)
+
+        # Obtain timelines corresponding to positive class.
+        reference = reference.get_timeline(copy=False).support()
+        hypothesis = hypothesis.get_timeline(copy=False).support()
+
+        # Obtain timelines corresponding to negative class.
+        reference_ = reference.gaps(support=uem)
+        hypothesis_ = hypothesis.gaps(support=uem)
+
+        # Compute total positive/negative durations.
+        pos_dur = reference.duration()
+        neg_dur = reference_.duration()
+
+        # Compute total miss duration.
+        miss_dur = 0.0
+        for r, h_ in reference.co_iter(hypothesis_):
+            miss_dur += (r & h_).duration
+
+        # Compute total false alarm duration.
+        fa_dur = 0.0
+        for r_, h in reference_.co_iter(hypothesis):
+            fa_dur += (r_ & h).duration
+
+        components = {
+            DCF_POS_TOTAL : pos_dur,
+            DCF_NEG_TOTAL : neg_dur,
+            DCF_MISS : miss_dur,
+            DCF_FALSE_ALARM : fa_dur}
+
+        return components
+
+    def compute_metric(self, components):
+        def _compute_rate(num, denom):
+            if denom == 0.0:
+                if num == 0.0:
+                    return 0.0
+                return 1.0
+            return num/denom
+
+        # Compute false alarm rate.
+        neg_dur = components[DCF_NEG_TOTAL]
+        fa_dur = components[DCF_FALSE_ALARM]
+        fa_rate = _compute_rate(fa_dur, neg_dur)
+
+        # Compute miss rate.
+        pos_dur = components[DCF_POS_TOTAL]
+        miss_dur = components[DCF_MISS]
+        miss_rate = _compute_rate(miss_dur, pos_dur)
+
+        return self.fa_weight*fa_rate + self.miss_weight*miss_rate

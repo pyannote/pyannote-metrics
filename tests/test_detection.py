@@ -32,6 +32,8 @@ import pytest
 import pyannote.core
 from pyannote.core import Annotation
 from pyannote.core import Segment
+from pyannote.core import Timeline
+from pyannote.metrics.detection import DecisionCostFunction
 from pyannote.metrics.detection import DetectionErrorRate
 from pyannote.metrics.detection import DetectionPrecision
 from pyannote.metrics.detection import DetectionRecall
@@ -47,6 +49,9 @@ import numpy.testing as npt
 # Time        0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
 # Hypothesis     |-----------------|-----|     |-----------------|  |-----|
 #                                  |--------|
+
+# Time        0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+# UEM            |--------------------------------------|
 
 @pytest.fixture
 def reference():
@@ -67,6 +72,11 @@ def hypothesis():
     hypothesis[Segment(11, 17)] = 'C'
     hypothesis[Segment(18, 20)] = 'D'
     return hypothesis
+
+
+@pytest.fixture
+def uem():
+    return Timeline([Segment(1, 14)])
 
 
 def test_error_rate(reference, hypothesis):
@@ -118,6 +128,20 @@ def test_fscore(reference, hypothesis):
     # is computed as :
     # 2*precision*recall / (precision+recall)
     detectionFMeasure = DetectionPrecisionRecallFMeasure()
-    
+
     fscore = detectionFMeasure(reference, hypothesis)
     npt.assert_almost_equal(fscore, 0.848, decimal=3)
+
+
+def test_decision_cost_function(reference, hypothesis, uem):
+    # No UEM.
+    expected = 0.28125
+    dcf = DecisionCostFunction(fa_weight=0.25, miss_weight=0.75)
+    actual = dcf(reference, hypothesis)
+    npt.assert_almost_equal(actual, expected, decimal=7)
+
+    # UEM.
+    expected = 1/6.
+    dcf = DecisionCostFunction(fa_weight=0.25, miss_weight=0.75)
+    actual = dcf(reference, hypothesis, uem=uem)
+    npt.assert_almost_equal(actual, expected, decimal=7)
