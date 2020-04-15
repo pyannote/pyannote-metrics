@@ -35,16 +35,23 @@ All metrics support the provision of an evaluation map that indicate which part 
 Detection
 ---------
 
-Speech activity detection modules can be evaluated using, detection error rate, precision, and recall.
+The two primary metrics for evaluating speech activity detection modules are detection error rate and decision cost function.
+
+Detection error rate (not to be confused with diarization error rate) is defined as:
 
 .. math::
   \text{detection error rate} = \frac{\text{false alarm} + \text{missed detection}}{\text{total}}
 
-where :math:`\text{false alarm}` is the duration of non-speech incorrectly classified as speech, :math:`\text{missed detection}` is the duration of
-speech incorrectly classified as non-speech, and :math:`\text{total}` is the total duration of speech in the reference.
+where :math:`\text{false alarm}` is the duration of non-speech incorrectly classified as speech, :math:`\text{missed detection}` is the duration of speech incorrectly classified as non-speech, and :math:`\text{total}` is the total duration of speech in the reference.
 
-Note that these metrics do not take overlapping speech into account.
-In other words, overlapping speech regions are counted only once.
+Alternately, speech activity module output may be evaluated in terms of decision cost function, which is defined as:
+
+.. math::                                                                   
+  \text{decision cost function} = 0.25 \times \text{false alarm rate} + 0.75 \times \text{miss rate} 
+
+where :math:`\text{false alarm rate}` is the proportion of non-speech incorrectly classified as speech and :math:`\text{miss rate}` is the proportion of speech incorrectly classified as non-speech.
+
+Additionally, detection may be evaluated in terms of accuracy (proportion of the input signal correctly classified), precision (proportion of detected speech that is speech), and recall (proporton of speech that is detected).
 
 .. automodule:: pyannote.metrics.detection
    :members:

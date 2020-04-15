@@ -464,19 +464,18 @@ DCF_FALSE_ALARM = 'false alarm' # Total duration of false alarms.
 DCF_MISS = 'miss' # Total duration of misses.
 
 class DecisionCostFunction(UEMSupportMixin, BaseMetric):
-    """Decision cost function (DCF).
+    """Decision cost function.
 
     This metric can be used to evaluate binary classification tasks such as
     speech activity detection. Inputs are expected to only contain segments
     corresponding to the positive class (e.g. speech regions). Gaps in the
     inputs considered as the negative class (e.g. non-speech regions).
 
-    Decision cost function (DCF), as defined by NIST for OpenSAT 2019, is a
-    linear combination of :math:`fa_{rate}`, the false alarm rate, and
-    :math:`miss_{rate}`, the miss rate:
-
-    .. math::
-       DCF = 0.25*fa_{rate} + 0.75*miss_{rate}
+    Decision cost function (DCF), as defined by NIST for OpenSAT 2019, is
+    0.25*far + 0.75*missr, where far is the false alarm rate
+    (i.e., the proportion of non-speech incorrectly classified as speech)
+    and missr is the miss rate (i.e., the proportion of speech incorrectly
+    classified as non-speech.
 
     Parameters
     ----------
@@ -498,7 +497,7 @@ class DecisionCostFunction(UEMSupportMixin, BaseMetric):
         Defaults to 0.75.
 
     kwargs
-        Keyword arguments passed to `BaseMetric`.
+        Keyword arguments passed to :class:`pyannote.metrics.base.BaseMetric`.
 
     References
     ----------
