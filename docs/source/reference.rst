@@ -35,7 +35,7 @@ All metrics support the provision of an evaluation map that indicate which part 
 Detection
 ---------
 
-The two primary metrics for evaluating speech activity detection modules are detection error rate and decision cost function.
+The two primary metrics for evaluating speech activity detection modules are detection error rate and detection cost function.
 
 Detection error rate (not to be confused with diarization error rate) is defined as:
 
@@ -44,10 +44,10 @@ Detection error rate (not to be confused with diarization error rate) is defined
 
 where :math:`\text{false alarm}` is the duration of non-speech incorrectly classified as speech, :math:`\text{missed detection}` is the duration of speech incorrectly classified as non-speech, and :math:`\text{total}` is the total duration of speech in the reference.
 
-Alternately, speech activity module output may be evaluated in terms of decision cost function, which is defined as:
+Alternately, speech activity module output may be evaluated in terms of detection cost function, which is defined as:
 
 .. math::                                                                   
-  \text{decision cost function} = 0.25 \times \text{false alarm rate} + 0.75 \times \text{miss rate} 
+  \text{detection cost function} = 0.25 \times \text{false alarm rate} + 0.75 \times \text{miss rate} 
 
 where :math:`\text{false alarm rate}` is the proportion of non-speech incorrectly classified as speech and :math:`\text{miss rate}` is the proportion of speech incorrectly classified as non-speech.
 

@@ -457,21 +457,21 @@ class DetectionPrecisionRecallFMeasure(UEMSupportMixin, BaseMetric):
         return precision, recall, f_measure(precision, recall, beta=self.beta)
 
 
-DCF_NAME = 'decision cost function'
+DCF_NAME = 'detection cost function'
 DCF_POS_TOTAL = 'positive class total' # Total duration of positive class.
 DCF_NEG_TOTAL = 'negative class total' # Total duration of negative class.
 DCF_FALSE_ALARM = 'false alarm' # Total duration of false alarms.
 DCF_MISS = 'miss' # Total duration of misses.
 
-class DecisionCostFunction(UEMSupportMixin, BaseMetric):
-    """Decision cost function.
+class DetectionCostFunction(UEMSupportMixin, BaseMetric):
+    """Detection cost function.
 
     This metric can be used to evaluate binary classification tasks such as
     speech activity detection. Inputs are expected to only contain segments
     corresponding to the positive class (e.g. speech regions). Gaps in the
     inputs considered as the negative class (e.g. non-speech regions).
 
-    Decision cost function (DCF), as defined by NIST for OpenSAT 2019, is
+    Detection cost function (DCF), as defined by NIST for OpenSAT 2019, is
     0.25*far + 0.75*missr, where far is the false alarm rate
     (i.e., the proportion of non-speech incorrectly classified as speech)
     and missr is the miss rate (i.e., the proportion of speech incorrectly
@@ -505,7 +505,7 @@ class DecisionCostFunction(UEMSupportMixin, BaseMetric):
     """
     def __init__(self, collar=0.0, skip_overlap=False, fa_weight=0.25,
                  miss_weight=0.75, **kwargs):
-        super(DecisionCostFunction, self).__init__(**kwargs)
+        super(DetectionCostFunction, self).__init__(**kwargs)
         self.collar = collar
         self.skip_overlap = skip_overlap
         self.fa_weight = fa_weight

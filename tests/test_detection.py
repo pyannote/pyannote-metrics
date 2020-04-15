@@ -33,7 +33,7 @@ import pyannote.core
 from pyannote.core import Annotation
 from pyannote.core import Segment
 from pyannote.core import Timeline
-from pyannote.metrics.detection import DecisionCostFunction
+from pyannote.metrics.detection import DetectionCostFunction
 from pyannote.metrics.detection import DetectionErrorRate
 from pyannote.metrics.detection import DetectionPrecision
 from pyannote.metrics.detection import DetectionRecall
@@ -136,12 +136,12 @@ def test_fscore(reference, hypothesis):
 def test_decision_cost_function(reference, hypothesis, uem):
     # No UEM.
     expected = 0.28125
-    dcf = DecisionCostFunction(fa_weight=0.25, miss_weight=0.75)
+    dcf = DetectionCostFunction(fa_weight=0.25, miss_weight=0.75)
     actual = dcf(reference, hypothesis)
     npt.assert_almost_equal(actual, expected, decimal=7)
 
     # UEM.
     expected = 1/6.
-    dcf = DecisionCostFunction(fa_weight=0.25, miss_weight=0.75)
+    dcf = DetectionCostFunction(fa_weight=0.25, miss_weight=0.75)
     actual = dcf(reference, hypothesis, uem=uem)
     npt.assert_almost_equal(actual, expected, decimal=7)
