@@ -2,6 +2,13 @@
 Changelog
 #########
 
+Version 2.3 (2020-02-26)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- feat: add DetectionPrecisionRecallFMeasure compound metric (@MarvinLvn)
+- fix: fix corner "in f-measure" case when both precision and recall are zero (@MarvinLvn)
+- fix: fix a typo in documentation (@wq2012)
+
 Version 2.2 (2019-12-13)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
