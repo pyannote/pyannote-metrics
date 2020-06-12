@@ -387,7 +387,7 @@ def identification(protocol, subset, hypotheses,
 
     report = reindex(report)
 
-    summary = 'Identification (collar = {1:g} ms{2})'.format(
+    summary = 'Identification (collar = {0:g} ms{1})'.format(
                 1000 * collar,
                 ', no overlap' if skip_overlap else '')
 
