@@ -42,7 +42,7 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'pyannote-metrics=pyannote.metrics.applications.pyannote_metrics:main',
+            'pyannote-metrics=pyannote.metrics.cli.pyannote_metrics:main',
         ],
     },
     install_requires=[
