@@ -27,6 +27,7 @@
 # Herve BREDIN - http://herve.niderb.fr
 
 import versioneer
+
 versioneer.versionfile_source = 'pyannote/metrics/_version.py'
 versioneer.versionfile_build = versioneer.versionfile_source
 versioneer.tag_prefix = ''
@@ -39,9 +40,11 @@ setup(
     # package
     namespace_packages=['pyannote'],
     packages=find_packages(),
-    scripts=[
-        'scripts/pyannote-metrics.py',
-    ],
+    entry_points={
+        'console_scripts': [
+            'pyannote-metrics=pyannote.metrics.cli:main',
+        ],
+    },
     install_requires=[
         'pyannote.core >= 3.2',
         'pyannote.database >= 2.0',
@@ -59,7 +62,8 @@ setup(
 
     # PyPI
     name='pyannote.metrics',
-    description=('a toolkit for reproducible evaluation, diagnostic, and error analysis of speaker diarization systems'),
+    description=(
+        'a toolkit for reproducible evaluation, diagnostic, and error analysis of speaker diarization systems'),
     author='Herve Bredin',
     author_email='bredin@limsi.fr',
     url='https://pyannote.github.io/pyannote-metrics',
