@@ -205,7 +205,7 @@ def get_hypothesis(hypotheses, current_file):
         return hypothesis
 
     # more that one matching file. error.
-    msg = f'Found too many hypotheses matching file "{uri}" ({uris}).'
+    msg = f'Found too many hypotheses matching file "{uri}" ({tmp_uri}).'
     raise ValueError(msg.format(uri=uri, uris=tmp_uri))
 
 
