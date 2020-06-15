@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pyannote.metrics.detection &mdash; pyannote.metrics 2.3 documentation</title>
+  <title>pyannote.metrics.detection &mdash; pyannote.metrics 3.0 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                2.3
+                3.0
               </div>
             
           
@@ -610,6 +610,125 @@
             <span class="n">recall</span> <span class="o">=</span> <span class="n">relevant_retrieved</span> <span class="o">/</span> <span class="n">recall_relevant</span>
 
         <span class="k">return</span> <span class="n">precision</span><span class="p">,</span> <span class="n">recall</span><span class="p">,</span> <span class="n">f_measure</span><span class="p">(</span><span class="n">precision</span><span class="p">,</span> <span class="n">recall</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">)</span></div>
+
+
+<span class="n">DCF_NAME</span> <span class="o">=</span> <span class="s1">&#39;detection cost function&#39;</span>
+<span class="n">DCF_POS_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;positive class total&#39;</span> <span class="c1"># Total duration of positive class.</span>
+<span class="n">DCF_NEG_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;negative class total&#39;</span> <span class="c1"># Total duration of negative class.</span>
+<span class="n">DCF_FALSE_ALARM</span> <span class="o">=</span> <span class="s1">&#39;false alarm&#39;</span> <span class="c1"># Total duration of false alarms.</span>
+<span class="n">DCF_MISS</span> <span class="o">=</span> <span class="s1">&#39;miss&#39;</span> <span class="c1"># Total duration of misses.</span>
+
+<div class="viewcode-block" id="DetectionCostFunction"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.detection.DetectionCostFunction">[docs]</a><span class="k">class</span> <span class="nc">DetectionCostFunction</span><span class="p">(</span><span class="n">UEMSupportMixin</span><span class="p">,</span> <span class="n">BaseMetric</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Detection cost function.</span>
+
+<span class="sd">    This metric can be used to evaluate binary classification tasks such as</span>
+<span class="sd">    speech activity detection. Inputs are expected to only contain segments</span>
+<span class="sd">    corresponding to the positive class (e.g. speech regions). Gaps in the</span>
+<span class="sd">    inputs considered as the negative class (e.g. non-speech regions).</span>
+
+<span class="sd">    Detection cost function (DCF), as defined by NIST for OpenSAT 2019, is</span>
+<span class="sd">    0.25*far + 0.75*missr, where far is the false alarm rate</span>
+<span class="sd">    (i.e., the proportion of non-speech incorrectly classified as speech)</span>
+<span class="sd">    and missr is the miss rate (i.e., the proportion of speech incorrectly</span>
+<span class="sd">    classified as non-speech.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    collar : float, optional</span>
+<span class="sd">        Duration (in seconds) of collars removed from evaluation around</span>
+<span class="sd">        boundaries of reference segments (one half before, one half after).</span>
+<span class="sd">        Defaults to 0.0.</span>
+
+<span class="sd">    skip_overlap : bool, optional</span>
+<span class="sd">        Set to True to not evaluate overlap regions.</span>
+<span class="sd">        Defaults to False (i.e. keep overlap regions).</span>
+
+<span class="sd">    fa_weight : float, optional</span>
+<span class="sd">        Weight for false alarm rate.</span>
+<span class="sd">        Defaults to 0.25.</span>
+
+<span class="sd">    miss_weight : float, optional</span>
+<span class="sd">        Weight for miss rate.</span>
+<span class="sd">        Defaults to 0.75.</span>
+
+<span class="sd">    kwargs</span>
+<span class="sd">        Keyword arguments passed to :class:`pyannote.metrics.base.BaseMetric`.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    &quot;OpenSAT19 Evaluation Plan v2.&quot; https://www.nist.gov/system/files/documents/2018/11/05/opensat19_evaluation_plan_v2_11-5-18.pdf</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fa_weight</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
+                 <span class="n">miss_weight</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DetectionCostFunction</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collar</span> <span class="o">=</span> <span class="n">collar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span> <span class="o">=</span> <span class="n">skip_overlap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fa_weight</span> <span class="o">=</span> <span class="n">fa_weight</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">miss_weight</span> <span class="o">=</span> <span class="n">miss_weight</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">DCF_NAME</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">DCF_POS_TOTAL</span><span class="p">,</span> <span class="n">DCF_NEG_TOTAL</span><span class="p">,</span> <span class="n">DCF_FALSE_ALARM</span><span class="p">,</span> <span class="n">DCF_MISS</span><span class="p">]</span>
+
+<div class="viewcode-block" id="DetectionCostFunction.compute_components"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.detection.DetectionCostFunction.compute_components">[docs]</a>    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uemify</span><span class="p">(</span>
+            <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
+            <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span><span class="p">,</span>
+            <span class="n">returns_uem</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Obtain timelines corresponding to positive class.</span>
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">support</span><span class="p">()</span>
+        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">support</span><span class="p">()</span>
+
+        <span class="c1"># Obtain timelines corresponding to negative class.</span>
+        <span class="n">reference_</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">support</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
+        <span class="n">hypothesis_</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">gaps</span><span class="p">(</span><span class="n">support</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
+
+        <span class="c1"># Compute total positive/negative durations.</span>
+        <span class="n">pos_dur</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">duration</span><span class="p">()</span>
+        <span class="n">neg_dur</span> <span class="o">=</span> <span class="n">reference_</span><span class="o">.</span><span class="n">duration</span><span class="p">()</span>
+
+        <span class="c1"># Compute total miss duration.</span>
+        <span class="n">miss_dur</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">h_</span> <span class="ow">in</span> <span class="n">reference</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">hypothesis_</span><span class="p">):</span>
+            <span class="n">miss_dur</span> <span class="o">+=</span> <span class="p">(</span><span class="n">r</span> <span class="o">&amp;</span> <span class="n">h_</span><span class="p">)</span><span class="o">.</span><span class="n">duration</span>
+
+        <span class="c1"># Compute total false alarm duration.</span>
+        <span class="n">fa_dur</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="n">r_</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">reference_</span><span class="o">.</span><span class="n">co_iter</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">):</span>
+            <span class="n">fa_dur</span> <span class="o">+=</span> <span class="p">(</span><span class="n">r_</span> <span class="o">&amp;</span> <span class="n">h</span><span class="p">)</span><span class="o">.</span><span class="n">duration</span>
+
+        <span class="n">components</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">DCF_POS_TOTAL</span> <span class="p">:</span> <span class="n">pos_dur</span><span class="p">,</span>
+            <span class="n">DCF_NEG_TOTAL</span> <span class="p">:</span> <span class="n">neg_dur</span><span class="p">,</span>
+            <span class="n">DCF_MISS</span> <span class="p">:</span> <span class="n">miss_dur</span><span class="p">,</span>
+            <span class="n">DCF_FALSE_ALARM</span> <span class="p">:</span> <span class="n">fa_dur</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">components</span></div>
+
+<div class="viewcode-block" id="DetectionCostFunction.compute_metric"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.detection.DetectionCostFunction.compute_metric">[docs]</a>    <span class="k">def</span> <span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">components</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">_compute_rate</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">denom</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">denom</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">num</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="mf">0.0</span>
+                <span class="k">return</span> <span class="mf">1.0</span>
+            <span class="k">return</span> <span class="n">num</span><span class="o">/</span><span class="n">denom</span>
+
+        <span class="c1"># Compute false alarm rate.</span>
+        <span class="n">neg_dur</span> <span class="o">=</span> <span class="n">components</span><span class="p">[</span><span class="n">DCF_NEG_TOTAL</span><span class="p">]</span>
+        <span class="n">fa_dur</span> <span class="o">=</span> <span class="n">components</span><span class="p">[</span><span class="n">DCF_FALSE_ALARM</span><span class="p">]</span>
+        <span class="n">fa_rate</span> <span class="o">=</span> <span class="n">_compute_rate</span><span class="p">(</span><span class="n">fa_dur</span><span class="p">,</span> <span class="n">neg_dur</span><span class="p">)</span>
+
+        <span class="c1"># Compute miss rate.</span>
+        <span class="n">pos_dur</span> <span class="o">=</span> <span class="n">components</span><span class="p">[</span><span class="n">DCF_POS_TOTAL</span><span class="p">]</span>
+        <span class="n">miss_dur</span> <span class="o">=</span> <span class="n">components</span><span class="p">[</span><span class="n">DCF_MISS</span><span class="p">]</span>
+        <span class="n">miss_rate</span> <span class="o">=</span> <span class="n">_compute_rate</span><span class="p">(</span><span class="n">miss_dur</span><span class="p">,</span> <span class="n">pos_dur</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fa_weight</span><span class="o">*</span><span class="n">fa_rate</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">miss_weight</span><span class="o">*</span><span class="n">miss_rate</span></div></div>
 </pre></div>
 
            </div>

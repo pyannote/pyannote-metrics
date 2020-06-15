@@ -2,6 +2,12 @@
 Changelog
 #########
 
+Version 3.0 (2020-06-15)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- feat: add DetectionCostFunction detection metric (@nryant)
+- BREAKING: rename pyannote-metrics.py CLI to pyannote-metrics
+
 Version 2.3 (2020-02-26)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 

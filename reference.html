@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Reference &mdash; pyannote.metrics 2.3 documentation</title>
+  <title>Reference &mdash; pyannote.metrics 3.0 documentation</title>
   
 
   
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                2.3
+                3.0
               </div>
             
           
@@ -193,13 +193,16 @@ Most of the metrics available in <cite>pyannote.metrics</cite> support a <cite>c
 All metrics support the provision of an evaluation map that indicate which part of the audio file should be evaluated.</p>
 <div class="section" id="detection">
 <h3>Detection<a class="headerlink" href="#detection" title="Permalink to this headline">¶</a></h3>
-<p>Speech activity detection modules can be evaluated using, detection error rate, precision, and recall.</p>
+<p>The two primary metrics for evaluating speech activity detection modules are detection error rate and detection cost function.</p>
+<p>Detection error rate (not to be confused with diarization error rate) is defined as:</p>
 <div class="math notranslate nohighlight">
 \[\text{detection error rate} = \frac{\text{false alarm} + \text{missed detection}}{\text{total}}\]</div>
-<p>where <span class="math notranslate nohighlight">\(\text{false alarm}\)</span> is the duration of non-speech incorrectly classified as speech, <span class="math notranslate nohighlight">\(\text{missed detection}\)</span> is the duration of
-speech incorrectly classified as non-speech, and <span class="math notranslate nohighlight">\(\text{total}\)</span> is the total duration of speech in the reference.</p>
-<p>Note that these metrics do not take overlapping speech into account.
-In other words, overlapping speech regions are counted only once.</p>
+<p>where <span class="math notranslate nohighlight">\(\text{false alarm}\)</span> is the duration of non-speech incorrectly classified as speech, <span class="math notranslate nohighlight">\(\text{missed detection}\)</span> is the duration of speech incorrectly classified as non-speech, and <span class="math notranslate nohighlight">\(\text{total}\)</span> is the total duration of speech in the reference.</p>
+<p>Alternately, speech activity module output may be evaluated in terms of detection cost function, which is defined as:</p>
+<div class="math notranslate nohighlight">
+\[\text{detection cost function} = 0.25 \times \text{false alarm rate} + 0.75 \times \text{miss rate}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\text{false alarm rate}\)</span> is the proportion of non-speech incorrectly classified as speech and <span class="math notranslate nohighlight">\(\text{miss rate}\)</span> is the proportion of speech incorrectly classified as non-speech.</p>
+<p>Additionally, detection may be evaluated in terms of accuracy (proportion of the input signal correctly classified), precision (proportion of detected speech that is speech), and recall (proporton of speech that is detected).</p>
 <span class="target" id="module-pyannote.metrics.detection"></span><dl class="class">
 <dt id="pyannote.metrics.detection.DetectionAccuracy">
 <em class="property">class </em><code class="sig-prename descclassname">pyannote.metrics.detection.</code><code class="sig-name descname">DetectionAccuracy</code><span class="sig-paren">(</span><em class="sig-param">collar=0.0</em>, <em class="sig-param">skip_overlap=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionAccuracy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionAccuracy" title="Permalink to this definition">¶</a></dt>
@@ -247,6 +250,78 @@ values</p>
 <dl class="method">
 <dt id="pyannote.metrics.detection.DetectionAccuracy.compute_metric">
 <code class="sig-name descname">compute_metric</code><span class="sig-paren">(</span><em class="sig-param">detail</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionAccuracy.compute_metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionAccuracy.compute_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric value from computed <cite>components</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+values</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>value</strong> – Metric value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type depends on the metric</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyannote.metrics.detection.DetectionCostFunction">
+<em class="property">class </em><code class="sig-prename descclassname">pyannote.metrics.detection.</code><code class="sig-name descname">DetectionCostFunction</code><span class="sig-paren">(</span><em class="sig-param">collar=0.0</em>, <em class="sig-param">skip_overlap=False</em>, <em class="sig-param">fa_weight=0.25</em>, <em class="sig-param">miss_weight=0.75</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionCostFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionCostFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detection cost function.</p>
+<p>This metric can be used to evaluate binary classification tasks such as
+speech activity detection. Inputs are expected to only contain segments
+corresponding to the positive class (e.g. speech regions). Gaps in the
+inputs considered as the negative class (e.g. non-speech regions).</p>
+<p>Detection cost function (DCF), as defined by NIST for OpenSAT 2019, is
+0.25*far + 0.75*missr, where far is the false alarm rate
+(i.e., the proportion of non-speech incorrectly classified as speech)
+and missr is the miss rate (i.e., the proportion of speech incorrectly
+classified as non-speech.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+boundaries of reference segments (one half before, one half after).
+Defaults to 0.0.</p></li>
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+Defaults to False (i.e. keep overlap regions).</p></li>
+<li><p><strong>fa_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Weight for false alarm rate.
+Defaults to 0.25.</p></li>
+<li><p><strong>miss_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Weight for miss rate.
+Defaults to 0.75.</p></li>
+<li><p><strong>kwargs</strong> – Keyword arguments passed to <code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.metrics.base.BaseMetric</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>“OpenSAT19 Evaluation Plan v2.” <a class="reference external" href="https://www.nist.gov/system/files/documents/2018/11/05/opensat19_evaluation_plan_v2_11-5-18.pdf">https://www.nist.gov/system/files/documents/2018/11/05/opensat19_evaluation_plan_v2_11-5-18.pdf</a></p>
+<dl class="method">
+<dt id="pyannote.metrics.detection.DetectionCostFunction.compute_components">
+<code class="sig-name descname">compute_components</code><span class="sig-paren">(</span><em class="sig-param">reference</em>, <em class="sig-param">hypothesis</em>, <em class="sig-param">uem=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionCostFunction.compute_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionCostFunction.compute_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute metric components</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference</strong> (<em>type depends on the metric</em>) – Manual <cite>reference</cite></p></li>
+<li><p><strong>hypothesis</strong> (same as <cite>reference</cite>) – Evaluated <cite>hypothesis</cite></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>components</strong> – Dictionary where keys are component names and values are component
+values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyannote.metrics.detection.DetectionCostFunction.compute_metric">
+<code class="sig-name descname">compute_metric</code><span class="sig-paren">(</span><em class="sig-param">components</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyannote/metrics/detection.html#DetectionCostFunction.compute_metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyannote.metrics.detection.DetectionCostFunction.compute_metric" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute metric value from computed <cite>components</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
