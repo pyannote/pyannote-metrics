@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2017-2019 CNRS
+# Copyright (c) 2017-2020 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -30,14 +30,14 @@
 Evaluation
 
 Usage:
-  pyannote-metrics.py detection [--subset=<subset> --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.rttm>
-  pyannote-metrics.py segmentation [--subset=<subset> --tolerance=<seconds>] <database.task.protocol> <hypothesis.rttm>
-  pyannote-metrics.py overlap [--subset=<subset> --collar=<seconds>] <database.task.protocol> <hypothesis.rttm>
-  pyannote-metrics.py diarization [--subset=<subset> --greedy --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.rttm>
-  pyannote-metrics.py identification [--subset=<subset> --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.rttm>
-  pyannote-metrics.py spotting [--subset=<subset> --latency=<seconds>... --filter=<expression>...] <database.task.protocol> <hypothesis.json>
-  pyannote-metrics.py -h | --help
-  pyannote-metrics.py --version
+  pyannote-metrics detection [--subset=<subset> --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.rttm>
+  pyannote-metrics segmentation [--subset=<subset> --tolerance=<seconds>] <database.task.protocol> <hypothesis.rttm>
+  pyannote-metrics overlap [--subset=<subset> --collar=<seconds>] <database.task.protocol> <hypothesis.rttm>
+  pyannote-metrics diarization [--subset=<subset> --greedy --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.rttm>
+  pyannote-metrics identification [--subset=<subset> --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.rttm>
+  pyannote-metrics spotting [--subset=<subset> --latency=<seconds>... --filter=<expression>...] <database.task.protocol> <hypothesis.json>
+  pyannote-metrics -h | --help
+  pyannote-metrics --version
 
 Options:
   <database.task.protocol>   Set evaluation protocol (e.g. "Etape.SpeakerDiarization.TV")
@@ -90,7 +90,6 @@ Calling "spotting" mode will create a bunch of files.
 
 """
 
-
 # command line parsing
 from docopt import docopt
 
@@ -116,7 +115,6 @@ from pyannote.metrics.detection import DetectionAccuracy
 from pyannote.metrics.detection import DetectionRecall
 from pyannote.metrics.detection import DetectionPrecision
 
-
 from pyannote.metrics.segmentation import SegmentationPurity
 from pyannote.metrics.segmentation import SegmentationCoverage
 from pyannote.metrics.segmentation import SegmentationPrecision
@@ -135,9 +133,11 @@ from pyannote.metrics.spotting import LowLatencySpeakerSpotting
 
 showwarning_orig = warnings.showwarning
 
+
 def showwarning(message, category, *args, **kwargs):
     import sys
     print(category.__name__ + ':', str(message))
+
 
 warnings.showwarning = showwarning
 
@@ -205,7 +205,7 @@ def get_hypothesis(hypotheses, current_file):
         return hypothesis
 
     # more that one matching file. error.
-    msg = f'Found too many hypotheses matching file "{uri}" ({uris}).'
+    msg = f'Found too many hypotheses matching file "{uri}" ({tmp_uri}).'
     raise ValueError(msg.format(uri=uri, uris=tmp_uri))
 
 
@@ -218,7 +218,6 @@ def process_one(item, hypotheses=None, metrics=None):
 
 
 def get_reports(protocol, subset, hypotheses, metrics):
-
     process = functools.partial(process_one,
                                 hypotheses=hypotheses,
                                 metrics=metrics)
@@ -250,11 +249,10 @@ def reindex(report):
     """Reindex report so that 'TOTAL' is the last row"""
     index = list(report.index)
     i = index.index('TOTAL')
-    return report.reindex(index[:i] + index[i+1:] + ['TOTAL'])
+    return report.reindex(index[:i] + index[i + 1:] + ['TOTAL'])
 
 
 def detection(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
-
     options = {'collar': collar,
                'skip_overlap': skip_overlap,
                'parallel': True}
@@ -282,7 +280,7 @@ def detection(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
     report = report[[columns[0]] + columns[-3:] + columns[1:-3]]
 
     summary = 'Detection (collar = {0:g} ms{1})'.format(
-        1000*collar, ', no overlap' if skip_overlap else '')
+        1000 * collar, ', no overlap' if skip_overlap else '')
 
     headers = [summary] + \
               [report.columns[i][0] for i in range(4)] + \
@@ -292,8 +290,8 @@ def detection(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
                    floatfmt=".2f", numalign="decimal", stralign="left",
                    missingval="", showindex="default", disable_numparse=False))
 
-def segmentation(protocol, subset, hypotheses, tolerance=0.5):
 
+def segmentation(protocol, subset, hypotheses, tolerance=0.5):
     options = {'tolerance': tolerance, 'parallel': True}
 
     metrics = {'coverage': SegmentationCoverage(**options),
@@ -316,15 +314,15 @@ def segmentation(protocol, subset, hypotheses, tolerance=0.5):
     report = pd.concat([coverage, purity, precision, recall], axis=1)
     report = reindex(report)
 
-    headers = ['Segmentation (tolerance = {0:g} ms)'.format(1000*tolerance),
+    headers = ['Segmentation (tolerance = {0:g} ms)'.format(1000 * tolerance),
                'coverage', 'purity', 'precision', 'recall']
     print(tabulate(report, headers=headers, tablefmt="simple",
                    floatfmt=".2f", numalign="decimal", stralign="left",
                    missingval="", showindex="default", disable_numparse=False))
 
+
 def diarization(protocol, subset, hypotheses, greedy=False,
                 collar=0.0, skip_overlap=False):
-
     options = {'collar': collar,
                'skip_overlap': skip_overlap,
                'parallel': True}
@@ -353,9 +351,9 @@ def diarization(protocol, subset, hypotheses, greedy=False,
     report = reindex(report)
 
     summary = 'Diarization ({0:s}collar = {1:g} ms{2})'.format(
-                'greedy, ' if greedy else '',
-                1000 * collar,
-                ', no overlap' if skip_overlap else '')
+        'greedy, ' if greedy else '',
+        1000 * collar,
+        ', no overlap' if skip_overlap else '')
 
     headers = [summary] + \
               [report.columns[i][0] for i in range(3)] + \
@@ -365,9 +363,9 @@ def diarization(protocol, subset, hypotheses, greedy=False,
                    floatfmt=".2f", numalign="decimal", stralign="left",
                    missingval="", showindex="default", disable_numparse=False))
 
+
 def identification(protocol, subset, hypotheses,
                    collar=0.0, skip_overlap=False):
-
     options = {'collar': collar,
                'skip_overlap': skip_overlap,
                'parallel': True}
@@ -391,9 +389,9 @@ def identification(protocol, subset, hypotheses,
 
     report = reindex(report)
 
-    summary = 'Identification (collar = {1:g} ms{2})'.format(
-                1000 * collar,
-                ', no overlap' if skip_overlap else '')
+    summary = 'Identification (collar = {0:g} ms{1})'.format(
+        1000 * collar,
+        ', no overlap' if skip_overlap else '')
 
     headers = [summary] + \
               [report.columns[i][0] for i in range(3)] + \
@@ -403,9 +401,9 @@ def identification(protocol, subset, hypotheses,
                    floatfmt=".2f", numalign="decimal", stralign="left",
                    missingval="", showindex="default", disable_numparse=False))
 
+
 def spotting(protocol, subset, latencies, hypotheses, output_prefix,
              filter_func=None):
-
     if not latencies:
         Scores = []
 
@@ -455,14 +453,14 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix,
                    '(found: {found:g}, should be: >= {should_be:g})')
             raise ValueError(
                 msg.format(i=i,
-                found=min(timestamps),
-                should_be=try_with.start))
+                           found=min(timestamps),
+                           should_be=try_with.start))
 
     if not latencies:
         # estimate best set of thresholds
         scores = np.concatenate(Scores)
         epsilons = np.array(
-            [n * 10**(-e) for e in range(4, 1, -1) for n in range(1, 10)])
+            [n * 10 ** (-e) for e in range(4, 1, -1) for n in range(1, 10)])
         percentile = np.concatenate([epsilons, np.arange(0.1, 100., 0.1), 100 - epsilons[::-1]])
         thresholds = np.percentile(scores, percentile)
 
@@ -530,7 +528,7 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix,
             log = {'latency': key}
             for latency in latencies:
                 thresholds, fpr, fnr, eer, _ = result[latency]
-                #print('EER @ {latency}s = {eer:.2f}%'.format(latency=latency,
+                # print('EER @ {latency}s = {eer:.2f}%'.format(latency=latency,
                 #                                             eer=100 * eer))
                 log[latency] = eer
                 # save DET curve to hypothesis.det.{lcy}s.txt
@@ -555,8 +553,7 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix,
                        missingval="", showindex="default", disable_numparse=False))
 
 
-if __name__ == '__main__':
-
+def main():
     arguments = docopt(__doc__, version='Evaluation')
 
     collar = float(arguments['--collar'])
@@ -644,3 +641,7 @@ if __name__ == '__main__':
     if arguments['identification']:
         identification(protocol, subset, hypotheses,
                        collar=collar, skip_overlap=skip_overlap)
+
+
+if __name__ == '__main__':
+    main()
