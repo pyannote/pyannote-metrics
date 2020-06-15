@@ -13,7 +13,7 @@ Here is an example use of the command line interface that is provided to solve t
 
 .. code-block:: bash
 
-    $ pyannote-metrics.py diarization --subset=development Etape.SpeakerDiarization.TV hypothesis.rttm
+    $ pyannote-metrics diarization --subset=development Etape.SpeakerDiarization.TV hypothesis.rttm
 
     Diarization (collar = 0 ms)               error    purity    coverage     total    correct      %    fa.      %    miss.     %    conf.      %
     --------------------------------------  -------  --------  ----------  --------  ---------  -----  ------  -----  -------  ----  -------  -----
@@ -32,7 +32,7 @@ Here is an example use of the command line interface that is provided to solve t
 Tasks
 -----
 
-Not only can ``pyannote-metrics.py`` command line tool be used to compute the diarization error rate using NIST implementation, one can also evaluate the typical four sub-modules used in  most speaker diarization systems:
+Not only can ``pyannote-metrics`` command line tool be used to compute the diarization error rate using NIST implementation, one can also evaluate the typical four sub-modules used in  most speaker diarization systems:
 
 .. image:: images/pipeline.png
 
