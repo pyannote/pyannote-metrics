@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2017-2019 CNRS
+# Copyright (c) 2017-2020 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -30,14 +30,14 @@
 Evaluation
 
 Usage:
-  pyannote-metrics.py detection [--subset=<subset> --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.rttm>
-  pyannote-metrics.py segmentation [--subset=<subset> --tolerance=<seconds>] <database.task.protocol> <hypothesis.rttm>
-  pyannote-metrics.py overlap [--subset=<subset> --collar=<seconds>] <database.task.protocol> <hypothesis.rttm>
-  pyannote-metrics.py diarization [--subset=<subset> --greedy --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.rttm>
-  pyannote-metrics.py identification [--subset=<subset> --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.rttm>
-  pyannote-metrics.py spotting [--subset=<subset> --latency=<seconds>... --filter=<expression>...] <database.task.protocol> <hypothesis.json>
-  pyannote-metrics.py -h | --help
-  pyannote-metrics.py --version
+  pyannote-metrics detection [--subset=<subset> --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.rttm>
+  pyannote-metrics segmentation [--subset=<subset> --tolerance=<seconds>] <database.task.protocol> <hypothesis.rttm>
+  pyannote-metrics overlap [--subset=<subset> --collar=<seconds>] <database.task.protocol> <hypothesis.rttm>
+  pyannote-metrics diarization [--subset=<subset> --greedy --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.rttm>
+  pyannote-metrics identification [--subset=<subset> --collar=<seconds> --skip-overlap] <database.task.protocol> <hypothesis.rttm>
+  pyannote-metrics spotting [--subset=<subset> --latency=<seconds>... --filter=<expression>...] <database.task.protocol> <hypothesis.json>
+  pyannote-metrics -h | --help
+  pyannote-metrics --version
 
 Options:
   <database.task.protocol>   Set evaluation protocol (e.g. "Etape.SpeakerDiarization.TV")
