@@ -100,6 +100,7 @@ import functools
 import numpy as np
 import pandas as pd
 from tabulate import tabulate
+
 # import multiprocessing as mp
 
 from pyannote.core import Timeline
@@ -136,7 +137,8 @@ showwarning_orig = warnings.showwarning
 
 def showwarning(message, category, *args, **kwargs):
     import sys
-    print(category.__name__ + ':', str(message))
+
+    print(category.__name__ + ":", str(message))
 
 
 warnings.showwarning = showwarning
@@ -156,7 +158,7 @@ def to_overlap(current_file: dict) -> Annotation:
         Overlapped speech reference.
     """
 
-    reference = current_file['annotation']
+    reference = current_file["annotation"]
     overlap = Timeline(uri=reference.uri)
     for (s1, t1), (s2, t2) in reference.co_iter(reference):
         l1 = reference[s1, t1]
@@ -183,7 +185,7 @@ def get_hypothesis(hypotheses, current_file):
         Hypothesis corresponding to `current_file`.
     """
 
-    uri = current_file['uri']
+    uri = current_file["uri"]
 
     if uri in hypotheses:
         return hypotheses[uri]
@@ -196,7 +198,7 @@ def get_hypothesis(hypotheses, current_file):
     if len(tmp_uri) == 0:
         msg = f'Could not find hypothesis for file "{uri}"; assuming empty file.'
         warnings.warn(msg)
-        return Annotation(uri=uri, modality='speaker')
+        return Annotation(uri=uri, modality="speaker")
 
     # exactly one matching file. return it
     if len(tmp_uri) == 1:
@@ -210,23 +212,19 @@ def get_hypothesis(hypotheses, current_file):
 
 
 def process_one(item, hypotheses=None, metrics=None):
-    reference = item['annotation']
+    reference = item["annotation"]
     hypothesis = get_hypothesis(hypotheses, item)
     uem = get_annotated(item)
-    return {key: metric(reference, hypothesis, uem=uem)
-            for key, metric in metrics.items()}
+    return {
+        key: metric(reference, hypothesis, uem=uem) for key, metric in metrics.items()
+    }
 
 
 def get_reports(protocol, subset, hypotheses, metrics):
-    process = functools.partial(process_one,
-                                hypotheses=hypotheses,
-                                metrics=metrics)
+    process = functools.partial(process_one, hypotheses=hypotheses, metrics=metrics)
 
     # get items and their number
-    progress = protocol.progress
-    protocol.progress = False
     items = list(getattr(protocol, subset)())
-    protocol.progress = progress
     n_items = len(items)
 
     for item in items:
@@ -241,38 +239,36 @@ def get_reports(protocol, subset, hypotheses, metrics):
     # pool = mp.Pool(processes)
     # _ = pool.map(process, items, chunksize=chunksize)
 
-    return {key: metric.report(display=False)
-            for key, metric in metrics.items()}
+    return {key: metric.report(display=False) for key, metric in metrics.items()}
 
 
 def reindex(report):
     """Reindex report so that 'TOTAL' is the last row"""
     index = list(report.index)
-    i = index.index('TOTAL')
-    return report.reindex(index[:i] + index[i + 1:] + ['TOTAL'])
+    i = index.index("TOTAL")
+    return report.reindex(index[:i] + index[i + 1 :] + ["TOTAL"])
 
 
 def detection(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
-    options = {'collar': collar,
-               'skip_overlap': skip_overlap,
-               'parallel': True}
+    options = {"collar": collar, "skip_overlap": skip_overlap, "parallel": True}
 
     metrics = {
-        'error': DetectionErrorRate(**options),
-        'accuracy': DetectionAccuracy(**options),
-        'precision': DetectionPrecision(**options),
-        'recall': DetectionRecall(**options)}
+        "error": DetectionErrorRate(**options),
+        "accuracy": DetectionAccuracy(**options),
+        "precision": DetectionPrecision(**options),
+        "recall": DetectionRecall(**options),
+    }
 
     reports = get_reports(protocol, subset, hypotheses, metrics)
 
-    report = metrics['error'].report(display=False)
-    accuracy = metrics['accuracy'].report(display=False)
-    precision = metrics['precision'].report(display=False)
-    recall = metrics['recall'].report(display=False)
+    report = metrics["error"].report(display=False)
+    accuracy = metrics["accuracy"].report(display=False)
+    precision = metrics["precision"].report(display=False)
+    recall = metrics["recall"].report(display=False)
 
-    report['accuracy', '%'] = accuracy[metrics['accuracy'].name, '%']
-    report['precision', '%'] = precision[metrics['precision'].name, '%']
-    report['recall', '%'] = recall[metrics['recall'].name, '%']
+    report["accuracy", "%"] = accuracy[metrics["accuracy"].name, "%"]
+    report["precision", "%"] = precision[metrics["precision"].name, "%"]
+    report["recall", "%"] = recall[metrics["recall"].name, "%"]
 
     report = reindex(report)
 
@@ -292,58 +288,75 @@ def detection(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
 
 
 def segmentation(protocol, subset, hypotheses, tolerance=0.5):
-    options = {'tolerance': tolerance, 'parallel': True}
+    options = {"tolerance": tolerance, "parallel": True}
 
-    metrics = {'coverage': SegmentationCoverage(**options),
-               'purity': SegmentationPurity(**options),
-               'precision': SegmentationPrecision(**options),
-               'recall': SegmentationRecall(**options)}
+    metrics = {
+        "coverage": SegmentationCoverage(**options),
+        "purity": SegmentationPurity(**options),
+        "precision": SegmentationPrecision(**options),
+        "recall": SegmentationRecall(**options),
+    }
 
     reports = get_reports(protocol, subset, hypotheses, metrics)
 
-    coverage = metrics['coverage'].report(display=False)
-    purity = metrics['purity'].report(display=False)
-    precision = metrics['precision'].report(display=False)
-    recall = metrics['recall'].report(display=False)
+    coverage = metrics["coverage"].report(display=False)
+    purity = metrics["purity"].report(display=False)
+    precision = metrics["precision"].report(display=False)
+    recall = metrics["recall"].report(display=False)
 
-    coverage = coverage[metrics['coverage'].name]
-    purity = purity[metrics['purity'].name]
-    precision = precision[metrics['precision'].name]
-    recall = recall[metrics['recall'].name]
+    coverage = coverage[metrics["coverage"].name]
+    purity = purity[metrics["purity"].name]
+    precision = precision[metrics["precision"].name]
+    recall = recall[metrics["recall"].name]
 
     report = pd.concat([coverage, purity, precision, recall], axis=1)
     report = reindex(report)
 
-    headers = ['Segmentation (tolerance = {0:g} ms)'.format(1000 * tolerance),
-               'coverage', 'purity', 'precision', 'recall']
-    print(tabulate(report, headers=headers, tablefmt="simple",
-                   floatfmt=".2f", numalign="decimal", stralign="left",
-                   missingval="", showindex="default", disable_numparse=False))
+    headers = [
+        "Segmentation (tolerance = {0:g} ms)".format(1000 * tolerance),
+        "coverage",
+        "purity",
+        "precision",
+        "recall",
+    ]
+    print(
+        tabulate(
+            report,
+            headers=headers,
+            tablefmt="simple",
+            floatfmt=".2f",
+            numalign="decimal",
+            stralign="left",
+            missingval="",
+            showindex="default",
+            disable_numparse=False,
+        )
+    )
 
 
-def diarization(protocol, subset, hypotheses, greedy=False,
-                collar=0.0, skip_overlap=False):
-    options = {'collar': collar,
-               'skip_overlap': skip_overlap,
-               'parallel': True}
+def diarization(
+    protocol, subset, hypotheses, greedy=False, collar=0.0, skip_overlap=False
+):
+    options = {"collar": collar, "skip_overlap": skip_overlap, "parallel": True}
 
     metrics = {
-        'purity': DiarizationPurity(**options),
-        'coverage': DiarizationCoverage(**options)}
+        "purity": DiarizationPurity(**options),
+        "coverage": DiarizationCoverage(**options),
+    }
 
     if greedy:
-        metrics['error'] = GreedyDiarizationErrorRate(**options)
+        metrics["error"] = GreedyDiarizationErrorRate(**options)
     else:
-        metrics['error'] = DiarizationErrorRate(**options)
+        metrics["error"] = DiarizationErrorRate(**options)
 
     reports = get_reports(protocol, subset, hypotheses, metrics)
 
-    report = metrics['error'].report(display=False)
-    purity = metrics['purity'].report(display=False)
-    coverage = metrics['coverage'].report(display=False)
+    report = metrics["error"].report(display=False)
+    purity = metrics["purity"].report(display=False)
+    coverage = metrics["coverage"].report(display=False)
 
-    report['purity', '%'] = purity[metrics['purity'].name, '%']
-    report['coverage', '%'] = coverage[metrics['coverage'].name, '%']
+    report["purity", "%"] = purity[metrics["purity"].name, "%"]
+    report["coverage", "%"] = coverage[metrics["coverage"].name, "%"]
 
     columns = list(report.columns)
     report = report[[columns[0]] + columns[-2:] + columns[1:-2]]
@@ -364,25 +377,23 @@ def diarization(protocol, subset, hypotheses, greedy=False,
                    missingval="", showindex="default", disable_numparse=False))
 
 
-def identification(protocol, subset, hypotheses,
-                   collar=0.0, skip_overlap=False):
-    options = {'collar': collar,
-               'skip_overlap': skip_overlap,
-               'parallel': True}
+def identification(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
+    options = {"collar": collar, "skip_overlap": skip_overlap, "parallel": True}
 
     metrics = {
-        'error': IdentificationErrorRate(**options),
-        'precision': IdentificationPrecision(**options),
-        'recall': IdentificationRecall(**options)}
+        "error": IdentificationErrorRate(**options),
+        "precision": IdentificationPrecision(**options),
+        "recall": IdentificationRecall(**options),
+    }
 
     reports = get_reports(protocol, subset, hypotheses, metrics)
 
-    report = metrics['error'].report(display=False)
-    precision = metrics['precision'].report(display=False)
-    recall = metrics['recall'].report(display=False)
+    report = metrics["error"].report(display=False)
+    precision = metrics["precision"].report(display=False)
+    recall = metrics["recall"].report(display=False)
 
-    report['precision', '%'] = precision[metrics['precision'].name, '%']
-    report['recall', '%'] = recall[metrics['recall'].name, '%']
+    report["precision", "%"] = precision[metrics["precision"].name, "%"]
+    report["recall", "%"] = recall[metrics["recall"].name, "%"]
 
     columns = list(report.columns)
     report = report[[columns[0]] + columns[-2:] + columns[1:-2]]
@@ -402,66 +413,77 @@ def identification(protocol, subset, hypotheses,
                    missingval="", showindex="default", disable_numparse=False))
 
 
-def spotting(protocol, subset, latencies, hypotheses, output_prefix,
-             filter_func=None):
+def spotting(protocol, subset, latencies, hypotheses, output_prefix, filter_func=None):
     if not latencies:
         Scores = []
 
     protocol.diarization = False
 
-    trials = getattr(protocol, '{subset}_trial'.format(subset=subset))()
+    trials = getattr(protocol, "{subset}_trial".format(subset=subset))()
     for i, (current_trial, hypothesis) in enumerate(zip(trials, hypotheses)):
 
         # check trial/hypothesis target consistency
         try:
-            assert current_trial['model_id'] == hypothesis['model_id']
+            assert current_trial["model_id"] == hypothesis["model_id"]
         except AssertionError as e:
-            msg = ('target mismatch in trial #{i} '
-                   '(found: {found}, should be: {should_be})')
+            msg = (
+                "target mismatch in trial #{i} "
+                "(found: {found}, should be: {should_be})"
+            )
             raise ValueError(
-                msg.format(i=i, found=hypothesis['model_id'],
-                           should_be=current_trial['model_id']))
+                msg.format(
+                    i=i,
+                    found=hypothesis["model_id"],
+                    should_be=current_trial["model_id"],
+                )
+            )
 
         # check trial/hypothesis file consistency
         try:
-            assert current_trial['uri'] == hypothesis['uri']
+            assert current_trial["uri"] == hypothesis["uri"]
         except AssertionError as e:
-            msg = ('file mismatch in trial #{i} '
-                   '(found: {found}, should be: {should_be})')
+            msg = (
+                "file mismatch in trial #{i} "
+                "(found: {found}, should be: {should_be})"
+            )
             raise ValueError(
-                msg.format(i=i, found=hypothesis['uri'],
-                           should_be=current_trial['uri']))
+                msg.format(i=i, found=hypothesis["uri"], should_be=current_trial["uri"])
+            )
 
         # check at least one score is provided
         try:
-            assert len(hypothesis['scores']) > 0
+            assert len(hypothesis["scores"]) > 0
         except AssertionError as e:
-            msg = ('empty list of scores in trial #{i}.')
+            msg = "empty list of scores in trial #{i}."
             raise ValueError(msg.format(i=i))
 
-        timestamps, scores = zip(*hypothesis['scores'])
+        timestamps, scores = zip(*hypothesis["scores"])
 
         if not latencies:
             Scores.append(scores)
 
         # check trial/hypothesis timerange consistency
-        try_with = current_trial['try_with']
+        try_with = current_trial["try_with"]
         try:
             assert min(timestamps) >= try_with.start
         except AssertionError as e:
-            msg = ('incorrect timestamp in trial #{i} '
-                   '(found: {found:g}, should be: >= {should_be:g})')
+            msg = (
+                "incorrect timestamp in trial #{i} "
+                "(found: {found:g}, should be: >= {should_be:g})"
+            )
             raise ValueError(
-                msg.format(i=i,
-                           found=min(timestamps),
-                           should_be=try_with.start))
+                msg.format(i=i, found=min(timestamps), should_be=try_with.start)
+            )
 
     if not latencies:
         # estimate best set of thresholds
         scores = np.concatenate(Scores)
         epsilons = np.array(
-            [n * 10 ** (-e) for e in range(4, 1, -1) for n in range(1, 10)])
-        percentile = np.concatenate([epsilons, np.arange(0.1, 100., 0.1), 100 - epsilons[::-1]])
+            [n * 10 ** (-e) for e in range(4, 1, -1) for n in range(1, 10)]
+        )
+        percentile = np.concatenate(
+            [epsilons, np.arange(0.1, 100.0, 0.1), 100 - epsilons[::-1]]
+        )
         thresholds = np.percentile(scores, percentile)
 
     if not latencies:
@@ -470,41 +492,44 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix,
     else:
         metric = LowLatencySpeakerSpotting(latencies=latencies)
 
-    trials = getattr(protocol, '{subset}_trial'.format(subset=subset))()
+    trials = getattr(protocol, "{subset}_trial".format(subset=subset))()
     for i, (current_trial, hypothesis) in enumerate(zip(trials, hypotheses)):
 
         if filter_func is not None:
-            speech = current_trial['reference'].duration()
+            speech = current_trial["reference"].duration()
             target_trial = speech > 0
             if target_trial and filter_func(speech):
                 continue
 
-        reference = current_trial['reference']
-        metric(reference, hypothesis['scores'])
+        reference = current_trial["reference"]
+        metric(reference, hypothesis["scores"])
 
     if not latencies:
 
         thresholds, fpr, fnr, eer, _ = metric.det_curve(return_latency=False)
 
         # save DET curve to hypothesis.det.txt
-        det_path = '{output_prefix}.det.txt'.format(output_prefix=output_prefix)
-        det_tmpl = '{t:.9f} {p:.9f} {n:.9f}\n'
-        with open(det_path, mode='w') as fp:
-            fp.write('# threshold false_positive_rate false_negative_rate\n')
+        det_path = "{output_prefix}.det.txt".format(output_prefix=output_prefix)
+        det_tmpl = "{t:.9f} {p:.9f} {n:.9f}\n"
+        with open(det_path, mode="w") as fp:
+            fp.write("# threshold false_positive_rate false_negative_rate\n")
             for t, p, n in zip(thresholds, fpr, fnr):
                 line = det_tmpl.format(t=t, p=p, n=n)
                 fp.write(line)
 
-        print('> {det_path}'.format(det_path=det_path))
+        print("> {det_path}".format(det_path=det_path))
 
-        thresholds, fpr, fnr, _, _, speaker_lcy, absolute_lcy = \
-            metric.det_curve(return_latency=True)
+        thresholds, fpr, fnr, _, _, speaker_lcy, absolute_lcy = metric.det_curve(
+            return_latency=True
+        )
 
         # save DET curve to hypothesis.det.txt
-        lcy_path = '{output_prefix}.lcy.txt'.format(output_prefix=output_prefix)
-        lcy_tmpl = '{t:.9f} {p:.9f} {n:.9f} {s:.6f} {a:.6f}\n'
-        with open(lcy_path, mode='w') as fp:
-            fp.write('# threshold false_positive_rate false_negative_rate speaker_latency absolute_latency\n')
+        lcy_path = "{output_prefix}.lcy.txt".format(output_prefix=output_prefix)
+        lcy_tmpl = "{t:.9f} {p:.9f} {n:.9f} {s:.6f} {a:.6f}\n"
+        with open(lcy_path, mode="w") as fp:
+            fp.write(
+                "# threshold false_positive_rate false_negative_rate speaker_latency absolute_latency\n"
+            )
             for t, p, n, s, a in zip(thresholds, fpr, fnr, speaker_lcy, absolute_lcy):
                 if p == 1:
                     continue
@@ -513,10 +538,10 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix,
                 line = lcy_tmpl.format(t=t, p=p, n=n, s=s, a=a)
                 fp.write(line)
 
-        print('> {lcy_path}'.format(lcy_path=lcy_path))
+        print("> {lcy_path}".format(lcy_path=lcy_path))
 
         print()
-        print('EER% = {eer:.2f}'.format(eer=100 * eer))
+        print("EER% = {eer:.2f}".format(eer=100 * eer))
 
     else:
 
@@ -525,123 +550,149 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix,
         for key in sorted(results):
 
             result = results[key]
-            log = {'latency': key}
+            log = {"latency": key}
             for latency in latencies:
                 thresholds, fpr, fnr, eer, _ = result[latency]
                 # print('EER @ {latency}s = {eer:.2f}%'.format(latency=latency,
                 #                                             eer=100 * eer))
                 log[latency] = eer
                 # save DET curve to hypothesis.det.{lcy}s.txt
-                det_path = '{output_prefix}.det.{key}.{latency:g}s.txt'.format(
-                    output_prefix=output_prefix, key=key, latency=latency)
-                det_tmpl = '{t:.9f} {p:.9f} {n:.9f}\n'
-                with open(det_path, mode='w') as fp:
-                    fp.write('# threshold false_positive_rate false_negative_rate\n')
+                det_path = "{output_prefix}.det.{key}.{latency:g}s.txt".format(
+                    output_prefix=output_prefix, key=key, latency=latency
+                )
+                det_tmpl = "{t:.9f} {p:.9f} {n:.9f}\n"
+                with open(det_path, mode="w") as fp:
+                    fp.write("# threshold false_positive_rate false_negative_rate\n")
                     for t, p, n in zip(thresholds, fpr, fnr):
                         line = det_tmpl.format(t=t, p=p, n=n)
                         fp.write(line)
             logs.append(log)
-            det_path = '{output_prefix}.det.{key}.XXs.txt'.format(
-                output_prefix=output_prefix, key=key)
-            print('> {det_path}'.format(det_path=det_path))
+            det_path = "{output_prefix}.det.{key}.XXs.txt".format(
+                output_prefix=output_prefix, key=key
+            )
+            print("> {det_path}".format(det_path=det_path))
 
         print()
-        df = 100 * pd.DataFrame.from_dict(logs).set_index('latency')[latencies]
-        print(tabulate(df, tablefmt="simple",
-                       headers=['latency'] + ['EER% @ {l:g}s'.format(l=l) for l in latencies],
-                       floatfmt=".2f", numalign="decimal", stralign="left",
-                       missingval="", showindex="default", disable_numparse=False))
+        df = 100 * pd.DataFrame.from_dict(logs).set_index("latency")[latencies]
+        print(
+            tabulate(
+                df,
+                tablefmt="simple",
+                headers=["latency"] + ["EER% @ {l:g}s".format(l=l) for l in latencies],
+                floatfmt=".2f",
+                numalign="decimal",
+                stralign="left",
+                missingval="",
+                showindex="default",
+                disable_numparse=False,
+            )
+        )
 
 
 def main():
-    arguments = docopt(__doc__, version='Evaluation')
+    arguments = docopt(__doc__, version="Evaluation")
 
-    collar = float(arguments['--collar'])
-    skip_overlap = arguments['--skip-overlap']
-    tolerance = float(arguments['--tolerance'])
+    collar = float(arguments["--collar"])
+    skip_overlap = arguments["--skip-overlap"]
+    tolerance = float(arguments["--tolerance"])
 
     # protocol
-    protocol_name = arguments['<database.task.protocol>']
+    protocol_name = arguments["<database.task.protocol>"]
 
     preprocessors = dict()
-    if arguments['overlap']:
+    if arguments["overlap"]:
         if skip_overlap:
             msg = (
-                'Option --skip-overlap is not supported '
-                'when evaluating overlapped speech detection.')
+                "Option --skip-overlap is not supported "
+                "when evaluating overlapped speech detection."
+            )
             sys.exit(msg)
-        preprocessors = {'annotation': to_overlap}
+        preprocessors = {"annotation": to_overlap}
 
-    protocol = get_protocol(protocol_name, progress=True,
-                            preprocessors=preprocessors)
+    protocol = get_protocol(protocol_name, preprocessors=preprocessors)
 
     # subset (train, development, or test)
-    subset = arguments['--subset']
+    subset = arguments["--subset"]
 
-    if arguments['spotting']:
+    if arguments["spotting"]:
 
-        hypothesis_json = arguments['<hypothesis.json>']
-        with open(hypothesis_json, mode='r') as fp:
+        hypothesis_json = arguments["<hypothesis.json>"]
+        with open(hypothesis_json, mode="r") as fp:
             hypotheses = json.load(fp)
 
         output_prefix = hypothesis_json[:-5]
 
-        latencies = [float(l) for l in arguments['--latency']]
+        latencies = [float(l) for l in arguments["--latency"]]
 
-        filters = arguments['--filter']
+        filters = arguments["--filter"]
         if filters:
             from sympy import sympify, lambdify, symbols
-            speech = symbols('speech')
+
+            speech = symbols("speech")
             filter_funcs = []
             filter_funcs = [
-                lambdify([speech], sympify(expression))
-                for expression in filters]
-            filter_func = lambda speech: \
-                any(~func(speech) for func in filter_funcs)
+                lambdify([speech], sympify(expression)) for expression in filters
+            ]
+            filter_func = lambda speech: any(~func(speech) for func in filter_funcs)
         else:
             filter_func = None
 
-        spotting(protocol, subset, latencies, hypotheses, output_prefix,
-                 filter_func=filter_func)
+        spotting(
+            protocol,
+            subset,
+            latencies,
+            hypotheses,
+            output_prefix,
+            filter_func=filter_func,
+        )
 
         sys.exit(0)
 
-    hypothesis_rttm = arguments['<hypothesis.rttm>']
+    hypothesis_rttm = arguments["<hypothesis.rttm>"]
 
     try:
         hypotheses = load_rttm(hypothesis_rttm)
 
     except FileNotFoundError:
-        msg = f'Could not find file {hypothesis_rttm}.'
+        msg = f"Could not find file {hypothesis_rttm}."
         sys.exit(msg)
 
     except:
         msg = (
-            f'Failed to load {hypothesis_rttm}, please check its format '
-            f'(only RTTM files are supported).'
+            f"Failed to load {hypothesis_rttm}, please check its format "
+            f"(only RTTM files are supported)."
         )
         sys.exit(msg)
 
-    if arguments['detection']:
-        detection(protocol, subset, hypotheses,
-                  collar=collar, skip_overlap=skip_overlap)
+    if arguments["detection"]:
+        detection(
+            protocol, subset, hypotheses, collar=collar, skip_overlap=skip_overlap
+        )
 
-    if arguments['overlap']:
-        detection(protocol, subset, hypotheses,
-                  collar=collar, skip_overlap=skip_overlap)
+    if arguments["overlap"]:
+        detection(
+            protocol, subset, hypotheses, collar=collar, skip_overlap=skip_overlap
+        )
 
-    if arguments['segmentation']:
+    if arguments["segmentation"]:
         segmentation(protocol, subset, hypotheses, tolerance=tolerance)
 
-    if arguments['diarization']:
-        greedy = arguments['--greedy']
-        diarization(protocol, subset, hypotheses, greedy=greedy,
-                    collar=collar, skip_overlap=skip_overlap)
+    if arguments["diarization"]:
+        greedy = arguments["--greedy"]
+        diarization(
+            protocol,
+            subset,
+            hypotheses,
+            greedy=greedy,
+            collar=collar,
+            skip_overlap=skip_overlap,
+        )
 
-    if arguments['identification']:
-        identification(protocol, subset, hypotheses,
-                       collar=collar, skip_overlap=skip_overlap)
+    if arguments["identification"]:
+        identification(
+            protocol, subset, hypotheses, collar=collar, skip_overlap=skip_overlap
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
