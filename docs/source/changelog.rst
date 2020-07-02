@@ -2,6 +2,11 @@
 Changelog
 #########
 
+Version 3.0.1 (2020-07-02)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- setup: switch to pyannote.database 4.0+
+
 Version 3.0 (2020-06-15)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
