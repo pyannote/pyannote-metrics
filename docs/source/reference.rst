@@ -91,7 +91,7 @@ It is defined as follows:
     \text{DER} = \frac{\text{false alarm} + \text{missed detection} + \text{confusion}}{\text{total}}
 
 where :math:`\text{false alarm}` is the duration of non-speech incorrectly classified as speech, :math:`\text{missed detection}` is the duration of
-speech incorrectly classified as non-speech, :math:`\text{confusion}` is the duration of speaker confusion, and :math:`\text{total}` is the total duration of speech in the reference.
+speech incorrectly classified as non-speech, :math:`\text{confusion}` is the duration of speaker confusion, and :math:`\text{total}` is the total duration of speech turns.
 
 Note that this metric does take overlapping speech into account, potentially leading to increased missed detection in case the speaker diarization system does not include an overlapping speech detection module.
 
