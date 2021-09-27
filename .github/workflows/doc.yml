@@ -28,11 +28,8 @@ jobs:
         make --directory=docs html
         touch ./docs/build/html/.nojekyll
     - name: Deploy
-      env:
-        ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
-        PUBLISH_BRANCH: gh-pages
-        PUBLISH_DIR: ./docs/build/html
-        SCRIPT_MODE: true
-      run: |
-        wget https://raw.githubusercontent.com/peaceiris/actions-gh-pages/v2/entrypoint.sh
-        bash ./entrypoint.sh
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/build/html
