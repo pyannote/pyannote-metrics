@@ -5,10 +5,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Tutorial &mdash; pyannote.metrics 3.0.1 documentation</title>
+  <title>Tutorial &mdash; pyannote.metrics 3.1 documentation</title>
   
 
   
@@ -34,6 +35,7 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Principles" href="basics.html" />
@@ -61,7 +63,7 @@
             
             
               <div class="version">
-                3.0.1
+                3.1
               </div>
             
           
@@ -162,14 +164,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="tutorial">
+  <section id="tutorial">
 <h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
 <p>This tutorial will guide you through a simple example on how to use <cite>pyannote.metrics</cite> for evaluation purposes.</p>
-<p><cite>pyannote.metrics</cite> internally relies on <a class="reference external" href="http://pyannote.github.io/pyannote-core/reference.html#pyannote.core.Annotation" title="(in pyannote.core v4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.core.Annotation</span></code></a> data structure to store reference and hypothesis annotations.</p>
+<p><cite>pyannote.metrics</cite> internally relies on <code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.core.Annotation</span></code> data structure to store reference and hypothesis annotations.</p>
 <p>(<a class="reference external" href="./pyplots/tutorial.py">Source code</a>, <a class="reference external" href="./pyplots/tutorial.png">png</a>, <a class="reference external" href="./pyplots/tutorial.hires.png">hires.png</a>, <a class="reference external" href="./pyplots/tutorial.pdf">pdf</a>)</p>
-<div class="figure align-default">
-<img alt="_images/tutorial.png" src="_images/tutorial.png" />
-</div>
+<figure class="align-default">
+<img alt="_images/tutorial.png" class="plot-directive" src="_images/tutorial.png" />
+</figure>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pyannote.core</span> <span class="kn">import</span> <span class="n">Segment</span><span class="p">,</span> <span class="n">Timeline</span><span class="p">,</span> <span class="n">Annotation</span>
 
 <span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">reference</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">()</span>
@@ -199,7 +201,7 @@
 </div>
 <p>That’s it for the tutorial.
 <cite>pyannote.metrics</cite> can do much more than that! Keep reading…</p>
-</div>
+</section>
 
 
            </div>

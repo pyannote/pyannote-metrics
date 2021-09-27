@@ -5,10 +5,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Reference &mdash; pyannote.metrics 3.0.1 documentation</title>
+  <title>Reference &mdash; pyannote.metrics 3.1 documentation</title>
   
 
   
@@ -34,6 +35,7 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Changelog" href="changelog.html" />
@@ -61,7 +63,7 @@
             
             
               <div class="version">
-                3.0.1
+                3.1
               </div>
             
           
@@ -172,9 +174,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="reference">
+  <section id="reference">
 <h1>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="evaluation-metrics">
+<section id="evaluation-metrics">
 <h2>Evaluation metrics<a class="headerlink" href="#evaluation-metrics" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 </div>
@@ -191,7 +193,7 @@ In particular, it is often necessary to evaluate the performance of each module 
 Most of the metrics available in <cite>pyannote.metrics</cite> support a <cite>collar</cite> parameter, which defaults to 0.</p>
 <p>Moreover, though audio files can always be processed entirely (from beginning to end), there are cases where reference annotations are only available for some regions of the audio files.
 All metrics support the provision of an evaluation map that indicate which part of the audio file should be evaluated.</p>
-<div class="section" id="detection">
+<section id="detection">
 <h3>Detection<a class="headerlink" href="#detection" title="Permalink to this headline">¶</a></h3>
 <p>The two primary metrics for evaluating speech activity detection modules are detection error rate and detection cost function.</p>
 <p>Detection error rate (not to be confused with diarization error rate) is defined as:</p>
@@ -219,9 +221,9 @@ duration of the input signal.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
 boundaries of reference segments (one half before, one half after).</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
 Defaults to False (i.e. keep overlap regions).</p></li>
 </ul>
 </dd>
@@ -242,7 +244,7 @@ Defaults to False (i.e. keep overlap regions).</p></li>
 values</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -253,7 +255,7 @@ values</p>
 <dd><p>Compute metric value from computed <cite>components</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
 values</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -283,14 +285,14 @@ classified as non-speech.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
 boundaries of reference segments (one half before, one half after).
 Defaults to 0.0.</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
 Defaults to False (i.e. keep overlap regions).</p></li>
-<li><p><strong>fa_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Weight for false alarm rate.
+<li><p><strong>fa_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Weight for false alarm rate.
 Defaults to 0.25.</p></li>
-<li><p><strong>miss_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Weight for miss rate.
+<li><p><strong>miss_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Weight for miss rate.
 Defaults to 0.75.</p></li>
 <li><p><strong>kwargs</strong> – Keyword arguments passed to <code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.metrics.base.BaseMetric</span></code>.</p></li>
 </ul>
@@ -314,7 +316,7 @@ Defaults to 0.75.</p></li>
 values</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -325,7 +327,7 @@ values</p>
 <dd><p>Compute metric value from computed <cite>components</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
 values</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -355,9 +357,9 @@ total duration of the positive class in the reference.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
 boundaries of reference segments (one half before, one half after).</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
 Defaults to False (i.e. keep overlap regions).</p></li>
 </ul>
 </dd>
@@ -378,7 +380,7 @@ Defaults to False (i.e. keep overlap regions).</p></li>
 values</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -389,7 +391,7 @@ values</p>
 <dd><p>Compute metric value from computed <cite>components</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
 values</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -418,9 +420,9 @@ positive (e.g. non-speech classified as speech).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
 boundaries of reference segments (one half before, one half after).</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
 Defaults to False (i.e. keep overlap regions).</p></li>
 </ul>
 </dd>
@@ -441,7 +443,7 @@ Defaults to False (i.e. keep overlap regions).</p></li>
 values</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -452,7 +454,7 @@ values</p>
 <dd><p>Compute metric value from computed <cite>components</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
 values</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -473,11 +475,11 @@ values</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
 boundaries of reference segments (one half before, one half after).</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
 Defaults to False (i.e. keep overlap regions).</p></li>
-<li><p><strong>beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – When beta &gt; 1, greater importance is given to recall.
+<li><p><strong>beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – When beta &gt; 1, greater importance is given to recall.
 When beta &lt; 1, greater importance is given to precision.
 Defaults to 1.</p></li>
 </ul>
@@ -503,7 +505,7 @@ Defaults to 1.</p></li>
 values</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -514,7 +516,7 @@ values</p>
 <dd><p>Compute metric value from computed <cite>components</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
 values</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -543,9 +545,9 @@ negative (e.g. speech classified as non-speech).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
 boundaries of reference segments (one half before, one half after).</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
 Defaults to False (i.e. keep overlap regions).</p></li>
 </ul>
 </dd>
@@ -566,7 +568,7 @@ Defaults to False (i.e. keep overlap regions).</p></li>
 values</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -577,7 +579,7 @@ values</p>
 <dd><p>Compute metric value from computed <cite>components</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
 values</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -591,8 +593,8 @@ values</p>
 
 </dd></dl>
 
-</div>
-<div class="section" id="segmentation">
+</section>
+<section id="segmentation">
 <h3>Segmentation<a class="headerlink" href="#segmentation" title="Permalink to this headline">¶</a></h3>
 <p>Change detection modules can be evaluated using two pairs of dual metrics: precision and recall, or purity and coverage.</p>
 <img alt="_images/segmentation.png" src="_images/segmentation.png" />
@@ -610,7 +612,7 @@ For instance, coverage for reference segment 1 is 100% because it is entirely co
 <dd><p>Segmentation coverage</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – When provided, preprocess reference by filling intra-label gaps shorter
+<dd class="field-odd"><p><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – When provided, preprocess reference by filling intra-label gaps shorter
 than <cite>tolerance</cite> (in seconds).</p>
 </dd>
 </dl>
@@ -630,7 +632,7 @@ than <cite>tolerance</cite> (in seconds).</p>
 values</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -641,7 +643,7 @@ values</p>
 <dd><p>Compute metric value from computed <cite>components</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
 values</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -701,7 +703,7 @@ values</p>
 values</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -712,7 +714,7 @@ values</p>
 <dd><p>Compute metric value from computed <cite>components</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
 values</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -732,7 +734,7 @@ values</p>
 <dd><p>Segmentation purity</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – When provided, preprocess reference by filling intra-label gaps shorter
+<dd class="field-odd"><p><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – When provided, preprocess reference by filling intra-label gaps shorter
 than <cite>tolerance</cite> (in seconds).</p>
 </dd>
 </dl>
@@ -752,7 +754,7 @@ than <cite>tolerance</cite> (in seconds).</p>
 values</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -766,9 +768,9 @@ values</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – When provided, preprocess reference by filling intra-label gaps shorter
+<li><p><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – When provided, preprocess reference by filling intra-label gaps shorter
 than <cite>tolerance</cite> (in seconds).</p></li>
-<li><p><strong>beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – When beta &gt; 1, greater importance is given to coverage.
+<li><p><strong>beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – When beta &gt; 1, greater importance is given to coverage.
 When beta &lt; 1, greater importance is given to purity.
 Defaults to 1.</p></li>
 </ul>
@@ -794,7 +796,7 @@ Defaults to 1.</p></li>
 values</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -805,7 +807,7 @@ values</p>
 <dd><p>Compute metric value from computed <cite>components</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
 values</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -865,30 +867,30 @@ values</p>
 values</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 </dd></dl>
 
-</div>
-<div class="section" id="diarization">
+</section>
+<section id="diarization">
 <h3>Diarization<a class="headerlink" href="#diarization" title="Permalink to this headline">¶</a></h3>
 <p>Diarization error rate (DER) is the emph{de facto} standard metric for evaluating and comparing speaker diarization systems.
 It is defined as follows:</p>
 <div class="math notranslate nohighlight">
 \[\text{DER} = \frac{\text{false alarm} + \text{missed detection} + \text{confusion}}{\text{total}}\]</div>
 <p>where <span class="math notranslate nohighlight">\(\text{false alarm}\)</span> is the duration of non-speech incorrectly classified as speech, <span class="math notranslate nohighlight">\(\text{missed detection}\)</span> is the duration of
-speech incorrectly classified as non-speech, <span class="math notranslate nohighlight">\(\text{confusion}\)</span> is the duration of speaker confusion, and <span class="math notranslate nohighlight">\(\text{total}\)</span> is the total duration of speech in the reference.</p>
+speech incorrectly classified as non-speech, <span class="math notranslate nohighlight">\(\text{confusion}\)</span> is the duration of speaker confusion, and <span class="math notranslate nohighlight">\(\text{total}\)</span> is the sum over all speakers of their reference speech duration.</p>
 <p>Note that this metric does take overlapping speech into account, potentially leading to increased missed detection in case the speaker diarization system does not include an overlapping speech detection module.</p>
-<div class="section" id="optimal-vs-greedy">
+<section id="optimal-vs-greedy">
 <h4>Optimal vs. greedy<a class="headerlink" href="#optimal-vs-greedy" title="Permalink to this headline">¶</a></h4>
 <p>Two implementations of the diarization error rate are available (optimal and greedy), depending on how the one-to-one mapping between reference and hypothesized speakers is computed.</p>
 <p>The <cite>optimal</cite> version uses the Hungarian algorithm to compute the mapping that minimize the confusion term, while the <cite>greedy</cite> version operates in a greedy manner, mapping reference and hypothesized speakers iteratively, by decreasing value of their cooccurrence duration.</p>
 <p>In practice, the <cite>greedy</cite> version is much faster than the <cite>optimal</cite> one, especially for files with a large number of speakers – though it may slightly over-estimate the value of the diarization error rate.</p>
-</div>
-<div class="section" id="purity-and-coverage">
+</section>
+<section id="purity-and-coverage">
 <h4>Purity and coverage<a class="headerlink" href="#purity-and-coverage" title="Permalink to this headline">¶</a></h4>
 <p>While the diarization error rate provides a convenient way to compare different diarization approaches, it is usually not enough to understand the type of errors commited by the system.</p>
 <p>Purity and coverage are two dual evaluation metrics that provide additional insight on the behavior of the system.</p>
@@ -897,8 +899,8 @@ speech incorrectly classified as non-speech, <span class="math notranslate nohig
 \text{coverage} &amp; = &amp; \frac{\displaystyle \sum_{\text{speaker}} \max_{\text{cluster}} |\text{speaker} \cap \text{cluster}|  }{\displaystyle \sum_{\text{speaker}} |\text{speaker}|} \\\end{split}\]</div>
 <p>where <span class="math notranslate nohighlight">\(|\text{speaker}|\)</span> (respectively <span class="math notranslate nohighlight">\(|\text{cluster}|\)</span>) is the speech duration of this particular reference speaker (resp. hypothesized cluster), and  <span class="math notranslate nohighlight">\(|\text{speaker} \cap \text{cluster}|\)</span> is the duration of their intersection.</p>
 <p>Over-segmented results (e.g. too many speaker clusters) tend to lead to high purity and low coverage, while under-segmented results (e.g. when two speakers are merged into one large cluster) lead to low purity and higher coverage.</p>
-</div>
-<div class="section" id="use-case">
+</section>
+<section id="use-case">
 <h4>Use case<a class="headerlink" href="#use-case" title="Permalink to this headline">¶</a></h4>
 <p>This figure depicts the evolution of a multi-stage speaker diarization system applied on the ETAPE dataset.
 It is roughly made of four consecutive modules (segmentation, BIC clustering, Viterbi resegmentation, and CLR clustering).</p>
@@ -916,9 +918,9 @@ Finally, CLR clustering brings an additional +5% coverage improvement.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
 boundaries of reference segments.</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
 Defaults to False (i.e. keep overlap regions).</p></li>
 </ul>
 </dd>
@@ -939,7 +941,7 @@ Defaults to False (i.e. keep overlap regions).</p></li>
 values</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -955,10 +957,10 @@ given reference label are clustered in the same cluster.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>weighted</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – When True (default), each cluster is weighted by its overall duration.</p></li>
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+<li><p><strong>weighted</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – When True (default), each cluster is weighted by its overall duration.</p></li>
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
 boundaries of reference segments.</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
 Defaults to False (i.e. keep overlap regions).</p></li>
 </ul>
 </dd>
@@ -979,7 +981,7 @@ Defaults to False (i.e. keep overlap regions).</p></li>
 values</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -997,9 +999,9 @@ label translated into the corresponding reference label.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
 boundaries of reference segments.</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
 Defaults to False (i.e. keep overlap regions).</p></li>
 <li><p><strong>Usage</strong> – </p></li>
 <li><p><strong>-----</strong> – </p></li>
@@ -1045,8 +1047,8 @@ Defaults to False (i.e. keep overlap regions).</p></li>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Override self.collar</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Override self.skip_overlap</p></li>
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Override self.collar</p></li>
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Override self.skip_overlap</p></li>
 </ul>
 </dd>
 </dl>
@@ -1072,7 +1074,7 @@ Defaults to False (i.e. keep overlap regions).</p></li>
 <dd class="field-even"><p><strong>mapping</strong> – Mapping between hypothesis (key) and reference (value) labels</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1086,9 +1088,9 @@ Defaults to False (i.e. keep overlap regions).</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
 boundaries of reference segments.</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
 Defaults to False (i.e. keep overlap regions).</p></li>
 </ul>
 </dd>
@@ -1109,7 +1111,7 @@ Defaults to False (i.e. keep overlap regions).</p></li>
 values</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1120,7 +1122,7 @@ values</p>
 <dd><p>Compute metric value from computed <cite>components</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
 values</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1143,10 +1145,10 @@ only segments which are members of a single reference label.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>weighted</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – When True (default), each cluster is weighted by its overall duration.</p></li>
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+<li><p><strong>weighted</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – When True (default), each cluster is weighted by its overall duration.</p></li>
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
 boundaries of reference segments.</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
 Defaults to False (i.e. keep overlap regions).</p></li>
 </ul>
 </dd>
@@ -1167,7 +1169,7 @@ Defaults to False (i.e. keep overlap regions).</p></li>
 values</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1178,7 +1180,7 @@ values</p>
 <dd><p>Compute metric value from computed <cite>components</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
 values</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1199,13 +1201,13 @@ values</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>weighted</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – When True (default), each cluster/class is weighted by its overall
+<li><p><strong>weighted</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – When True (default), each cluster/class is weighted by its overall
 duration.</p></li>
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
 boundaries of reference segments.</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
 Defaults to False (i.e. keep overlap regions).</p></li>
-<li><p><strong>beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – When beta &gt; 1, greater importance is given to coverage.
+<li><p><strong>beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – When beta &gt; 1, greater importance is given to coverage.
 When beta &lt; 1, greater importance is given to purity.
 Defaults to 1.</p></li>
 </ul>
@@ -1231,7 +1233,7 @@ Defaults to 1.</p></li>
 values</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1242,7 +1244,7 @@ values</p>
 <dd><p>Compute metric value from computed <cite>components</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
 values</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1267,9 +1269,9 @@ corresponding reference label.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
 boundaries of reference segments.</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
 Defaults to False (i.e. keep overlap regions).</p></li>
 <li><p><strong>Usage</strong> – </p></li>
 <li><p><strong>-----</strong> – </p></li>
@@ -1313,8 +1315,8 @@ Defaults to False (i.e. keep overlap regions).</p></li>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Override self.collar</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Override self.skip_overlap</p></li>
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Override self.collar</p></li>
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Override self.skip_overlap</p></li>
 </ul>
 </dd>
 </dl>
@@ -1340,7 +1342,7 @@ Defaults to False (i.e. keep overlap regions).</p></li>
 <dd class="field-even"><p><strong>mapping</strong> – Mapping between hypothesis (key) and reference (value) labels</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1392,9 +1394,9 @@ speakers are handled correctly.”</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
 boundaries of reference segments.</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
 Defaults to False (i.e. keep overlap regions).</p></li>
 <li><p><strong>Usage</strong> – </p></li>
 <li><p><strong>-----</strong> – </p></li>
@@ -1411,8 +1413,8 @@ Defaults to False (i.e. keep overlap regions).</p></li>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Override self.collar</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Override self.skip_overlap</p></li>
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Override self.collar</p></li>
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Override self.skip_overlap</p></li>
 </ul>
 </dd>
 </dl>
@@ -1428,7 +1430,7 @@ Defaults to False (i.e. keep overlap regions).</p></li>
 <dd><p>Compute metric value from computed <cite>components</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
 values</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1463,16 +1465,16 @@ otherwise.</p>
 <dd class="field-even"><p><strong>match</strong> – True if labels match, False otherwise.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 </dd></dl>
 
-</div>
-</div>
-<div class="section" id="identification">
+</section>
+</section>
+<section id="identification">
 <h3>Identification<a class="headerlink" href="#identification" title="Permalink to this headline">¶</a></h3>
 <p>In case prior speaker models are available, the speech turn clustering module may be followed by a supervised speaker recognition module for cluster-wise supervised classification.</p>
 <p><cite>pyannote.metrics</cite> also provides a collection of evaluation metrics for this identification task. This includes precision, recall, and identification error rate (IER):</p>
@@ -1497,9 +1499,9 @@ otherwise.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
 boundaries of reference segments.</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
 Defaults to False (i.e. keep overlap regions).</p></li>
 <li><p><strong>miss</strong><strong>, </strong><strong>false_alarm</strong> (<em>confusion</em><em>,</em>) – Optional weights for confusion, miss and false alarm respectively.
 Default to 1. (no weight)</p></li>
@@ -1512,8 +1514,8 @@ Default to 1. (no weight)</p></li>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Override self.collar</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Override self.skip_overlap</p></li>
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Override self.collar</p></li>
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Override self.skip_overlap</p></li>
 </ul>
 </dd>
 </dl>
@@ -1529,7 +1531,7 @@ Default to 1. (no weight)</p></li>
 <dd><p>Compute metric value from computed <cite>components</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
+<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary where keys are components names and values are component
 values</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1550,9 +1552,9 @@ values</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
 boundaries of reference segments.</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
 Defaults to False (i.e. keep overlap regions).</p></li>
 </ul>
 </dd>
@@ -1573,7 +1575,7 @@ Defaults to False (i.e. keep overlap regions).</p></li>
 values</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1587,9 +1589,9 @@ values</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
 boundaries of reference segments.</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
 Defaults to False (i.e. keep overlap regions).</p></li>
 </ul>
 </dd>
@@ -1610,16 +1612,16 @@ Defaults to False (i.e. keep overlap regions).</p></li>
 values</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 </dd></dl>
 
-</div>
-</div>
-<div class="section" id="error-analysis">
+</section>
+</section>
+<section id="error-analysis">
 <h2>Error analysis<a class="headerlink" href="#error-analysis" title="Permalink to this headline">¶</a></h2>
 <span class="target" id="module-pyannote.metrics.errors.segmentation"></span><span class="target" id="module-pyannote.metrics.errors.identification"></span><dl class="class">
 <dt id="pyannote.metrics.errors.identification.IdentificationErrorAnalysis">
@@ -1627,9 +1629,9 @@ values</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
+<li><p><strong>collar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – Duration (in seconds) of collars removed from evaluation around
 boundaries of reference segments.</p></li>
-<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
+<li><p><strong>skip_overlap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Set to True to not evaluate overlap regions.
 Defaults to False (i.e. keep overlap regions).</p></li>
 </ul>
 </dd>
@@ -1645,7 +1647,7 @@ Defaults to False (i.e. keep overlap regions).</p></li>
 <cite>hypothesis_label</cite> is None in case of ‘missed detection’.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>uemified</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Returns “uemified” version of reference and hypothesis.
+<dd class="field-odd"><p><strong>uemified</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Returns “uemified” version of reference and hypothesis.
 Defaults to False.</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1659,8 +1661,8 @@ Defaults to False.</p>
 
 </dd></dl>
 
-</div>
-<div class="section" id="plots">
+</section>
+<section id="plots">
 <h2>Plots<a class="headerlink" href="#plots" title="Permalink to this headline">¶</a></h2>
 <span class="target" id="module-pyannote.metrics.plot.binary_classification"></span><dl class="function">
 <dt id="pyannote.metrics.plot.binary_classification.plot_det_curve">
@@ -1679,16 +1681,16 @@ Defaults to False.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>y_true</strong> (<em>(</em><em>n_samples</em><em>, </em><em>) </em><em>array-like</em>) – Boolean reference.</p></li>
 <li><p><strong>scores</strong> (<em>(</em><em>n_samples</em><em>, </em><em>) </em><em>array-like</em>) – Predicted score.</p></li>
-<li><p><strong>save_to</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Files path prefix.</p></li>
+<li><p><strong>save_to</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Files path prefix.</p></li>
 <li><p><strong>distances</strong> (<em>boolean</em><em>, </em><em>optional</em>) – When True, indicate that <cite>scores</cite> are actually <cite>distances</cite></p></li>
-<li><p><strong>dpi</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – Resolution of .png file. Defaults to 150.</p></li>
+<li><p><strong>dpi</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – Resolution of .png file. Defaults to 150.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>eer</strong> – Equal error rate</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1709,7 +1711,7 @@ Defaults to False.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>y_true</strong> (<em>(</em><em>n_samples</em><em>, </em><em>) </em><em>array-like</em>) – Boolean reference.</p></li>
 <li><p><strong>scores</strong> (<em>(</em><em>n_samples</em><em>, </em><em>) </em><em>array-like</em>) – Predicted score.</p></li>
-<li><p><strong>save_to</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Files path prefix</p></li>
+<li><p><strong>save_to</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Files path prefix</p></li>
 </ul>
 </dd>
 </dl>
@@ -1732,22 +1734,22 @@ Defaults to False.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>y_true</strong> (<em>(</em><em>n_samples</em><em>, </em><em>) </em><em>array-like</em>) – Boolean reference.</p></li>
 <li><p><strong>scores</strong> (<em>(</em><em>n_samples</em><em>, </em><em>) </em><em>array-like</em>) – Predicted score.</p></li>
-<li><p><strong>save_to</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Files path prefix.</p></li>
+<li><p><strong>save_to</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Files path prefix.</p></li>
 <li><p><strong>distances</strong> (<em>boolean</em><em>, </em><em>optional</em>) – When True, indicate that <cite>scores</cite> are actually <cite>distances</cite></p></li>
-<li><p><strong>dpi</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – Resolution of .png file. Defaults to 150.</p></li>
+<li><p><strong>dpi</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – Resolution of .png file. Defaults to 150.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>auc</strong> – Area under precision/recall curve</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
 
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

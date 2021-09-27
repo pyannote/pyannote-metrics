@@ -5,10 +5,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Principles &mdash; pyannote.metrics 3.0.1 documentation</title>
+  <title>Principles &mdash; pyannote.metrics 3.1 documentation</title>
   
 
   
@@ -34,6 +35,7 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Command line tool" href="cli.html" />
@@ -61,7 +63,7 @@
             
             
               <div class="version">
-                3.0.1
+                3.1
               </div>
             
           
@@ -92,7 +94,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#accumulation-reporting">Accumulation &amp; reporting</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#evaluation-map">Evaluation map</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#components">Components</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#parallel-processing">Parallel processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#define-your-own-metric">Define your own metric</a></li>
 </ul>
 </li>
@@ -169,7 +170,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="principles">
+  <section id="principles">
 <h1>Principles<a class="headerlink" href="#principles" title="Permalink to this headline">¶</a></h1>
 <p><cite>pyannote.metrics</cite> provides a set of classes to compare the output of speaker diarization (hereafter called <cite>hypothesis</cite>) systems to manual annotations (<cite>reference</cite>). Let us first instantiate a sample <cite>reference</cite> and <cite>hypothesis</cite>.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pyannote.core</span> <span class="kn">import</span> <span class="n">Segment</span><span class="p">,</span> <span class="n">Timeline</span><span class="p">,</span> <span class="n">Annotation</span>
@@ -191,9 +192,9 @@
 </pre></div>
 </div>
 <p>(<a class="reference external" href="./pyplots/tutorial.py">Source code</a>, <a class="reference external" href="./pyplots/tutorial.png">png</a>, <a class="reference external" href="./pyplots/tutorial.hires.png">hires.png</a>, <a class="reference external" href="./pyplots/tutorial.pdf">pdf</a>)</p>
-<div class="figure align-default">
-<img alt="_images/tutorial.png" src="_images/tutorial.png" />
-</div>
+<figure class="align-default">
+<img alt="_images/tutorial.png" class="plot-directive" src="_images/tutorial.png" />
+</figure>
 <p>This basically tells us that, according to the manual annotation, speaker <cite>A</cite> speaks in timeranges [0s, 10s] and [24s, 27s].</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -211,7 +212,7 @@ As such, they share a common set of methods.</p>
 <span class="n">Out</span><span class="p">[</span><span class="mi">6</span><span class="p">]:</span> <span class="mf">0.5161290322580645</span>
 </pre></div>
 </div>
-<div class="section" id="accumulation-reporting">
+<section id="accumulation-reporting">
 <h2>Accumulation &amp; reporting<a class="headerlink" href="#accumulation-reporting" title="Permalink to this headline">¶</a></h2>
 <p>The same metric instance can be used to evaluate multiple files.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">7</span><span class="p">]:</span> <span class="n">other_reference</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="s1">&#39;file2&#39;</span><span class="p">)</span>
@@ -258,8 +259,8 @@ For instance, once you have evaluated all files, you can use the overriden <code
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">14</span><span class="p">]:</span> <span class="n">metric</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="evaluation-map">
+</section>
+<section id="evaluation-map">
 <h2>Evaluation map<a class="headerlink" href="#evaluation-map" title="Permalink to this headline">¶</a></h2>
 <p>Though audio files can always be processed entirely (from beginning to end), there are cases where reference annotations are only available for some regions of the audio files.
 All metrics support the provision of an evaluation map that indicate which part of the audio file should be evaluated.</p>
@@ -269,19 +270,19 @@ All metrics support the provision of an evaluation map that indicate which part 
 <span class="n">Out</span><span class="p">[</span><span class="mi">16</span><span class="p">]:</span> <span class="mf">0.13333333333333333</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="components">
+</section>
+<section id="components">
 <h2>Components<a class="headerlink" href="#components" title="Permalink to this headline">¶</a></h2>
 <p>Most metrics are computed as the combination of several components.
 For instance, the diarization error rate is the combination of false alarm (non-speech regions classified as speech), missed detection (speech regions classified as non-speech) and confusion between speakers.</p>
 <p>Using <code class="docutils literal notranslate"><span class="pre">detailed=True</span></code> will return the value of each component:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">17</span><span class="p">]:</span> <span class="n">metric</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">Out</span><span class="p">[</span><span class="mi">17</span><span class="p">]:</span> 
-<span class="p">{</span><span class="s1">&#39;missed detection&#39;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
- <span class="s1">&#39;false alarm&#39;</span><span class="p">:</span> <span class="mf">7.0</span><span class="p">,</span>
- <span class="s1">&#39;correct&#39;</span><span class="p">:</span> <span class="mf">22.0</span><span class="p">,</span>
+<span class="p">{</span><span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="mf">31.0</span><span class="p">,</span>
+ <span class="s1">&#39;missed detection&#39;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
  <span class="s1">&#39;confusion&#39;</span><span class="p">:</span> <span class="mf">7.0</span><span class="p">,</span>
- <span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="mf">31.0</span><span class="p">,</span>
+ <span class="s1">&#39;correct&#39;</span><span class="p">:</span> <span class="mf">22.0</span><span class="p">,</span>
+ <span class="s1">&#39;false alarm&#39;</span><span class="p">:</span> <span class="mf">7.0</span><span class="p">,</span>
  <span class="s1">&#39;diarization error rate&#39;</span><span class="p">:</span> <span class="mf">0.5161290322580645</span><span class="p">}</span>
 </pre></div>
 </div>
@@ -294,24 +295,15 @@ For instance, the diarization error rate is the combination of false alarm (non-
 
 <span class="n">In</span> <span class="p">[</span><span class="mi">20</span><span class="p">]:</span> <span class="n">metric</span><span class="p">[:]</span>
 <span class="n">Out</span><span class="p">[</span><span class="mi">20</span><span class="p">]:</span> 
-<span class="p">{</span><span class="s1">&#39;missed detection&#39;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span>
- <span class="s1">&#39;false alarm&#39;</span><span class="p">:</span> <span class="mf">11.0</span><span class="p">,</span>
- <span class="s1">&#39;correct&#39;</span><span class="p">:</span> <span class="mf">43.0</span><span class="p">,</span>
+<span class="p">{</span><span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="mf">61.0</span><span class="p">,</span>
+ <span class="s1">&#39;missed detection&#39;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span>
  <span class="s1">&#39;confusion&#39;</span><span class="p">:</span> <span class="mf">13.0</span><span class="p">,</span>
- <span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="mf">61.0</span><span class="p">}</span>
+ <span class="s1">&#39;correct&#39;</span><span class="p">:</span> <span class="mf">43.0</span><span class="p">,</span>
+ <span class="s1">&#39;false alarm&#39;</span><span class="p">:</span> <span class="mf">11.0</span><span class="p">}</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="parallel-processing">
-<h2>Parallel processing<a class="headerlink" href="#parallel-processing" title="Permalink to this headline">¶</a></h2>
-<p>When you have lots of files to evaluate, and you still want to accumulate them internally, they can be processed in parallel.
-<cite>pyannote.metrics</cite> metrics initialized with <cite>parallel=True</cite> are thread-safe. See the code of <cite>pyannote.metrics.py</cite> command line tool for inspiration.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Parallel processing does not work that well in Jupyter notebooks.</p>
-</div>
-</div>
-<div class="section" id="define-your-own-metric">
+</section>
+<section id="define-your-own-metric">
 <h2>Define your own metric<a class="headerlink" href="#define-your-own-metric" title="Permalink to this headline">¶</a></h2>
 <p>It is possible (and encouraged) to develop and contribute new evaluation metrics.</p>
 <p>All you have to do is inherit from <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMetric</span></code> and implement a few methods:
@@ -356,8 +348,8 @@ For instance, the diarization error rate is the combination of false alarm (non-
 </pre></div>
 </div>
 <p>See <code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.metrics.base.BaseMetric</span></code> for more details.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

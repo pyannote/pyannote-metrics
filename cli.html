@@ -5,10 +5,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Command line tool &mdash; pyannote.metrics 3.0.1 documentation</title>
+  <title>Command line tool &mdash; pyannote.metrics 3.1 documentation</title>
   
 
   
@@ -34,6 +35,7 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Reference" href="reference.html" />
@@ -61,7 +63,7 @@
             
             
               <div class="version">
-                3.0.1
+                3.1
               </div>
             
           
@@ -161,7 +163,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="command-line-tool">
+  <section id="command-line-tool">
 <h1>Command line tool<a class="headerlink" href="#command-line-tool" title="Permalink to this headline">¶</a></h1>
 <p>There are two main issues that may arise with results reported in the literature:</p>
 <blockquote>
@@ -188,27 +190,27 @@ TV8_LaPlaceDuVillage_2011-03-21_201334    <span class="m">66</span>.23     <span
 TOTAL                                     <span class="m">23</span>.27     <span class="m">88</span>.18       <span class="m">84</span>.55  <span class="m">14721</span>.65   <span class="m">12157</span>.71  <span class="m">82</span>.58  <span class="m">861</span>.14   <span class="m">5</span>.85   <span class="m">734</span>.28  <span class="m">4</span>.99  <span class="m">1829</span>.67  <span class="m">12</span>.43
 </pre></div>
 </div>
-<div class="section" id="tasks">
+<section id="tasks">
 <h2>Tasks<a class="headerlink" href="#tasks" title="Permalink to this headline">¶</a></h2>
 <p>Not only can <code class="docutils literal notranslate"><span class="pre">pyannote-metrics</span></code> command line tool be used to compute the diarization error rate using NIST implementation, one can also evaluate the typical four sub-modules used in  most speaker diarization systems:</p>
 <img alt="_images/pipeline.png" src="_images/pipeline.png" />
 <p>Practically, the first positional argument (e.g. <code class="docutils literal notranslate"><span class="pre">diarization</span></code>, above) is a flag indicating which task should be evaluated.</p>
 <p>Apart from the <code class="docutils literal notranslate"><span class="pre">diarization</span></code> flag that is used for evaluating speaker diarization results, other available flags are <code class="docutils literal notranslate"><span class="pre">detection</span></code> (speech activity detection), <code class="docutils literal notranslate"><span class="pre">segmentation</span></code> (speaker change detection), and <code class="docutils literal notranslate"><span class="pre">identification</span></code> (supervised speaker identification).
 Depending on the task, a different set of evaluation metrics is computed.</p>
-</div>
-<div class="section" id="datasets-and-protocols">
+</section>
+<section id="datasets-and-protocols">
 <h2>Datasets and protocols<a class="headerlink" href="#datasets-and-protocols" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">pyannote.metrics</span></code> provides an easy way to ensure the same protocol (i.e. manual groundtruth and training/development/test split) is used for evaluation.</p>
 <p>Internally, it relies on a collection of Python packages that all derive from the <code class="docutils literal notranslate"><span class="pre">pyannote.database</span></code> main package, that provides a convenient API to define training/development/test splits, along with groundtruth annotations.
 In the example above, the <cite>development</cite> set of the <cite>TV</cite> evaluation protocol of the ETAPE dataset is used.</p>
 <p>Results are both reported for each file in the selected subset, and aggregated into one final metric value.</p>
 <p>As of March 2017, <code class="docutils literal notranslate"><span class="pre">pyannote.database</span></code> packages exist for the ETAPE corpus, the REPERE corpus, and the AMI corpus. As more people contribute new <code class="docutils literal notranslate"><span class="pre">pyannote.database</span></code> packages, they will be added to the <cite>pyannote</cite> ecosystem.</p>
-</div>
-<div class="section" id="file-formats">
+</section>
+<section id="file-formats">
 <h2>File formats<a class="headerlink" href="#file-formats" title="Permalink to this headline">¶</a></h2>
 <p>Hypothesis files must use the [Rich Transcription Time Marked](<a class="reference external" href="https://web.archive.org/web/20170119114252/http://www.itl.nist.gov/iad/mig/tests/rt/2009/docs/rt09-meeting-eval-plan-v2.pdf">https://web.archive.org/web/20170119114252/http://www.itl.nist.gov/iad/mig/tests/rt/2009/docs/rt09-meeting-eval-plan-v2.pdf</a>) (RTTM) format.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

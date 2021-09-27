@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pyannote.metrics.errors.identification &mdash; pyannote.metrics 3.0.1 documentation</title>
+  <title>pyannote.metrics.errors.identification &mdash; pyannote.metrics 3.1 documentation</title>
   
 
   
@@ -34,6 +34,7 @@
   
   <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/plot_directive.css" type="text/css" />
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
 </head>
@@ -59,7 +60,7 @@
             
             
               <div class="version">
-                3.0.1
+                3.1
               </div>
             
           
@@ -396,9 +397,9 @@
 
         <span class="c1"># sort these sets of labels</span>
         <span class="n">cmp_func</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">_cmp_labels</span>
-        <span class="n">falseAlarmLabels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">falseAlarmLabels</span><span class="p">,</span> <span class="nb">cmp</span><span class="o">=</span><span class="n">cmp_func</span><span class="p">)</span>
-        <span class="n">rLabels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">rLabels</span><span class="p">,</span> <span class="nb">cmp</span><span class="o">=</span><span class="n">cmp_func</span><span class="p">)</span>
-        <span class="n">hLabels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">hLabels</span><span class="p">,</span> <span class="nb">cmp</span><span class="o">=</span><span class="n">cmp_func</span><span class="p">)</span>
+        <span class="n">falseAlarmLabels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">falseAlarmLabels</span><span class="p">,</span> <span class="n">cmp</span><span class="o">=</span><span class="n">cmp_func</span><span class="p">)</span>
+        <span class="n">rLabels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">rLabels</span><span class="p">,</span> <span class="n">cmp</span><span class="o">=</span><span class="n">cmp_func</span><span class="p">)</span>
+        <span class="n">hLabels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">hLabels</span><span class="p">,</span> <span class="n">cmp</span><span class="o">=</span><span class="n">cmp_func</span><span class="p">)</span>
 
         <span class="c1"># append false alarm labels as last &#39;reference&#39; labels</span>
         <span class="c1"># (make sure to mark them as such)</span>

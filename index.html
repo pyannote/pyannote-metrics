@@ -5,10 +5,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pyannote.metrics &mdash; pyannote.metrics 3.0.1 documentation</title>
+  <title>pyannote.metrics &mdash; pyannote.metrics 3.1 documentation</title>
   
 
   
@@ -34,6 +35,7 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Getting started" href="api.html" /> 
@@ -60,7 +62,7 @@
             
             
               <div class="version">
-                3.0.1
+                3.1
               </div>
             
           
@@ -155,18 +157,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="pyannote-metrics">
+  <section id="pyannote-metrics">
 <h1>pyannote.metrics<a class="headerlink" href="#pyannote-metrics" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="a-toolkit-for-reproducible-evaluation-diagnostic-and-error-analysis-of-speaker-diarization-systems">
+<section id="a-toolkit-for-reproducible-evaluation-diagnostic-and-error-analysis-of-speaker-diarization-systems">
 <h2>“A toolkit for reproducible evaluation, diagnostic, and error analysis of speaker diarization systems”<a class="headerlink" href="#a-toolkit-for-reproducible-evaluation-diagnostic-and-error-analysis-of-speaker-diarization-systems" title="Permalink to this headline">¶</a></h2>
 <p><cite>pyannote.metrics</cite> is an open-source Python library aimed at researchers working in the wide area of speaker diarization. It provides a command line interface (CLI) to improve reproducibility and comparison of speaker diarization research results. Through its application programming interface (API), a large set of evaluation metrics is available for diagnostic purposes of all modules of typical speaker diarization pipelines (speech activity detection, speaker change detection, clustering, and identification). Finally, thanks to <cite>pyannote.core</cite> visualization capabilities, it can also be used for detailed error analysis purposes.</p>
-<div class="section" id="installation">
+<section id="installation">
 <h3>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install pyannote.metrics
 </pre></div>
 </div>
-</div>
-<div class="section" id="citation">
+</section>
+<section id="citation">
 <h3>Citation<a class="headerlink" href="#citation" title="Permalink to this headline">¶</a></h3>
 <p>If you use <cite>pyannote.metrics</cite> in your research, please use the following citation:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@inproceedings</span><span class="p">{</span><span class="n">pyannote</span><span class="o">.</span><span class="n">metrics</span><span class="p">,</span>
@@ -180,8 +182,8 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="user-guide">
+</section>
+<section id="user-guide">
 <h3>User guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h3>
 <div class="toctree-wrapper compound">
 <ul>
@@ -191,7 +193,6 @@
 <li class="toctree-l3"><a class="reference internal" href="basics.html#accumulation-reporting">Accumulation &amp; reporting</a></li>
 <li class="toctree-l3"><a class="reference internal" href="basics.html#evaluation-map">Evaluation map</a></li>
 <li class="toctree-l3"><a class="reference internal" href="basics.html#components">Components</a></li>
-<li class="toctree-l3"><a class="reference internal" href="basics.html#parallel-processing">Parallel processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="basics.html#define-your-own-metric">Define your own metric</a></li>
 </ul>
 </li>
@@ -205,8 +206,8 @@
 </li>
 </ul>
 </div>
-</div>
-<div class="section" id="api-documentation">
+</section>
+<section id="api-documentation">
 <h3>API documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h3>
 <div class="toctree-wrapper compound">
 <ul>
@@ -223,6 +224,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-3-1-2021-09-27">Version 3.1 (2021-09-27)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#version-3-0-1-2020-07-02">Version 3.0.1 (2020-07-02)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#version-3-0-2020-06-15">Version 3.0 (2020-06-15)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#version-2-3-2020-02-26">Version 2.3 (2020-02-26)</a></li>
@@ -270,17 +272,17 @@
 </li>
 </ul>
 </div>
-</div>
-<div class="section" id="indices-and-tables">
+</section>
+<section id="indices-and-tables">
 <h3>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
 <li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>
