@@ -2,6 +2,12 @@
 Changelog
 #########
 
+Version 3.1 (2021-09-27)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- BREAKING: remove (buggy) support for parallel processing
+- fix: fix documentation deployment
+
 Version 3.0.1 (2020-07-02)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
