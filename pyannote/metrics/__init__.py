@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2019 CNRS
+# Copyright (c) 2012-2021 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,18 +26,12 @@
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
 
-from multiprocessing import Manager
 from .base import f_measure
 
 from ._version import get_versions
-__version__ = get_versions()['version']
+
+__version__ = get_versions()["version"]
 del get_versions
 
-# Note: if you (yes, you!) know a better way to do this,
-# please open a pull request.
-# I had to use this global multiprocessing manager for it to be accessible
-# from anywhere, and make parallel computation of evaluation metric a reality
-manager_ = Manager()
 
-
-__all__ = ['f_measure']
+__all__ = ["f_measure"]
