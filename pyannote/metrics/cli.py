@@ -101,8 +101,6 @@ import numpy as np
 import pandas as pd
 from tabulate import tabulate
 
-# import multiprocessing as mp
-
 from pyannote.core import Timeline
 from pyannote.core import Annotation
 from pyannote.database.util import load_rttm
@@ -223,21 +221,8 @@ def process_one(item, hypotheses=None, metrics=None):
 def get_reports(protocol, subset, hypotheses, metrics):
     process = functools.partial(process_one, hypotheses=hypotheses, metrics=metrics)
 
-    # get items and their number
-    items = list(getattr(protocol, subset)())
-    n_items = len(items)
-
-    for item in items:
+    for item in getattr(protocol, subset)():
         process(item)
-
-    # HB. 2018-02-05: parallel processing was removed because it is not clear
-    # how to handle the case where the same 'uri' is processed several times
-    # in a possibly different order for each sub-metric...
-    # # heuristic to estimate the optimal number of processes
-    # chunksize = 20
-    # processes = max(1, min(mp.cpu_count(), n_items // chunksize))
-    # pool = mp.Pool(processes)
-    # _ = pool.map(process, items, chunksize=chunksize)
 
     return {key: metric.report(display=False) for key, metric in metrics.items()}
 
@@ -250,7 +235,7 @@ def reindex(report):
 
 
 def detection(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
-    options = {"collar": collar, "skip_overlap": skip_overlap, "parallel": True}
+    options = {"collar": collar, "skip_overlap": skip_overlap}
 
     metrics = {
         "error": DetectionErrorRate(**options),
@@ -275,20 +260,33 @@ def detection(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
     columns = list(report.columns)
     report = report[[columns[0]] + columns[-3:] + columns[1:-3]]
 
-    summary = 'Detection (collar = {0:g} ms{1})'.format(
-        1000 * collar, ', no overlap' if skip_overlap else '')
+    summary = "Detection (collar = {0:g} ms{1})".format(
+        1000 * collar, ", no overlap" if skip_overlap else ""
+    )
 
-    headers = [summary] + \
-              [report.columns[i][0] for i in range(4)] + \
-              ['%' if c[1] == '%' else c[0] for c in report.columns[4:]]
+    headers = (
+        [summary]
+        + [report.columns[i][0] for i in range(4)]
+        + ["%" if c[1] == "%" else c[0] for c in report.columns[4:]]
+    )
 
-    print(tabulate(report, headers=headers, tablefmt="simple",
-                   floatfmt=".2f", numalign="decimal", stralign="left",
-                   missingval="", showindex="default", disable_numparse=False))
+    print(
+        tabulate(
+            report,
+            headers=headers,
+            tablefmt="simple",
+            floatfmt=".2f",
+            numalign="decimal",
+            stralign="left",
+            missingval="",
+            showindex="default",
+            disable_numparse=False,
+        )
+    )
 
 
 def segmentation(protocol, subset, hypotheses, tolerance=0.5):
-    options = {"tolerance": tolerance, "parallel": True}
+    options = {"tolerance": tolerance}
 
     metrics = {
         "coverage": SegmentationCoverage(**options),
@@ -337,7 +335,7 @@ def segmentation(protocol, subset, hypotheses, tolerance=0.5):
 def diarization(
     protocol, subset, hypotheses, greedy=False, collar=0.0, skip_overlap=False
 ):
-    options = {"collar": collar, "skip_overlap": skip_overlap, "parallel": True}
+    options = {"collar": collar, "skip_overlap": skip_overlap}
 
     metrics = {
         "purity": DiarizationPurity(**options),
@@ -363,22 +361,35 @@ def diarization(
 
     report = reindex(report)
 
-    summary = 'Diarization ({0:s}collar = {1:g} ms{2})'.format(
-        'greedy, ' if greedy else '',
+    summary = "Diarization ({0:s}collar = {1:g} ms{2})".format(
+        "greedy, " if greedy else "",
         1000 * collar,
-        ', no overlap' if skip_overlap else '')
+        ", no overlap" if skip_overlap else "",
+    )
 
-    headers = [summary] + \
-              [report.columns[i][0] for i in range(3)] + \
-              ['%' if c[1] == '%' else c[0] for c in report.columns[3:]]
+    headers = (
+        [summary]
+        + [report.columns[i][0] for i in range(3)]
+        + ["%" if c[1] == "%" else c[0] for c in report.columns[3:]]
+    )
 
-    print(tabulate(report, headers=headers, tablefmt="simple",
-                   floatfmt=".2f", numalign="decimal", stralign="left",
-                   missingval="", showindex="default", disable_numparse=False))
+    print(
+        tabulate(
+            report,
+            headers=headers,
+            tablefmt="simple",
+            floatfmt=".2f",
+            numalign="decimal",
+            stralign="left",
+            missingval="",
+            showindex="default",
+            disable_numparse=False,
+        )
+    )
 
 
 def identification(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
-    options = {"collar": collar, "skip_overlap": skip_overlap, "parallel": True}
+    options = {"collar": collar, "skip_overlap": skip_overlap}
 
     metrics = {
         "error": IdentificationErrorRate(**options),
@@ -400,17 +411,29 @@ def identification(protocol, subset, hypotheses, collar=0.0, skip_overlap=False)
 
     report = reindex(report)
 
-    summary = 'Identification (collar = {0:g} ms{1})'.format(
-        1000 * collar,
-        ', no overlap' if skip_overlap else '')
+    summary = "Identification (collar = {0:g} ms{1})".format(
+        1000 * collar, ", no overlap" if skip_overlap else ""
+    )
 
-    headers = [summary] + \
-              [report.columns[i][0] for i in range(3)] + \
-              ['%' if c[1] == '%' else c[0] for c in report.columns[3:]]
+    headers = (
+        [summary]
+        + [report.columns[i][0] for i in range(3)]
+        + ["%" if c[1] == "%" else c[0] for c in report.columns[3:]]
+    )
 
-    print(tabulate(report, headers=headers, tablefmt="simple",
-                   floatfmt=".2f", numalign="decimal", stralign="left",
-                   missingval="", showindex="default", disable_numparse=False))
+    print(
+        tabulate(
+            report,
+            headers=headers,
+            tablefmt="simple",
+            floatfmt=".2f",
+            numalign="decimal",
+            stralign="left",
+            missingval="",
+            showindex="default",
+            disable_numparse=False,
+        )
+    )
 
 
 def spotting(protocol, subset, latencies, hypotheses, output_prefix, filter_func=None):

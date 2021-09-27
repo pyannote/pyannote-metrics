@@ -36,11 +36,6 @@ class BaseMetric(object):
     """
     :class:`BaseMetric` is the base class for most pyannote evaluation metrics.
 
-    Parameters
-    ----------
-    parallel : bool, optional
-        Defaults to True
-
     Attributes
     ----------
     name : str
@@ -51,41 +46,40 @@ class BaseMetric(object):
     def metric_name(cls):
         raise NotImplementedError(
             cls.__name__ + " is missing a 'metric_name' class method. "
-            "It should return the name of the metric as string.")
+            "It should return the name of the metric as string."
+        )
 
     @classmethod
     def metric_components(cls):
         raise NotImplementedError(
             cls.__name__ + " is missing a 'metric_components' class method. "
-            "It should return the list of names of metric components.")
+            "It should return the list of names of metric components."
+        )
 
-    def __init__(self, parallel=False, **kwargs):
+    def __init__(self, **kwargs):
         super(BaseMetric, self).__init__()
-        self.parallel = parallel
         self.metric_name_ = self.__class__.metric_name()
         self.components_ = set(self.__class__.metric_components())
         self.reset()
 
     def init_components(self):
-        return {value: 0. for value in self.components_}
+        return {value: 0.0 for value in self.components_}
 
     def reset(self):
         """Reset accumulated components and metric values"""
-        if self.parallel:
-            from pyannote.metrics import manager_
-            self.accumulated_ = manager_.dict()
-            self.results_ = manager_.list()
-            self.uris_ = manager_.dict()
-        else:
-            self.accumulated_ = dict()
-            self.results_ = list()
-            self.uris_ = dict()
+        self.accumulated_ = dict()
+        self.results_ = list()
+        self.uris_ = dict()
         for value in self.components_:
-            self.accumulated_[value] = 0.
+            self.accumulated_[value] = 0.0
 
     def __get_name(self):
         return self.__class__.metric_name()
+
     name = property(fget=__get_name, doc="Metric name.")
+
+    # TODO: use joblib/locky to allow parallel processing?
+    # TODO: signature could be something like __call__(self, reference_iterator, hypothesis_iterator, ...)
 
     def __call__(self, reference, hypothesis, detailed=False, **kwargs):
         """Compute metric value and accumulate components
@@ -125,7 +119,7 @@ class BaseMetric(object):
             self.uris_[uri] = 1
         else:
             self.uris_[uri] += 1
-            uri = uri + ' #{0:d}'.format(self.uris_[uri])
+            uri = uri + " #{0:d}".format(self.uris_[uri])
 
         self.results_.append((uri, components))
 
@@ -156,24 +150,24 @@ class BaseMetric(object):
         report = []
         uris = []
 
-        percent = 'total' in self.metric_components()
+        percent = "total" in self.metric_components()
 
         for uri, components in self.results_:
             row = {}
             if percent:
-                total = components['total']
+                total = components["total"]
             for key, value in components.items():
                 if key == self.name:
-                    row[key, '%'] = 100 * value
-                elif key == 'total':
-                    row[key, ''] = value
+                    row[key, "%"] = 100 * value
+                elif key == "total":
+                    row[key, ""] = value
                 else:
-                    row[key, ''] = value
+                    row[key, ""] = value
                     if percent:
                         if total > 0:
-                            row[key, '%'] = 100 * value / total
+                            row[key, "%"] = 100 * value / total
                         else:
-                            row[key, '%'] = np.NaN
+                            row[key, "%"] = np.NaN
 
             report.append(row)
             uris.append(uri)
@@ -182,44 +176,51 @@ class BaseMetric(object):
         components = self.accumulated_
 
         if percent:
-            total = components['total']
+            total = components["total"]
 
         for key, value in components.items():
             if key == self.name:
-                row[key, '%'] = 100 * value
-            elif key == 'total':
-                row[key, ''] = value
+                row[key, "%"] = 100 * value
+            elif key == "total":
+                row[key, ""] = value
             else:
-                row[key, ''] = value
+                row[key, ""] = value
                 if percent:
                     if total > 0:
-                        row[key, '%'] = 100 * value / total
+                        row[key, "%"] = 100 * value / total
                     else:
-                        row[key, '%'] = np.NaN
+                        row[key, "%"] = np.NaN
 
-        row[self.name, '%'] = 100 * abs(self)
+        row[self.name, "%"] = 100 * abs(self)
         report.append(row)
-        uris.append('TOTAL')
+        uris.append("TOTAL")
 
         df = pd.DataFrame(report)
 
-        df['item'] = uris
-        df = df.set_index('item')
+        df["item"] = uris
+        df = df.set_index("item")
 
         df.columns = pd.MultiIndex.from_tuples(df.columns)
 
         df = df[[self.name] + self.metric_components()]
 
         if display:
-            print(df.to_string(index=True, sparsify=False, justify='right', float_format=lambda f: '{0:.2f}'.format(f)))
+            print(
+                df.to_string(
+                    index=True,
+                    sparsify=False,
+                    justify="right",
+                    float_format=lambda f: "{0:.2f}".format(f),
+                )
+            )
 
         return df
 
     def __str__(self):
         report = self.report(display=False)
         return report.to_string(
-            sparsify=False,
-            float_format=lambda f: '{0:.2f}'.format(f))
+            sparsify=False, float_format=lambda f: "{0:.2f}".format(f)
+        )
 
     def __abs__(self):
         """Compute metric value from accumulated components"""
@@ -269,7 +270,8 @@ class BaseMetric(object):
         raise NotImplementedError(
             self.__class__.__name__ + " is missing a 'compute_components' method."
             "It should return a dictionary where keys are component names "
-            "and values are component values.")
+            "and values are component values."
+        )
 
     def compute_metric(self, components):
         """Compute metric value from computed `components`
@@ -288,7 +290,8 @@ class BaseMetric(object):
         raise NotImplementedError(
             self.__class__.__name__ + " is missing a 'compute_metric' method. "
             "It should return the actual value of the metric based "
-            "on the precomputed component dictionary given as input.")
+            "on the precomputed component dictionary given as input."
+        )
 
     def confidence_interval(self, alpha=0.9):
         """Compute confidence interval on accumulated metric values
@@ -312,13 +315,14 @@ class BaseMetric(object):
 
         """
         m, _, _ = scipy.stats.bayes_mvs(
-            [r[self.metric_name_] for _, r in self.results_], alpha=alpha)
+            [r[self.metric_name_] for _, r in self.results_], alpha=alpha
+        )
         return m
 
 
-PRECISION_NAME = 'precision'
-PRECISION_RETRIEVED = '# retrieved'
-PRECISION_RELEVANT_RETRIEVED = '# relevant retrieved'
+PRECISION_NAME = "precision"
+PRECISION_RETRIEVED = "# retrieved"
+PRECISION_RELEVANT_RETRIEVED = "# relevant retrieved"
 
 
 class Precision(BaseMetric):
@@ -345,18 +349,18 @@ class Precision(BaseMetric):
         """Compute precision from `components`"""
         numerator = components[PRECISION_RELEVANT_RETRIEVED]
         denominator = components[PRECISION_RETRIEVED]
-        if denominator == 0.:
+        if denominator == 0.0:
             if numerator == 0:
-                return 1.
+                return 1.0
             else:
-                raise ValueError('')
+                raise ValueError("")
         else:
-            return numerator/denominator
+            return numerator / denominator
 
 
-RECALL_NAME = 'recall'
-RECALL_RELEVANT = '# relevant'
-RECALL_RELEVANT_RETRIEVED = '# relevant retrieved'
+RECALL_NAME = "recall"
+RECALL_RELEVANT = "# relevant"
+RECALL_RELEVANT_RETRIEVED = "# relevant retrieved"
 
 
 class Recall(BaseMetric):
@@ -383,16 +387,16 @@ class Recall(BaseMetric):
         """Compute recall from `components`"""
         numerator = components[RECALL_RELEVANT_RETRIEVED]
         denominator = components[RECALL_RELEVANT]
-        if denominator == 0.:
+        if denominator == 0.0:
             if numerator == 0:
-                return 1.
+                return 1.0
             else:
-                raise ValueError('')
+                raise ValueError("")
         else:
-            return numerator/denominator
+            return numerator / denominator
 
 
-def f_measure(precision, recall, beta=1.):
+def f_measure(precision, recall, beta=1.0):
     """Compute f-measure
 
     f-measure is defined as follows:
@@ -402,4 +406,5 @@ def f_measure(precision, recall, beta=1.):
     """
     if precision + recall == 0.0:
         return 0
-    return (1+beta*beta)*precision*recall / (beta*beta*precision+recall)
+    return (1 + beta * beta) * precision * recall / (beta * beta * precision + recall)
+
