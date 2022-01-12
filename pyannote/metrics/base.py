@@ -88,11 +88,10 @@ class BaseMetric(object):
         ----------
         reference : type depends on the metric
             Manual `reference`
-        hypothesis : same as `reference`
+        hypothesis : type depends on the metric
             Evaluated `hypothesis`
         detailed : bool, optional
             By default (False), return metric value only.
-
             Set `detailed` to True to return dictionary where keys are
             components names and values are component values
 
@@ -102,7 +101,6 @@ class BaseMetric(object):
             Metric value
         components : dict (if `detailed` is True)
             `components` updated with metric value
-
         """
 
         # compute metric components
@@ -112,9 +110,8 @@ class BaseMetric(object):
         components[self.metric_name_] = self.compute_metric(components)
 
         # keep track of this computation
-        uri = reference.uri
-        if uri is None:
-            uri = "???"
+        uri = getattr(reference, "uri", None) or "???"
+
         if uri not in self.uris_:
             self.uris_[uri] = 1
         else:
