@@ -69,7 +69,6 @@ class BaseMetric(object):
         """Reset accumulated components and metric values"""
         self.accumulated_ = dict()
         self.results_ = list()
-        self.uris_ = dict()
         for value in self.components_:
             self.accumulated_[value] = 0.0
 
@@ -81,18 +80,19 @@ class BaseMetric(object):
     # TODO: use joblib/locky to allow parallel processing?
     # TODO: signature could be something like __call__(self, reference_iterator, hypothesis_iterator, ...)
 
-    def __call__(self, reference, hypothesis, detailed=False, **kwargs):
+    def __call__(self, reference, hypothesis, detailed=False, uri=None, **kwargs):
         """Compute metric value and accumulate components
 
         Parameters
         ----------
         reference : type depends on the metric
             Manual `reference`
-        hypothesis : same as `reference`
+        hypothesis : type depends on the metric
             Evaluated `hypothesis`
+        uri : optional
+            Override uri.
         detailed : bool, optional
             By default (False), return metric value only.
-
             Set `detailed` to True to return dictionary where keys are
             components names and values are component values
 
@@ -102,7 +102,6 @@ class BaseMetric(object):
             Metric value
         components : dict (if `detailed` is True)
             `components` updated with metric value
-
         """
 
         # compute metric components
@@ -112,15 +111,7 @@ class BaseMetric(object):
         components[self.metric_name_] = self.compute_metric(components)
 
         # keep track of this computation
-        uri = reference.uri
-        if uri is None:
-            uri = "???"
-        if uri not in self.uris_:
-            self.uris_[uri] = 1
-        else:
-            self.uris_[uri] += 1
-            uri = uri + " #{0:d}".format(self.uris_[uri])
-
+        uri = uri or getattr(reference, "uri", "NA")
         self.results_.append((uri, components))
 
         # accumulate components
