@@ -2,6 +2,12 @@
 Changelog
 #########
 
+Version 3.2 (2022-01-12)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- feat: add option to override existing "uri"
+- feat: add support for missing "uri"
+
 Version 3.1 (2021-09-27)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
