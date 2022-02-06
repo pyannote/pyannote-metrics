@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2014-2019 CNRS
+# Copyright (c) 2014-2020 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -27,51 +27,49 @@
 # Herve BREDIN - http://herve.niderb.fr
 
 import versioneer
-versioneer.versionfile_source = 'pyannote/metrics/_version.py'
+
+versioneer.versionfile_source = "pyannote/metrics/_version.py"
 versioneer.versionfile_build = versioneer.versionfile_source
-versioneer.tag_prefix = ''
-versioneer.parentdir_prefix = 'pyannote-metrics-'
+versioneer.tag_prefix = ""
+versioneer.parentdir_prefix = "pyannote-metrics-"
 
 from setuptools import setup, find_packages
 
 setup(
-
     # package
-    namespace_packages=['pyannote'],
+    namespace_packages=["pyannote"],
     packages=find_packages(),
-    scripts=[
-        'scripts/pyannote-metrics.py',
-    ],
+    entry_points={"console_scripts": ["pyannote-metrics=pyannote.metrics.cli:main",],},
     install_requires=[
-        'pyannote.core >= 3.2',
-        'pyannote.database >= 2.0',
-        'pandas >= 0.19',
-        'scipy >= 1.1.0',
-        'scikit-learn >= 0.17.1',
-        'docopt >= 0.6.2',
-        'tabulate >= 0.7.7',
-        'matplotlib >= 2.0.0',
-        'sympy >= 1.1',
-        'typing-extensions >= 3.7.4.1'
+        "pyannote.core >= 4.1",
+        "pyannote.database >= 4.0.1",
+        "pandas >= 0.19",
+        "scipy >= 1.1.0",
+        "scikit-learn >= 0.17.1",
+        "docopt >= 0.6.2",
+        "tabulate >= 0.7.7",
+        "matplotlib >= 2.0.0",
+        "sympy >= 1.1",
     ],
     # versioneer
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-
     # PyPI
-    name='pyannote.metrics',
-    description=('a toolkit for reproducible evaluation, diagnostic, and error analysis of speaker diarization systems'),
-    author='Herve Bredin',
-    author_email='bredin@limsi.fr',
-    url='https://pyannote.github.io/pyannote-metrics',
+    name="pyannote.metrics",
+    description=(
+        "a toolkit for reproducible evaluation, diagnostic, and error analysis of speaker diarization systems"
+    ),
+    author="Herve Bredin",
+    author_email="bredin@limsi.fr",
+    url="https://pyannote.github.io/pyannote-metrics",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
-        "Topic :: Scientific/Engineering"
+        "Programming Language :: Python :: 3.8",
+        "Topic :: Scientific/Engineering",
     ],
 )

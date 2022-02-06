@@ -35,16 +35,23 @@ All metrics support the provision of an evaluation map that indicate which part 
 Detection
 ---------
 
-Speech activity detection modules can be evaluated using, detection error rate, precision, and recall.
+The two primary metrics for evaluating speech activity detection modules are detection error rate and detection cost function.
+
+Detection error rate (not to be confused with diarization error rate) is defined as:
 
 .. math::
   \text{detection error rate} = \frac{\text{false alarm} + \text{missed detection}}{\text{total}}
 
-where :math:`\text{false alarm}` is the duration of non-speech incorrectly classified as speech, :math:`\text{missed detection}` is the duration of
-speech incorrectly classified as non-speech, and :math:`\text{total}` is the total duration of speech in the reference.
+where :math:`\text{false alarm}` is the duration of non-speech incorrectly classified as speech, :math:`\text{missed detection}` is the duration of speech incorrectly classified as non-speech, and :math:`\text{total}` is the total duration of speech in the reference.
 
-Note that these metrics do not take overlapping speech into account.
-In other words, overlapping speech regions are counted only once.
+Alternately, speech activity module output may be evaluated in terms of detection cost function, which is defined as:
+
+.. math::                                                                   
+  \text{detection cost function} = 0.25 \times \text{false alarm rate} + 0.75 \times \text{miss rate} 
+
+where :math:`\text{false alarm rate}` is the proportion of non-speech incorrectly classified as speech and :math:`\text{miss rate}` is the proportion of speech incorrectly classified as non-speech.
+
+Additionally, detection may be evaluated in terms of accuracy (proportion of the input signal correctly classified), precision (proportion of detected speech that is speech), and recall (proporton of speech that is detected).
 
 .. automodule:: pyannote.metrics.detection
    :members:
@@ -84,7 +91,7 @@ It is defined as follows:
     \text{DER} = \frac{\text{false alarm} + \text{missed detection} + \text{confusion}}{\text{total}}
 
 where :math:`\text{false alarm}` is the duration of non-speech incorrectly classified as speech, :math:`\text{missed detection}` is the duration of
-speech incorrectly classified as non-speech, :math:`\text{confusion}` is the duration of speaker confusion, and :math:`\text{total}` is the total duration of speech in the reference.
+speech incorrectly classified as non-speech, :math:`\text{confusion}` is the duration of speaker confusion, and :math:`\text{total}` is the sum over all speakers of their reference speech duration.
 
 Note that this metric does take overlapping speech into account, potentially leading to increased missed detection in case the speaker diarization system does not include an overlapping speech detection module.
 
@@ -109,7 +116,7 @@ Purity and coverage are two dual evaluation metrics that provide additional insi
    \text{purity} & = & \frac{\displaystyle \sum_{\text{cluster}} \max_{\text{speaker}} |\text{cluster} \cap \text{speaker}|  }{\displaystyle \sum_{\text{cluster}} |\text{cluster}|} \\
   \text{coverage} & = & \frac{\displaystyle \sum_{\text{speaker}} \max_{\text{cluster}} |\text{speaker} \cap \text{cluster}|  }{\displaystyle \sum_{\text{speaker}} |\text{speaker}|} \\
 
-where :math:`|\text{speaker}|` (respectively :math:`|\text{cluster}|` is the speech duration of this particular reference speaker (resp. hypothesized cluster), and  :math:`|\text{speaker} \cap \text{cluster}|` is the duration of their intersection.
+where :math:`|\text{speaker}|` (respectively :math:`|\text{cluster}|`) is the speech duration of this particular reference speaker (resp. hypothesized cluster), and  :math:`|\text{speaker} \cap \text{cluster}|` is the duration of their intersection.
 
 Over-segmented results (e.g. too many speaker clusters) tend to lead to high purity and low coverage, while under-segmented results (e.g. when two speakers are merged into one large cluster) lead to low purity and higher coverage.
 

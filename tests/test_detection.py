@@ -1,12 +1,45 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+# The MIT License (MIT)
+
+# Copyright (c) 2020 CNRS
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+# AUTHORS
+# Hervé BREDIN - http://herve.niderb.fr
+
+
 import pytest
 
 import pyannote.core
 from pyannote.core import Annotation
 from pyannote.core import Segment
+from pyannote.core import Timeline
+from pyannote.metrics.detection import DetectionCostFunction
 from pyannote.metrics.detection import DetectionErrorRate
 from pyannote.metrics.detection import DetectionPrecision
 from pyannote.metrics.detection import DetectionRecall
 from pyannote.metrics.detection import DetectionAccuracy
+from pyannote.metrics.detection import DetectionPrecisionRecallFMeasure
+
 
 import numpy.testing as npt
 
@@ -16,6 +49,9 @@ import numpy.testing as npt
 # Time        0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
 # Hypothesis     |-----------------|-----|     |-----------------|  |-----|
 #                                  |--------|
+
+# Time        0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+# UEM            |--------------------------------------|
 
 @pytest.fixture
 def reference():
@@ -36,6 +72,11 @@ def hypothesis():
     hypothesis[Segment(11, 17)] = 'C'
     hypothesis[Segment(18, 20)] = 'D'
     return hypothesis
+
+
+@pytest.fixture
+def uem():
+    return Timeline([Segment(1, 14)])
 
 
 def test_error_rate(reference, hypothesis):
@@ -67,6 +108,7 @@ def test_accuracy(reference, hypothesis):
     accuracy = detectionAccuracy(reference, hypothesis)
     npt.assert_almost_equal(accuracy, 0.75, decimal=3)
 
+
 def test_precision(reference, hypothesis):
     # 14 true positive / 17 detected
     detectionPrecision = DetectionPrecision()
@@ -79,3 +121,27 @@ def test_recall(reference, hypothesis):
     detectionRecall = DetectionRecall()
     recall = detectionRecall(reference, hypothesis)
     npt.assert_almost_equal(recall, 0.875, decimal=3)
+
+
+def test_fscore(reference, hypothesis):
+    # expected 28/33 since it
+    # is computed as :
+    # 2*precision*recall / (precision+recall)
+    detectionFMeasure = DetectionPrecisionRecallFMeasure()
+
+    fscore = detectionFMeasure(reference, hypothesis)
+    npt.assert_almost_equal(fscore, 0.848, decimal=3)
+
+
+def test_decision_cost_function(reference, hypothesis, uem):
+    # No UEM.
+    expected = 0.28125
+    dcf = DetectionCostFunction(fa_weight=0.25, miss_weight=0.75)
+    actual = dcf(reference, hypothesis)
+    npt.assert_almost_equal(actual, expected, decimal=7)
+
+    # UEM.
+    expected = 1/6.
+    dcf = DetectionCostFunction(fa_weight=0.25, miss_weight=0.75)
+    actual = dcf(reference, hypothesis, uem=uem)
+    npt.assert_almost_equal(actual, expected, decimal=7)
