@@ -28,17 +28,17 @@
 # Camille Guinaudeau - https://sites.google.com/site/cguinaudeau/
 # Mamadou Doumbia
 # Diego Fustes diego.fustes at toptal.com
-from typing import List
+from typing import List, Tuple, Union
 
 import numpy as np
 from pyannote.core import Segment, Timeline, Annotation
 from pyannote.core.utils.generators import pairwise
 
 from .base import BaseMetric, f_measure
+from .types import MetricComponents, Details
 from .utils import UEMSupportMixin
-from .types import MetricComponents
 
-# TODO: can't we put these as class attributes?
+#  TODO: can't we put these as class attributes?
 PURITY_NAME = 'segmentation purity'
 COVERAGE_NAME = 'segmentation coverage'
 PURITY_COVERAGE_NAME = 'segmentation F[purity|coverage]'
@@ -72,7 +72,9 @@ class SegmentationCoverage(BaseMetric):
         super().__init__(**kwargs)
         self.tolerance = tolerance
 
-    def _partition(self, timeline, coverage):
+    def _partition(self,
+                   timeline: Timeline,
+                   coverage: Timeline) -> Annotation:
 
         # boundaries (as set of timestamps)
         boundaries = set([])
@@ -88,13 +90,15 @@ class SegmentationCoverage(BaseMetric):
 
         return partition.crop(coverage, mode='intersection').relabel_tracks()
 
-    def _preprocess(self, reference, hypothesis):
+    def _preprocess(self, reference: Annotation,
+                    hypothesis: Union[Annotation, Timeline]) \
+            -> Tuple[Annotation, Annotation]:
 
         if not isinstance(reference, Annotation):
             raise TypeError('reference must be an instance of `Annotation`')
 
         if isinstance(hypothesis, Annotation):
-            hypothesis = hypothesis.get_timeline()
+            hypothesis: Timeline = hypothesis.get_timeline()
 
         # reference where short intra-label gaps are removed
         filled = Timeline()
@@ -115,7 +119,7 @@ class SegmentationCoverage(BaseMetric):
 
         return reference_partition, hypothesis_partition
 
-    def _process(self, reference, hypothesis):
+    def _process(self, reference: Annotation, hypothesis: Annotation) -> Details:
 
         detail = self.init_components()
 
@@ -134,8 +138,8 @@ class SegmentationCoverage(BaseMetric):
     def metric_components(cls) -> List[str]:
         return [PTY_CVG_TOTAL, PTY_CVG_INTER]
 
-    # TODO: figure out type of ref and hypothesis
-    def compute_components(self, reference, hypothesis, **kwargs):
+    def compute_components(self, reference: Annotation,
+                           hypothesis: Union[Annotation, Timeline], **kwargs):
         reference, hypothesis = self._preprocess(reference, hypothesis)
         return self._process(reference, hypothesis)
 
@@ -159,7 +163,8 @@ class SegmentationPurity(SegmentationCoverage):
         return PURITY_NAME
 
     # TODO : Use type from parent class
-    def compute_components(self, reference, hypothesis, **kwargs):
+    def compute_components(self, reference: Annotation,
+                           hypothesis: Union[Annotation, Timeline], **kwargs):
         reference, hypothesis = self._preprocess(reference, hypothesis)
         return self._process(hypothesis, reference)
 
@@ -191,7 +196,8 @@ class SegmentationPurityCoverageFMeasure(SegmentationCoverage):
         super(SegmentationPurityCoverageFMeasure, self).__init__(tolerance=tolerance, **kwargs)
         self.beta = beta
 
-    def _process(self, reference, hypothesis):
+    def _process(self, reference: Annotation,
+                 hypothesis: Union[Annotation, Timeline]):
         reference, hypothesis = self._preprocess(reference, hypothesis)
 
         detail = self.init_components()
@@ -207,10 +213,11 @@ class SegmentationPurityCoverageFMeasure(SegmentationCoverage):
 
         return detail
 
-    def compute_components(self, reference, hypothesis, **kwargs):
+    def compute_components(self, reference: Annotation,
+                           hypothesis: Union[Annotation, Timeline], **kwargs):
         return self._process(reference, hypothesis)
 
-    def compute_metric(self, detail):
+    def compute_metric(self, detail: Details):
         _, _, value = self.compute_metrics(detail=detail)
         return value
 
@@ -273,10 +280,12 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
 
     def __init__(self, tolerance=0., **kwargs):
 
-        super(SegmentationPrecision, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.tolerance = tolerance
 
-    def compute_components(self, reference, hypothesis, **kwargs):
+    def compute_components(self,
+                           reference: Union[Annotation, Timeline],
+                           hypothesis: Union[Annotation, Timeline], **kwargs):
 
         # extract timeline if needed
         if isinstance(reference, Annotation):
@@ -287,7 +296,7 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
         detail = self.init_components()
 
         # number of matches so far...
-        nMatches = 0.  # make sure it is a float (for later ratio)
+        n_matches = 0.  # make sure it is a float (for later ratio)
 
         # number of boundaries in reference and hypothesis
         N = len(reference) - 1
@@ -302,13 +311,13 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
             return detail
 
         # reference and hypothesis boundaries
-        refBoundaries = [segment.end for segment in reference][:-1]
-        hypBoundaries = [segment.end for segment in hypothesis][:-1]
+        ref_boundaries = [segment.end for segment in reference][:-1]
+        hyp_boundaries = [segment.end for segment in hypothesis][:-1]
 
         # temporal delta between all pairs of boundaries
         delta = np.zeros((N, M))
-        for r, refBoundary in enumerate(refBoundaries):
-            for h, hypBoundary in enumerate(hypBoundaries):
+        for r, refBoundary in enumerate(ref_boundaries):
+            for h, hypBoundary in enumerate(hyp_boundaries):
                 delta[r, h] = abs(refBoundary - hypBoundary)
 
         # make sure boundaries too far apart from each other cannot be matched
@@ -322,7 +331,7 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
         # while there are still boundaries to match
         while h < np.inf:
             # increment match count
-            nMatches += 1
+            n_matches += 1
 
             # find boundaries to match
             k = np.argmin(delta)
@@ -336,10 +345,10 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
             # update minimum value in delta
             h = np.amin(delta)
 
-        detail[PR_MATCHES] = nMatches
+        detail[PR_MATCHES] = n_matches
         return detail
 
-    def compute_metric(self, detail):
+    def compute_metric(self, detail: Details):
 
         numerator = detail[PR_MATCHES]
         denominator = detail[PR_BOUNDARIES]

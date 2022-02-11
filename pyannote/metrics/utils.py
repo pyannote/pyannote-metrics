@@ -146,7 +146,7 @@ class UEMSupportMixin:
 
     def uemify(self,
                reference: Annotation,
-               hypothesis: Timeline,
+               hypothesis: Annotation,
                uem: Optional[Timeline] = None,
                collar: float = 0.,
                skip_overlap: bool = False,

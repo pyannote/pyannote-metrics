@@ -31,14 +31,15 @@ from typing import Tuple
 
 import numpy as np
 import sklearn.metrics
+from pandas._typing import ArrayLike
 from sklearn.base import BaseEstimator
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.model_selection._split import _CVIterableWrapper
 
 from .types import CalibrationMethod
 
-# TODO : what should we use for array-like?
-def det_curve(y_true, scores, distances=False) \
+
+def det_curve(y_true: ArrayLike, scores: ArrayLike, distances: bool = False) \
         -> Tuple[np.ndarray, np.ndarray, np.ndarray, float]:
     """DET curve
 
@@ -82,8 +83,10 @@ def det_curve(y_true, scores, distances=False) \
     return fpr, fnr, thresholds, eer
 
 
-# TODO : what should we use for array-like?
-def precision_recall_curve(y_true, scores, distances=False):
+def precision_recall_curve(y_true: ArrayLike,
+                           scores: ArrayLike,
+                           distance: bool = False) \
+        -> Tuple[np.ndarray, np.ndarray, np.ndarray, float]:
     """Precision-recall curve
 
     Parameters
@@ -165,7 +168,7 @@ class Calibration:
         self.method = method
         self.equal_priors = equal_priors
 
-    def fit(self, scores, y_true):
+    def fit(self, scores: ArrayLike, y_true: ArrayLike):
         """Train calibration
 
         Parameters
@@ -215,8 +218,7 @@ class Calibration:
 
         return self
 
-    # TODO : what should we use for array-like?
-    def transform(self, scores):
+    def transform(self, scores: ArrayLike):
         """Calibrate scores into probabilities
 
         Parameters

@@ -38,7 +38,7 @@ from .matcher import LabelMatcher, \
 from .types import MetricComponents
 from .utils import UEMSupportMixin
 
-# TODO: can't we put these as class attributes?
+# TODO: can't we put these as class attributes?
 IER_TOTAL = MATCH_TOTAL
 IER_CORRECT = MATCH_CORRECT
 IER_CONFUSION = MATCH_CONFUSION

@@ -25,11 +25,13 @@
 
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
+from typing import List, Dict
 
-
-import scipy.stats
-import pandas as pd
 import numpy as np
+import pandas as pd
+import scipy.stats
+
+from pyannote.metrics.types import Details
 
 
 class BaseMetric(object):
@@ -43,17 +45,17 @@ class BaseMetric(object):
     """
 
     @classmethod
-    def metric_name(cls):
+    def metric_name(cls) -> str:
         raise NotImplementedError(
             cls.__name__ + " is missing a 'metric_name' class method. "
-            "It should return the name of the metric as string."
+                           "It should return the name of the metric as string."
         )
 
     @classmethod
-    def metric_components(cls):
+    def metric_components(cls) -> List[str]:
         raise NotImplementedError(
             cls.__name__ + " is missing a 'metric_components' class method. "
-            "It should return the list of names of metric components."
+                           "It should return the list of names of metric components."
         )
 
     def __init__(self, **kwargs):
@@ -67,15 +69,15 @@ class BaseMetric(object):
 
     def reset(self):
         """Reset accumulated components and metric values"""
-        self.accumulated_ = dict()
-        self.results_ = list()
+        self.accumulated_: Dict[str, float] = dict()
+        self.results_: List = list()
         for value in self.components_:
             self.accumulated_[value] = 0.0
 
-    def __get_name(self):
-        return self.__class__.metric_name()
-
-    name = property(fget=__get_name, doc="Metric name.")
+    @property
+    def name(self):
+        """Metric name."""
+        return self.metric_name()
 
     # TODO: use joblib/locky to allow parallel processing?
     # TODO: signature could be something like __call__(self, reference_iterator, hypothesis_iterator, ...)
@@ -241,7 +243,7 @@ class BaseMetric(object):
         for uri, component in self.results_:
             yield uri, component
 
-    def compute_components(self, reference, hypothesis, **kwargs):
+    def compute_components(self, reference, hypothesis, **kwargs) -> Dict[str, float]:
         """Compute metric components
 
         Parameters
@@ -260,11 +262,11 @@ class BaseMetric(object):
         """
         raise NotImplementedError(
             self.__class__.__name__ + " is missing a 'compute_components' method."
-            "It should return a dictionary where keys are component names "
-            "and values are component values."
+                                      "It should return a dictionary where keys are component names "
+                                      "and values are component values."
         )
 
-    def compute_metric(self, components):
+    def compute_metric(self, components: Details):
         """Compute metric value from computed `components`
 
         Parameters
@@ -280,8 +282,8 @@ class BaseMetric(object):
         """
         raise NotImplementedError(
             self.__class__.__name__ + " is missing a 'compute_metric' method. "
-            "It should return the actual value of the metric based "
-            "on the precomputed component dictionary given as input."
+                                      "It should return the actual value of the metric based "
+                                      "on the precomputed component dictionary given as input."
         )
 
     def confidence_interval(self, alpha=0.9):
@@ -374,7 +376,7 @@ class Recall(BaseMetric):
     def metric_components(cls):
         return [RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED]
 
-    def compute_metric(self, components):
+    def compute_metric(self, components) -> float:
         """Compute recall from `components`"""
         numerator = components[RECALL_RELEVANT_RETRIEVED]
         denominator = components[RECALL_RELEVANT]
@@ -387,7 +389,7 @@ class Recall(BaseMetric):
             return numerator / denominator
 
 
-def f_measure(precision, recall, beta=1.0):
+def f_measure(precision: float, recall: float, beta=1.0) -> float:
     """Compute f-measure
 
     f-measure is defined as follows:
@@ -398,4 +400,3 @@ def f_measure(precision, recall, beta=1.0):
     if precision + recall == 0.0:
         return 0
     return (1 + beta * beta) * precision * recall / (beta * beta * precision + recall)
-

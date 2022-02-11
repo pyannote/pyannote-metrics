@@ -27,7 +27,7 @@
 # Hervé BREDIN - http://herve.niderb.fr
 
 """Metrics for diarization"""
-from typing import Optional
+from typing import Optional, Dict, TYPE_CHECKING
 
 import numpy as np
 from pyannote.core import Annotation, Timeline
@@ -39,7 +39,10 @@ from .matcher import HungarianMapper
 from .types import MetricComponents
 from .utils import UEMSupportMixin
 
-# TODO: can't we put these as class attributes?
+if TYPE_CHECKING:
+    from pyannote.core.utils.types import Label
+
+# TODO: can't we put these as class attributes?
 DER_NAME = 'diarization error rate'
 
 
@@ -103,7 +106,7 @@ class DiarizationErrorRate(IdentificationErrorRate):
         super().__init__(collar=collar, skip_overlap=skip_overlap, **kwargs)
         self.mapper_ = HungarianMapper()
 
-    def optimal_mapping(self, reference, hypothesis, uem=None):
+    def optimal_mapping(self, reference, hypothesis, uem=None) -> Dict[str, str]:
         """Optimal label mapping
 
         Parameters

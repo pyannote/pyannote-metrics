@@ -30,6 +30,7 @@ import sys
 from typing import Union, Iterable, Optional, Tuple
 
 import numpy as np
+from numpy.typing import ArrayLike
 from pyannote.core import Segment, Annotation, SlidingWindowFeature, Timeline
 
 from .base import BaseMetric
@@ -75,8 +76,8 @@ class LowLatencySpeakerSpotting(BaseMetric):
 
     # TODO : should we use array like for those?
     def __init__(self,
-                 thresholds: Optional[Union[np.ndarray, Iterable]] = None,
-                 latencies: Optional[Union[np.ndarray, Iterable]] = None):
+                 thresholds: Optional[ArrayLike] = None,
+                 latencies: Optional[ArrayLike] = None):
         super().__init__()
 
         if thresholds is None and latencies is None:
