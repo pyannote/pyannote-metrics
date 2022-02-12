@@ -90,52 +90,44 @@ Calling "spotting" mode will create a bunch of files.
 
 """
 
-# command line parsing
-from docopt import docopt
-
-import sys
-import json
-import warnings
 import functools
+import json
+import sys
+import warnings
+
 import numpy as np
 import pandas as pd
-from tabulate import tabulate
-
-from pyannote.core import Timeline
+# command line parsing
+from docopt import docopt
 from pyannote.core import Annotation
-from pyannote.database.util import load_rttm
-
+from pyannote.core import Timeline
 # evaluation protocols
 from pyannote.database import get_protocol
 from pyannote.database.util import get_annotated
+from pyannote.database.util import load_rttm
+from tabulate import tabulate
 
-from pyannote.metrics.detection import DetectionErrorRate
 from pyannote.metrics.detection import DetectionAccuracy
-from pyannote.metrics.detection import DetectionRecall
+from pyannote.metrics.detection import DetectionErrorRate
 from pyannote.metrics.detection import DetectionPrecision
-
-from pyannote.metrics.segmentation import SegmentationPurity
-from pyannote.metrics.segmentation import SegmentationCoverage
-from pyannote.metrics.segmentation import SegmentationPrecision
-from pyannote.metrics.segmentation import SegmentationRecall
-
-from pyannote.metrics.diarization import GreedyDiarizationErrorRate
+from pyannote.metrics.detection import DetectionRecall
+from pyannote.metrics.diarization import DiarizationCoverage
 from pyannote.metrics.diarization import DiarizationErrorRate
 from pyannote.metrics.diarization import DiarizationPurity
-from pyannote.metrics.diarization import DiarizationCoverage
-
+from pyannote.metrics.diarization import GreedyDiarizationErrorRate
 from pyannote.metrics.identification import IdentificationErrorRate
 from pyannote.metrics.identification import IdentificationPrecision
 from pyannote.metrics.identification import IdentificationRecall
-
+from pyannote.metrics.segmentation import SegmentationCoverage
+from pyannote.metrics.segmentation import SegmentationPrecision
+from pyannote.metrics.segmentation import SegmentationPurity
+from pyannote.metrics.segmentation import SegmentationRecall
 from pyannote.metrics.spotting import LowLatencySpeakerSpotting
 
 showwarning_orig = warnings.showwarning
 
 
 def showwarning(message, category, *args, **kwargs):
-    import sys
-
     print(category.__name__ + ":", str(message))
 
 

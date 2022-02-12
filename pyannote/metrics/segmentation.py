@@ -28,7 +28,7 @@
 # Camille Guinaudeau - https://sites.google.com/site/cguinaudeau/
 # Mamadou Doumbia
 # Diego Fustes diego.fustes at toptal.com
-from typing import List, Tuple, Union
+from typing import Tuple, Union
 
 import numpy as np
 from pyannote.core import Segment, Timeline, Annotation
@@ -135,7 +135,7 @@ class SegmentationCoverage(BaseMetric):
         return COVERAGE_NAME
 
     @classmethod
-    def metric_components(cls) -> List[str]:
+    def metric_components(cls) -> MetricComponents:
         return [PTY_CVG_TOTAL, PTY_CVG_INTER]
 
     def compute_components(self, reference: Annotation,
@@ -239,7 +239,7 @@ class SegmentationPurityCoverageFMeasure(SegmentationCoverage):
         return PURITY_COVERAGE_NAME
 
     @classmethod
-    def metric_components(cls) -> List[str]:
+    def metric_components(cls) -> MetricComponents:
         return [PTY_TOTAL, PTY_INTER, CVG_TOTAL, CVG_INTER]
 
 

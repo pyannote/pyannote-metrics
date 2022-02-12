@@ -26,12 +26,12 @@
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
 # Marvin LAVECHIN
-from typing import List, Optional
+from typing import Optional
 
 from pyannote.core import Annotation, Timeline
 
 from .base import BaseMetric, f_measure
-from .types import Details
+from .types import Details, MetricComponents
 from .utils import UEMSupportMixin
 
 DER_NAME = 'detection error rate'
@@ -69,7 +69,7 @@ class DetectionErrorRate(UEMSupportMixin, BaseMetric):
         return DER_NAME
 
     @classmethod
-    def metric_components(cls) -> List[str]:
+    def metric_components(cls) -> MetricComponents:
         return [DER_TOTAL, DER_FALSE_ALARM, DER_MISS]
 
     def __init__(self, collar=0.0, skip_overlap=False, **kwargs):
@@ -436,7 +436,7 @@ class DetectionPrecisionRecallFMeasure(UEMSupportMixin, BaseMetric):
 
         return detail
 
-    def compute_metric(self, detail: Details):
+    def compute_metric(self, detail: Details) -> float:
         _, _, value = self.compute_metrics(detail=detail)
         return value
 
@@ -529,6 +529,7 @@ class DetectionCostFunction(UEMSupportMixin, BaseMetric):
     def metric_components(cls):
         return [DCF_POS_TOTAL, DCF_NEG_TOTAL, DCF_FALSE_ALARM, DCF_MISS]
 
+    # TODO
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
         reference, hypothesis, uem = self.uemify(
             reference, hypothesis, uem=uem,

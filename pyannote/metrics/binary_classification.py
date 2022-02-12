@@ -85,7 +85,7 @@ def det_curve(y_true: ArrayLike, scores: ArrayLike, distances: bool = False) \
 
 def precision_recall_curve(y_true: ArrayLike,
                            scores: ArrayLike,
-                           distance: bool = False) \
+                           distances: bool = False) \
         -> Tuple[np.ndarray, np.ndarray, np.ndarray, float]:
     """Precision-recall curve
 
@@ -135,7 +135,7 @@ class _Passthrough(BaseEstimator):
     def fit(self, scores, y_true):
         return self
 
-    def decision_function(self, scores):
+    def decision_function(self, scores: ArrayLike):
         """Returns the input scores unchanged"""
         return scores
 

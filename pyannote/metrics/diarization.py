@@ -31,16 +31,17 @@ from typing import Optional, Dict, TYPE_CHECKING
 
 import numpy as np
 from pyannote.core import Annotation, Timeline
+from pyannote.core.utils.types import Label
 
 from .base import BaseMetric, f_measure
 from .identification import IdentificationErrorRate
 from .matcher import GreedyMapper
 from .matcher import HungarianMapper
-from .types import MetricComponents
+from .types import Details
 from .utils import UEMSupportMixin
 
 if TYPE_CHECKING:
-    from pyannote.core.utils.types import Label
+    pass
 
 # TODO: can't we put these as class attributes?
 DER_NAME = 'diarization error rate'
@@ -106,7 +107,10 @@ class DiarizationErrorRate(IdentificationErrorRate):
         super().__init__(collar=collar, skip_overlap=skip_overlap, **kwargs)
         self.mapper_ = HungarianMapper()
 
-    def optimal_mapping(self, reference, hypothesis, uem=None) -> Dict[str, str]:
+    def optimal_mapping(self,
+                        reference: Annotation,
+                        hypothesis: Annotation,
+                        uem: Optional[Timeline] = None) -> Dict[Label, Label]:
         """Optimal label mapping
 
         Parameters
@@ -134,9 +138,9 @@ class DiarizationErrorRate(IdentificationErrorRate):
 
     def compute_components(self,
                            reference: Annotation,
-                           hypothesis: Timeline,
+                           hypothesis: Annotation,
                            uem: Optional[Timeline] = None,
-                           **kwargs) -> MetricComponents:
+                           **kwargs) -> Details:
         # crop reference and hypothesis to evaluated regions (uem)
         # remove collars around reference segment boundaries
         # remove overlap regions (if requested)

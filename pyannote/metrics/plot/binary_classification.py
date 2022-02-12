@@ -28,18 +28,28 @@
 
 
 import warnings
+from typing import Optional
+
+import matplotlib
 import numpy as np
+from numpy.typing import ArrayLike
+
 from pyannote.metrics.binary_classification import det_curve
 from pyannote.metrics.binary_classification import precision_recall_curve
 
-import matplotlib
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
-def plot_distributions(y_true, scores, save_to, xlim=None, nbins=100, ymax=3., dpi=150):
+def plot_distributions(y_true: ArrayLike,
+                       scores: ArrayLike,
+                       save_to: str,
+                       xlim: Optional[float, float] = None,
+                       nbins: int = 100,
+                       ymax: float = 3.,
+                       dpi: int = 150) -> bool:
     """Scores distributions
 
     This function will create (and overwrite) the following files:
@@ -75,8 +85,11 @@ def plot_distributions(y_true, scores, save_to, xlim=None, nbins=100, ymax=3., d
     return True
 
 
-def plot_det_curve(y_true, scores, save_to,
-                   distances=False, dpi=150):
+def plot_det_curve(y_true: ArrayLike,
+                   scores: ArrayLike,
+                   save_to: str,
+                   distances: bool = False,
+                   dpi: int = 150) -> float:
     """DET curve
 
     This function will create (and overwrite) the following files:
@@ -129,8 +142,11 @@ def plot_det_curve(y_true, scores, save_to,
     return eer
 
 
-def plot_precision_recall_curve(y_true, scores, save_to,
-                                distances=False, dpi=150):
+def plot_precision_recall_curve(y_true: ArrayLike,
+                                scores: ArrayLike,
+                                save_to: str,
+                                distances: bool = False,
+                                dpi: int = 150) -> float:
     """Precision/recall curve
 
     This function will create (and overwrite) the following files:

@@ -26,18 +26,19 @@
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
 # Benjamin MAURICE - maurice@limsi.fr
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 import numpy as np
+from pyannote.core import Annotation, Timeline
 from scipy.optimize import linear_sum_assignment
 
+from ..identification import UEMSupportMixin
 from ..matcher import LabelMatcher
-from pyannote.core import Annotation, Timeline
-
 from ..matcher import MATCH_CORRECT, MATCH_CONFUSION, \
     MATCH_MISSED_DETECTION, MATCH_FALSE_ALARM
 
-from ..identification import UEMSupportMixin
+if TYPE_CHECKING:
+    from xarray import DataArray
 
 REFERENCE_TOTAL = 'reference'
 HYPOTHESIS_TOTAL = 'hypothesis'
@@ -70,9 +71,9 @@ class IdentificationErrorAnalysis(UEMSupportMixin):
 
     def difference(self,
                    reference: Annotation,
-                   hypothesis: Timeline,
+                   hypothesis: Annotation,
                    uem: Optional[Timeline] = None,
-                   uemified: bool=False) -> Annotation:
+                   uemified: bool = False):
         """Get error analysis as `Annotation`
 
         Labels are (status, reference_label, hypothesis_label) tuples.
@@ -143,8 +144,8 @@ class IdentificationErrorAnalysis(UEMSupportMixin):
                    reference: Annotation,
                    before: Annotation,
                    after: Annotation,
-                   uem: Optional[Timeline]=None,
-                   uemified: bool=False):
+                   uem: Optional[Timeline] = None,
+                   uemified: bool = False):
 
         _, before, errors_before = self.difference(
             reference, before, uem=uem, uemified=True)
@@ -236,7 +237,7 @@ class IdentificationErrorAnalysis(UEMSupportMixin):
 
     def matrix(self,
                reference: Annotation,
-               hypothesis: Timeline,
+               hypothesis: Annotation,
                uem: Optional[Timeline] = None) -> 'DataArray':
 
         reference, hypothesis, errors = self.difference(

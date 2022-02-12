@@ -27,7 +27,7 @@
 # Hervé BREDIN - http://herve.niderb.fr
 
 import sys
-from typing import Union, Iterable, Optional, Tuple
+from typing import Union, Iterable, Optional, Tuple, List
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -35,7 +35,7 @@ from pyannote.core import Segment, Annotation, SlidingWindowFeature, Timeline
 
 from .base import BaseMetric
 from .binary_classification import det_curve
-from .types import MetricComponents
+from .types import MetricComponents, Details
 
 
 class LowLatencySpeakerSpotting(BaseMetric):
@@ -98,7 +98,8 @@ class LowLatencySpeakerSpotting(BaseMetric):
     def compute_metric(self, detail: MetricComponents):
         return None
 
-    def _fixed_latency(self, reference, timestamps, scores):
+    def _fixed_latency(self, reference: Timeline,
+                       timestamps: List[float], scores: List[float]) -> Details:
 
         if not reference:
             target_trial = False
@@ -156,7 +157,8 @@ class LowLatencySpeakerSpotting(BaseMetric):
         }
 
     def _variable_latency(self, reference: Union[Timeline, Annotation],
-                          timestamps, scores, **kwargs):
+                          timestamps: List[float], scores: List[float],
+                          **kwargs) -> Details:
 
         # pre-compute latencies
         speaker_latency = np.NAN * np.ones((len(timestamps), 1))
@@ -212,7 +214,7 @@ class LowLatencySpeakerSpotting(BaseMetric):
     def compute_components(self, reference: Union[Timeline, Annotation],
                            hypothesis: Union[SlidingWindowFeature,
                                              Iterable[Tuple[float, float]]],
-                           **kwargs) -> MetricComponents:
+                           **kwargs) -> Details:
         """
 
         Parameters
@@ -243,7 +245,7 @@ class LowLatencySpeakerSpotting(BaseMetric):
                      if trial['target']]
         return np.nanmean(latencies, axis=0)
 
-    # TODO : figure out return type
+    #  TODO : figure out return type
     def det_curve(self,
                   cost_miss: float = 100,
                   cost_fa: float = 1,

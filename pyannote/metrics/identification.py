@@ -25,7 +25,7 @@
 
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
-from typing import List, Optional
+from typing import Optional
 
 from pyannote.core import Annotation, Timeline
 
@@ -35,7 +35,7 @@ from .base import Recall, RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED
 from .matcher import LabelMatcher, \
     MATCH_TOTAL, MATCH_CORRECT, MATCH_CONFUSION, \
     MATCH_MISSED_DETECTION, MATCH_FALSE_ALARM
-from .types import MetricComponents
+from .types import MetricComponents, Details
 from .utils import UEMSupportMixin
 
 # TODO: can't we put these as class attributes?
@@ -77,7 +77,7 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
         return IER_NAME
 
     @classmethod
-    def metric_components(cls) -> List[str]:
+    def metric_components(cls) -> MetricComponents:
         return [
             IER_TOTAL,
             IER_CORRECT,
@@ -102,11 +102,11 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
 
     def compute_components(self,
                            reference: Annotation,
-                           hypothesis: Timeline,
+                           hypothesis: Annotation,
                            uem: Optional[Timeline] = None,
                            collar: Optional[float] = None,
                            skip_overlap: Optional[float] = None,
-                           **kwargs) -> MetricComponents:
+                           **kwargs) -> Details:
         """
 
         Parameters
@@ -156,7 +156,7 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
 
         return detail
 
-    def compute_metric(self, detail: MetricComponents) -> float:
+    def compute_metric(self, detail: Details) -> float:
 
         numerator = 1. * (
                 self.confusion * detail[IER_CONFUSION] +
@@ -194,9 +194,9 @@ class IdentificationPrecision(UEMSupportMixin, Precision):
 
     def compute_components(self,
                            reference: Annotation,
-                           hypothesis: Timeline,
+                           hypothesis: Annotation,
                            uem: Optional[Timeline] = None,
-                           **kwargs) -> MetricComponents:
+                           **kwargs) -> Details:
         detail = self.init_components()
 
         R, H, common_timeline = self.uemify(
@@ -245,9 +245,9 @@ class IdentificationRecall(UEMSupportMixin, Recall):
 
     def compute_components(self,
                            reference: Annotation,
-                           hypothesis: Timeline,
+                           hypothesis: Annotation,
                            uem: Optional[Timeline] = None,
-                           **kwargs) -> MetricComponents:
+                           **kwargs) -> Details:
         detail = self.init_components()
 
         R, H, common_timeline = self.uemify(

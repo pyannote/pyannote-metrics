@@ -31,7 +31,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats
 
-from pyannote.metrics.types import Details
+from pyannote.metrics.types import Details, MetricComponents
 
 
 class BaseMetric(object):
@@ -52,7 +52,7 @@ class BaseMetric(object):
         )
 
     @classmethod
-    def metric_components(cls) -> List[str]:
+    def metric_components(cls) -> MetricComponents:
         raise NotImplementedError(
             cls.__name__ + " is missing a 'metric_components' class method. "
                            "It should return the list of names of metric components."
