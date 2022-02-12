@@ -73,6 +73,9 @@ setup(
         "Topic :: Scientific/Engineering",
     ],
     extras_require={
+        "gamma": {
+            "pygamma-agreement>=0.5.4"
+        },
         "tests": {
             'pytest'
         },
