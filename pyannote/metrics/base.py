@@ -25,11 +25,12 @@
 
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
-from typing import List, Dict
+from typing import List, Union, Optional
 
 import numpy as np
 import pandas as pd
 import scipy.stats
+from pyannote.core import Annotation, Timeline
 
 from pyannote.metrics.types import Details, MetricComponents
 
@@ -69,7 +70,7 @@ class BaseMetric(object):
 
     def reset(self):
         """Reset accumulated components and metric values"""
-        self.accumulated_: Dict[str, float] = dict()
+        self.accumulated_: Details = dict()
         self.results_: List = list()
         for value in self.components_:
             self.accumulated_[value] = 0.0
@@ -82,7 +83,9 @@ class BaseMetric(object):
     # TODO: use joblib/locky to allow parallel processing?
     # TODO: signature could be something like __call__(self, reference_iterator, hypothesis_iterator, ...)
 
-    def __call__(self, reference, hypothesis, detailed=False, uri=None, **kwargs):
+    def __call__(self, reference: Union[Timeline, Annotation],
+                 hypothesis: Union[Timeline, Annotation],
+                 detailed: bool = False, uri: Optional[str] = None, **kwargs):
         """Compute metric value and accumulate components
 
         Parameters
@@ -243,7 +246,10 @@ class BaseMetric(object):
         for uri, component in self.results_:
             yield uri, component
 
-    def compute_components(self, reference, hypothesis, **kwargs) -> Dict[str, float]:
+    def compute_components(self,
+                           reference: Union[Timeline, Annotation],
+                           hypothesis: Union[Timeline, Annotation],
+                           **kwargs) -> Details:
         """Compute metric components
 
         Parameters
@@ -286,7 +292,7 @@ class BaseMetric(object):
                                       "on the precomputed component dictionary given as input."
         )
 
-    def confidence_interval(self, alpha=0.9):
+    def confidence_interval(self, alpha: float = 0.9):
         """Compute confidence interval on accumulated metric values
 
         Parameters
@@ -335,10 +341,10 @@ class Precision(BaseMetric):
         return PRECISION_NAME
 
     @classmethod
-    def metric_components(cls):
+    def metric_components(cls) -> MetricComponents:
         return [PRECISION_RETRIEVED, PRECISION_RELEVANT_RETRIEVED]
 
-    def compute_metric(self, components):
+    def compute_metric(self, components: Details) -> float:
         """Compute precision from `components`"""
         numerator = components[PRECISION_RELEVANT_RETRIEVED]
         denominator = components[PRECISION_RETRIEVED]
@@ -373,10 +379,10 @@ class Recall(BaseMetric):
         return RECALL_NAME
 
     @classmethod
-    def metric_components(cls):
+    def metric_components(cls) -> MetricComponents:
         return [RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED]
 
-    def compute_metric(self, components) -> float:
+    def compute_metric(self, components: Details) -> float:
         """Compute recall from `components`"""
         numerator = components[RECALL_RELEVANT_RETRIEVED]
         denominator = components[RECALL_RELEVANT]

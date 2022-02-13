@@ -315,7 +315,11 @@ class DetectionRecall(DetectionErrorRate):
     def metric_components(cls):
         return [RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED]
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Annotation,
+                           uem: Optional[Timeline] = None,
+                           **kwargs):
 
         reference, hypothesis, uem = self.uemify(
             reference, hypothesis, uem=uem,
@@ -529,8 +533,12 @@ class DetectionCostFunction(UEMSupportMixin, BaseMetric):
     def metric_components(cls):
         return [DCF_POS_TOTAL, DCF_NEG_TOTAL, DCF_FALSE_ALARM, DCF_MISS]
 
-    # TODO
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Annotation,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> Details:
+
         reference, hypothesis, uem = self.uemify(
             reference, hypothesis, uem=uem,
             collar=self.collar, skip_overlap=self.skip_overlap,
