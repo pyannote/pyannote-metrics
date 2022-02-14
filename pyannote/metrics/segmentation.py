@@ -285,7 +285,7 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
 
     def compute_components(self,
                            reference: Union[Annotation, Timeline],
-                           hypothesis: Union[Annotation, Timeline], **kwargs):
+                           hypothesis: Union[Annotation, Timeline], **kwargs) -> Details:
 
         # extract timeline if needed
         if isinstance(reference, Annotation):
@@ -348,7 +348,7 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
         detail[PR_MATCHES] = n_matches
         return detail
 
-    def compute_metric(self, detail: Details):
+    def compute_metric(self, detail: Details) -> float:
 
         numerator = detail[PR_MATCHES]
         denominator = detail[PR_BOUNDARIES]
@@ -393,6 +393,7 @@ class SegmentationRecall(SegmentationPrecision):
     def metric_name(cls):
         return RECALL_NAME
 
-    def compute_components(self, reference, hypothesis, **kwargs):
+    def compute_components(self, reference: Union[Annotation, Timeline],
+                           hypothesis: Union[Annotation, Timeline], **kwargs) -> Details:
         return super(SegmentationRecall, self).compute_components(
             hypothesis, reference)
