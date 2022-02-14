@@ -25,7 +25,7 @@
 
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Set, Tuple
 
 import numpy as np
 import pandas as pd
@@ -35,7 +35,7 @@ from pyannote.core import Annotation, Timeline
 from pyannote.metrics.types import Details, MetricComponents
 
 
-class BaseMetric(object):
+class BaseMetric:
     """
     :class:`BaseMetric` is the base class for most pyannote evaluation metrics.
 
@@ -62,7 +62,7 @@ class BaseMetric(object):
     def __init__(self, **kwargs):
         super(BaseMetric, self).__init__()
         self.metric_name_ = self.__class__.metric_name()
-        self.components_ = set(self.__class__.metric_components())
+        self.components_: Set[str] = set(self.__class__.metric_components())
         self.reset()
 
     def init_components(self):
@@ -128,7 +128,7 @@ class BaseMetric(object):
 
         return components[self.metric_name_]
 
-    def report(self, display=False):
+    def report(self, display: bool = False) -> pd.DataFrame:
         """Evaluation report
 
         Parameters
@@ -222,7 +222,7 @@ class BaseMetric(object):
         """Compute metric value from accumulated components"""
         return self.compute_metric(self.accumulated_)
 
-    def __getitem__(self, component):
+    def __getitem__(self, component: str) -> Union[float, Details]:
         """Get value of accumulated `component`.
 
         Parameters
@@ -292,7 +292,8 @@ class BaseMetric(object):
                                       "on the precomputed component dictionary given as input."
         )
 
-    def confidence_interval(self, alpha: float = 0.9):
+    def confidence_interval(self, alpha: float = 0.9) \
+            -> Tuple[float, Tuple[float, float]]:
         """Compute confidence interval on accumulated metric values
 
         Parameters

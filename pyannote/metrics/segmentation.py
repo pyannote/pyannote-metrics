@@ -28,7 +28,7 @@
 # Camille Guinaudeau - https://sites.google.com/site/cguinaudeau/
 # Mamadou Doumbia
 # Diego Fustes diego.fustes at toptal.com
-from typing import Tuple, Union
+from typing import Tuple, Union, Optional
 
 import numpy as np
 from pyannote.core import Segment, Timeline, Annotation
@@ -143,7 +143,7 @@ class SegmentationCoverage(BaseMetric):
         reference, hypothesis = self._preprocess(reference, hypothesis)
         return self._process(reference, hypothesis)
 
-    def compute_metric(self, detail: MetricComponents):
+    def compute_metric(self, detail: Details) -> float:
         return detail[PTY_CVG_INTER] / detail[PTY_CVG_TOTAL]
 
 
@@ -164,7 +164,8 @@ class SegmentationPurity(SegmentationCoverage):
 
     # TODO : Use type from parent class
     def compute_components(self, reference: Annotation,
-                           hypothesis: Union[Annotation, Timeline], **kwargs):
+                           hypothesis: Union[Annotation, Timeline],
+                           **kwargs) -> Details:
         reference, hypothesis = self._preprocess(reference, hypothesis)
         return self._process(hypothesis, reference)
 
@@ -197,7 +198,7 @@ class SegmentationPurityCoverageFMeasure(SegmentationCoverage):
         self.beta = beta
 
     def _process(self, reference: Annotation,
-                 hypothesis: Union[Annotation, Timeline]):
+                 hypothesis: Union[Annotation, Timeline]) -> Details:
         reference, hypothesis = self._preprocess(reference, hypothesis)
 
         detail = self.init_components()
@@ -214,14 +215,16 @@ class SegmentationPurityCoverageFMeasure(SegmentationCoverage):
         return detail
 
     def compute_components(self, reference: Annotation,
-                           hypothesis: Union[Annotation, Timeline], **kwargs):
+                           hypothesis: Union[Annotation, Timeline],
+                           **kwargs) -> Details:
         return self._process(reference, hypothesis)
 
-    def compute_metric(self, detail: Details):
+    def compute_metric(self, detail: Details) -> float:
         _, _, value = self.compute_metrics(detail=detail)
         return value
 
-    def compute_metrics(self, detail=None):
+    def compute_metrics(self, detail: Optional[Details] = None) \
+            -> Tuple[float, float, float]:
         detail = self.accumulated_ if detail is None else detail
 
         purity = \
@@ -285,7 +288,8 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
 
     def compute_components(self,
                            reference: Union[Annotation, Timeline],
-                           hypothesis: Union[Annotation, Timeline], **kwargs) -> Details:
+                           hypothesis: Union[Annotation, Timeline],
+                           **kwargs) -> Details:
 
         # extract timeline if needed
         if isinstance(reference, Annotation):
@@ -394,6 +398,7 @@ class SegmentationRecall(SegmentationPrecision):
         return RECALL_NAME
 
     def compute_components(self, reference: Union[Annotation, Timeline],
-                           hypothesis: Union[Annotation, Timeline], **kwargs) -> Details:
+                           hypothesis: Union[Annotation, Timeline],
+                           **kwargs) -> Details:
         return super(SegmentationRecall, self).compute_components(
             hypothesis, reference)
