@@ -27,7 +27,7 @@
 # Hervé BREDIN - http://herve.niderb.fr
 
 import sys
-from typing import Union, Iterable, Optional, Tuple, List
+from typing import Union, Iterable, Optional, Tuple, List, Dict
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -77,12 +77,8 @@ class LowLatencySpeakerSpotting(BaseMetric):
     def metric_name(cls) -> str:
         return "Low-latency speaker spotting"
 
-    def metric_components(self) -> MetricComponents:
-        if self.latencies is None:
-            return [SPOTTING_TARGET, SPOTTING_ABS_LATENCY, SPOTTING_SPK_SCORE, SPOTTING_SCORE]
-        else:
-            return [SPOTTING_TARGET, SPOTTING_SPK_LATENCY, SPOTTING_SPK_SCORE,
-                    SPOTTING_ABS_LATENCY, SPOTTING_ABS_SCORE]
+    def metric_components(self) -> Dict[str, float]:
+        return {'target': 0.}
 
     def __init__(self,
                  thresholds: Optional[ArrayLike] = None,
@@ -158,11 +154,11 @@ class LowLatencySpeakerSpotting(BaseMetric):
             abs_score = np.array(abs_score).reshape((-1, 1))
 
         return {
-            'target': target_trial,
-            'speaker_latency': self.latencies,
-            'spk_score': spk_score,
-            'absolute_latency': self.latencies,
-            'abs_score': abs_score,
+            SPOTTING_TARGET: target_trial,
+            SPOTTING_SPK_LATENCY: self.latencies,
+            SPOTTING_SCORE: spk_score,
+            SPOTTING_ABS_LATENCY: self.latencies,
+            SPOTTING_ABS_SCORE: abs_score,
         }
 
     def _variable_latency(self, reference: Union[Timeline, Annotation],
@@ -214,10 +210,10 @@ class LowLatencySpeakerSpotting(BaseMetric):
             speaker_latency = np.NAN
 
         return {
-            'target': target_trial,
-            'absolute_latency': absolute_latency,
-            'speaker_latency': speaker_latency,
-            'score': np.max(scores)
+            SPOTTING_TARGET: target_trial,
+            SPOTTING_ABS_LATENCY: absolute_latency,
+            SPOTTING_SPK_LATENCY: speaker_latency,
+            SPOTTING_SCORE: np.max(scores)
         }
 
     def compute_components(self, reference: Union[Timeline, Annotation],
@@ -244,14 +240,14 @@ class LowLatencySpeakerSpotting(BaseMetric):
 
     @property
     def absolute_latency(self):
-        latencies = [trial['absolute_latency'] for _, trial in self
-                     if trial['target']]
+        latencies = [trial[SPOTTING_ABS_LATENCY] for _, trial in self
+                     if trial[SPOTTING_TARGET]]
         return np.nanmean(latencies, axis=0)
 
     @property
     def speaker_latency(self):
-        latencies = [trial['speaker_latency'] for _, trial in self
-                     if trial['target']]
+        latencies = [trial[SPOTTING_SPK_LATENCY] for _, trial in self
+                     if trial[SPOTTING_TARGET]]
         return np.nanmean(latencies, axis=0)
 
     # TODO : figure out return type
@@ -293,8 +289,8 @@ class LowLatencySpeakerSpotting(BaseMetric):
 
         if self.latencies is None:
 
-            y_true = np.array([trial['target'] for _, trial in self])
-            scores = np.array([trial['score'] for _, trial in self])
+            y_true = np.array([trial[SPOTTING_TARGET] for _, trial in self])
+            scores = np.array([trial[SPOTTING_SCORE] for _, trial in self])
             fpr, fnr, thresholds, eer = det_curve(y_true, scores, distances=False)
             fpr, fnr, thresholds = fpr[::-1], fnr[::-1], thresholds[::-1]
             cdet = cost_miss * fnr * prior_target + \
@@ -317,9 +313,9 @@ class LowLatencySpeakerSpotting(BaseMetric):
 
         else:
 
-            y_true = np.array([trial['target'] for _, trial in self])
-            spk_scores = np.array([trial['spk_score'] for _, trial in self])
-            abs_scores = np.array([trial['abs_score'] for _, trial in self])
+            y_true = np.array([trial[SPOTTING_TARGET] for _, trial in self])
+            spk_scores = np.array([trial[SPOTTING_SPK_SCORE] for _, trial in self])
+            abs_scores = np.array([trial[SPOTTING_ABS_SCORE] for _, trial in self])
 
             result = {}
             for key, scores in {'speaker': spk_scores,
