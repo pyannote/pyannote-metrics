@@ -27,13 +27,19 @@
 # Hervé BREDIN - http://herve.niderb.fr
 
 import warnings
-from pyannote.core import Timeline, Segment
+from typing import Optional, Tuple, Union
+
+from pyannote.core import Timeline, Segment, Annotation
 
 
 class UEMSupportMixin:
     """Provides 'uemify' method with optional (à la NIST) collar"""
 
-    def extrude(self, uem, reference, collar=0.0, skip_overlap=False):
+    def extrude(self,
+                uem: Timeline,
+                reference: Annotation,
+                collar: float = 0.0,
+                skip_overlap: bool = False) -> Timeline:
         """Extrude reference boundary collars from uem
 
         reference     |----|     |--------------|       |-------------|
@@ -68,7 +74,6 @@ class UEMSupportMixin:
         if collar > 0.:
             # iterate over all segments in reference
             for segment in reference.itersegments():
-
                 # add collar centered on start time
                 t = segment.start
                 collars.append(Segment(t - .5 * collar, t + .5 * collar))
@@ -90,7 +95,8 @@ class UEMSupportMixin:
 
         return Timeline(segments=segments).support().gaps(support=uem)
 
-    def common_timeline(self, reference, hypothesis):
+    def common_timeline(self, reference: Annotation, hypothesis: Annotation) \
+            -> Timeline:
         """Return timeline common to both reference and hypothesis
 
         reference   |--------|    |------------|     |---------|         |----|
@@ -110,7 +116,7 @@ class UEMSupportMixin:
         timeline.update(hypothesis.get_timeline(copy=False))
         return timeline.segmentation()
 
-    def project(self, annotation, timeline):
+    def project(self, annotation: Annotation, timeline: Timeline) -> Annotation:
         """Project annotation onto timeline segments
 
         reference     |__A__|     |__B__|
@@ -138,8 +144,19 @@ class UEMSupportMixin:
                 projection[segment, track] = annotation[segment_, track_]
         return projection
 
-    def uemify(self, reference, hypothesis, uem=None, collar=0.,
-               skip_overlap=False, returns_uem=False, returns_timeline=False):
+    def uemify(self,
+               reference: Annotation,
+               hypothesis: Annotation,
+               uem: Optional[Timeline] = None,
+               collar: float = 0.,
+               skip_overlap: bool = False,
+               returns_uem: bool = False,
+               returns_timeline: bool = False) \
+            -> Union[
+                Tuple[Annotation, Annotation],
+                Tuple[Annotation, Annotation, Timeline],
+                Tuple[Annotation, Annotation, Timeline, Timeline],
+            ]:
         """Crop 'reference' and 'hypothesis' to 'uem' support
 
         Parameters
@@ -200,9 +217,9 @@ class UEMSupportMixin:
 
         result = (reference, hypothesis)
         if returns_uem:
-            result += (uem, )
+            result += (uem,)
 
         if returns_timeline:
-            result += (timeline, )
+            result += (timeline,)
 
         return result

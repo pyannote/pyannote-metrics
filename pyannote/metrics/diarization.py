@@ -27,16 +27,23 @@
 # Hervé BREDIN - http://herve.niderb.fr
 
 """Metrics for diarization"""
+from typing import Optional, Dict, TYPE_CHECKING
 
 import numpy as np
-
-from .matcher import HungarianMapper
-from .matcher import GreedyMapper
+from pyannote.core import Annotation, Timeline
+from pyannote.core.utils.types import Label
 
 from .base import BaseMetric, f_measure
-from .utils import UEMSupportMixin
 from .identification import IdentificationErrorRate
+from .matcher import GreedyMapper
+from .matcher import HungarianMapper
+from .types import Details, MetricComponents
+from .utils import UEMSupportMixin
 
+if TYPE_CHECKING:
+    pass
+
+# TODO: can't we put these as class attributes?
 DER_NAME = 'diarization error rate'
 
 
@@ -92,15 +99,18 @@ class DiarizationErrorRate(IdentificationErrorRate):
     """
 
     @classmethod
-    def metric_name(cls):
+    def metric_name(cls) -> str:
         return DER_NAME
 
-    def __init__(self, collar=0.0, skip_overlap=False, **kwargs):
-        super(DiarizationErrorRate, self).__init__(
-            collar=collar, skip_overlap=skip_overlap, **kwargs)
+    def __init__(self, collar: float = 0.0, skip_overlap: bool = False,
+                 **kwargs):
+        super().__init__(collar=collar, skip_overlap=skip_overlap, **kwargs)
         self.mapper_ = HungarianMapper()
 
-    def optimal_mapping(self, reference, hypothesis, uem=None):
+    def optimal_mapping(self,
+                        reference: Annotation,
+                        hypothesis: Annotation,
+                        uem: Optional[Timeline] = None) -> Dict[Label, Label]:
         """Optimal label mapping
 
         Parameters
@@ -126,8 +136,11 @@ class DiarizationErrorRate(IdentificationErrorRate):
         # call hungarian mapper
         return self.mapper_(hypothesis, reference)
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Annotation,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> Details:
         # crop reference and hypothesis to evaluated regions (uem)
         # remove collars around reference segment boundaries
         # remove overlap regions (if requested)
@@ -151,7 +164,7 @@ class DiarizationErrorRate(IdentificationErrorRate):
         # NOTE that collar is set to 0.0 because 'uemify' has already
         # been applied (same reason for setting skip_overlap to False)
         mapped = hypothesis.rename_labels(mapping=mapping)
-        return super(DiarizationErrorRate, self)\
+        return super(DiarizationErrorRate, self) \
             .compute_components(reference, mapped, uem=uem,
                                 collar=0.0, skip_overlap=False,
                                 **kwargs)
@@ -211,12 +224,15 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
     def metric_name(cls):
         return DER_NAME
 
-    def __init__(self, collar=0.0, skip_overlap=False, **kwargs):
+    def __init__(self, collar: float = 0.0, skip_overlap: bool = False, **kwargs):
         super(GreedyDiarizationErrorRate, self).__init__(
             collar=collar, skip_overlap=skip_overlap, **kwargs)
         self.mapper_ = GreedyMapper()
 
-    def greedy_mapping(self, reference, hypothesis, uem=None):
+    def greedy_mapping(self,
+                       reference: Annotation,
+                       hypothesis: Annotation,
+                       uem: Optional[Timeline] = None) -> Dict[Label, Label]:
         """Greedy label mapping
 
         Parameters
@@ -236,8 +252,11 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
             reference, hypothesis = self.uemify(reference, hypothesis, uem=uem)
         return self.mapper_(hypothesis, reference)
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Annotation,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> Details:
         # crop reference and hypothesis to evaluated regions (uem)
         # remove collars around reference segment boundaries
         # remove overlap regions (if requested)
@@ -261,7 +280,7 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
         # NOTE that collar is set to 0.0 because 'uemify' has already
         # been applied (same reason for setting skip_overlap to False)
         mapped = hypothesis.rename_labels(mapping=mapping)
-        return super(GreedyDiarizationErrorRate, self)\
+        return super(GreedyDiarizationErrorRate, self) \
             .compute_components(reference, mapped, uem=uem,
                                 collar=0.0, skip_overlap=False,
                                 **kwargs)
@@ -339,7 +358,7 @@ class JaccardErrorRate(DiarizationErrorRate):
         return JER_NAME
 
     @classmethod
-    def metric_components(cls):
+    def metric_components(cls) -> MetricComponents:
         return [
             JER_SPEAKER_COUNT,
             JER_SPEAKER_ERROR,
@@ -350,7 +369,11 @@ class JaccardErrorRate(DiarizationErrorRate):
             collar=collar, skip_overlap=skip_overlap, **kwargs)
         self.mapper_ = HungarianMapper()
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Annotation,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> Details:
 
         # crop reference and hypothesis to evaluated regions (uem)
         # remove collars around reference segment boundaries
@@ -412,7 +435,7 @@ class JaccardErrorRate(DiarizationErrorRate):
 
         return detail
 
-    def compute_metric(self, detail):
+    def compute_metric(self, detail: Details) -> float:
         return detail[JER_SPEAKER_ERROR] / detail[JER_SPEAKER_COUNT]
 
 
@@ -447,14 +470,18 @@ class DiarizationPurity(UEMSupportMixin, BaseMetric):
     def metric_components(cls):
         return [PURITY_TOTAL, PURITY_CORRECT]
 
-    def __init__(self, collar=0.0, skip_overlap=False,
-                 weighted=True, **kwargs):
+    def __init__(self, collar: float = 0.0, skip_overlap: bool = False,
+                 weighted: bool = True, **kwargs):
         super(DiarizationPurity, self).__init__(**kwargs)
         self.weighted = weighted
         self.collar = collar
         self.skip_overlap = skip_overlap
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Annotation,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> Details:
 
         detail = self.init_components()
 
@@ -485,7 +512,7 @@ class DiarizationPurity(UEMSupportMixin, BaseMetric):
 
         return detail
 
-    def compute_metric(self, detail):
+    def compute_metric(self, detail: Details) -> float:
         if detail[PURITY_TOTAL] > 0.:
             return detail[PURITY_CORRECT] / detail[PURITY_TOTAL]
         return 1.
@@ -516,14 +543,18 @@ class DiarizationCoverage(DiarizationPurity):
     def metric_name(cls):
         return COVERAGE_NAME
 
-    def __init__(self, collar=0.0, skip_overlap=False,
-                 weighted=True, **kwargs):
+    def __init__(self, collar: float = 0.0, skip_overlap: bool = False,
+                 weighted: bool = True, **kwargs):
         super(DiarizationCoverage, self).__init__(
             collar=collar, skip_overlap=skip_overlap,
             weighted=weighted, **kwargs)
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-        return super(DiarizationCoverage, self)\
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Annotation,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> Details:
+        return super(DiarizationCoverage, self) \
             .compute_components(hypothesis, reference, uem=uem, **kwargs)
 
 
@@ -566,21 +597,25 @@ class DiarizationPurityCoverageFMeasure(UEMSupportMixin, BaseMetric):
         return PURITY_COVERAGE_NAME
 
     @classmethod
-    def metric_components(cls):
+    def metric_components(cls) -> MetricComponents:
         return [PURITY_COVERAGE_LARGEST_CLASS,
                 PURITY_COVERAGE_TOTAL_CLUSTER,
                 PURITY_COVERAGE_LARGEST_CLUSTER,
                 PURITY_COVERAGE_TOTAL_CLASS]
 
-    def __init__(self, collar=0.0, skip_overlap=False,
-                 weighted=True, beta=1., **kwargs):
+    def __init__(self, collar: float = 0.0, skip_overlap: bool = False,
+                 weighted: bool = True, beta: float = 1., **kwargs):
         super(DiarizationPurityCoverageFMeasure, self).__init__(**kwargs)
         self.collar = collar
         self.skip_overlap = skip_overlap
         self.weighted = weighted
         self.beta = beta
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Annotation,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> Details:
 
         detail = self.init_components()
 
@@ -625,11 +660,11 @@ class DiarizationPurityCoverageFMeasure(UEMSupportMixin, BaseMetric):
         # compute purity
         detail[PURITY_NAME] = \
             1. if detail[PURITY_COVERAGE_TOTAL_CLUSTER] == 0. \
-            else detail[PURITY_COVERAGE_LARGEST_CLASS] / detail[PURITY_COVERAGE_TOTAL_CLUSTER]
+                else detail[PURITY_COVERAGE_LARGEST_CLASS] / detail[PURITY_COVERAGE_TOTAL_CLUSTER]
         # compute coverage
         detail[COVERAGE_NAME] = \
             1. if detail[PURITY_COVERAGE_TOTAL_CLASS] == 0. \
-            else detail[PURITY_COVERAGE_LARGEST_CLUSTER] / detail[PURITY_COVERAGE_TOTAL_CLASS]
+                else detail[PURITY_COVERAGE_LARGEST_CLUSTER] / detail[PURITY_COVERAGE_TOTAL_CLASS]
 
         return detail
 
@@ -643,11 +678,11 @@ class DiarizationPurityCoverageFMeasure(UEMSupportMixin, BaseMetric):
 
         purity = \
             1. if detail[PURITY_COVERAGE_TOTAL_CLUSTER] == 0. \
-            else detail[PURITY_COVERAGE_LARGEST_CLASS] / detail[PURITY_COVERAGE_TOTAL_CLUSTER]
+                else detail[PURITY_COVERAGE_LARGEST_CLASS] / detail[PURITY_COVERAGE_TOTAL_CLUSTER]
 
         coverage = \
             1. if detail[PURITY_COVERAGE_TOTAL_CLASS] == 0. \
-            else detail[PURITY_COVERAGE_LARGEST_CLUSTER] / detail[PURITY_COVERAGE_TOTAL_CLASS]
+                else detail[PURITY_COVERAGE_LARGEST_CLUSTER] / detail[PURITY_COVERAGE_TOTAL_CLASS]
 
         return purity, coverage, f_measure(purity, coverage, beta=self.beta)
 
@@ -679,12 +714,17 @@ class DiarizationHomogeneity(UEMSupportMixin, BaseMetric):
     def metric_components(cls):
         return [HOMOGENEITY_ENTROPY, HOMOGENEITY_CROSS_ENTROPY]
 
-    def __init__(self, collar=0.0, skip_overlap=False, **kwargs):
+    def __init__(self, collar: float = 0.0, skip_overlap: bool = False,
+                 **kwargs):
         super(DiarizationHomogeneity, self).__init__(**kwargs)
         self.collar = collar
         self.skip_overlap = skip_overlap
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Annotation,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> Details:
 
         detail = self.init_components()
 
@@ -745,6 +785,10 @@ class DiarizationCompleteness(DiarizationHomogeneity):
     def metric_name(cls):
         return COMPLETENESS_NAME
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-        return super(DiarizationCompleteness, self)\
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Annotation,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> Details:
+        return super(DiarizationCompleteness, self) \
             .compute_components(hypothesis, reference, uem=uem, **kwargs)

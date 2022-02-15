@@ -26,15 +26,21 @@
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
 
-import numpy as np
 from collections import Counter
+from typing import Tuple
+
+import numpy as np
 import sklearn.metrics
+from numpy.typing import ArrayLike
 from sklearn.base import BaseEstimator
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.model_selection._split import _CVIterableWrapper
 
+from .types import CalibrationMethod
 
-def det_curve(y_true, scores, distances=False):
+
+def det_curve(y_true: ArrayLike, scores: ArrayLike, distances: bool = False) \
+        -> Tuple[np.ndarray, np.ndarray, np.ndarray, float]:
     """DET curve
 
     Parameters
@@ -71,13 +77,16 @@ def det_curve(y_true, scores, distances=False):
 
     # estimate equal error rate
     eer_index = np.where(fpr > fnr)[0][0]
-    eer = .25 * (fpr[eer_index-1] + fpr[eer_index] +
-                 fnr[eer_index-1] + fnr[eer_index])
+    eer = .25 * (fpr[eer_index - 1] + fpr[eer_index] +
+                 fnr[eer_index - 1] + fnr[eer_index])
 
     return fpr, fnr, thresholds, eer
 
 
-def precision_recall_curve(y_true, scores, distances=False):
+def precision_recall_curve(y_true: ArrayLike,
+                           scores: ArrayLike,
+                           distances: bool = False) \
+        -> Tuple[np.ndarray, np.ndarray, np.ndarray, float]:
     """Precision-recall curve
 
     Parameters
@@ -120,18 +129,18 @@ class _Passthrough(BaseEstimator):
     """Dummy binary classifier used by score Calibration class"""
 
     def __init__(self):
-        super(_Passthrough, self).__init__()
+        super().__init__()
         self.classes_ = np.array([False, True], dtype=np.bool)
 
     def fit(self, scores, y_true):
         return self
 
-    def decision_function(self, scores):
+    def decision_function(self, scores: ArrayLike):
         """Returns the input scores unchanged"""
         return scores
 
 
-class Calibration(object):
+class Calibration:
     """Probability calibration for binary classification tasks
 
     Parameters
@@ -154,12 +163,12 @@ class Calibration(object):
 
     """
 
-    def __init__(self, equal_priors=False, method='isotonic'):
-        super(Calibration, self).__init__()
+    def __init__(self, equal_priors: bool = False,
+                 method: CalibrationMethod = 'isotonic'):
         self.method = method
         self.equal_priors = equal_priors
 
-    def fit(self, scores, y_true):
+    def fit(self, scores: ArrayLike, y_true: ArrayLike):
         """Train calibration
 
         Parameters
@@ -209,7 +218,7 @@ class Calibration(object):
 
         return self
 
-    def transform(self, scores):
+    def transform(self, scores: ArrayLike):
         """Calibrate scores into probabilities
 
         Parameters

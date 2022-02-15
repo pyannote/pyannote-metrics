@@ -26,17 +26,19 @@
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
 # Benjamin MAURICE - maurice@limsi.fr
+from typing import Optional, TYPE_CHECKING
 
 import numpy as np
+from pyannote.core import Annotation, Timeline
 from scipy.optimize import linear_sum_assignment
 
+from ..identification import UEMSupportMixin
 from ..matcher import LabelMatcher
-from pyannote.core import Annotation
-
 from ..matcher import MATCH_CORRECT, MATCH_CONFUSION, \
     MATCH_MISSED_DETECTION, MATCH_FALSE_ALARM
 
-from ..identification import UEMSupportMixin
+if TYPE_CHECKING:
+    from xarray import DataArray
 
 REFERENCE_TOTAL = 'reference'
 HYPOTHESIS_TOTAL = 'hypothesis'
@@ -47,7 +49,7 @@ BOTH_CORRECT = 'both_correct'
 BOTH_INCORRECT = 'both_incorrect'
 
 
-class IdentificationErrorAnalysis(UEMSupportMixin, object):
+class IdentificationErrorAnalysis(UEMSupportMixin):
     """
 
     Parameters
@@ -60,14 +62,18 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
         Defaults to False (i.e. keep overlap regions).
     """
 
-    def __init__(self, collar=0., skip_overlap=False):
+    def __init__(self, collar: float = 0., skip_overlap: bool = False):
 
-        super(IdentificationErrorAnalysis, self).__init__()
+        super().__init__()
         self.matcher = LabelMatcher()
         self.collar = collar
         self.skip_overlap = skip_overlap
 
-    def difference(self, reference, hypothesis, uem=None, uemified=False):
+    def difference(self,
+                   reference: Annotation,
+                   hypothesis: Annotation,
+                   uem: Optional[Timeline] = None,
+                   uemified: bool = False):
         """Get error analysis as `Annotation`
 
         Labels are (status, reference_label, hypothesis_label) tuples.
@@ -133,7 +139,13 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
         a_type, a_ref, a_hyp = after
         return (b_ref == a_ref) * (1 + (b_type == a_type) + (b_hyp == a_hyp))
 
-    def regression(self, reference, before, after, uem=None, uemified=False):
+    # TODO : return type
+    def regression(self,
+                   reference: Annotation,
+                   before: Annotation,
+                   after: Annotation,
+                   uem: Optional[Timeline] = None,
+                   uemified: bool = False):
 
         _, before, errors_before = self.difference(
             reference, before, uem=uem, uemified=True)
@@ -223,7 +235,10 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
         else:
             return behaviors
 
-    def matrix(self, reference, hypothesis, uem=None):
+    def matrix(self,
+               reference: Annotation,
+               hypothesis: Annotation,
+               uem: Optional[Timeline] = None) -> 'DataArray':
 
         reference, hypothesis, errors = self.difference(
             reference, hypothesis, uem=uem, uemified=True)
@@ -252,10 +267,10 @@ class IdentificationErrorAnalysis(UEMSupportMixin, object):
 
         # prepend duration columns before the detailed confusion matrix
         hLabels = [
-            REFERENCE_TOTAL, HYPOTHESIS_TOTAL,
-            MATCH_CORRECT, MATCH_CONFUSION,
-            MATCH_FALSE_ALARM, MATCH_MISSED_DETECTION
-        ] + hLabels
+                      REFERENCE_TOTAL, HYPOTHESIS_TOTAL,
+                      MATCH_CORRECT, MATCH_CONFUSION,
+                      MATCH_FALSE_ALARM, MATCH_MISSED_DETECTION
+                  ] + hLabels
 
         # initialize empty matrix
 
