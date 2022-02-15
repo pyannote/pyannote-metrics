@@ -50,6 +50,7 @@ setup(
         "tabulate >= 0.7.7",
         "matplotlib >= 2.0.0",
         "sympy >= 1.1",
+        "numpy"
     ],
     # versioneer
     version=versioneer.get_version(),

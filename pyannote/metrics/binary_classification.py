@@ -31,7 +31,7 @@ from typing import Tuple
 
 import numpy as np
 import sklearn.metrics
-from pandas._typing import ArrayLike
+from numpy.typing import ArrayLike
 from sklearn.base import BaseEstimator
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.model_selection._split import _CVIterableWrapper

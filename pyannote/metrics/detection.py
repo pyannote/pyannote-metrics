@@ -26,7 +26,7 @@
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
 # Marvin LAVECHIN
-from typing import Optional
+from typing import Optional, Tuple
 
 from pyannote.core import Annotation, Timeline
 
@@ -72,12 +72,16 @@ class DetectionErrorRate(UEMSupportMixin, BaseMetric):
     def metric_components(cls) -> MetricComponents:
         return [DER_TOTAL, DER_FALSE_ALARM, DER_MISS]
 
-    def __init__(self, collar=0.0, skip_overlap=False, **kwargs):
+    def __init__(self, collar: float = 0.0, skip_overlap: bool = False, **kwargs):
         super(DetectionErrorRate, self).__init__(**kwargs)
         self.collar = collar
         self.skip_overlap = skip_overlap
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Annotation,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> Details:
 
         reference, hypothesis, uem = self.uemify(
             reference, hypothesis, uem=uem,
@@ -105,7 +109,7 @@ class DetectionErrorRate(UEMSupportMixin, BaseMetric):
 
         return detail
 
-    def compute_metric(self, detail):
+    def compute_metric(self, detail: Details) -> float:
         error = 1. * (detail[DER_FALSE_ALARM] + detail[DER_MISS])
         total = 1. * detail[DER_TOTAL]
         if total == 0.:
@@ -153,11 +157,15 @@ class DetectionAccuracy(DetectionErrorRate):
         return ACCURACY_NAME
 
     @classmethod
-    def metric_components(cls):
+    def metric_components(cls) -> MetricComponents:
         return [ACCURACY_TRUE_POSITIVE, ACCURACY_TRUE_NEGATIVE,
                 ACCURACY_FALSE_POSITIVE, ACCURACY_FALSE_NEGATIVE]
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Annotation,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> Details:
 
         reference, hypothesis, uem = self.uemify(
             reference, hypothesis, uem=uem,
@@ -194,7 +202,7 @@ class DetectionAccuracy(DetectionErrorRate):
 
         return detail
 
-    def compute_metric(self, detail):
+    def compute_metric(self, detail: Details) -> float:
         numerator = 1. * (detail[ACCURACY_TRUE_NEGATIVE] +
                           detail[ACCURACY_TRUE_POSITIVE])
         denominator = 1. * (detail[ACCURACY_TRUE_NEGATIVE] +
@@ -241,10 +249,14 @@ class DetectionPrecision(DetectionErrorRate):
         return PRECISION_NAME
 
     @classmethod
-    def metric_components(cls):
+    def metric_components(cls) -> MetricComponents:
         return [PRECISION_RETRIEVED, PRECISION_RELEVANT_RETRIEVED]
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Annotation,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> Details:
 
         reference, hypothesis, uem = self.uemify(
             reference, hypothesis, uem=uem,
@@ -270,7 +282,7 @@ class DetectionPrecision(DetectionErrorRate):
 
         return detail
 
-    def compute_metric(self, detail):
+    def compute_metric(self, detail: Details) -> float:
         relevant_retrieved = 1. * detail[PRECISION_RELEVANT_RETRIEVED]
         retrieved = 1. * detail[PRECISION_RETRIEVED]
         if retrieved == 0.:
@@ -312,10 +324,14 @@ class DetectionRecall(DetectionErrorRate):
         return RECALL_NAME
 
     @classmethod
-    def metric_components(cls):
+    def metric_components(cls) -> MetricComponents:
         return [RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED]
 
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Annotation,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> Details:
 
         reference, hypothesis, uem = self.uemify(
             reference, hypothesis, uem=uem,
@@ -341,7 +357,7 @@ class DetectionRecall(DetectionErrorRate):
 
         return detail
 
-    def compute_metric(self, detail):
+    def compute_metric(self, detail: Details) -> float:
         relevant_retrieved = 1. * detail[RECALL_RELEVANT_RETRIEVED]
         relevant = 1. * detail[RECALL_RELEVANT]
         if relevant == 0.:
@@ -391,8 +407,8 @@ class DetectionPrecisionRecallFMeasure(UEMSupportMixin, BaseMetric):
     def metric_components(cls):
         return [DFS_PRECISION_RETRIEVED, DFS_RECALL_RELEVANT, DFS_RELEVANT_RETRIEVED]
 
-    def __init__(self, collar=0.0, skip_overlap=False,
-                 beta=1., **kwargs):
+    def __init__(self, collar: float = 0.0, skip_overlap: bool = False,
+                 beta: float = 1., **kwargs):
         super(DetectionPrecisionRecallFMeasure, self).__init__(**kwargs)
         self.collar = collar
         self.skip_overlap = skip_overlap
@@ -440,7 +456,8 @@ class DetectionPrecisionRecallFMeasure(UEMSupportMixin, BaseMetric):
         _, _, value = self.compute_metrics(detail=detail)
         return value
 
-    def compute_metrics(self, detail: Optional[Details] = None):
+    def compute_metrics(self, detail: Optional[Details] = None) \
+            -> Tuple[float, float, float]:
 
         detail = self.accumulated_ if detail is None else detail
         precision_retrieved = detail[DFS_PRECISION_RETRIEVED]
@@ -526,11 +543,15 @@ class DetectionCostFunction(UEMSupportMixin, BaseMetric):
         return DCF_NAME
 
     @classmethod
-    def metric_components(cls):
+    def metric_components(cls) -> MetricComponents:
         return [DCF_POS_TOTAL, DCF_NEG_TOTAL, DCF_FALSE_ALARM, DCF_MISS]
 
-    # TODO
-    def compute_components(self, reference, hypothesis, uem=None, **kwargs):
+    def compute_components(self,
+                           reference: Annotation,
+                           hypothesis: Annotation,
+                           uem: Optional[Timeline] = None,
+                           **kwargs) -> Details:
+
         reference, hypothesis, uem = self.uemify(
             reference, hypothesis, uem=uem,
             collar=self.collar, skip_overlap=self.skip_overlap,
@@ -566,7 +587,7 @@ class DetectionCostFunction(UEMSupportMixin, BaseMetric):
 
         return components
 
-    def compute_metric(self, components):
+    def compute_metric(self, components: Details) -> float:
         def _compute_rate(num, denom):
             if denom == 0.0:
                 if num == 0.0:

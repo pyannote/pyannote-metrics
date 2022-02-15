@@ -37,6 +37,13 @@ from .base import BaseMetric
 from .binary_classification import det_curve
 from .types import MetricComponents, Details
 
+SPOTTING_TARGET = "target"
+SPOTTING_SPK_LATENCY = 'speaker_latency'
+SPOTTING_SPK_SCORE = 'spk_score'
+SPOTTING_ABS_LATENCY = 'absolute_latency'
+SPOTTING_ABS_SCORE = "abs_score"
+SPOTTING_SCORE = "score"
+
 
 class LowLatencySpeakerSpotting(BaseMetric):
     """Evaluation of low-latency speaker spotting (LLSS) systems
@@ -70,11 +77,13 @@ class LowLatencySpeakerSpotting(BaseMetric):
     def metric_name(cls) -> str:
         return "Low-latency speaker spotting"
 
-    @classmethod
-    def metric_components(cls) -> MetricComponents:
-        return {'target': 0.}
+    def metric_components(self) -> MetricComponents:
+        if self.latencies is None:
+            return [SPOTTING_TARGET, SPOTTING_ABS_LATENCY, SPOTTING_SPK_SCORE, SPOTTING_SCORE]
+        else:
+            return [SPOTTING_TARGET, SPOTTING_SPK_LATENCY, SPOTTING_SPK_SCORE,
+                    SPOTTING_ABS_LATENCY, SPOTTING_ABS_SCORE]
 
-    # TODO : should we use array like for those?
     def __init__(self,
                  thresholds: Optional[ArrayLike] = None,
                  latencies: Optional[ArrayLike] = None):
@@ -245,7 +254,7 @@ class LowLatencySpeakerSpotting(BaseMetric):
                      if trial['target']]
         return np.nanmean(latencies, axis=0)
 
-    #  TODO : figure out return type
+    # TODO : figure out return type
     def det_curve(self,
                   cost_miss: float = 100,
                   cost_fa: float = 1,
