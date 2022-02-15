@@ -26,9 +26,8 @@
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
 
-from .base import f_measure
-
 from ._version import get_versions
+from .base import f_measure
 
 __version__ = get_versions()["version"]
 del get_versions
