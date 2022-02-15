@@ -50,8 +50,10 @@ class BaseGammaMetric(UEMSupportMixin, BaseMetric):
         return [GAMMA_DISORDER, GAMMA_CHANCE_DISORDER]
 
     def compute_metric(self, components: Details):
-        # TODO: add boundary check when expected_disorder == 0.0
-        return 1 - (components[GAMMA_DISORDER] / components[GAMMA_CHANCE_DISORDER])
+        if components[GAMMA_CHANCE_DISORDER] == 0.0:
+            return 0.
+        else:
+            return 1 - (components[GAMMA_DISORDER] / components[GAMMA_CHANCE_DISORDER])
 
     def compute_gamma(self,
                       reference: Union[Annotation, Timeline],
@@ -82,6 +84,24 @@ class BaseGammaMetric(UEMSupportMixin, BaseMetric):
             GAMMA_DISORDER: observed,
             GAMMA_CHANCE_DISORDER: expected
         }
+
+    def report(self, display=False):
+        df = super().report(display=False)
+
+        # mean of all column's totals instead of the sum
+        df.loc["TOTAL"] = df.loc["TOTAL"] / (len(df.index) - 1)
+
+        if display:
+            print(
+                df.to_string(
+                    index=True,
+                    sparsify=False,
+                    justify="right",
+                    float_format=lambda f: "{0:.2f}".format(f),
+                )
+            )
+
+        return df
 
 
 class GammaDetectionError(BaseGammaMetric, UEMSupportMixin):
