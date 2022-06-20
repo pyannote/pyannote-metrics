@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2019 CNRS
+# Copyright (c) 2012- CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@
 # Hervé BREDIN - http://herve.niderb.fr
 from typing import List, Union, Optional, Set, Tuple
 
+import warnings
 import numpy as np
 import pandas as pd
 import scipy.stats
@@ -314,10 +315,19 @@ class BaseMetric:
         scipy.stats.bayes_mvs
 
         """
-        m, _, _ = scipy.stats.bayes_mvs(
-            [r[self.metric_name_] for _, r in self.results_], alpha=alpha
-        )
-        return m
+
+        values = [r[self.metric_name_] for _, r in self.results_]
+
+        if len(values) == 0:
+            raise ValueError("Please evaluate a bunch of files before computing confidence interval.")
+        
+        elif len(values) == 1:
+            warnings.warn("Cannot compute a reliable confidence interval out of just one file.")
+            center = lower = upper = values[0]
+            return center, (lower, upper)
+        
+        else:
+            return scipy.stats.bayes_mvs(values, alpha=alpha)[0]
 
 
 PRECISION_NAME = "precision"
