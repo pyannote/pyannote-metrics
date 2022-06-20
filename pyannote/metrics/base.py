@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2019 CNRS
+# Copyright (c) 2012- CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,14 +25,18 @@
 
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
+from typing import List, Union, Optional, Set, Tuple
 
-
-import scipy.stats
-import pandas as pd
+import warnings
 import numpy as np
+import pandas as pd
+import scipy.stats
+from pyannote.core import Annotation, Timeline
+
+from pyannote.metrics.types import Details, MetricComponents
 
 
-class BaseMetric(object):
+class BaseMetric:
     """
     :class:`BaseMetric` is the base class for most pyannote evaluation metrics.
 
@@ -43,23 +47,23 @@ class BaseMetric(object):
     """
 
     @classmethod
-    def metric_name(cls):
+    def metric_name(cls) -> str:
         raise NotImplementedError(
             cls.__name__ + " is missing a 'metric_name' class method. "
-            "It should return the name of the metric as string."
+                           "It should return the name of the metric as string."
         )
 
     @classmethod
-    def metric_components(cls):
+    def metric_components(cls) -> MetricComponents:
         raise NotImplementedError(
             cls.__name__ + " is missing a 'metric_components' class method. "
-            "It should return the list of names of metric components."
+                           "It should return the list of names of metric components."
         )
 
     def __init__(self, **kwargs):
         super(BaseMetric, self).__init__()
         self.metric_name_ = self.__class__.metric_name()
-        self.components_ = set(self.__class__.metric_components())
+        self.components_: Set[str] = set(self.__class__.metric_components())
         self.reset()
 
     def init_components(self):
@@ -67,20 +71,22 @@ class BaseMetric(object):
 
     def reset(self):
         """Reset accumulated components and metric values"""
-        self.accumulated_ = dict()
-        self.results_ = list()
+        self.accumulated_: Details = dict()
+        self.results_: List = list()
         for value in self.components_:
             self.accumulated_[value] = 0.0
 
-    def __get_name(self):
-        return self.__class__.metric_name()
-
-    name = property(fget=__get_name, doc="Metric name.")
+    @property
+    def name(self):
+        """Metric name."""
+        return self.metric_name()
 
     # TODO: use joblib/locky to allow parallel processing?
     # TODO: signature could be something like __call__(self, reference_iterator, hypothesis_iterator, ...)
 
-    def __call__(self, reference, hypothesis, detailed=False, uri=None, **kwargs):
+    def __call__(self, reference: Union[Timeline, Annotation],
+                 hypothesis: Union[Timeline, Annotation],
+                 detailed: bool = False, uri: Optional[str] = None, **kwargs):
         """Compute metric value and accumulate components
 
         Parameters
@@ -123,7 +129,7 @@ class BaseMetric(object):
 
         return components[self.metric_name_]
 
-    def report(self, display=False):
+    def report(self, display: bool = False) -> pd.DataFrame:
         """Evaluation report
 
         Parameters
@@ -217,7 +223,7 @@ class BaseMetric(object):
         """Compute metric value from accumulated components"""
         return self.compute_metric(self.accumulated_)
 
-    def __getitem__(self, component):
+    def __getitem__(self, component: str) -> Union[float, Details]:
         """Get value of accumulated `component`.
 
         Parameters
@@ -241,7 +247,10 @@ class BaseMetric(object):
         for uri, component in self.results_:
             yield uri, component
 
-    def compute_components(self, reference, hypothesis, **kwargs):
+    def compute_components(self,
+                           reference: Union[Timeline, Annotation],
+                           hypothesis: Union[Timeline, Annotation],
+                           **kwargs) -> Details:
         """Compute metric components
 
         Parameters
@@ -260,11 +269,11 @@ class BaseMetric(object):
         """
         raise NotImplementedError(
             self.__class__.__name__ + " is missing a 'compute_components' method."
-            "It should return a dictionary where keys are component names "
-            "and values are component values."
+                                      "It should return a dictionary where keys are component names "
+                                      "and values are component values."
         )
 
-    def compute_metric(self, components):
+    def compute_metric(self, components: Details):
         """Compute metric value from computed `components`
 
         Parameters
@@ -280,11 +289,12 @@ class BaseMetric(object):
         """
         raise NotImplementedError(
             self.__class__.__name__ + " is missing a 'compute_metric' method. "
-            "It should return the actual value of the metric based "
-            "on the precomputed component dictionary given as input."
+                                      "It should return the actual value of the metric based "
+                                      "on the precomputed component dictionary given as input."
         )
 
-    def confidence_interval(self, alpha=0.9):
+    def confidence_interval(self, alpha: float = 0.9) \
+            -> Tuple[float, Tuple[float, float]]:
         """Compute confidence interval on accumulated metric values
 
         Parameters
@@ -305,10 +315,19 @@ class BaseMetric(object):
         scipy.stats.bayes_mvs
 
         """
-        m, _, _ = scipy.stats.bayes_mvs(
-            [r[self.metric_name_] for _, r in self.results_], alpha=alpha
-        )
-        return m
+
+        values = [r[self.metric_name_] for _, r in self.results_]
+
+        if len(values) == 0:
+            raise ValueError("Please evaluate a bunch of files before computing confidence interval.")
+        
+        elif len(values) == 1:
+            warnings.warn("Cannot compute a reliable confidence interval out of just one file.")
+            center = lower = upper = values[0]
+            return center, (lower, upper)
+        
+        else:
+            return scipy.stats.bayes_mvs(values, alpha=alpha)[0]
 
 
 PRECISION_NAME = "precision"
@@ -333,10 +352,10 @@ class Precision(BaseMetric):
         return PRECISION_NAME
 
     @classmethod
-    def metric_components(cls):
+    def metric_components(cls) -> MetricComponents:
         return [PRECISION_RETRIEVED, PRECISION_RELEVANT_RETRIEVED]
 
-    def compute_metric(self, components):
+    def compute_metric(self, components: Details) -> float:
         """Compute precision from `components`"""
         numerator = components[PRECISION_RELEVANT_RETRIEVED]
         denominator = components[PRECISION_RETRIEVED]
@@ -371,10 +390,10 @@ class Recall(BaseMetric):
         return RECALL_NAME
 
     @classmethod
-    def metric_components(cls):
+    def metric_components(cls) -> MetricComponents:
         return [RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED]
 
-    def compute_metric(self, components):
+    def compute_metric(self, components: Details) -> float:
         """Compute recall from `components`"""
         numerator = components[RECALL_RELEVANT_RETRIEVED]
         denominator = components[RECALL_RELEVANT]
@@ -387,7 +406,7 @@ class Recall(BaseMetric):
             return numerator / denominator
 
 
-def f_measure(precision, recall, beta=1.0):
+def f_measure(precision: float, recall: float, beta=1.0) -> float:
     """Compute f-measure
 
     f-measure is defined as follows:
@@ -398,4 +417,3 @@ def f_measure(precision, recall, beta=1.0):
     if precision + recall == 0.0:
         return 0
     return (1 + beta * beta) * precision * recall / (beta * beta * precision + recall)
-

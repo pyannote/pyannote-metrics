@@ -2,6 +2,12 @@
 Changelog
 #########
 
+Version 3.2.1 (2022-06-20)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- fix: fix corner case for confidence interval
+- doc: add type hinting (@hadware)
+
 Version 3.2 (2022-01-12)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 

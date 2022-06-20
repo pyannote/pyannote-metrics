@@ -25,9 +25,14 @@
 
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
+from typing import Dict, Tuple, Iterable, List, TYPE_CHECKING
 
 import numpy as np
+from pyannote.core import Annotation
 from scipy.optimize import linear_sum_assignment
+
+if TYPE_CHECKING:
+    from pyannote.core.utils.types import Label
 
 MATCH_CORRECT = 'correct'
 MATCH_CONFUSION = 'confusion'
@@ -36,16 +41,16 @@ MATCH_FALSE_ALARM = 'false alarm'
 MATCH_TOTAL = 'total'
 
 
-class LabelMatcher(object):
+class LabelMatcher:
     """
-    ID matcher base class.
+    ID matcher base class mixin.
 
     All ID matcher classes must inherit from this class and implement
     .match() -- ie return True if two IDs match and False
     otherwise.
     """
 
-    def match(self, rlabel, hlabel):
+    def match(self, rlabel: 'Label', hlabel: 'Label') -> bool:
         """
         Parameters
         ----------
@@ -63,7 +68,9 @@ class LabelMatcher(object):
         # Two IDs match if they are equal to each other
         return rlabel == hlabel
 
-    def __call__(self, rlabels, hlabels):
+    def __call__(self, rlabels: Iterable['Label'], hlabels: Iterable['Label']) \
+            -> Tuple[Dict[str, int],
+                     Dict[str, List['Label']]]:
         """
 
         Parameters
@@ -93,6 +100,10 @@ class LabelMatcher(object):
             MATCH_MISSED_DETECTION: [],
             MATCH_FALSE_ALARM: []
         }
+        # this is to make sure rlabels and hlabels are lists
+        # as we will access them later by index
+        rlabels = list(rlabels)
+        hlabels = list(hlabels)
 
         NR = len(rlabels)
         NH = len(hlabels)
@@ -100,12 +111,7 @@ class LabelMatcher(object):
 
         # corner case
         if N == 0:
-            return (counts, details)
-
-        # this is to make sure rlabels and hlabels are lists
-        # as we will access them later by index
-        rlabels = list(rlabels)
-        hlabels = list(hlabels)
+            return counts, details
 
         # initialize match matrix
         # with True if labels match and False otherwise
@@ -136,7 +142,7 @@ class LabelMatcher(object):
                 counts[MATCH_CORRECT] += 1
                 details[MATCH_CORRECT].append((rlabels[r], hlabels[h]))
 
-            # refernece and hypothesis do not match
+            # reference and hypothesis do not match
             # ==> this is a confusion
             else:
                 counts[MATCH_CONFUSION] += 1
@@ -145,12 +151,12 @@ class LabelMatcher(object):
         counts[MATCH_TOTAL] += NR
 
         # returns counts and details
-        return (counts, details)
+        return counts, details
 
 
-class HungarianMapper(object):
+class HungarianMapper:
 
-    def __call__(self, A, B):
+    def __call__(self, A: Annotation, B: Annotation) -> Dict['Label', 'Label']:
         mapping = {}
 
         cooccurrence = A * B
@@ -163,9 +169,9 @@ class HungarianMapper(object):
         return mapping
 
 
-class GreedyMapper(object):
+class GreedyMapper:
 
-    def __call__(self, A, B):
+    def __call__(self, A: Annotation, B: Annotation) -> Dict['Label', 'Label']:
         mapping = {}
 
         cooccurrence = A * B
