@@ -54,3 +54,5 @@ coverage.xml
 docs/_build/
 
 doc/.ipynb_checkpoints
+
+.mypy_cache/

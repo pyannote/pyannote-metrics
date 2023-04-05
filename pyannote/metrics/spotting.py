@@ -27,11 +27,22 @@
 # Hervé BREDIN - http://herve.niderb.fr
 
 import sys
+from typing import Union, Iterable, Optional, Tuple, List, Dict
+
 import numpy as np
+from numpy.typing import ArrayLike
+from pyannote.core import Segment, Annotation, SlidingWindowFeature, Timeline
+
 from .base import BaseMetric
 from .binary_classification import det_curve
-from pyannote.core import Segment, Annotation
-from pyannote.core import SlidingWindowFeature
+from .types import MetricComponents, Details
+
+SPOTTING_TARGET = "target"
+SPOTTING_SPK_LATENCY = 'speaker_latency'
+SPOTTING_SPK_SCORE = 'spk_score'
+SPOTTING_ABS_LATENCY = 'absolute_latency'
+SPOTTING_ABS_SCORE = "abs_score"
+SPOTTING_SCORE = "score"
 
 
 class LowLatencySpeakerSpotting(BaseMetric):
@@ -63,15 +74,16 @@ class LowLatencySpeakerSpotting(BaseMetric):
     """
 
     @classmethod
-    def metric_name(cls):
+    def metric_name(cls) -> str:
         return "Low-latency speaker spotting"
 
-    @classmethod
-    def metric_components(cls):
+    def metric_components(self) -> Dict[str, float]:
         return {'target': 0.}
 
-    def __init__(self, thresholds=None, latencies=None):
-        super(LowLatencySpeakerSpotting, self).__init__()
+    def __init__(self,
+                 thresholds: Optional[ArrayLike] = None,
+                 latencies: Optional[ArrayLike] = None):
+        super().__init__()
 
         if thresholds is None and latencies is None:
             latencies = [1, 5, 10, 30, 60]
@@ -88,10 +100,11 @@ class LowLatencySpeakerSpotting(BaseMetric):
 
         self.latencies = latencies
 
-    def compute_metric(self, detail):
+    def compute_metric(self, detail: MetricComponents):
         return None
 
-    def _fixed_latency(self, reference, timestamps, scores):
+    def _fixed_latency(self, reference: Timeline,
+                       timestamps: List[float], scores: List[float]) -> Details:
 
         if not reference:
             target_trial = False
@@ -141,14 +154,16 @@ class LowLatencySpeakerSpotting(BaseMetric):
             abs_score = np.array(abs_score).reshape((-1, 1))
 
         return {
-            'target': target_trial,
-            'speaker_latency': self.latencies,
-            'spk_score': spk_score,
-            'absolute_latency': self.latencies,
-            'abs_score': abs_score,
+            SPOTTING_TARGET: target_trial,
+            SPOTTING_SPK_LATENCY: self.latencies,
+            SPOTTING_SCORE: spk_score,
+            SPOTTING_ABS_LATENCY: self.latencies,
+            SPOTTING_ABS_SCORE: abs_score,
         }
 
-    def _variable_latency(self, reference, timestamps, scores, **kwargs):
+    def _variable_latency(self, reference: Union[Timeline, Annotation],
+                          timestamps: List[float], scores: List[float],
+                          **kwargs) -> Details:
 
         # pre-compute latencies
         speaker_latency = np.NAN * np.ones((len(timestamps), 1))
@@ -195,13 +210,16 @@ class LowLatencySpeakerSpotting(BaseMetric):
             speaker_latency = np.NAN
 
         return {
-            'target': target_trial,
-            'absolute_latency': absolute_latency,
-            'speaker_latency': speaker_latency,
-            'score': np.max(scores)
+            SPOTTING_TARGET: target_trial,
+            SPOTTING_ABS_LATENCY: absolute_latency,
+            SPOTTING_SPK_LATENCY: speaker_latency,
+            SPOTTING_SCORE: np.max(scores)
         }
 
-    def compute_components(self, reference, hypothesis, **kwargs):
+    def compute_components(self, reference: Union[Timeline, Annotation],
+                           hypothesis: Union[SlidingWindowFeature,
+                                             Iterable[Tuple[float, float]]],
+                           **kwargs) -> Details:
         """
 
         Parameters
@@ -222,18 +240,22 @@ class LowLatencySpeakerSpotting(BaseMetric):
 
     @property
     def absolute_latency(self):
-        latencies = [trial['absolute_latency'] for _, trial in self
-                     if trial['target']]
+        latencies = [trial[SPOTTING_ABS_LATENCY] for _, trial in self
+                     if trial[SPOTTING_TARGET]]
         return np.nanmean(latencies, axis=0)
 
     @property
     def speaker_latency(self):
-        latencies = [trial['speaker_latency'] for _, trial in self
-                     if trial['target']]
+        latencies = [trial[SPOTTING_SPK_LATENCY] for _, trial in self
+                     if trial[SPOTTING_TARGET]]
         return np.nanmean(latencies, axis=0)
 
-    def det_curve(self, cost_miss=100, cost_fa=1, prior_target=0.01,
-                  return_latency=False):
+    # TODO : figure out return type
+    def det_curve(self,
+                  cost_miss: float = 100,
+                  cost_fa: float = 1,
+                  prior_target: float = 0.01,
+                  return_latency: bool = False):
         """DET curve
 
         Parameters
@@ -267,12 +289,12 @@ class LowLatencySpeakerSpotting(BaseMetric):
 
         if self.latencies is None:
 
-            y_true = np.array([trial['target'] for _, trial in self])
-            scores = np.array([trial['score'] for _, trial in self])
+            y_true = np.array([trial[SPOTTING_TARGET] for _, trial in self])
+            scores = np.array([trial[SPOTTING_SCORE] for _, trial in self])
             fpr, fnr, thresholds, eer = det_curve(y_true, scores, distances=False)
             fpr, fnr, thresholds = fpr[::-1], fnr[::-1], thresholds[::-1]
             cdet = cost_miss * fnr * prior_target + \
-                cost_fa * fpr * (1. - prior_target)
+                   cost_fa * fpr * (1. - prior_target)
 
             if return_latency:
                 # needed to align the thresholds used in the DET curve
@@ -284,16 +306,16 @@ class LowLatencySpeakerSpotting(BaseMetric):
                 fnr = np.take(fnr, indices, mode='clip')
                 cdet = np.take(cdet, indices, mode='clip')
                 return thresholds, fpr, fnr, eer, cdet, \
-                    self.speaker_latency, self.absolute_latency
+                       self.speaker_latency, self.absolute_latency
 
             else:
                 return thresholds, fpr, fnr, eer, cdet
 
         else:
 
-            y_true = np.array([trial['target'] for _, trial in self])
-            spk_scores = np.array([trial['spk_score'] for _, trial in self])
-            abs_scores = np.array([trial['abs_score'] for _, trial in self])
+            y_true = np.array([trial[SPOTTING_TARGET] for _, trial in self])
+            spk_scores = np.array([trial[SPOTTING_SPK_SCORE] for _, trial in self])
+            abs_scores = np.array([trial[SPOTTING_ABS_SCORE] for _, trial in self])
 
             result = {}
             for key, scores in {'speaker': spk_scores,
@@ -306,7 +328,7 @@ class LowLatencySpeakerSpotting(BaseMetric):
                                                      distances=False)
                     fpr, fnr, theta = fpr[::-1], fnr[::-1], theta[::-1]
                     cdet = cost_miss * fnr * prior_target + \
-                        cost_fa * fpr * (1. - prior_target)
+                           cost_fa * fpr * (1. - prior_target)
                     result[key][latency] = theta, fpr, fnr, eer, cdet
 
             return result

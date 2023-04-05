@@ -2,6 +2,35 @@
 Changelog
 #########
 
+Version 3.2.1 (2022-06-20)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- fix: fix corner case for confidence interval
+- doc: add type hinting (@hadware)
+
+Version 3.2 (2022-01-12)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- feat: add option to override existing "uri"
+- feat: add support for missing "uri"
+
+Version 3.1 (2021-09-27)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- BREAKING: remove (buggy) support for parallel processing
+- fix: fix documentation deployment
+
+Version 3.0.1 (2020-07-02)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- setup: switch to pyannote.database 4.0+
+
+Version 3.0 (2020-06-15)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- feat: add DetectionCostFunction detection metric (@nryant)
+- BREAKING: rename pyannote-metrics.py CLI to pyannote-metrics
+
 Version 2.3 (2020-02-26)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
