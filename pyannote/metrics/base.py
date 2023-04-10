@@ -247,6 +247,21 @@ class BaseMetric:
         for uri, component in self.results_:
             yield uri, component
 
+    def __add__(self, other):
+        cls = self.__class__
+        result = cls()
+        result.results_ = self.results_ + other.results_
+        for cname in self.components_:
+            result.accumulated_[cname] += self.accumulated_[cname]
+            result.accumulated_[cname] += other.accumulated_[cname]
+        return result
+
+    def __radd__(self, other):
+        if other == 0:
+            return self
+        else:
+            return self.__add__(other)
+
     def compute_components(self,
                            reference: Union[Timeline, Annotation],
                            hypothesis: Union[Timeline, Annotation],
