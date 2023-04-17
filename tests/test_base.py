@@ -32,6 +32,7 @@ import pytest
 from pyannote.core import Annotation
 from pyannote.core import Segment
 from pyannote.core import Timeline
+from pyannote.metrics.base import clone, BaseMetric
 from pyannote.metrics.detection import DetectionAccuracy
 
 
@@ -93,3 +94,64 @@ def test_summation(reference, hypothesis, uem):
     # __radd__
     m = sum([m1, m2])
     npt.assert_almost_equal(abs(m), expected, decimal=3)
+
+
+class M1(BaseMetric):
+    def __init__(self, a=9, **kwargs):
+        super().__init__(**kwargs)
+        self.a = a
+
+    @classmethod
+    def metric_name(cls):
+        return 'M1'
+
+    @classmethod
+    def metric_components(cls):
+        return ['c1']
+
+    def compute_metric(self, foo):
+        return 1.
+
+
+class M2(M1):
+    def __init__(self, b=10, **kwargs):
+        super().__init__(**kwargs)
+        self.b = b
+
+    @classmethod
+    def metric_name(cls):
+        return 'M2'
+
+
+def test_get_params():
+    # Subclass of BaseMetric.
+    m = M1(a=100)
+    expected = {'a': 100}
+    actual = m.get_params()
+    assert actual == expected
+
+    # Subclass of subclass of BaseMetric.
+    m = M2(a=100, b=1000)
+    expected = {'a': 100, 'b': 1000}
+    actual = m.get_params()
+    assert actual == expected
+
+
+def test_clone():
+    # Tests that clone creates deep copy of "unfit" metric.
+    metric = M1(a=10)
+    metric_new = clone(metric)
+    assert metric is not metric_new
+    assert metric.get_params() == metric_new.get_params()
+
+    # Tests that clone doesn't copy anything beyond the parameters; e.g.,
+    # results_ or accumulated_
+    metric = M1(a=10)
+    metric.accumulated_['c1'] = 999999
+    metric_new = clone(metric)
+    assert metric_new.accumulated_['c1'] == 0
+
+
+def test_repr():
+    m = M1(a=10)
+    assert repr(m) == 'M1(a=10)'
