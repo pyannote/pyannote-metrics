@@ -25,6 +25,7 @@
 
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
+import inspect
 from typing import List, Union, Optional, Set, Tuple
 
 import warnings
@@ -34,6 +35,49 @@ import scipy.stats
 from pyannote.core import Annotation, Timeline
 
 from pyannote.metrics.types import Details, MetricComponents
+
+
+def clone(metric):
+    """Construct a new empty metric with the same parameters as `metric`.
+
+    Clone does a deep copy of the metric without actually copying any
+    results or accumulators. It returns a new metric (with the same
+    parameters) that has not yet been used to evaluate any data.
+
+    Parameters
+    ----------
+    metric : metric instance
+        The metric to be cloned.
+
+    Returns
+    -------
+    metric : object
+        The deep copy of the metric,
+    """
+    if hasattr(metric, '__pyannote_clone__') and not inspect.isclass(metric):
+        # If metric implements a custom cloning method, default to that.
+        return metric.__pyannote_clone__()
+    cls = metric.__class__
+    new_metric_params = metric.get_params()
+    new_metric = cls(**new_metric_params)
+
+    # Sanity check that all parameters were saved by the constructor without
+    # modification.
+    actual_params = new_metric.get_params()
+    for pname in new_metric_params:
+        error_msg = (
+            f'Cannot clone metric {repr(metric)}, as the constructor either '
+            f'does not set or modifies parameter {pname}.')
+        print(error_msg)
+        expected_param = new_metric_params[pname]
+        try:
+            actual_param = actual_params[pname]
+        except KeyError:
+            raise RuntimeError(error_msg())
+        if expected_param != actual_param:
+            raise RuntimeError(error_msg())
+
+    return new_metric
 
 
 class BaseMetric:
@@ -66,6 +110,33 @@ class BaseMetric:
         self.components_: Set[str] = set(self.__class__.metric_components())
         self.reset()
 
+    @classmethod
+    def _get_param_names(cls):
+        pnames = set()
+        for cls_ in cls.__mro__:
+            init = cls_.__init__
+            init_signature = inspect.signature(init)
+            for p in init_signature.parameters.values():
+                if p.name == 'self':
+                    continue
+                if p.kind in {p.VAR_POSITIONAL, p.VAR_KEYWORD}:
+                    # Skip *args/**kwargs.
+                    continue
+                pnames.add(p.name)
+        return pnames
+
+    def get_params(self):
+        """Return parameters for this metric.
+
+        Returns
+        -------
+        params : dict
+            Mapping from parameter names to values.
+        """
+        return {pname: getattr(self, pname)
+                for pname in self._get_param_names()}
+
+
     def init_components(self):
         return {value: 0.0 for value in self.components_}
 
@@ -80,9 +151,6 @@ class BaseMetric:
     def name(self):
         """Metric name."""
         return self.metric_name()
-
-    # TODO: use joblib/locky to allow parallel processing?
-    # TODO: signature could be something like __call__(self, reference_iterator, hypothesis_iterator, ...)
 
     def __call__(self, reference: Union[Timeline, Annotation],
                  hypothesis: Union[Timeline, Annotation],
@@ -219,6 +287,13 @@ class BaseMetric:
             sparsify=False, float_format=lambda f: "{0:.2f}".format(f)
         )
 
+    def __repr__(self):
+        cls = self.__class__.__name__
+        params = self.get_params()
+        pnames = sorted(params)
+        signature = ', '.join(f'{pname}={params[pname]}' for pname in pnames)
+        return f'{cls}({signature})'
+
     def __abs__(self):
         """Compute metric value from accumulated components"""
         return self.compute_metric(self.accumulated_)
@@ -246,6 +321,21 @@ class BaseMetric:
         """Iterator over the accumulated (uri, value)"""
         for uri, component in self.results_:
             yield uri, component
+
+    def __add__(self, other):
+        cls = self.__class__
+        result = cls()
+        result.results_ = self.results_ + other.results_
+        for cname in self.components_:
+            result.accumulated_[cname] += self.accumulated_[cname]
+            result.accumulated_[cname] += other.accumulated_[cname]
+        return result
+
+    def __radd__(self, other):
+        if other == 0:
+            return self
+        else:
+            return self.__add__(other)
 
     def compute_components(self,
                            reference: Union[Timeline, Annotation],
@@ -320,12 +410,12 @@ class BaseMetric:
 
         if len(values) == 0:
             raise ValueError("Please evaluate a bunch of files before computing confidence interval.")
-        
+
         elif len(values) == 1:
             warnings.warn("Cannot compute a reliable confidence interval out of just one file.")
             center = lower = upper = values[0]
             return center, (lower, upper)
-        
+
         else:
             return scipy.stats.bayes_mvs(values, alpha=alpha)[0]
 
