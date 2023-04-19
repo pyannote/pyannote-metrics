@@ -40,7 +40,7 @@ from pyannote.metrics.types import Details, MetricComponents
 # TODO:
 # - fit/unfit = proper terminology?
 def clone(metric):
-    """Construct a new unfit metric with the same parameters as `metric`.
+    """Construct a new empty metric with the same parameters as `metric`.
 
     Clone does a deep copy of the metric without actually copying any
     results or accumulators. It returns a new metric with the same
