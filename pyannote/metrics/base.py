@@ -37,8 +37,6 @@ from pyannote.core import Annotation, Timeline
 from pyannote.metrics.types import Details, MetricComponents
 
 
-# TODO:
-# - fit/unfit = proper terminology?
 def clone(metric):
     """Construct a new empty metric with the same parameters as `metric`.
 
