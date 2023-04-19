@@ -56,7 +56,7 @@ def clone(metric):
     """
     if hasattr(metric, '__pyannote_clone__') and not inspect.isclass(metric):
         # If metric implements a custom cloning method, default to that.
-        return metric.__pyannote_clone()
+        return metric.__pyannote_clone__()
     cls = metric.__class__
     new_metric_params = metric.get_params()
     new_metric = cls(**new_metric_params)
