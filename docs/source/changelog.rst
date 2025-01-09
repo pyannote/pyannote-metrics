@@ -2,6 +2,11 @@
 Changelog
 #########
 
+develop
+~~~~~~~
+
+- BREAKING: improve diarization purity and coverage to account for overlapping regions
+
 Version 3.2.1 (2022-06-20)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
