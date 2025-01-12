@@ -2,6 +2,12 @@
 Changelog
 #########
 
+Version 3.3.0 (2025-01-12)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- BREAKING: improve diarization purity and coverage to account for overlapping regions
+- chore: use `bool` instead of deprecated `np.bool`
+
 Version 3.2.1 (2022-06-20)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 

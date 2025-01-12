@@ -130,7 +130,7 @@ class _Passthrough(BaseEstimator):
 
     def __init__(self):
         super().__init__()
-        self.classes_ = np.array([False, True], dtype=np.bool)
+        self.classes_ = np.array([False, True], dtype=bool)
 
     def fit(self, scores, y_true):
         return self
