@@ -1,2 +1,0 @@
-include versioneer.py
-include pyannote/metrics/_version.py

@@ -2,6 +2,13 @@
 Changelog
 #########
 
+Version 4.0.0rc1 (2025-02-11)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- BREAKING: drop support to `Python` < 3.10
+- BREAKING: switch to native namespace package 
+- setup: switch to `uv`
+
 Version 3.3.0 (2025-01-12)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
