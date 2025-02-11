@@ -39,7 +39,11 @@ setup(
     # package
     namespace_packages=["pyannote"],
     packages=find_packages(),
-    entry_points={"console_scripts": ["pyannote-metrics=pyannote.metrics.cli:main", ], },
+    entry_points={
+        "console_scripts": [
+            "pyannote-metrics=pyannote.metrics.cli:main",
+        ],
+    },
     install_requires=[
         "pyannote.core >= 4.1",
         "pyannote.database >= 4.0.1",
@@ -50,7 +54,7 @@ setup(
         "tabulate >= 0.7.7",
         "matplotlib >= 2.0.0",
         "sympy >= 1.1",
-        "numpy"
+        "numpy",
     ],
     # versioneer
     version=versioneer.get_version(),
@@ -74,13 +78,7 @@ setup(
         "Topic :: Scientific/Engineering",
     ],
     extras_require={
-        "tests": {
-            'pytest'
-        },
-        "docs": [
-            "Sphinx==2.2.2",
-            "ipython==7.10.1",
-            "sphinx_rtd_theme==0.4.3"
-        ]
-    }
+        "tests": {"pytest"},
+        "docs": ["Sphinx==2.2.2", "ipython==7.10.1", "sphinx_rtd_theme==0.4.3"],
+    },
 )

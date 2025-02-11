@@ -27,6 +27,7 @@
 # Hervé BREDIN - http://herve.niderb.fr
 
 """Metrics for diarization"""
+
 from typing import Optional, Dict, TYPE_CHECKING
 
 import numpy as np
@@ -64,9 +65,8 @@ class DiarizationErrorRate(IdentificationErrorRate):
         Set to True to not evaluate overlap regions.
         Defaults to False (i.e. keep overlap regions).
 
-    Usage
-    -----
-
+    Examples
+    --------
     * Diarization error rate between `reference` and `hypothesis` annotations
 
         >>> metric = DiarizationErrorRate()
@@ -142,7 +142,7 @@ class DiarizationErrorRate(IdentificationErrorRate):
         reference: Annotation,
         hypothesis: Annotation,
         uem: Optional[Timeline] = None,
-        **kwargs
+        **kwargs,
     ) -> Details:
         # crop reference and hypothesis to evaluated regions (uem)
         # remove collars around reference segment boundaries
@@ -193,9 +193,8 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
         Set to True to not evaluate overlap regions.
         Defaults to False (i.e. keep overlap regions).
 
-    Usage
-    -----
-
+    Examples
+    --------
     * Greedy diarization error rate between `reference` and `hypothesis` annotations
 
         >>> metric = GreedyDiarizationErrorRate()
@@ -266,7 +265,7 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
         reference: Annotation,
         hypothesis: Annotation,
         uem: Optional[Timeline] = None,
-        **kwargs
+        **kwargs,
     ) -> Details:
         # crop reference and hypothesis to evaluated regions (uem)
         # remove collars around reference segment boundaries
@@ -308,8 +307,25 @@ JER_SPEAKER_COUNT = "speaker count"
 class JaccardErrorRate(DiarizationErrorRate):
     """Jaccard error rate
 
+    Parameters
+    ----------
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments.
+    skip_overlap : bool, optional
+        Set to True to not evaluate overlap regions.
+        Defaults to False (i.e. keep overlap regions).
+
+    Examples
+    --------
+    >>> metric = JaccardErrorRate()
+    >>> reference = Annotation(...)           # doctest: +SKIP
+    >>> hypothesis = Annotation(...)          # doctest: +SKIP
+    >>> jer = metric(reference, hypothesis)   # doctest: +SKIP
+
     Reference
     ---------
+
     Second DIHARD Challenge Evaluation Plan. Version 1.1
     N. Ryant, K. Church, C. Cieri, A. Cristia, J. Du, S. Ganapathy, M. Liberman
     https://coml.lscp.ens.fr/dihard/2019/second_dihard_eval_plan_v1.1.pdf
@@ -328,15 +344,16 @@ class JaccardErrorRate(DiarizationErrorRate):
     speaker and each system speaker with at most one reference speaker. Then,
     for each reference speaker ref the speaker-specific Jaccard error rate
     JERref is computed as JERref = (FA + MISS) / TOTAL where
-        * TOTAL is the duration of the union of reference and system speaker
-        segments; if the reference speaker was not paired with a system
-        speaker, it is the duration of all reference speaker segments
-        * FA is the total system speaker time not attributed to the reference
-        speaker; if the reference speaker was not paired with a system speaker,
-        it is 0
-        * MISS is the total reference speaker time not attributed to the system
-        speaker; if the reference speaker was not paired with a system speaker,
-        it is equal to TOTAL
+
+    - TOTAL is the duration of the union of reference and system speaker
+      segments; if the reference speaker was not paired with a system
+      speaker, it is the duration of all reference speaker segments
+    - FA is the total system speaker time not attributed to the reference
+      speaker; if the reference speaker was not paired with a system speaker,
+      it is 0
+    - MISS is the total reference speaker time not attributed to the system
+      speaker; if the reference speaker was not paired with a system speaker,
+      it is equal to TOTAL
 
     The Jaccard error rate then is the average of the speaker specific Jaccard
     error rates.
@@ -349,21 +366,7 @@ class JaccardErrorRate(DiarizationErrorRate):
     500%, JER will never exceed 100% and may be far lower if the reference
     speakers are handled correctly."
 
-    Parameters
-    ----------
-    collar : float, optional
-        Duration (in seconds) of collars removed from evaluation around
-        boundaries of reference segments.
-    skip_overlap : bool, optional
-        Set to True to not evaluate overlap regions.
-        Defaults to False (i.e. keep overlap regions).
 
-    Usage
-    -----
-    >>> metric = JaccardErrorRate()
-    >>> reference = Annotation(...)           # doctest: +SKIP
-    >>> hypothesis = Annotation(...)          # doctest: +SKIP
-    >>> jer = metric(reference, hypothesis)   # doctest: +SKIP
 
     """
 
@@ -387,7 +390,7 @@ class JaccardErrorRate(DiarizationErrorRate):
         reference: Annotation,
         hypothesis: Annotation,
         uem: Optional[Timeline] = None,
-        **kwargs
+        **kwargs,
     ) -> Details:
         # crop reference and hypothesis to evaluated regions (uem)
         # remove collars around reference segment boundaries
@@ -481,7 +484,7 @@ class DiarizationPurity(UEMSupportMixin, BaseMetric):
         reference: Annotation,
         hypothesis: Annotation,
         uem: Optional[Timeline] = None,
-        **kwargs
+        **kwargs,
     ) -> Details:
         detail = self.init_components()
 
@@ -524,7 +527,7 @@ class DiarizationCoverage(DiarizationPurity):
         reference: Annotation,
         hypothesis: Annotation,
         uem: Optional[Timeline] = None,
-        **kwargs
+        **kwargs,
     ) -> Details:
         return super(DiarizationCoverage, self).compute_components(
             hypothesis, reference, uem=uem, **kwargs
@@ -568,7 +571,7 @@ class DiarizationHomogeneity(UEMSupportMixin, BaseMetric):
         reference: Annotation,
         hypothesis: Annotation,
         uem: Optional[Timeline] = None,
-        **kwargs
+        **kwargs,
     ) -> Details:
         detail = self.init_components()
 
@@ -638,7 +641,7 @@ class DiarizationCompleteness(DiarizationHomogeneity):
         reference: Annotation,
         hypothesis: Annotation,
         uem: Optional[Timeline] = None,
-        **kwargs
+        **kwargs,
     ) -> Details:
         return super(DiarizationCompleteness, self).compute_components(
             hypothesis, reference, uem=uem, **kwargs
