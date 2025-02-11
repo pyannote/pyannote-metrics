@@ -28,7 +28,7 @@
 
 
 import warnings
-from typing import Optional
+from typing import Optional, Tuple
 
 import matplotlib
 import numpy as np
@@ -39,17 +39,19 @@ from pyannote.metrics.binary_classification import precision_recall_curve
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
-    matplotlib.use('Agg')
+    matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 
-def plot_distributions(y_true: ArrayLike,
-                       scores: ArrayLike,
-                       save_to: str,
-                       xlim: Optional[float, float] = None,
-                       nbins: int = 100,
-                       ymax: float = 3.,
-                       dpi: int = 150) -> bool:
+def plot_distributions(
+    y_true: ArrayLike,
+    scores: ArrayLike,
+    save_to: str,
+    xlim: Optional[Tuple[float, float]] = None,
+    nbins: int = 100,
+    ymax: float = 3.0,
+    dpi: int = 150,
+) -> bool:
     """Scores distributions
 
     This function will create (and overwrite) the following files:
@@ -72,24 +74,26 @@ def plot_distributions(y_true: ArrayLike,
         xlim = (np.min(scores), np.max(scores))
 
     bins = np.linspace(xlim[0], xlim[1], nbins)
-    plt.hist(scores[y_true], bins=bins, color='g', alpha=0.5, normed=True)
-    plt.hist(scores[~y_true], bins=bins, color='r', alpha=0.5, normed=True)
+    plt.hist(scores[y_true], bins=bins, color="g", alpha=0.5, normed=True)
+    plt.hist(scores[~y_true], bins=bins, color="r", alpha=0.5, normed=True)
 
     # TODO heuristic to estimate ymax from nbins and xlim
     plt.ylim(0, ymax)
     plt.tight_layout()
-    plt.savefig(save_to + '.scores.png', dpi=dpi)
-    plt.savefig(save_to + '.scores.eps')
+    plt.savefig(save_to + ".scores.png", dpi=dpi)
+    plt.savefig(save_to + ".scores.eps")
     plt.close()
 
     return True
 
 
-def plot_det_curve(y_true: ArrayLike,
-                   scores: ArrayLike,
-                   save_to: str,
-                   distances: bool = False,
-                   dpi: int = 150) -> float:
+def plot_det_curve(
+    y_true: ArrayLike,
+    scores: ArrayLike,
+    save_to: str,
+    distances: bool = False,
+    dpi: int = 150,
+) -> float:
     """DET curve
 
     This function will create (and overwrite) the following files:
@@ -120,33 +124,35 @@ def plot_det_curve(y_true: ArrayLike,
 
     # plot DET curve
     plt.figure(figsize=(12, 12))
-    plt.loglog(fpr, fnr, 'b')
-    plt.loglog([eer], [eer], 'bo')
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('False Negative Rate')
-    plt.xlim(1e-2, 1.)
-    plt.ylim(1e-2, 1.)
+    plt.loglog(fpr, fnr, "b")
+    plt.loglog([eer], [eer], "bo")
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("False Negative Rate")
+    plt.xlim(1e-2, 1.0)
+    plt.ylim(1e-2, 1.0)
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig(save_to + '.det.png', dpi=dpi)
-    plt.savefig(save_to + '.det.eps')
+    plt.savefig(save_to + ".det.png", dpi=dpi)
+    plt.savefig(save_to + ".det.eps")
     plt.close()
 
     # save DET curve in text file
-    txt = save_to + '.det.txt'
-    line = '{t:.6f} {fp:.6f} {fn:.6f}\n'
-    with open(txt, 'w') as f:
+    txt = save_to + ".det.txt"
+    line = "{t:.6f} {fp:.6f} {fn:.6f}\n"
+    with open(txt, "w") as f:
         for i, (t, fp, fn) in enumerate(zip(thresholds, fpr, fnr)):
             f.write(line.format(t=t, fp=fp, fn=fn))
 
     return eer
 
 
-def plot_precision_recall_curve(y_true: ArrayLike,
-                                scores: ArrayLike,
-                                save_to: str,
-                                distances: bool = False,
-                                dpi: int = 150) -> float:
+def plot_precision_recall_curve(
+    y_true: ArrayLike,
+    scores: ArrayLike,
+    save_to: str,
+    distances: bool = False,
+    dpi: int = 150,
+) -> float:
     """Precision/recall curve
 
     This function will create (and overwrite) the following files:
@@ -174,24 +180,25 @@ def plot_precision_recall_curve(y_true: ArrayLike,
     """
 
     precision, recall, thresholds, auc = precision_recall_curve(
-        y_true, scores, distances=distances)
+        y_true, scores, distances=distances
+    )
 
     # plot P/R curve
     plt.figure(figsize=(12, 12))
-    plt.plot(recall, precision, 'b')
-    plt.xlabel('Recall')
-    plt.ylabel('Precision')
+    plt.plot(recall, precision, "b")
+    plt.xlabel("Recall")
+    plt.ylabel("Precision")
     plt.xlim(0, 1)
     plt.ylim(0, 1)
     plt.tight_layout()
-    plt.savefig(save_to + '.precision_recall.png', dpi=dpi)
-    plt.savefig(save_to + '.precision_recall.eps')
+    plt.savefig(save_to + ".precision_recall.png", dpi=dpi)
+    plt.savefig(save_to + ".precision_recall.eps")
     plt.close()
 
     # save P/R curve in text file
-    txt = save_to + '.precision_recall.txt'
-    line = '{t:.6f} {p:.6f} {r:.6f}\n'
-    with open(txt, 'w') as f:
+    txt = save_to + ".precision_recall.txt"
+    line = "{t:.6f} {p:.6f} {r:.6f}\n"
+    with open(txt, "w") as f:
         for i, (t, p, r) in enumerate(zip(thresholds, precision, recall)):
             f.write(line.format(t=t, p=p, r=r))
 

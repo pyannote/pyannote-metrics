@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 
-# Copyright (c) 2012-2014 CNRS
+# Copyright (c) 2012-2021 CNRS
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,4 +26,9 @@
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
 
-__import__('pkg_resources').declare_namespace(__name__)
+from .base import f_measure
+
+import importlib.metadata
+__version__ = importlib.metadata.version("pyannote-metrics")
+
+__all__ = ["f_measure"]

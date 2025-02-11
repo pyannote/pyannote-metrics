@@ -39,8 +39,9 @@ from sklearn.model_selection._split import _CVIterableWrapper
 from .types import CalibrationMethod
 
 
-def det_curve(y_true: ArrayLike, scores: ArrayLike, distances: bool = False) \
-        -> Tuple[np.ndarray, np.ndarray, np.ndarray, float]:
+def det_curve(
+    y_true: ArrayLike, scores: ArrayLike, distances: bool = False
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, float]:
     """DET curve
 
     Parameters
@@ -69,24 +70,23 @@ def det_curve(y_true: ArrayLike, scores: ArrayLike, distances: bool = False) \
 
     # compute false positive and false negative rates
     # (a.k.a. false alarm and false rejection rates)
-    fpr, tpr, thresholds = sklearn.metrics.roc_curve(
-        y_true, scores, pos_label=True)
+    fpr, tpr, thresholds = sklearn.metrics.roc_curve(y_true, scores, pos_label=True)
     fnr = 1 - tpr
     if distances:
         thresholds = -thresholds
 
     # estimate equal error rate
     eer_index = np.where(fpr > fnr)[0][0]
-    eer = .25 * (fpr[eer_index - 1] + fpr[eer_index] +
-                 fnr[eer_index - 1] + fnr[eer_index])
+    eer = 0.25 * (
+        fpr[eer_index - 1] + fpr[eer_index] + fnr[eer_index - 1] + fnr[eer_index]
+    )
 
     return fpr, fnr, thresholds, eer
 
 
-def precision_recall_curve(y_true: ArrayLike,
-                           scores: ArrayLike,
-                           distances: bool = False) \
-        -> Tuple[np.ndarray, np.ndarray, np.ndarray, float]:
+def precision_recall_curve(
+    y_true: ArrayLike, scores: ArrayLike, distances: bool = False
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, float]:
     """Precision-recall curve
 
     Parameters
@@ -115,7 +115,8 @@ def precision_recall_curve(y_true: ArrayLike,
         scores = -scores
 
     precision, recall, thresholds = sklearn.metrics.precision_recall_curve(
-        y_true, scores, pos_label=True)
+        y_true, scores, pos_label=True
+    )
 
     if distances:
         thresholds = -thresholds
@@ -151,8 +152,8 @@ class Calibration:
         Set to True to force equal priors. Default behavior is to estimate
         priors from the data itself.
 
-    Usage
-    -----
+    Examples
+    --------
     >>> calibration = Calibration()
     >>> calibration.fit(train_score, train_y)
     >>> test_probability = calibration.transform(test_score)
@@ -163,8 +164,9 @@ class Calibration:
 
     """
 
-    def __init__(self, equal_priors: bool = False,
-                 method: CalibrationMethod = 'isotonic'):
+    def __init__(
+        self, equal_priors: bool = False, method: CalibrationMethod = "isotonic"
+    ):
         self.method = method
         self.equal_priors = equal_priors
 
@@ -182,7 +184,6 @@ class Calibration:
         # to force equal priors, randomly select (and average over)
         # up to fifty balanced (i.e. #true == #false) calibration sets.
         if self.equal_priors:
-
             counter = Counter(y_true)
             positive, negative = counter[True], counter[False]
 
@@ -200,20 +201,24 @@ class Calibration:
 
             cv = []
             for _ in range(n_splits):
-                test_index = np.hstack([
-                    np.random.choice(majority_index,
-                                     size=n_minority,
-                                     replace=False),
-                    minority_index])
+                test_index = np.hstack(
+                    [
+                        np.random.choice(
+                            majority_index, size=n_minority, replace=False
+                        ),
+                        minority_index,
+                    ]
+                )
                 cv.append(([], test_index))
             cv = _CVIterableWrapper(cv)
 
         # to estimate priors from the data itself, use the whole set
         else:
-            cv = 'prefit'
+            cv = "prefit"
 
         self.calibration_ = CalibratedClassifierCV(
-            base_estimator=_Passthrough(), method=self.method, cv=cv)
+            base_estimator=_Passthrough(), method=self.method, cv=cv
+        )
         self.calibration_.fit(scores.reshape(-1, 1), y_true)
 
         return self
