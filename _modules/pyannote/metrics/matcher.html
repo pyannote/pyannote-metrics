@@ -1,89 +1,45 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pyannote.metrics.matcher &mdash; pyannote.metrics 3.2 documentation</title>
-  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyannote.metrics.matcher &mdash; pyannote.metrics 4.0.0rc2.dev0+g5c71b8e.d20250211 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
 
   
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=e143508c"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../../../index.html" class="icon icon-home"> pyannote.metrics
           
-
-          
+          <a href="../../../index.html" class="icon icon-home">
+            pyannote.metrics
           </a>
-
-          
-            
-            
-              <div class="version">
-                3.2
-              </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command line tool</a></li>
@@ -93,66 +49,30 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">pyannote.metrics</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../../../index.html">Docs</a> &raquo;</li>
-        
-          <li><a href="../../index.html">Module code</a> &raquo;</li>
-        
-      <li>pyannote.metrics.matcher</li>
-    
-    
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyannote.metrics.matcher</li>
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for pyannote.metrics.matcher</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python</span>
 <span class="c1"># encoding: utf-8</span>
@@ -181,9 +101,14 @@
 
 <span class="c1"># AUTHORS</span>
 <span class="c1"># Hervé BREDIN - http://herve.niderb.fr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">linear_sum_assignment</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyannote.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">linear_sum_assignment</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pyannote.core.utils.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Label</span>
 
 <span class="n">MATCH_CORRECT</span> <span class="o">=</span> <span class="s1">&#39;correct&#39;</span>
 <span class="n">MATCH_CONFUSION</span> <span class="o">=</span> <span class="s1">&#39;confusion&#39;</span>
@@ -192,17 +117,21 @@
 <span class="n">MATCH_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;total&#39;</span>
 
 
-<div class="viewcode-block" id="LabelMatcher"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.matcher.LabelMatcher">[docs]</a><span class="k">class</span> <span class="nc">LabelMatcher</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    ID matcher base class.</span>
+<div class="viewcode-block" id="LabelMatcher">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.matcher.LabelMatcher">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LabelMatcher</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ID matcher base class mixin.</span>
 
 <span class="sd">    All ID matcher classes must inherit from this class and implement</span>
 <span class="sd">    .match() -- ie return True if two IDs match and False</span>
 <span class="sd">    otherwise.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="LabelMatcher.match"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.matcher.LabelMatcher.match">[docs]</a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rlabel</span><span class="p">,</span> <span class="n">hlabel</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="LabelMatcher.match">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.matcher.LabelMatcher.match">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rlabel</span><span class="p">:</span> <span class="s1">&#39;Label&#39;</span><span class="p">,</span> <span class="n">hlabel</span><span class="p">:</span> <span class="s1">&#39;Label&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        rlabel :</span>
@@ -219,8 +148,11 @@
         <span class="c1"># Two IDs match if they are equal to each other</span>
         <span class="k">return</span> <span class="n">rlabel</span> <span class="o">==</span> <span class="n">hlabel</span></div>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rlabels</span><span class="p">,</span> <span class="n">hlabels</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rlabels</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s1">&#39;Label&#39;</span><span class="p">],</span> <span class="n">hlabels</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s1">&#39;Label&#39;</span><span class="p">])</span> \
+            <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+                     <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="s1">&#39;Label&#39;</span><span class="p">]]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -249,6 +181,10 @@
             <span class="n">MATCH_MISSED_DETECTION</span><span class="p">:</span> <span class="p">[],</span>
             <span class="n">MATCH_FALSE_ALARM</span><span class="p">:</span> <span class="p">[]</span>
         <span class="p">}</span>
+        <span class="c1"># this is to make sure rlabels and hlabels are lists</span>
+        <span class="c1"># as we will access them later by index</span>
+        <span class="n">rlabels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">rlabels</span><span class="p">)</span>
+        <span class="n">hlabels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">hlabels</span><span class="p">)</span>
 
         <span class="n">NR</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rlabels</span><span class="p">)</span>
         <span class="n">NH</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hlabels</span><span class="p">)</span>
@@ -256,12 +192,7 @@
 
         <span class="c1"># corner case</span>
         <span class="k">if</span> <span class="n">N</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">details</span><span class="p">)</span>
-
-        <span class="c1"># this is to make sure rlabels and hlabels are lists</span>
-        <span class="c1"># as we will access them later by index</span>
-        <span class="n">rlabels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">rlabels</span><span class="p">)</span>
-        <span class="n">hlabels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">hlabels</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">counts</span><span class="p">,</span> <span class="n">details</span>
 
         <span class="c1"># initialize match matrix</span>
         <span class="c1"># with True if labels match and False otherwise</span>
@@ -292,7 +223,7 @@
                 <span class="n">counts</span><span class="p">[</span><span class="n">MATCH_CORRECT</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">details</span><span class="p">[</span><span class="n">MATCH_CORRECT</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">rlabels</span><span class="p">[</span><span class="n">r</span><span class="p">],</span> <span class="n">hlabels</span><span class="p">[</span><span class="n">h</span><span class="p">]))</span>
 
-            <span class="c1"># refernece and hypothesis do not match</span>
+            <span class="c1"># reference and hypothesis do not match</span>
             <span class="c1"># ==&gt; this is a confusion</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">counts</span><span class="p">[</span><span class="n">MATCH_CONFUSION</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -301,12 +232,13 @@
         <span class="n">counts</span><span class="p">[</span><span class="n">MATCH_TOTAL</span><span class="p">]</span> <span class="o">+=</span> <span class="n">NR</span>
 
         <span class="c1"># returns counts and details</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">details</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">counts</span><span class="p">,</span> <span class="n">details</span></div>
 
 
-<span class="k">class</span> <span class="nc">HungarianMapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HungarianMapper</span><span class="p">:</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">B</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="s1">&#39;Label&#39;</span><span class="p">,</span> <span class="s1">&#39;Label&#39;</span><span class="p">]:</span>
         <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="n">cooccurrence</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">B</span>
@@ -319,9 +251,9 @@
         <span class="k">return</span> <span class="n">mapping</span>
 
 
-<span class="k">class</span> <span class="nc">GreedyMapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GreedyMapper</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">B</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="s1">&#39;Label&#39;</span><span class="p">,</span> <span class="s1">&#39;Label&#39;</span><span class="p">]:</span>
         <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="n">cooccurrence</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">B</span>
@@ -343,42 +275,30 @@
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2017, CNRS
-
-    </p>
+    <p>&#169; Copyright 2017, CNRS.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

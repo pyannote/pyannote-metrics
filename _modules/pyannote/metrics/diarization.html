@@ -1,89 +1,45 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pyannote.metrics.diarization &mdash; pyannote.metrics 3.2 documentation</title>
-  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyannote.metrics.diarization &mdash; pyannote.metrics 4.0.0rc2.dev0+g5c71b8e.d20250211 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
 
   
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=e143508c"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../../../index.html" class="icon icon-home"> pyannote.metrics
           
-
-          
+          <a href="../../../index.html" class="icon icon-home">
+            pyannote.metrics
           </a>
-
-          
-            
-            
-              <div class="version">
-                3.2
-              </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command line tool</a></li>
@@ -93,73 +49,37 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">pyannote.metrics</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../../../index.html">Docs</a> &raquo;</li>
-        
-          <li><a href="../../index.html">Module code</a> &raquo;</li>
-        
-      <li>pyannote.metrics.diarization</li>
-    
-    
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyannote.metrics.diarization</li>
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for pyannote.metrics.diarization</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python</span>
 <span class="c1"># encoding: utf-8</span>
 
 <span class="c1"># The MIT License (MIT)</span>
 
-<span class="c1"># Copyright (c) 2012-2019 CNRS</span>
+<span class="c1"># Copyright (c) 2012- CNRS</span>
 
 <span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
 <span class="c1"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
@@ -184,20 +104,30 @@
 
 <span class="sd">&quot;&quot;&quot;Metrics for diarization&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
-<span class="kn">from</span> <span class="nn">.matcher</span> <span class="kn">import</span> <span class="n">HungarianMapper</span>
-<span class="kn">from</span> <span class="nn">.matcher</span> <span class="kn">import</span> <span class="n">GreedyMapper</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyannote.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">Timeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyannote.core.utils.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Label</span>
 
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">BaseMetric</span><span class="p">,</span> <span class="n">f_measure</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">UEMSupportMixin</span>
-<span class="kn">from</span> <span class="nn">.identification</span> <span class="kn">import</span> <span class="n">IdentificationErrorRate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetric</span><span class="p">,</span> <span class="n">f_measure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.identification</span><span class="w"> </span><span class="kn">import</span> <span class="n">IdentificationErrorRate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.matcher</span><span class="w"> </span><span class="kn">import</span> <span class="n">GreedyMapper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.matcher</span><span class="w"> </span><span class="kn">import</span> <span class="n">HungarianMapper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Details</span><span class="p">,</span> <span class="n">MetricComponents</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">UEMSupportMixin</span>
 
-<span class="n">DER_NAME</span> <span class="o">=</span> <span class="s1">&#39;diarization error rate&#39;</span>
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<span class="c1"># TODO: can&#39;t we put these as class attributes?</span>
+<span class="n">DER_NAME</span> <span class="o">=</span> <span class="s2">&quot;diarization error rate&quot;</span>
 
 
-<div class="viewcode-block" id="DiarizationErrorRate"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationErrorRate">[docs]</a><span class="k">class</span> <span class="nc">DiarizationErrorRate</span><span class="p">(</span><span class="n">IdentificationErrorRate</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Diarization error rate</span>
+<div class="viewcode-block" id="DiarizationErrorRate">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationErrorRate">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiarizationErrorRate</span><span class="p">(</span><span class="n">IdentificationErrorRate</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Diarization error rate</span>
 
 <span class="sd">    First, the optimal mapping between reference and hypothesis labels</span>
 <span class="sd">    is obtained using the Hungarian algorithm. Then, the actual diarization</span>
@@ -213,9 +143,8 @@
 <span class="sd">        Set to True to not evaluate overlap regions.</span>
 <span class="sd">        Defaults to False (i.e. keep overlap regions).</span>
 
-<span class="sd">    Usage</span>
-<span class="sd">    -----</span>
-
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
 <span class="sd">    * Diarization error rate between `reference` and `hypothesis` annotations</span>
 
 <span class="sd">        &gt;&gt;&gt; metric = DiarizationErrorRate()</span>
@@ -248,16 +177,22 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">DER_NAME</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">DiarizationErrorRate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">collar</span><span class="o">=</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="n">skip_overlap</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">collar</span><span class="o">=</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="n">skip_overlap</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mapper_</span> <span class="o">=</span> <span class="n">HungarianMapper</span><span class="p">()</span>
 
-<div class="viewcode-block" id="DiarizationErrorRate.optimal_mapping"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationErrorRate.optimal_mapping">[docs]</a>    <span class="k">def</span> <span class="nf">optimal_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Optimal label mapping</span>
+<div class="viewcode-block" id="DiarizationErrorRate.optimal_mapping">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationErrorRate.optimal_mapping">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">optimal_mapping</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">uem</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Timeline</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Label</span><span class="p">,</span> <span class="n">Label</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Optimal label mapping</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -282,23 +217,35 @@
         <span class="c1"># call hungarian mapper</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapper_</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">,</span> <span class="n">reference</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DiarizationErrorRate.compute_components"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationErrorRate.compute_components">[docs]</a>    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
+<div class="viewcode-block" id="DiarizationErrorRate.compute_components">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationErrorRate.compute_components">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_components</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">uem</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Timeline</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Details</span><span class="p">:</span>
         <span class="c1"># crop reference and hypothesis to evaluated regions (uem)</span>
         <span class="c1"># remove collars around reference segment boundaries</span>
         <span class="c1"># remove overlap regions (if requested)</span>
         <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uemify</span><span class="p">(</span>
-            <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
-            <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span><span class="p">,</span>
-            <span class="n">returns_uem</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">reference</span><span class="p">,</span>
+            <span class="n">hypothesis</span><span class="p">,</span>
+            <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
+            <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span>
+            <span class="n">skip_overlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span><span class="p">,</span>
+            <span class="n">returns_uem</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="c1"># NOTE that this &#39;uemification&#39; must be done here because it</span>
         <span class="c1"># might have an impact on the search for the optimal mapping.</span>
 
         <span class="c1"># make sure reference only contains string labels (&#39;A&#39;, &#39;B&#39;, ...)</span>
-        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s1">&#39;string&#39;</span><span class="p">)</span>
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
 
         <span class="c1"># make sure hypothesis only contains integer labels (1, 2, ...)</span>
-        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
 
         <span class="c1"># optimal (int --&gt; str) mapping</span>
         <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimal_mapping</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>
@@ -307,14 +254,17 @@
         <span class="c1"># NOTE that collar is set to 0.0 because &#39;uemify&#39; has already</span>
         <span class="c1"># been applied (same reason for setting skip_overlap to False)</span>
         <span class="n">mapped</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">mapping</span><span class="o">=</span><span class="n">mapping</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">DiarizationErrorRate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>\
-            <span class="o">.</span><span class="n">compute_components</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">mapped</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
-                                <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">DiarizationErrorRate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">compute_components</span><span class="p">(</span>
+            <span class="n">reference</span><span class="p">,</span> <span class="n">mapped</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="GreedyDiarizationErrorRate"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.GreedyDiarizationErrorRate">[docs]</a><span class="k">class</span> <span class="nc">GreedyDiarizationErrorRate</span><span class="p">(</span><span class="n">IdentificationErrorRate</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Greedy diarization error rate</span>
+
+<div class="viewcode-block" id="GreedyDiarizationErrorRate">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.GreedyDiarizationErrorRate">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GreedyDiarizationErrorRate</span><span class="p">(</span><span class="n">IdentificationErrorRate</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Greedy diarization error rate</span>
 
 <span class="sd">    First, the greedy mapping between reference and hypothesis labels is</span>
 <span class="sd">    obtained. Then, the actual diarization error rate is computed as the</span>
@@ -330,9 +280,8 @@
 <span class="sd">        Set to True to not evaluate overlap regions.</span>
 <span class="sd">        Defaults to False (i.e. keep overlap regions).</span>
 
-<span class="sd">    Usage</span>
-<span class="sd">    -----</span>
-
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
 <span class="sd">    * Greedy diarization error rate between `reference` and `hypothesis` annotations</span>
 
 <span class="sd">        &gt;&gt;&gt; metric = GreedyDiarizationErrorRate()</span>
@@ -364,16 +313,24 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">DER_NAME</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">GreedyDiarizationErrorRate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">collar</span><span class="o">=</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="n">skip_overlap</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">collar</span><span class="o">=</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="n">skip_overlap</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mapper_</span> <span class="o">=</span> <span class="n">GreedyMapper</span><span class="p">()</span>
 
-<div class="viewcode-block" id="GreedyDiarizationErrorRate.greedy_mapping"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.GreedyDiarizationErrorRate.greedy_mapping">[docs]</a>    <span class="k">def</span> <span class="nf">greedy_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Greedy label mapping</span>
+<div class="viewcode-block" id="GreedyDiarizationErrorRate.greedy_mapping">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.GreedyDiarizationErrorRate.greedy_mapping">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">greedy_mapping</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">uem</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Timeline</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Label</span><span class="p">,</span> <span class="n">Label</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Greedy label mapping</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -392,23 +349,35 @@
             <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uemify</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapper_</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">,</span> <span class="n">reference</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="GreedyDiarizationErrorRate.compute_components"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.GreedyDiarizationErrorRate.compute_components">[docs]</a>    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
+<div class="viewcode-block" id="GreedyDiarizationErrorRate.compute_components">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.GreedyDiarizationErrorRate.compute_components">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_components</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">uem</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Timeline</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Details</span><span class="p">:</span>
         <span class="c1"># crop reference and hypothesis to evaluated regions (uem)</span>
         <span class="c1"># remove collars around reference segment boundaries</span>
         <span class="c1"># remove overlap regions (if requested)</span>
         <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uemify</span><span class="p">(</span>
-            <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
-            <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span><span class="p">,</span>
-            <span class="n">returns_uem</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">reference</span><span class="p">,</span>
+            <span class="n">hypothesis</span><span class="p">,</span>
+            <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
+            <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span>
+            <span class="n">skip_overlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span><span class="p">,</span>
+            <span class="n">returns_uem</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="c1"># NOTE that this &#39;uemification&#39; must be done here because it</span>
         <span class="c1"># might have an impact on the search for the greedy mapping.</span>
 
         <span class="c1"># make sure reference only contains string labels (&#39;A&#39;, &#39;B&#39;, ...)</span>
-        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s1">&#39;string&#39;</span><span class="p">)</span>
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
 
         <span class="c1"># make sure hypothesis only contains integer labels (1, 2, ...)</span>
-        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
 
         <span class="c1"># greedy (int --&gt; str) mapping</span>
         <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">greedy_mapping</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>
@@ -417,22 +386,42 @@
         <span class="c1"># NOTE that collar is set to 0.0 because &#39;uemify&#39; has already</span>
         <span class="c1"># been applied (same reason for setting skip_overlap to False)</span>
         <span class="n">mapped</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">mapping</span><span class="o">=</span><span class="n">mapping</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">GreedyDiarizationErrorRate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>\
-            <span class="o">.</span><span class="n">compute_components</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">mapped</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
-                                <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">GreedyDiarizationErrorRate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">compute_components</span><span class="p">(</span>
+            <span class="n">reference</span><span class="p">,</span> <span class="n">mapped</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span></div>
+</div>
 
 
-<span class="n">JER_NAME</span> <span class="o">=</span> <span class="s1">&#39;jaccard error rate&#39;</span>
-<span class="n">JER_SPEAKER_ERROR</span> <span class="o">=</span> <span class="s1">&#39;speaker error&#39;</span>
-<span class="n">JER_SPEAKER_COUNT</span> <span class="o">=</span> <span class="s1">&#39;speaker count&#39;</span>
+
+<span class="n">JER_NAME</span> <span class="o">=</span> <span class="s2">&quot;jaccard error rate&quot;</span>
+<span class="n">JER_SPEAKER_ERROR</span> <span class="o">=</span> <span class="s2">&quot;speaker error&quot;</span>
+<span class="n">JER_SPEAKER_COUNT</span> <span class="o">=</span> <span class="s2">&quot;speaker count&quot;</span>
 
 
-<div class="viewcode-block" id="JaccardErrorRate"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.JaccardErrorRate">[docs]</a><span class="k">class</span> <span class="nc">JaccardErrorRate</span><span class="p">(</span><span class="n">DiarizationErrorRate</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Jaccard error rate</span>
+<div class="viewcode-block" id="JaccardErrorRate">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.JaccardErrorRate">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">JaccardErrorRate</span><span class="p">(</span><span class="n">DiarizationErrorRate</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Jaccard error rate</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    collar : float, optional</span>
+<span class="sd">        Duration (in seconds) of collars removed from evaluation around</span>
+<span class="sd">        boundaries of reference segments.</span>
+<span class="sd">    skip_overlap : bool, optional</span>
+<span class="sd">        Set to True to not evaluate overlap regions.</span>
+<span class="sd">        Defaults to False (i.e. keep overlap regions).</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; metric = JaccardErrorRate()</span>
+<span class="sd">    &gt;&gt;&gt; reference = Annotation(...)           # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; hypothesis = Annotation(...)          # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; jer = metric(reference, hypothesis)   # doctest: +SKIP</span>
 
 <span class="sd">    Reference</span>
 <span class="sd">    ---------</span>
+
 <span class="sd">    Second DIHARD Challenge Evaluation Plan. Version 1.1</span>
 <span class="sd">    N. Ryant, K. Church, C. Cieri, A. Cristia, J. Du, S. Ganapathy, M. Liberman</span>
 <span class="sd">    https://coml.lscp.ens.fr/dihard/2019/second_dihard_eval_plan_v1.1.pdf</span>
@@ -451,15 +440,16 @@
 <span class="sd">    speaker and each system speaker with at most one reference speaker. Then,</span>
 <span class="sd">    for each reference speaker ref the speaker-specific Jaccard error rate</span>
 <span class="sd">    JERref is computed as JERref = (FA + MISS) / TOTAL where</span>
-<span class="sd">        * TOTAL is the duration of the union of reference and system speaker</span>
-<span class="sd">        segments; if the reference speaker was not paired with a system</span>
-<span class="sd">        speaker, it is the duration of all reference speaker segments</span>
-<span class="sd">        * FA is the total system speaker time not attributed to the reference</span>
-<span class="sd">        speaker; if the reference speaker was not paired with a system speaker,</span>
-<span class="sd">        it is 0</span>
-<span class="sd">        * MISS is the total reference speaker time not attributed to the system</span>
-<span class="sd">        speaker; if the reference speaker was not paired with a system speaker,</span>
-<span class="sd">        it is equal to TOTAL</span>
+
+<span class="sd">    - TOTAL is the duration of the union of reference and system speaker</span>
+<span class="sd">      segments; if the reference speaker was not paired with a system</span>
+<span class="sd">      speaker, it is the duration of all reference speaker segments</span>
+<span class="sd">    - FA is the total system speaker time not attributed to the reference</span>
+<span class="sd">      speaker; if the reference speaker was not paired with a system speaker,</span>
+<span class="sd">      it is 0</span>
+<span class="sd">    - MISS is the total reference speaker time not attributed to the system</span>
+<span class="sd">      speaker; if the reference speaker was not paired with a system speaker,</span>
+<span class="sd">      it is equal to TOTAL</span>
 
 <span class="sd">    The Jaccard error rate then is the average of the speaker specific Jaccard</span>
 <span class="sd">    error rates.</span>
@@ -472,57 +462,53 @@
 <span class="sd">    500%, JER will never exceed 100% and may be far lower if the reference</span>
 <span class="sd">    speakers are handled correctly.&quot;</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    collar : float, optional</span>
-<span class="sd">        Duration (in seconds) of collars removed from evaluation around</span>
-<span class="sd">        boundaries of reference segments.</span>
-<span class="sd">    skip_overlap : bool, optional</span>
-<span class="sd">        Set to True to not evaluate overlap regions.</span>
-<span class="sd">        Defaults to False (i.e. keep overlap regions).</span>
 
-<span class="sd">    Usage</span>
-<span class="sd">    -----</span>
-<span class="sd">    &gt;&gt;&gt; metric = JaccardErrorRate()</span>
-<span class="sd">    &gt;&gt;&gt; reference = Annotation(...)           # doctest: +SKIP</span>
-<span class="sd">    &gt;&gt;&gt; hypothesis = Annotation(...)          # doctest: +SKIP</span>
-<span class="sd">    &gt;&gt;&gt; jer = metric(reference, hypothesis)   # doctest: +SKIP</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">JER_NAME</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricComponents</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="n">JER_SPEAKER_COUNT</span><span class="p">,</span>
             <span class="n">JER_SPEAKER_ERROR</span><span class="p">,</span>
         <span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">collar</span><span class="o">=</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="n">skip_overlap</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">collar</span><span class="o">=</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="n">skip_overlap</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mapper_</span> <span class="o">=</span> <span class="n">HungarianMapper</span><span class="p">()</span>
 
-<div class="viewcode-block" id="JaccardErrorRate.compute_components"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.JaccardErrorRate.compute_components">[docs]</a>    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-
+<div class="viewcode-block" id="JaccardErrorRate.compute_components">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.JaccardErrorRate.compute_components">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_components</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">uem</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Timeline</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Details</span><span class="p">:</span>
         <span class="c1"># crop reference and hypothesis to evaluated regions (uem)</span>
         <span class="c1"># remove collars around reference segment boundaries</span>
         <span class="c1"># remove overlap regions (if requested)</span>
         <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uemify</span><span class="p">(</span>
-            <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
-            <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span><span class="p">,</span>
-            <span class="n">returns_uem</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">reference</span><span class="p">,</span>
+            <span class="n">hypothesis</span><span class="p">,</span>
+            <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
+            <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span>
+            <span class="n">skip_overlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span><span class="p">,</span>
+            <span class="n">returns_uem</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="c1"># NOTE that this &#39;uemification&#39; must be done here because it</span>
         <span class="c1"># might have an impact on the search for the optimal mapping.</span>
 
         <span class="c1"># make sure reference only contains string labels (&#39;A&#39;, &#39;B&#39;, ...)</span>
-        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s1">&#39;string&#39;</span><span class="p">)</span>
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
 
         <span class="c1"># make sure hypothesis only contains integer labels (1, 2, ...)</span>
-        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+        <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">rename_labels</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
 
         <span class="c1"># optimal (str --&gt; int) mapping</span>
         <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimal_mapping</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">,</span> <span class="n">reference</span><span class="p">)</span>
@@ -530,7 +516,6 @@
         <span class="n">detail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_components</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">ref_speaker</span> <span class="ow">in</span> <span class="n">reference</span><span class="o">.</span><span class="n">labels</span><span class="p">():</span>
-
             <span class="n">hyp_speaker</span> <span class="o">=</span> <span class="n">mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ref_speaker</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">hyp_speaker</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -544,7 +529,7 @@
                 <span class="c1"># [miss] is equal to total</span>
 
                 <span class="c1"># overall: jer = (fa + miss) / total = (0 + total) / total = 1</span>
-                <span class="n">jer</span> <span class="o">=</span> <span class="mf">1.</span>
+                <span class="n">jer</span> <span class="o">=</span> <span class="mf">1.0</span>
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># total is the duration of the union of reference and system</span>
@@ -568,253 +553,114 @@
 
         <span class="k">return</span> <span class="n">detail</span></div>
 
-<div class="viewcode-block" id="JaccardErrorRate.compute_metric"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.JaccardErrorRate.compute_metric">[docs]</a>    <span class="k">def</span> <span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">detail</span><span class="p">[</span><span class="n">JER_SPEAKER_ERROR</span><span class="p">]</span> <span class="o">/</span> <span class="n">detail</span><span class="p">[</span><span class="n">JER_SPEAKER_COUNT</span><span class="p">]</span></div></div>
+
+<div class="viewcode-block" id="JaccardErrorRate.compute_metric">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.JaccardErrorRate.compute_metric">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">:</span> <span class="n">Details</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">detail</span><span class="p">[</span><span class="n">JER_SPEAKER_ERROR</span><span class="p">]</span> <span class="o">/</span> <span class="n">detail</span><span class="p">[</span><span class="n">JER_SPEAKER_COUNT</span><span class="p">]</span></div>
+</div>
 
 
-<span class="n">PURITY_NAME</span> <span class="o">=</span> <span class="s1">&#39;purity&#39;</span>
-<span class="n">PURITY_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;total&#39;</span>
-<span class="n">PURITY_CORRECT</span> <span class="o">=</span> <span class="s1">&#39;correct&#39;</span>
+
+<span class="n">PURITY_NAME</span> <span class="o">=</span> <span class="s2">&quot;purity&quot;</span>
+<span class="n">PURITY_TOTAL</span> <span class="o">=</span> <span class="s2">&quot;total&quot;</span>
+<span class="n">PURITY_CORRECT</span> <span class="o">=</span> <span class="s2">&quot;correct&quot;</span>
 
 
-<div class="viewcode-block" id="DiarizationPurity"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationPurity">[docs]</a><span class="k">class</span> <span class="nc">DiarizationPurity</span><span class="p">(</span><span class="n">UEMSupportMixin</span><span class="p">,</span> <span class="n">BaseMetric</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Cluster purity</span>
+<div class="viewcode-block" id="DiarizationPurity">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationPurity">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiarizationPurity</span><span class="p">(</span><span class="n">UEMSupportMixin</span><span class="p">,</span> <span class="n">BaseMetric</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cluster purity</span>
 
 <span class="sd">    A hypothesized annotation has perfect purity if all of its labels overlap</span>
 <span class="sd">    only segments which are members of a single reference label.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    weighted : bool, optional</span>
-<span class="sd">        When True (default), each cluster is weighted by its overall duration.</span>
-<span class="sd">    collar : float, optional</span>
-<span class="sd">        Duration (in seconds) of collars removed from evaluation around</span>
-<span class="sd">        boundaries of reference segments.</span>
-<span class="sd">    skip_overlap : bool, optional</span>
-<span class="sd">        Set to True to not evaluate overlap regions.</span>
-<span class="sd">        Defaults to False (i.e. keep overlap regions).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">PURITY_NAME</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">PURITY_TOTAL</span><span class="p">,</span> <span class="n">PURITY_CORRECT</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">weighted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">DiarizationPurity</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">weighted</span> <span class="o">=</span> <span class="n">weighted</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">collar</span> <span class="o">=</span> <span class="n">collar</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span> <span class="o">=</span> <span class="n">skip_overlap</span>
-
-<div class="viewcode-block" id="DiarizationPurity.compute_components"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationPurity.compute_components">[docs]</a>    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-
+<div class="viewcode-block" id="DiarizationPurity.compute_components">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationPurity.compute_components">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_components</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">uem</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Timeline</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Details</span><span class="p">:</span>
         <span class="n">detail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_components</span><span class="p">()</span>
 
-        <span class="c1"># crop reference and hypothesis to evaluated regions (uem)</span>
-        <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uemify</span><span class="p">(</span>
-            <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
-            <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span><span class="p">)</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">largest</span> <span class="o">=</span> <span class="mi">0</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">reference</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">detail</span>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">labels</span><span class="p">():</span>
+            <span class="n">support</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">label_timeline</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+            <span class="n">duration</span> <span class="o">+=</span> <span class="n">support</span><span class="o">.</span><span class="n">duration</span><span class="p">()</span>
+            <span class="n">chart</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">crop</span><span class="p">(</span><span class="n">support</span><span class="p">)</span><span class="o">.</span><span class="n">chart</span><span class="p">()</span>
+            <span class="n">largest</span> <span class="o">+=</span> <span class="mi">0</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">chart</span> <span class="k">else</span> <span class="n">chart</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
 
-        <span class="c1"># cooccurrence matrix</span>
-        <span class="n">matrix</span> <span class="o">=</span> <span class="n">reference</span> <span class="o">*</span> <span class="n">hypothesis</span>
-
-        <span class="c1"># duration of largest class in each cluster</span>
-        <span class="n">largest</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">duration</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighted</span><span class="p">:</span>
-            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_CORRECT</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
-                <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_CORRECT</span><span class="p">]</span> <span class="o">=</span> <span class="n">largest</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_TOTAL</span><span class="p">]</span> <span class="o">=</span> <span class="n">duration</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_CORRECT</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">largest</span> <span class="o">/</span> <span class="n">duration</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_TOTAL</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">largest</span><span class="p">)</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_TOTAL</span><span class="p">]</span> <span class="o">=</span> <span class="n">duration</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_CORRECT</span><span class="p">]</span> <span class="o">=</span> <span class="n">largest</span>
 
         <span class="k">return</span> <span class="n">detail</span></div>
 
-<div class="viewcode-block" id="DiarizationPurity.compute_metric"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationPurity.compute_metric">[docs]</a>    <span class="k">def</span> <span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_TOTAL</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
+
+<div class="viewcode-block" id="DiarizationPurity.compute_metric">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationPurity.compute_metric">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">:</span> <span class="n">Details</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_TOTAL</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_CORRECT</span><span class="p">]</span> <span class="o">/</span> <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_TOTAL</span><span class="p">]</span>
-        <span class="k">return</span> <span class="mf">1.</span></div></div>
+        <span class="k">return</span> <span class="mf">1.0</span></div>
+</div>
 
 
-<span class="n">COVERAGE_NAME</span> <span class="o">=</span> <span class="s1">&#39;coverage&#39;</span>
+
+<span class="n">COVERAGE_NAME</span> <span class="o">=</span> <span class="s2">&quot;coverage&quot;</span>
 
 
-<div class="viewcode-block" id="DiarizationCoverage"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationCoverage">[docs]</a><span class="k">class</span> <span class="nc">DiarizationCoverage</span><span class="p">(</span><span class="n">DiarizationPurity</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Cluster coverage</span>
+<div class="viewcode-block" id="DiarizationCoverage">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationCoverage">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiarizationCoverage</span><span class="p">(</span><span class="n">DiarizationPurity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cluster coverage</span>
 
 <span class="sd">    A hypothesized annotation has perfect coverage if all segments from a</span>
-<span class="sd">    given reference label are clustered in the same cluster.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    weighted : bool, optional</span>
-<span class="sd">        When True (default), each cluster is weighted by its overall duration.</span>
-<span class="sd">    collar : float, optional</span>
-<span class="sd">        Duration (in seconds) of collars removed from evaluation around</span>
-<span class="sd">        boundaries of reference segments.</span>
-<span class="sd">    skip_overlap : bool, optional</span>
-<span class="sd">        Set to True to not evaluate overlap regions.</span>
-<span class="sd">        Defaults to False (i.e. keep overlap regions).</span>
+<span class="sd">    given reference label are assigned to the same cluster.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">COVERAGE_NAME</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">weighted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">DiarizationCoverage</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">collar</span><span class="o">=</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="n">skip_overlap</span><span class="p">,</span>
-            <span class="n">weighted</span><span class="o">=</span><span class="n">weighted</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-<div class="viewcode-block" id="DiarizationCoverage.compute_components"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationCoverage.compute_components">[docs]</a>    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">DiarizationCoverage</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>\
-            <span class="o">.</span><span class="n">compute_components</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
-
-
-<span class="n">PURITY_COVERAGE_NAME</span> <span class="o">=</span> <span class="s1">&#39;F[purity|coverage]&#39;</span>
-<span class="n">PURITY_COVERAGE_LARGEST_CLASS</span> <span class="o">=</span> <span class="s1">&#39;largest_class&#39;</span>
-<span class="n">PURITY_COVERAGE_TOTAL_CLUSTER</span> <span class="o">=</span> <span class="s1">&#39;total_cluster&#39;</span>
-<span class="n">PURITY_COVERAGE_LARGEST_CLUSTER</span> <span class="o">=</span> <span class="s1">&#39;largest_cluster&#39;</span>
-<span class="n">PURITY_COVERAGE_TOTAL_CLASS</span> <span class="o">=</span> <span class="s1">&#39;total_class&#39;</span>
+<div class="viewcode-block" id="DiarizationCoverage.compute_components">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationCoverage.compute_components">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_components</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">uem</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Timeline</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Details</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">DiarizationCoverage</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">compute_components</span><span class="p">(</span>
+            <span class="n">hypothesis</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="DiarizationPurityCoverageFMeasure"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationPurityCoverageFMeasure">[docs]</a><span class="k">class</span> <span class="nc">DiarizationPurityCoverageFMeasure</span><span class="p">(</span><span class="n">UEMSupportMixin</span><span class="p">,</span> <span class="n">BaseMetric</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Compute diarization purity and coverage, and return their F-score.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    weighted : bool, optional</span>
-<span class="sd">        When True (default), each cluster/class is weighted by its overall</span>
-<span class="sd">        duration.</span>
-<span class="sd">    collar : float, optional</span>
-<span class="sd">        Duration (in seconds) of collars removed from evaluation around</span>
-<span class="sd">        boundaries of reference segments.</span>
-<span class="sd">    skip_overlap : bool, optional</span>
-<span class="sd">        Set to True to not evaluate overlap regions.</span>
-<span class="sd">        Defaults to False (i.e. keep overlap regions).</span>
-<span class="sd">    beta : float, optional</span>
-<span class="sd">        When beta &gt; 1, greater importance is given to coverage.</span>
-<span class="sd">        When beta &lt; 1, greater importance is given to purity.</span>
-<span class="sd">        Defaults to 1.</span>
-
-<span class="sd">    See also</span>
-<span class="sd">    --------</span>
-<span class="sd">    pyannote.metrics.diarization.DiarizationPurity</span>
-<span class="sd">    pyannote.metrics.diarization.DiarizationCoverage</span>
-<span class="sd">    pyannote.metrics.base.f_measure</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">PURITY_COVERAGE_NAME</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLASS</span><span class="p">,</span>
-                <span class="n">PURITY_COVERAGE_TOTAL_CLUSTER</span><span class="p">,</span>
-                <span class="n">PURITY_COVERAGE_LARGEST_CLUSTER</span><span class="p">,</span>
-                <span class="n">PURITY_COVERAGE_TOTAL_CLASS</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">weighted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">DiarizationPurityCoverageFMeasure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">collar</span> <span class="o">=</span> <span class="n">collar</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span> <span class="o">=</span> <span class="n">skip_overlap</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">weighted</span> <span class="o">=</span> <span class="n">weighted</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">beta</span>
-
-<div class="viewcode-block" id="DiarizationPurityCoverageFMeasure.compute_components"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationPurityCoverageFMeasure.compute_components">[docs]</a>    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-
-        <span class="n">detail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_components</span><span class="p">()</span>
-
-        <span class="c1"># crop reference and hypothesis to evaluated regions (uem)</span>
-        <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uemify</span><span class="p">(</span>
-            <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
-            <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span><span class="p">)</span>
-
-        <span class="c1"># cooccurrence matrix</span>
-        <span class="n">matrix</span> <span class="o">=</span> <span class="n">reference</span> <span class="o">*</span> <span class="n">hypothesis</span>
-
-        <span class="c1"># duration of largest class in each cluster</span>
-        <span class="n">largest_class</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="c1"># duration of clusters</span>
-        <span class="n">duration_cluster</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-        <span class="c1"># duration of largest cluster in each class</span>
-        <span class="n">largest_cluster</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="c1"># duration of classes</span>
-        <span class="n">duration_class</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighted</span><span class="p">:</span>
-            <span class="c1"># compute purity components</span>
-            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLASS</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
-                <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLASS</span><span class="p">]</span> <span class="o">=</span> <span class="n">largest_class</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_TOTAL_CLUSTER</span><span class="p">]</span> <span class="o">=</span> <span class="n">duration_cluster</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-            <span class="c1"># compute coverage components</span>
-            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLUSTER</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
-                <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLUSTER</span><span class="p">]</span> <span class="o">=</span> <span class="n">largest_cluster</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_TOTAL_CLASS</span><span class="p">]</span> <span class="o">=</span> <span class="n">duration_class</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># compute purity components</span>
-            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLASS</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">largest_class</span> <span class="o">/</span> <span class="n">duration_cluster</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_TOTAL_CLUSTER</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">largest_class</span><span class="p">)</span>
-            <span class="c1"># compute coverage components</span>
-            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLUSTER</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">largest_cluster</span> <span class="o">/</span> <span class="n">duration_class</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-            <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_TOTAL_CLASS</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">largest_cluster</span><span class="p">)</span>
-
-        <span class="c1"># compute purity</span>
-        <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_NAME</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="mf">1.</span> <span class="k">if</span> <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_TOTAL_CLUSTER</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.</span> \
-            <span class="k">else</span> <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLASS</span><span class="p">]</span> <span class="o">/</span> <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_TOTAL_CLUSTER</span><span class="p">]</span>
-        <span class="c1"># compute coverage</span>
-        <span class="n">detail</span><span class="p">[</span><span class="n">COVERAGE_NAME</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="mf">1.</span> <span class="k">if</span> <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_TOTAL_CLASS</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.</span> \
-            <span class="k">else</span> <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLUSTER</span><span class="p">]</span> <span class="o">/</span> <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_TOTAL_CLASS</span><span class="p">]</span>
-
-        <span class="k">return</span> <span class="n">detail</span></div>
-
-<div class="viewcode-block" id="DiarizationPurityCoverageFMeasure.compute_metric"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationPurityCoverageFMeasure.compute_metric">[docs]</a>    <span class="k">def</span> <span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">):</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_metrics</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="n">detail</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">value</span></div>
-
-    <span class="k">def</span> <span class="nf">compute_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-
-        <span class="n">detail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">accumulated_</span> <span class="k">if</span> <span class="n">detail</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">detail</span>
-
-        <span class="n">purity</span> <span class="o">=</span> \
-            <span class="mf">1.</span> <span class="k">if</span> <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_TOTAL_CLUSTER</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.</span> \
-            <span class="k">else</span> <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLASS</span><span class="p">]</span> <span class="o">/</span> <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_TOTAL_CLUSTER</span><span class="p">]</span>
-
-        <span class="n">coverage</span> <span class="o">=</span> \
-            <span class="mf">1.</span> <span class="k">if</span> <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_TOTAL_CLASS</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.</span> \
-            <span class="k">else</span> <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_LARGEST_CLUSTER</span><span class="p">]</span> <span class="o">/</span> <span class="n">detail</span><span class="p">[</span><span class="n">PURITY_COVERAGE_TOTAL_CLASS</span><span class="p">]</span>
-
-        <span class="k">return</span> <span class="n">purity</span><span class="p">,</span> <span class="n">coverage</span><span class="p">,</span> <span class="n">f_measure</span><span class="p">(</span><span class="n">purity</span><span class="p">,</span> <span class="n">coverage</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">)</span></div>
+<span class="n">HOMOGENEITY_NAME</span> <span class="o">=</span> <span class="s2">&quot;homogeneity&quot;</span>
+<span class="n">HOMOGENEITY_ENTROPY</span> <span class="o">=</span> <span class="s2">&quot;entropy&quot;</span>
+<span class="n">HOMOGENEITY_CROSS_ENTROPY</span> <span class="o">=</span> <span class="s2">&quot;cross-entropy&quot;</span>
 
 
-<span class="n">HOMOGENEITY_NAME</span> <span class="o">=</span> <span class="s1">&#39;homogeneity&#39;</span>
-<span class="n">HOMOGENEITY_ENTROPY</span> <span class="o">=</span> <span class="s1">&#39;entropy&#39;</span>
-<span class="n">HOMOGENEITY_CROSS_ENTROPY</span> <span class="o">=</span> <span class="s1">&#39;cross-entropy&#39;</span>
-
-
-<div class="viewcode-block" id="DiarizationHomogeneity"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationHomogeneity">[docs]</a><span class="k">class</span> <span class="nc">DiarizationHomogeneity</span><span class="p">(</span><span class="n">UEMSupportMixin</span><span class="p">,</span> <span class="n">BaseMetric</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Cluster homogeneity</span>
+<div class="viewcode-block" id="DiarizationHomogeneity">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationHomogeneity">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiarizationHomogeneity</span><span class="p">(</span><span class="n">UEMSupportMixin</span><span class="p">,</span> <span class="n">BaseMetric</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cluster homogeneity</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -828,26 +674,37 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">HOMOGENEITY_NAME</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">HOMOGENEITY_ENTROPY</span><span class="p">,</span> <span class="n">HOMOGENEITY_CROSS_ENTROPY</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">DiarizationHomogeneity</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">collar</span> <span class="o">=</span> <span class="n">collar</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span> <span class="o">=</span> <span class="n">skip_overlap</span>
 
-<div class="viewcode-block" id="DiarizationHomogeneity.compute_components"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationHomogeneity.compute_components">[docs]</a>    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-
+<div class="viewcode-block" id="DiarizationHomogeneity.compute_components">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationHomogeneity.compute_components">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_components</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">uem</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Timeline</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Details</span><span class="p">:</span>
         <span class="n">detail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_components</span><span class="p">()</span>
 
         <span class="c1"># crop reference and hypothesis to evaluated regions (uem)</span>
         <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uemify</span><span class="p">(</span>
-            <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
-            <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span><span class="p">)</span>
+            <span class="n">reference</span><span class="p">,</span>
+            <span class="n">hypothesis</span><span class="p">,</span>
+            <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
+            <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span>
+            <span class="n">skip_overlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="c1"># cooccurrence matrix</span>
         <span class="n">matrix</span> <span class="o">=</span> <span class="n">reference</span> <span class="o">*</span> <span class="n">hypothesis</span>
@@ -857,34 +714,41 @@
         <span class="n">hduration</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="c1"># reference entropy and reference/hypothesis cross-entropy</span>
-        <span class="n">ratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">rduration</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="mf">0.</span><span class="p">)</span>
-        <span class="n">detail</span><span class="p">[</span><span class="n">HOMOGENEITY_ENTROPY</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">ratio</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">ratio</span><span class="p">)</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="mf">0.</span><span class="p">))</span>
+        <span class="n">ratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">rduration</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">HOMOGENEITY_ENTROPY</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">ratio</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">ratio</span><span class="p">)</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="mf">0.0</span><span class="p">))</span>
 
-        <span class="n">ratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="mf">0.</span><span class="p">)</span>
-        <span class="n">hratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">hduration</span><span class="p">)</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="mf">0.</span><span class="p">)</span>
-        <span class="n">detail</span><span class="p">[</span><span class="n">HOMOGENEITY_CROSS_ENTROPY</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">ratio</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">hratio</span><span class="p">)</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="mf">0.</span><span class="p">))</span>
+        <span class="n">ratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">hratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">hduration</span><span class="p">)</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">HOMOGENEITY_CROSS_ENTROPY</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+            <span class="n">ratio</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">hratio</span><span class="p">)</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">detail</span></div>
 
-<div class="viewcode-block" id="DiarizationHomogeneity.compute_metric"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationHomogeneity.compute_metric">[docs]</a>    <span class="k">def</span> <span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">):</span>
-        <span class="n">numerator</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">*</span> <span class="n">detail</span><span class="p">[</span><span class="n">HOMOGENEITY_CROSS_ENTROPY</span><span class="p">]</span>
-        <span class="n">denominator</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">*</span> <span class="n">detail</span><span class="p">[</span><span class="n">HOMOGENEITY_ENTROPY</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">denominator</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+
+<div class="viewcode-block" id="DiarizationHomogeneity.compute_metric">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationHomogeneity.compute_metric">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">):</span>
+        <span class="n">numerator</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">detail</span><span class="p">[</span><span class="n">HOMOGENEITY_CROSS_ENTROPY</span><span class="p">]</span>
+        <span class="n">denominator</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">detail</span><span class="p">[</span><span class="n">HOMOGENEITY_ENTROPY</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">denominator</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">numerator</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">return</span> <span class="mf">1.</span>
+                <span class="k">return</span> <span class="mf">1.0</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="mf">0.</span>
+                <span class="k">return</span> <span class="mf">0.0</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mf">1.</span> <span class="o">-</span> <span class="n">numerator</span> <span class="o">/</span> <span class="n">denominator</span></div></div>
+            <span class="k">return</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">numerator</span> <span class="o">/</span> <span class="n">denominator</span></div>
+</div>
 
 
-<span class="n">COMPLETENESS_NAME</span> <span class="o">=</span> <span class="s1">&#39;completeness&#39;</span>
+
+<span class="n">COMPLETENESS_NAME</span> <span class="o">=</span> <span class="s2">&quot;completeness&quot;</span>
 
 
-<div class="viewcode-block" id="DiarizationCompleteness"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationCompleteness">[docs]</a><span class="k">class</span> <span class="nc">DiarizationCompleteness</span><span class="p">(</span><span class="n">DiarizationHomogeneity</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Cluster completeness</span>
+<div class="viewcode-block" id="DiarizationCompleteness">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationCompleteness">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiarizationCompleteness</span><span class="p">(</span><span class="n">DiarizationHomogeneity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cluster completeness</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -898,51 +762,50 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">COMPLETENESS_NAME</span>
 
-<div class="viewcode-block" id="DiarizationCompleteness.compute_components"><a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationCompleteness.compute_components">[docs]</a>    <span class="k">def</span> <span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">DiarizationCompleteness</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>\
-            <span class="o">.</span><span class="n">compute_components</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="DiarizationCompleteness.compute_components">
+<a class="viewcode-back" href="../../../reference.html#pyannote.metrics.diarization.DiarizationCompleteness.compute_components">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_components</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">uem</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Timeline</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Details</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">DiarizationCompleteness</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">compute_components</span><span class="p">(</span>
+            <span class="n">hypothesis</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span></div>
+</div>
+
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2017, CNRS
-
-    </p>
+    <p>&#169; Copyright 2017, CNRS.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

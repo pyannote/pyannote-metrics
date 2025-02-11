@@ -1,89 +1,45 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pyannote.metrics.errors.identification &mdash; pyannote.metrics 3.2 documentation</title>
-  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyannote.metrics.errors.identification &mdash; pyannote.metrics 4.0.0rc2.dev0+g5c71b8e.d20250211 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
 
   
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../../_static/plot_directive.css" type="text/css" />
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=e143508c"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../../../../index.html" class="icon icon-home"> pyannote.metrics
           
-
-          
+          <a href="../../../../index.html" class="icon icon-home">
+            pyannote.metrics
           </a>
-
-          
-            
-            
-              <div class="version">
-                3.2
-              </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../api.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">Command line tool</a></li>
@@ -93,66 +49,30 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../changelog.html">Changelog</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../../index.html">pyannote.metrics</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
-        
-          <li><a href="../../../index.html">Module code</a> &raquo;</li>
-        
-      <li>pyannote.metrics.errors.identification</li>
-    
-    
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyannote.metrics.errors.identification</li>
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for pyannote.metrics.errors.identification</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python</span>
 <span class="c1"># encoding: utf-8</span>
@@ -182,17 +102,19 @@
 <span class="c1"># AUTHORS</span>
 <span class="c1"># Hervé BREDIN - http://herve.niderb.fr</span>
 <span class="c1"># Benjamin MAURICE - maurice@limsi.fr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">linear_sum_assignment</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyannote.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">Timeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">linear_sum_assignment</span>
 
-<span class="kn">from</span> <span class="nn">..matcher</span> <span class="kn">import</span> <span class="n">LabelMatcher</span>
-<span class="kn">from</span> <span class="nn">pyannote.core</span> <span class="kn">import</span> <span class="n">Annotation</span>
-
-<span class="kn">from</span> <span class="nn">..matcher</span> <span class="kn">import</span> <span class="n">MATCH_CORRECT</span><span class="p">,</span> <span class="n">MATCH_CONFUSION</span><span class="p">,</span> \
+<span class="kn">from</span><span class="w"> </span><span class="nn">..identification</span><span class="w"> </span><span class="kn">import</span> <span class="n">UEMSupportMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..matcher</span><span class="w"> </span><span class="kn">import</span> <span class="n">LabelMatcher</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..matcher</span><span class="w"> </span><span class="kn">import</span> <span class="n">MATCH_CORRECT</span><span class="p">,</span> <span class="n">MATCH_CONFUSION</span><span class="p">,</span> \
     <span class="n">MATCH_MISSED_DETECTION</span><span class="p">,</span> <span class="n">MATCH_FALSE_ALARM</span>
 
-<span class="kn">from</span> <span class="nn">..identification</span> <span class="kn">import</span> <span class="n">UEMSupportMixin</span>
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataArray</span>
 
 <span class="n">REFERENCE_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;reference&#39;</span>
 <span class="n">HYPOTHESIS_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;hypothesis&#39;</span>
@@ -203,8 +125,10 @@
 <span class="n">BOTH_INCORRECT</span> <span class="o">=</span> <span class="s1">&#39;both_incorrect&#39;</span>
 
 
-<div class="viewcode-block" id="IdentificationErrorAnalysis"><a class="viewcode-back" href="../../../../reference.html#pyannote.metrics.errors.identification.IdentificationErrorAnalysis">[docs]</a><span class="k">class</span> <span class="nc">IdentificationErrorAnalysis</span><span class="p">(</span><span class="n">UEMSupportMixin</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="IdentificationErrorAnalysis">
+<a class="viewcode-back" href="../../../../reference.html#pyannote.metrics.errors.identification.IdentificationErrorAnalysis">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IdentificationErrorAnalysis</span><span class="p">(</span><span class="n">UEMSupportMixin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -216,15 +140,21 @@
 <span class="sd">        Defaults to False (i.e. keep overlap regions).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 
-        <span class="nb">super</span><span class="p">(</span><span class="n">IdentificationErrorAnalysis</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">matcher</span> <span class="o">=</span> <span class="n">LabelMatcher</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">collar</span> <span class="o">=</span> <span class="n">collar</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span> <span class="o">=</span> <span class="n">skip_overlap</span>
 
-<div class="viewcode-block" id="IdentificationErrorAnalysis.difference"><a class="viewcode-back" href="../../../../reference.html#pyannote.metrics.errors.identification.IdentificationErrorAnalysis.difference">[docs]</a>    <span class="k">def</span> <span class="nf">difference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">uemified</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get error analysis as `Annotation`</span>
+<div class="viewcode-block" id="IdentificationErrorAnalysis.difference">
+<a class="viewcode-back" href="../../../../reference.html#pyannote.metrics.errors.identification.IdentificationErrorAnalysis.difference">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">difference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                   <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+                   <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+                   <span class="n">uem</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Timeline</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                   <span class="n">uemified</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get error analysis as `Annotation`</span>
 
 <span class="sd">        Labels are (status, reference_label, hypothesis_label) tuples.</span>
 <span class="sd">        `status` is either &#39;correct&#39;, &#39;confusion&#39;, &#39;missed detection&#39; or</span>
@@ -284,12 +214,19 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">errors</span></div>
 
-    <span class="k">def</span> <span class="nf">_match_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_match_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">):</span>
         <span class="n">b_type</span><span class="p">,</span> <span class="n">b_ref</span><span class="p">,</span> <span class="n">b_hyp</span> <span class="o">=</span> <span class="n">before</span>
         <span class="n">a_type</span><span class="p">,</span> <span class="n">a_ref</span><span class="p">,</span> <span class="n">a_hyp</span> <span class="o">=</span> <span class="n">after</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">b_ref</span> <span class="o">==</span> <span class="n">a_ref</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">b_type</span> <span class="o">==</span> <span class="n">a_type</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">b_hyp</span> <span class="o">==</span> <span class="n">a_hyp</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">regression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">uemified</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="c1"># TODO : return type</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">regression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                   <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+                   <span class="n">before</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+                   <span class="n">after</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+                   <span class="n">uem</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Timeline</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                   <span class="n">uemified</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 
         <span class="n">_</span><span class="p">,</span> <span class="n">before</span><span class="p">,</span> <span class="n">errors_before</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span>
             <span class="n">reference</span><span class="p">,</span> <span class="n">before</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span> <span class="n">uemified</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -379,7 +316,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">behaviors</span>
 
-    <span class="k">def</span> <span class="nf">matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+               <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+               <span class="n">uem</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Timeline</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;DataArray&#39;</span><span class="p">:</span>
 
         <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">errors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span>
             <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span> <span class="n">uemified</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -408,15 +348,15 @@
 
         <span class="c1"># prepend duration columns before the detailed confusion matrix</span>
         <span class="n">hLabels</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">REFERENCE_TOTAL</span><span class="p">,</span> <span class="n">HYPOTHESIS_TOTAL</span><span class="p">,</span>
-            <span class="n">MATCH_CORRECT</span><span class="p">,</span> <span class="n">MATCH_CONFUSION</span><span class="p">,</span>
-            <span class="n">MATCH_FALSE_ALARM</span><span class="p">,</span> <span class="n">MATCH_MISSED_DETECTION</span>
-        <span class="p">]</span> <span class="o">+</span> <span class="n">hLabels</span>
+                      <span class="n">REFERENCE_TOTAL</span><span class="p">,</span> <span class="n">HYPOTHESIS_TOTAL</span><span class="p">,</span>
+                      <span class="n">MATCH_CORRECT</span><span class="p">,</span> <span class="n">MATCH_CONFUSION</span><span class="p">,</span>
+                      <span class="n">MATCH_FALSE_ALARM</span><span class="p">,</span> <span class="n">MATCH_MISSED_DETECTION</span>
+                  <span class="p">]</span> <span class="o">+</span> <span class="n">hLabels</span>
 
         <span class="c1"># initialize empty matrix</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">xarray</span> <span class="kn">import</span> <span class="n">DataArray</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataArray</span>
         <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="s2">&quot;Please install xarray dependency to use class &quot;</span>
@@ -471,45 +411,34 @@
             <span class="n">matrix</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">rLabel</span><span class="p">,</span> <span class="n">HYPOTHESIS_TOTAL</span><span class="p">]</span> <span class="o">=</span> <span class="n">h</span>
 
         <span class="k">return</span> <span class="n">matrix</span></div>
+
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2017, CNRS
-
-    </p>
+    <p>&#169; Copyright 2017, CNRS.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

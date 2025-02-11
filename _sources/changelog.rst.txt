@@ -2,6 +2,25 @@
 Changelog
 #########
 
+Version 4.0.0rc1 (2025-02-11)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- BREAKING: drop support to `Python` < 3.10
+- BREAKING: switch to native namespace package 
+- setup: switch to `uv`
+
+Version 3.3.0 (2025-01-12)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- BREAKING: improve diarization purity and coverage to account for overlapping regions
+- chore: use `bool` instead of deprecated `np.bool`
+
+Version 3.2.1 (2022-06-20)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- fix: fix corner case for confidence interval
+- doc: add type hinting (@hadware)
+
 Version 3.2 (2022-01-12)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
