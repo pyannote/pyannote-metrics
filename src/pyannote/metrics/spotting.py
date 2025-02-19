@@ -166,8 +166,8 @@ class LowLatencySpeakerSpotting(BaseMetric):
                           **kwargs) -> Details:
 
         # pre-compute latencies
-        speaker_latency = np.NAN * np.ones((len(timestamps), 1))
-        absolute_latency = np.NAN * np.ones((len(timestamps), 1))
+        speaker_latency = np.nan * np.ones((len(timestamps), 1))
+        absolute_latency = np.nan * np.ones((len(timestamps), 1))
         if isinstance(reference, Annotation):
             reference = reference.get_timeline(copy=False)
         if reference:
@@ -206,8 +206,8 @@ class LowLatencySpeakerSpotting(BaseMetric):
             target_trial = False
 
             # the notion of "latency" is not applicable to non-target trials
-            absolute_latency = np.NAN
-            speaker_latency = np.NAN
+            absolute_latency = np.nan
+            speaker_latency = np.nan
 
         return {
             SPOTTING_TARGET: target_trial,

@@ -2,9 +2,10 @@
 Changelog
 #########
 
-Version 4.0.0rc1 (2025-02-11)
+Version 4.0.0rc2 (2025-02-19)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+- fix: remove deprecated use of `np.NaN`
 - BREAKING: drop support to `Python` < 3.10
 - BREAKING: switch to native namespace package 
 - setup: switch to `uv`
