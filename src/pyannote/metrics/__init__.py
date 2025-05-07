@@ -29,6 +29,7 @@
 from .base import f_measure
 
 import importlib.metadata
+
 __version__ = importlib.metadata.version("pyannote-metrics")
 
 __all__ = ["f_measure"]

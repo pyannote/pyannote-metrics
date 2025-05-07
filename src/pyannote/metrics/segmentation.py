@@ -39,22 +39,22 @@ from .types import MetricComponents, Details
 from .utils import UEMSupportMixin
 
 #  TODO: can't we put these as class attributes?
-PURITY_NAME = 'segmentation purity'
-COVERAGE_NAME = 'segmentation coverage'
-PURITY_COVERAGE_NAME = 'segmentation F[purity|coverage]'
-PTY_CVG_TOTAL = 'total duration'
-PTY_CVG_INTER = 'intersection duration'
+PURITY_NAME = "segmentation purity"
+COVERAGE_NAME = "segmentation coverage"
+PURITY_COVERAGE_NAME = "segmentation F[purity|coverage]"
+PTY_CVG_TOTAL = "total duration"
+PTY_CVG_INTER = "intersection duration"
 
-PTY_TOTAL = 'pty total duration'
-PTY_INTER = 'pty intersection duration'
-CVG_TOTAL = 'cvg total duration'
-CVG_INTER = 'cvg intersection duration'
+PTY_TOTAL = "pty total duration"
+PTY_INTER = "pty intersection duration"
+CVG_TOTAL = "cvg total duration"
+CVG_INTER = "cvg intersection duration"
 
-PRECISION_NAME = 'segmentation precision'
-RECALL_NAME = 'segmentation recall'
+PRECISION_NAME = "segmentation precision"
+RECALL_NAME = "segmentation recall"
 
-PR_BOUNDARIES = 'number of boundaries'
-PR_MATCHES = 'number of matches'
+PR_BOUNDARIES = "number of boundaries"
+PR_MATCHES = "number of matches"
 
 
 class SegmentationCoverage(BaseMetric):
@@ -72,9 +72,7 @@ class SegmentationCoverage(BaseMetric):
         super().__init__(**kwargs)
         self.tolerance = tolerance
 
-    def _partition(self,
-                   timeline: Timeline,
-                   coverage: Timeline) -> Annotation:
+    def _partition(self, timeline: Timeline, coverage: Timeline) -> Annotation:
 
         # boundaries (as set of timestamps)
         boundaries = set([])
@@ -86,16 +84,16 @@ class SegmentationCoverage(BaseMetric):
         partition = Annotation()
         for start, end in pairwise(sorted(boundaries)):
             segment = Segment(start, end)
-            partition[segment] = '_'
+            partition[segment] = "_"
 
-        return partition.crop(coverage, mode='intersection').relabel_tracks()
+        return partition.crop(coverage, mode="intersection").relabel_tracks()
 
-    def _preprocess(self, reference: Annotation,
-                    hypothesis: Union[Annotation, Timeline]) \
-            -> Tuple[Annotation, Annotation]:
+    def _preprocess(
+        self, reference: Annotation, hypothesis: Union[Annotation, Timeline]
+    ) -> Tuple[Annotation, Annotation]:
 
         if not isinstance(reference, Annotation):
-            raise TypeError('reference must be an instance of `Annotation`')
+            raise TypeError("reference must be an instance of `Annotation`")
 
         if isinstance(hypothesis, Annotation):
             hypothesis: Timeline = hypothesis.get_timeline()
@@ -138,8 +136,9 @@ class SegmentationCoverage(BaseMetric):
     def metric_components(cls) -> MetricComponents:
         return [PTY_CVG_TOTAL, PTY_CVG_INTER]
 
-    def compute_components(self, reference: Annotation,
-                           hypothesis: Union[Annotation, Timeline], **kwargs):
+    def compute_components(
+        self, reference: Annotation, hypothesis: Union[Annotation, Timeline], **kwargs
+    ):
         reference, hypothesis = self._preprocess(reference, hypothesis)
         return self._process(reference, hypothesis)
 
@@ -163,9 +162,9 @@ class SegmentationPurity(SegmentationCoverage):
         return PURITY_NAME
 
     # TODO : Use type from parent class
-    def compute_components(self, reference: Annotation,
-                           hypothesis: Union[Annotation, Timeline],
-                           **kwargs) -> Details:
+    def compute_components(
+        self, reference: Annotation, hypothesis: Union[Annotation, Timeline], **kwargs
+    ) -> Details:
         reference, hypothesis = self._preprocess(reference, hypothesis)
         return self._process(hypothesis, reference)
 
@@ -194,11 +193,14 @@ class SegmentationPurityCoverageFMeasure(SegmentationCoverage):
     """
 
     def __init__(self, tolerance=0.500, beta=1, **kwargs):
-        super(SegmentationPurityCoverageFMeasure, self).__init__(tolerance=tolerance, **kwargs)
+        super(SegmentationPurityCoverageFMeasure, self).__init__(
+            tolerance=tolerance, **kwargs
+        )
         self.beta = beta
 
-    def _process(self, reference: Annotation,
-                 hypothesis: Union[Annotation, Timeline]) -> Details:
+    def _process(
+        self, reference: Annotation, hypothesis: Union[Annotation, Timeline]
+    ) -> Details:
         reference, hypothesis = self._preprocess(reference, hypothesis)
 
         detail = self.init_components()
@@ -214,26 +216,27 @@ class SegmentationPurityCoverageFMeasure(SegmentationCoverage):
 
         return detail
 
-    def compute_components(self, reference: Annotation,
-                           hypothesis: Union[Annotation, Timeline],
-                           **kwargs) -> Details:
+    def compute_components(
+        self, reference: Annotation, hypothesis: Union[Annotation, Timeline], **kwargs
+    ) -> Details:
         return self._process(reference, hypothesis)
 
     def compute_metric(self, detail: Details) -> float:
         _, _, value = self.compute_metrics(detail=detail)
         return value
 
-    def compute_metrics(self, detail: Optional[Details] = None) \
-            -> Tuple[float, float, float]:
+    def compute_metrics(
+        self, detail: Optional[Details] = None
+    ) -> Tuple[float, float, float]:
         detail = self.accumulated_ if detail is None else detail
 
-        purity = \
-            1. if detail[PTY_TOTAL] == 0. \
-                else detail[PTY_INTER] / detail[PTY_TOTAL]
+        purity = (
+            1.0 if detail[PTY_TOTAL] == 0.0 else detail[PTY_INTER] / detail[PTY_TOTAL]
+        )
 
-        coverage = \
-            1. if detail[CVG_TOTAL] == 0. \
-                else detail[CVG_INTER] / detail[CVG_TOTAL]
+        coverage = (
+            1.0 if detail[CVG_TOTAL] == 0.0 else detail[CVG_INTER] / detail[CVG_TOTAL]
+        )
 
         return purity, coverage, f_measure(purity, coverage, beta=self.beta)
 
@@ -281,15 +284,17 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
     def metric_components(cls):
         return [PR_MATCHES, PR_BOUNDARIES]
 
-    def __init__(self, tolerance=0., **kwargs):
+    def __init__(self, tolerance=0.0, **kwargs):
 
         super().__init__(**kwargs)
         self.tolerance = tolerance
 
-    def compute_components(self,
-                           reference: Union[Annotation, Timeline],
-                           hypothesis: Union[Annotation, Timeline],
-                           **kwargs) -> Details:
+    def compute_components(
+        self,
+        reference: Union[Annotation, Timeline],
+        hypothesis: Union[Annotation, Timeline],
+        **kwargs,
+    ) -> Details:
 
         # extract timeline if needed
         if isinstance(reference, Annotation):
@@ -300,7 +305,7 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
         detail = self.init_components()
 
         # number of matches so far...
-        n_matches = 0.  # make sure it is a float (for later ratio)
+        n_matches = 0.0  # make sure it is a float (for later ratio)
 
         # number of boundaries in reference and hypothesis
         N = len(reference) - 1
@@ -311,7 +316,7 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
 
         # corner case (no boundary in hypothesis or in reference)
         if M == 0 or N == 0:
-            detail[PR_MATCHES] = 0.
+            detail[PR_MATCHES] = 0.0
             return detail
 
         # reference and hypothesis boundaries
@@ -357,11 +362,11 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
         numerator = detail[PR_MATCHES]
         denominator = detail[PR_BOUNDARIES]
 
-        if denominator == 0.:
+        if denominator == 0.0:
             if numerator == 0:
-                return 1.
+                return 1.0
             else:
-                raise ValueError('')
+                raise ValueError("")
         else:
             return numerator / denominator
 
@@ -397,8 +402,10 @@ class SegmentationRecall(SegmentationPrecision):
     def metric_name(cls):
         return RECALL_NAME
 
-    def compute_components(self, reference: Union[Annotation, Timeline],
-                           hypothesis: Union[Annotation, Timeline],
-                           **kwargs) -> Details:
-        return super(SegmentationRecall, self).compute_components(
-            hypothesis, reference)
+    def compute_components(
+        self,
+        reference: Union[Annotation, Timeline],
+        hypothesis: Union[Annotation, Timeline],
+        **kwargs,
+    ) -> Details:
+        return super(SegmentationRecall, self).compute_components(hypothesis, reference)
