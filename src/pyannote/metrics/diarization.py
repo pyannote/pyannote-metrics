@@ -676,8 +676,8 @@ class OverlappedDiarizationErrorRate(BaseMetric):
     def __init__(self, collar: float = 0.0):
         super().__init__()
 
-        self.der_ovl = DiarizationErrorRate(collar=collar, skip_overlap=False)
-        self.der_nonovl = DiarizationErrorRate(collar=collar, skip_overlap=False)
+        self.der_ovl = IdentificationErrorRate(collar=collar, skip_overlap=False)
+        self.der_nonovl = IdentificationErrorRate(collar=collar, skip_overlap=False)
 
     @classmethod
     def metric_components(cls) -> MetricComponents:
