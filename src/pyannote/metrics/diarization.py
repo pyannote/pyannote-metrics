@@ -676,8 +676,8 @@ class OverlappedDiarizationErrorRate(BaseMetric):
     def __init__(self, collar: float = 0.0):
         super().__init__()
 
-        self.der_ovl = IdentificationErrorRate(collar=collar, skip_overlap=False)
-        self.der_nonovl = IdentificationErrorRate(collar=collar, skip_overlap=False)
+        self.ier_ovl = IdentificationErrorRate(collar=collar, skip_overlap=False)
+        self.ier_nonovl = IdentificationErrorRate(collar=collar, skip_overlap=False)
 
     @classmethod
     def metric_components(cls) -> MetricComponents:
@@ -719,10 +719,10 @@ class OverlappedDiarizationErrorRate(BaseMetric):
         ovl_regions: Timeline = uem.crop(overlap)
 
         # update internal metrics for (non-)overlapping errors
-        comps_nonovl = self.der_nonovl.compute_components(
+        comps_nonovl = self.ier_nonovl.compute_components(
             reference, hypothesis, uem=nonovl_regions
         )
-        comps_ovl = self.der_ovl.compute_components(
+        comps_ovl = self.ier_ovl.compute_components(
             reference, hypothesis, uem=ovl_regions
         )
 
