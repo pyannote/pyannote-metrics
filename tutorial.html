@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tutorial &mdash; pyannote.metrics 4.0.0rc3.dev0+g3b47364.d20250219 documentation</title>
+  <title>Tutorial &mdash; pyannote.metrics 4.0.1.dev0+g304c107ca.d20250909 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=7acd839f"></script>
+      <script src="_static/documentation_options.js?v=cb81b028"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -84,7 +84,7 @@
   <section id="tutorial">
 <h1>Tutorial<a class="headerlink" href="#tutorial" title="Link to this heading"></a></h1>
 <p>This tutorial will guide you through a simple example on how to use <cite>pyannote.metrics</cite> for evaluation purposes.</p>
-<p><cite>pyannote.metrics</cite> internally relies on <a class="reference external" href="https://pyannote.github.io/pyannote-core/reference.html#pyannote.core.Annotation" title="(in pyannote.core v6.0.0rc1.post2.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.core.Annotation</span></code></a> data structure to store reference and hypothesis annotations.</p>
+<p><cite>pyannote.metrics</cite> internally relies on <a class="reference external" href="https://pyannote.github.io/pyannote-core/reference.html#pyannote.core.Annotation" title="(in pyannote.core v6.0.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.core.Annotation</span></code></a> data structure to store reference and hypothesis annotations.</p>
 <p>(<a class="reference download internal" download="" href="_downloads/1991325ffea62f458b35efd8c823b43e/tutorial.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>)</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span><span class="w"> </span><span class="nn">pyannote.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Segment</span><span class="p">,</span> <span class="n">Timeline</span><span class="p">,</span> <span class="n">Annotation</span>
 
