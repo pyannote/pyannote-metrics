@@ -35,8 +35,11 @@ class SegmentationErrorAnalysis:
     def __init__(self):
         super().__init__()
 
-    def __call__(self, reference: Union[Timeline, Annotation],
-                 hypothesis: Union[Timeline, Annotation]) -> Annotation:
+    def __call__(
+        self,
+        reference: Union[Timeline, Annotation],
+        hypothesis: Union[Timeline, Annotation],
+    ) -> Annotation:
 
         if isinstance(reference, Annotation):
             reference = reference.get_timeline()
@@ -100,10 +103,10 @@ class SegmentationErrorAnalysis:
 
         status = Annotation(uri=reference.uri)
         for segment in frontier:
-            status[segment, '_'] = 'shift'
+            status[segment, "_"] = "shift"
         for segment in only_over:
-            status[segment, '_'] = 'over-segmentation'
+            status[segment, "_"] = "over-segmentation"
         for segment in only_under:
-            status[segment, '_'] = 'under-segmentation'
+            status[segment, "_"] = "under-segmentation"
 
         return status.support()

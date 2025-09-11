@@ -32,9 +32,14 @@ from pyannote.core import Annotation, Timeline
 from .base import BaseMetric
 from .base import Precision, PRECISION_RETRIEVED, PRECISION_RELEVANT_RETRIEVED
 from .base import Recall, RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED
-from .matcher import LabelMatcher, \
-    MATCH_TOTAL, MATCH_CORRECT, MATCH_CONFUSION, \
-    MATCH_MISSED_DETECTION, MATCH_FALSE_ALARM
+from .matcher import (
+    LabelMatcher,
+    MATCH_TOTAL,
+    MATCH_CORRECT,
+    MATCH_CONFUSION,
+    MATCH_MISSED_DETECTION,
+    MATCH_FALSE_ALARM,
+)
 from .types import MetricComponents, Details
 from .utils import UEMSupportMixin
 
@@ -44,7 +49,7 @@ IER_CORRECT = MATCH_CORRECT
 IER_CONFUSION = MATCH_CONFUSION
 IER_FALSE_ALARM = MATCH_FALSE_ALARM
 IER_MISS = MATCH_MISSED_DETECTION
-IER_NAME = 'identification error rate'
+IER_NAME = "identification error rate"
 
 
 class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
@@ -78,19 +83,17 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
 
     @classmethod
     def metric_components(cls) -> MetricComponents:
-        return [
-            IER_TOTAL,
-            IER_CORRECT,
-            IER_FALSE_ALARM, IER_MISS,
-            IER_CONFUSION]
+        return [IER_TOTAL, IER_CORRECT, IER_FALSE_ALARM, IER_MISS, IER_CONFUSION]
 
-    def __init__(self,
-                 confusion: float = 1.,
-                 miss: float = 1.,
-                 false_alarm: float = 1.,
-                 collar: float = 0.,
-                 skip_overlap: bool = False,
-                 **kwargs):
+    def __init__(
+        self,
+        confusion: float = 1.0,
+        miss: float = 1.0,
+        false_alarm: float = 1.0,
+        collar: float = 0.0,
+        skip_overlap: bool = False,
+        **kwargs,
+    ):
 
         super().__init__(**kwargs)
         self.matcher_ = LabelMatcher()
@@ -100,13 +103,15 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
         self.collar = collar
         self.skip_overlap = skip_overlap
 
-    def compute_components(self,
-                           reference: Annotation,
-                           hypothesis: Annotation,
-                           uem: Optional[Timeline] = None,
-                           collar: Optional[float] = None,
-                           skip_overlap: Optional[float] = None,
-                           **kwargs) -> Details:
+    def compute_components(
+        self,
+        reference: Annotation,
+        hypothesis: Annotation,
+        uem: Optional[Timeline] = None,
+        collar: Optional[float] = None,
+        skip_overlap: Optional[float] = None,
+        **kwargs,
+    ) -> Details:
         """
 
         Parameters
@@ -131,9 +136,13 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
             skip_overlap = self.skip_overlap
 
         R, H, common_timeline = self.uemify(
-            reference, hypothesis, uem=uem,
-            collar=collar, skip_overlap=skip_overlap,
-            returns_timeline=True)
+            reference,
+            hypothesis,
+            uem=uem,
+            collar=collar,
+            skip_overlap=skip_overlap,
+            returns_timeline=True,
+        )
 
         # loop on all segments
         for segment in common_timeline:
@@ -158,17 +167,17 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
 
     def compute_metric(self, detail: Details) -> float:
 
-        numerator = 1. * (
-                self.confusion * detail[IER_CONFUSION] +
-                self.false_alarm * detail[IER_FALSE_ALARM] +
-                self.miss * detail[IER_MISS]
+        numerator = 1.0 * (
+            self.confusion * detail[IER_CONFUSION]
+            + self.false_alarm * detail[IER_FALSE_ALARM]
+            + self.miss * detail[IER_MISS]
         )
-        denominator = 1. * detail[IER_TOTAL]
-        if denominator == 0.:
+        denominator = 1.0 * detail[IER_TOTAL]
+        if denominator == 0.0:
             if numerator == 0:
-                return 0.
+                return 0.0
             else:
-                return 1.
+                return 1.0
         else:
             return numerator / denominator
 
@@ -186,23 +195,29 @@ class IdentificationPrecision(UEMSupportMixin, Precision):
         Defaults to False (i.e. keep overlap regions).
     """
 
-    def __init__(self, collar: float = 0., skip_overlap: bool = False, **kwargs):
+    def __init__(self, collar: float = 0.0, skip_overlap: bool = False, **kwargs):
         super().__init__(**kwargs)
         self.collar = collar
         self.skip_overlap = skip_overlap
         self.matcher_ = LabelMatcher()
 
-    def compute_components(self,
-                           reference: Annotation,
-                           hypothesis: Annotation,
-                           uem: Optional[Timeline] = None,
-                           **kwargs) -> Details:
+    def compute_components(
+        self,
+        reference: Annotation,
+        hypothesis: Annotation,
+        uem: Optional[Timeline] = None,
+        **kwargs,
+    ) -> Details:
         detail = self.init_components()
 
         R, H, common_timeline = self.uemify(
-            reference, hypothesis, uem=uem,
-            collar=self.collar, skip_overlap=self.skip_overlap,
-            returns_timeline=True)
+            reference,
+            hypothesis,
+            uem=uem,
+            collar=self.collar,
+            skip_overlap=self.skip_overlap,
+            returns_timeline=True,
+        )
 
         # loop on all segments
         for segment in common_timeline:
@@ -218,8 +233,7 @@ class IdentificationPrecision(UEMSupportMixin, Precision):
             counts, _ = self.matcher_(r, h)
 
             detail[PRECISION_RETRIEVED] += duration * len(h)
-            detail[PRECISION_RELEVANT_RETRIEVED] += \
-                duration * counts[IER_CORRECT]
+            detail[PRECISION_RELEVANT_RETRIEVED] += duration * counts[IER_CORRECT]
 
         return detail
 
@@ -237,23 +251,29 @@ class IdentificationRecall(UEMSupportMixin, Recall):
         Defaults to False (i.e. keep overlap regions).
     """
 
-    def __init__(self, collar: float = 0., skip_overlap: bool = False, **kwargs):
+    def __init__(self, collar: float = 0.0, skip_overlap: bool = False, **kwargs):
         super().__init__(**kwargs)
         self.collar = collar
         self.skip_overlap = skip_overlap
         self.matcher_ = LabelMatcher()
 
-    def compute_components(self,
-                           reference: Annotation,
-                           hypothesis: Annotation,
-                           uem: Optional[Timeline] = None,
-                           **kwargs) -> Details:
+    def compute_components(
+        self,
+        reference: Annotation,
+        hypothesis: Annotation,
+        uem: Optional[Timeline] = None,
+        **kwargs,
+    ) -> Details:
         detail = self.init_components()
 
         R, H, common_timeline = self.uemify(
-            reference, hypothesis, uem=uem,
-            collar=self.collar, skip_overlap=self.skip_overlap,
-            returns_timeline=True)
+            reference,
+            hypothesis,
+            uem=uem,
+            collar=self.collar,
+            skip_overlap=self.skip_overlap,
+            returns_timeline=True,
+        )
 
         # loop on all segments
         for segment in common_timeline:

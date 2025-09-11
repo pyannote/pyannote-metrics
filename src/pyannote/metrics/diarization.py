@@ -41,11 +41,23 @@ from .matcher import HungarianMapper
 from .types import Details, MetricComponents
 from .utils import UEMSupportMixin
 
+from .matcher import (
+    LabelMatcher,
+    MATCH_TOTAL,
+    MATCH_CORRECT,
+    MATCH_CONFUSION,
+    MATCH_MISSED_DETECTION,
+    MATCH_FALSE_ALARM,
+)
+
 if TYPE_CHECKING:
     pass
 
 # TODO: can't we put these as class attributes?
 DER_NAME = "diarization error rate"
+
+OVLDER_PREFIX_OVL = "ovl"
+OVLDER_PREFIX_NONOVL = "nonovl"
 
 
 class DiarizationErrorRate(IdentificationErrorRate):
@@ -646,3 +658,96 @@ class DiarizationCompleteness(DiarizationHomogeneity):
         return super(DiarizationCompleteness, self).compute_components(
             hypothesis, reference, uem=uem, **kwargs
         )
+
+
+class OverlappedDiarizationErrorRate(BaseMetric):
+    """Diarization error rate with details for overlap and non-overlap errors.
+    Error components will be prefixed with 'ovl' or 'nonovl' (e.g. 'ovl false alarm')
+
+    Parameters
+    ----------
+    collar : float, optional
+        Duration (in seconds) of collars removed from evaluation around
+        boundaries of reference segments.
+    """
+
+    OVDER_NAME = "diarization error rate"
+
+    def __init__(self, collar: float = 0.0):
+        super().__init__()
+
+        self.ier_ovl = IdentificationErrorRate(collar=collar, skip_overlap=False)
+        self.ier_nonovl = IdentificationErrorRate(collar=collar, skip_overlap=False)
+
+    @classmethod
+    def metric_components(cls) -> MetricComponents:
+        comps = []
+        for ovl in [OVLDER_PREFIX_NONOVL, OVLDER_PREFIX_OVL]:
+            for comp in [
+                MATCH_TOTAL,
+                MATCH_CORRECT,
+                MATCH_CONFUSION,
+                MATCH_MISSED_DETECTION,
+                MATCH_FALSE_ALARM,
+            ]:
+                comps.append(f"{ovl} {comp}")
+        return comps
+
+    @classmethod
+    def metric_name(cls) -> str:
+        return cls.OVDER_NAME
+
+    def compute_components(
+        self, reference: Annotation, hypothesis: Annotation, uem: Timeline | None = None
+    ) -> Details:
+
+        # map 'hypothesis' labels to 'reference' labels
+        mapping: dict = DiarizationErrorRate().optimal_mapping(
+            reference, hypothesis, uem=uem
+        )
+        hypothesis = hypothesis.rename_labels(mapping)
+
+        # split uem into non-overlapping and overlapping regions
+        overlap: Timeline = reference.get_overlap()
+        if uem is None:
+            uem = (
+                reference.support()
+                .get_timeline()
+                .union(hypothesis.support().get_timeline())
+            )
+        nonovl_regions: Timeline = uem.extrude(overlap)
+        ovl_regions: Timeline = uem.crop(overlap)
+
+        # update internal metrics for (non-)overlapping errors
+        comps_nonovl = self.ier_nonovl.compute_components(
+            reference, hypothesis, uem=nonovl_regions
+        )
+        comps_ovl = self.ier_ovl.compute_components(
+            reference, hypothesis, uem=ovl_regions
+        )
+
+        components = {}
+        components.update(
+            {f"{OVLDER_PREFIX_NONOVL} {k}": v for k, v in comps_nonovl.items()}
+        )
+        components.update({f"{OVLDER_PREFIX_OVL} {k}": v for k, v in comps_ovl.items()})
+
+        return components
+
+    def compute_metric(self, detail: Details) -> float:
+        numerator = 0.0
+        denominator = 0.0
+        for ovl in [OVLDER_PREFIX_NONOVL, OVLDER_PREFIX_OVL]:
+            numerator += (
+                detail[f"{ovl} {MATCH_FALSE_ALARM}"]
+                + detail[f"{ovl} {MATCH_MISSED_DETECTION}"]
+                + detail[f"{ovl} {MATCH_CONFUSION}"]
+            )
+            denominator += detail[f"{ovl} {MATCH_TOTAL}"]
+        if denominator == 0.0:
+            if numerator == 0:
+                return 0.0
+            else:
+                return 1.0
+        else:
+            return numerator / denominator
