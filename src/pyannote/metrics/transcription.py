@@ -57,13 +57,15 @@ class TimeConstrainedMinimumPermutationWordErrorRate(BaseMetric):
     ) -> Details:
         # check that reference is single session
         reference_session_ids = set(s["session_id"] for s in reference)
-        assert len(reference_session_ids) == 1
+        if len(reference_session_ids) != 1:
+            raise ValueError("Reference must contain exactly one session")
 
         # keep track of that session_id
         session_id = reference_session_ids.pop()
 
         # check that hypothesis is for that same single session
-        assert all(s["session_id"] == session_id for s in hypothesis)
+        if not all(s["session_id"] == session_id for s in hypothesis):
+            raise ValueError("All session_id values in hypothesis must match the reference session_id.")
 
         # normalize both reference and hypothesis
         normalized_reference: SegLST = self._normalize(reference)
