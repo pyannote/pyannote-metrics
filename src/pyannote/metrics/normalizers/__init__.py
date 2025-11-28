@@ -49,7 +49,10 @@ def get_normalizer(file: dict, normalizer: Normalizer) -> BaseNormalizer:
             warnings.warn(f"Using english text normalizer for file {file['uri']}")
             return EnglishTextNormalizer()
         else:
-            raise ValueError(f"Unsupported language '{language}'")
+            warnings.warn(
+                f"No text normalizer available for language '{language}' in file {file['uri']}"
+            )
+            return NoNormalizer()
 
     if normalizer == Normalizer.ENGLISH:
         return EnglishTextNormalizer()
