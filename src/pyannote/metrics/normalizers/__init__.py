@@ -3,6 +3,7 @@ from typing import Callable
 import warnings
 
 from .english import EnglishTextNormalizer
+from .chinese import ChineseNormalizer
 
 
 class Normalizer(str, Enum):
@@ -48,6 +49,9 @@ def get_normalizer(file: dict, normalizer: Normalizer) -> BaseNormalizer:
         elif language == "english":
             warnings.warn(f"Using english text normalizer for file {file['uri']}")
             return EnglishTextNormalizer()
+        elif language == "chinese":
+            warnings.warn(f"Using chinese text normalizer for file {file['uri']}")
+            return ChineseNormalizer()
         else:
             warnings.warn(
                 f"No text normalizer available for language '{language}' in file {file['uri']}"
