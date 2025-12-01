@@ -2,6 +2,7 @@ from typing import Callable
 
 import meeteval
 from meeteval.io.seglst import SegLST, SegLstSegment
+from meeteval.wer.wer.orc import OrcErrorRate
 from meeteval.wer.wer.cp import CPErrorRate
 
 from pyannote.metrics.base import BaseMetric
@@ -74,6 +75,86 @@ class TimeConstrainedMinimumPermutationWordErrorRate(BaseMetric):
         # compute time-constrained minimum-permutation WER
         result: CPErrorRate = meeteval.wer.tcpwer(
             normalized_reference, normalized_hypothesis, collar=self.collar
+        )[session_id]
+
+        # keep track of components
+        return {
+            TOTAL: result.length,
+            INSERTION: result.insertions,
+            DELETION: result.deletions,
+            SUBSTITUTION: result.substitutions,
+        }
+
+    def compute_metric(self, detail: Details) -> float:
+        numerator = detail[INSERTION] + detail[SUBSTITUTION] + detail[DELETION]
+        denominator = detail[TOTAL]
+        if denominator == 0.0:
+            if numerator == 0:
+                return 0.0
+            else:
+                return 1.0
+        else:
+            return numerator / denominator
+
+
+class TimeConstrainedOptimalReferenceCombinationWordErrorRate(BaseMetric):
+    """Time-Constrained Optimal Reference Combination Word Error Rate (tcORCWER)
+
+    Parameters
+    ----------
+    collar : float, optional
+        Collar applied to hypothesis pseudo-word level timings, in seconds.
+        Defaults to 5 seconds.
+    """
+
+    @classmethod
+    def metric_name(cls) -> str:
+        return "tc-orcWER"
+
+    @classmethod
+    def metric_components(cls) -> MetricComponents:
+        return [
+            TOTAL,
+            INSERTION,
+            DELETION,
+            SUBSTITUTION,
+        ]
+
+    def __init__(
+        self, normalizer: Callable | None = None, collar: float = 5.0, **kwargs
+    ):
+        super().__init__(**kwargs)
+        self.normalizer = normalizer or (lambda word: word)
+        self.collar = collar
+
+    def _normalize(self, seglst: SegLST) -> SegLST:
+        return SegLST(
+            [SegLstSegment({**s, "words": self.normalizer(s["words"])}) for s in seglst]
+        )
+
+    def compute_components(
+        self,
+        reference: SegLST,
+        hypothesis: SegLST,
+        uem: str | None = None,
+    ) -> Details:
+        # check that reference is single session
+        reference_session_ids = set(s["session_id"] for s in reference)
+        assert len(reference_session_ids) == 1
+
+        # keep track of that session_id
+        session_id = reference_session_ids.pop()
+
+        # check that hypothesis is for that same single session
+        assert all(s["session_id"] == session_id for s in hypothesis)
+
+        # normalize both reference and hypothesis
+        normalized_reference: SegLST = self._normalize(reference)
+        normalized_hypothesis: SegLST = self._normalize(hypothesis)
+
+        # compute time-constrained minimum-permutation WER
+        result: OrcErrorRate = meeteval.wer.tcorcwer(
+            normalized_reference, normalized_hypothesis, collar=self.collar, uem=uem
         )[session_id]
 
         # keep track of components
