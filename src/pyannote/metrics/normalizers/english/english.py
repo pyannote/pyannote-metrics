@@ -4,7 +4,13 @@ import re
 from fractions import Fraction
 from typing import Iterator, List, Match, Optional, Union
 
-from more_itertools import windowed
+try:
+    from more_itertools import windowed
+except ImportError as e:
+    raise ImportError(
+        "The 'more-itertools' package is missing. "
+        "You can install it with `uv add pyannote-metrics[transcription]`."
+    ) from e
 
 from ..basic import remove_symbols_and_diacritics
 

@@ -1,9 +1,15 @@
 from typing import Callable
 
-import meeteval
-from meeteval.io.seglst import SegLST, SegLstSegment
-from meeteval.wer.wer.orc import OrcErrorRate
-from meeteval.wer.wer.cp import CPErrorRate
+try:
+    import meeteval
+    from meeteval.io.seglst import SegLST, SegLstSegment
+    from meeteval.wer.wer.orc import OrcErrorRate
+    from meeteval.wer.wer.cp import CPErrorRate
+except ImportError as e:
+    raise ImportError(
+        "The 'meeteval' package is missing. "
+        "You can install it with `uv add pyannote-metrics[transcription]`"
+    ) from e
 
 from pyannote.metrics.base import BaseMetric
 from pyannote.metrics.types import Details, MetricComponents
@@ -120,9 +126,7 @@ class ConcatenatedMinimumPermutationWordErrorRate(BaseMetric):
             SUBSTITUTION,
         ]
 
-    def __init__(
-        self, normalizer: Callable | None = None, **kwargs
-    ):
+    def __init__(self, normalizer: Callable | None = None, **kwargs):
         super().__init__(**kwargs)
         self.normalizer = normalizer or (lambda word: word)
 
@@ -146,7 +150,9 @@ class ConcatenatedMinimumPermutationWordErrorRate(BaseMetric):
 
         # check that hypothesis is for that same single session
         if not all(s["session_id"] == session_id for s in hypothesis):
-            raise ValueError("All session_id values in hypothesis must match the reference session_id.")
+            raise ValueError(
+                "All session_id values in hypothesis must match the reference session_id."
+            )
 
         # normalize both reference and hypothesis
         normalized_reference: SegLST = self._normalize(reference)
@@ -154,7 +160,8 @@ class ConcatenatedMinimumPermutationWordErrorRate(BaseMetric):
 
         # compute concatenated minimum-permutation WER
         result: CPErrorRate = meeteval.wer.cpwer(
-            normalized_reference, normalized_hypothesis,
+            normalized_reference,
+            normalized_hypothesis,
         )[session_id]
 
         # keep track of components
@@ -229,7 +236,9 @@ class TimeConstrainedMinimumPermutationWordErrorRate(BaseMetric):
 
         # check that hypothesis is for that same single session
         if not all(s["session_id"] == session_id for s in hypothesis):
-            raise ValueError("All session_id values in hypothesis must match the reference session_id.")
+            raise ValueError(
+                "All session_id values in hypothesis must match the reference session_id."
+            )
 
         # normalize both reference and hypothesis
         normalized_reference: SegLST = self._normalize(reference)

@@ -1,7 +1,13 @@
 import re
 import unicodedata
 
-import regex
+try:
+    import regex
+except ImportError as e:
+    raise ImportError(
+        "The 'regex' package is missing. "
+        "You can install it with `uv add pyannote-metrics[transcription]`."
+    ) from e
 
 # non-ASCII letters that are not separated by "NFKD" normalization
 ADDITIONAL_DIACRITICS = {
