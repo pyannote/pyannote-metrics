@@ -102,6 +102,81 @@ class WordErrorRate(BaseMetric):
             return numerator / denominator
 
 
+class ConcatenatedMinimumPermutationWordErrorRate(BaseMetric):
+    """Concatenated minimum-Permutation Word Error Rate (cpWER)."""
+
+    @classmethod
+    def metric_name(cls) -> str:
+        """Return the name of the metric."""
+        return "Concatenated minimum-Permutation Word Error Rate"
+
+    @classmethod
+    def metric_components(cls) -> MetricComponents:
+        """Return the list of metric components."""
+        return [
+            TOTAL,
+            INSERTION,
+            DELETION,
+            SUBSTITUTION,
+        ]
+
+    def __init__(
+        self, normalizer: Callable | None = None, **kwargs
+    ):
+        super().__init__(**kwargs)
+        self.normalizer = normalizer or (lambda word: word)
+
+    def _normalize(self, seglst: SegLST) -> SegLST:
+        return SegLST(
+            [SegLstSegment({**s, "words": self.normalizer(s["words"])}) for s in seglst]
+        )
+
+    def compute_components(
+        self,
+        reference: SegLST,
+        hypothesis: SegLST,
+    ) -> Details:
+        # check that reference is single session
+        reference_session_ids = set(s["session_id"] for s in reference)
+        if len(reference_session_ids) != 1:
+            raise ValueError("Reference must contain exactly one session")
+
+        # keep track of that session_id
+        session_id = reference_session_ids.pop()
+
+        # check that hypothesis is for that same single session
+        if not all(s["session_id"] == session_id for s in hypothesis):
+            raise ValueError("All session_id values in hypothesis must match the reference session_id.")
+
+        # normalize both reference and hypothesis
+        normalized_reference: SegLST = self._normalize(reference)
+        normalized_hypothesis: SegLST = self._normalize(hypothesis)
+
+        # compute concatenated minimum-permutation WER
+        result: CPErrorRate = meeteval.wer.cpwer(
+            normalized_reference, normalized_hypothesis,
+        )[session_id]
+
+        # keep track of components
+        return {
+            TOTAL: result.length,
+            INSERTION: result.insertions,
+            DELETION: result.deletions,
+            SUBSTITUTION: result.substitutions,
+        }
+
+    def compute_metric(self, detail: Details) -> float:
+        numerator = detail[INSERTION] + detail[SUBSTITUTION] + detail[DELETION]
+        denominator = detail[TOTAL]
+        if denominator == 0.0:
+            if numerator == 0:
+                return 0.0
+            else:
+                return 1.0
+        else:
+            return numerator / denominator
+
+
 class TimeConstrainedMinimumPermutationWordErrorRate(BaseMetric):
     """Time-Constrained minimum-Permutation Word Error Rate (tcpWER).
 
