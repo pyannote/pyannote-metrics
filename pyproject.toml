@@ -44,8 +44,6 @@ plot = [
 ]
 transcription = [
     "meeteval>=0.4.3",
-    "more-itertools>=10.8.0",
-    "regex>=2025.11.3",
 ]
 
 [build-system]
