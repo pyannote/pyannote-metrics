@@ -1,15 +1,13 @@
-from typing import Callable
-
 try:
     import meeteval
-    from meeteval.io.seglst import SegLST, SegLstSegment
-    from meeteval.wer.wer.orc import OrcErrorRate
+    from meeteval.io.seglst import SegLST
     from meeteval.wer.wer.cp import CPErrorRate
-except ImportError as e:
-    raise ImportError(
-        "The 'meeteval' package is missing. "
-        "You can install it with `uv add pyannote-metrics[transcription]`"
-    ) from e
+    from meeteval.wer.wer.orc import OrcErrorRate
+
+    MEETEVAL_IS_AVAILABLE = True
+
+except ImportError:
+    MEETEVAL_IS_AVAILABLE = False
 
 from pyannote.metrics.base import BaseMetric
 from pyannote.metrics.types import Details, MetricComponents
@@ -20,13 +18,48 @@ DELETION = "deletion"
 SUBSTITUTION = "substitution"
 
 
-class WordErrorRate(BaseMetric):
-    """Word Error Rate"""
+class BaseWordErrorRate(BaseMetric):
+    def validate(self, reference: SegLST, hypothesis: SegLST) -> str:
+        """Validate that both reference and hypothesis are single-session
 
-    @classmethod
-    def metric_name(cls) -> str:
-        """Return the name of the metric."""
-        return "WER"
+        Parameters
+        ----------
+        reference : SegLST
+            Reference transcription segments.
+        hypothesis : SegLST
+            Hypothesis transcription segments.
+
+        Returns
+        -------
+        session_id : str
+            The single session ID found in both reference and hypothesis.
+        """
+
+        # check that reference is single session
+        reference_session_ids = set(s["session_id"] for s in reference)
+        if len(reference_session_ids) != 1:
+            raise ValueError(
+                "Reference must contain exactly one session. "
+                f"Found sessions: {list(reference_session_ids)}"
+            )
+
+        # check that hypothesis is single session
+        hypothesis_session_ids = set(s["session_id"] for s in hypothesis)
+        if len(hypothesis_session_ids) != 1:
+            raise ValueError(
+                "Hypothesis must contain exactly one session. "
+                f"Found sessions: {list(hypothesis_session_ids)}"
+            )
+
+        # check that both reference and hypothesis refer to the same single session
+        if reference_session_ids != hypothesis_session_ids:
+            raise ValueError(
+                "Reference and hypothesis must refer to the same single session. "
+                f"Found reference sessions: {list(reference_session_ids)} "
+                f"and hypothesis sessions: {list(hypothesis_session_ids)}"
+            )
+
+        return reference_session_ids.pop()
 
     @classmethod
     def metric_components(cls) -> MetricComponents:
@@ -37,64 +70,6 @@ class WordErrorRate(BaseMetric):
             DELETION,
             SUBSTITUTION,
         ]
-
-    def __init__(self, normalizer: Callable | None = None, **kwargs):
-        super().__init__(**kwargs)
-        self.normalizer = normalizer or (lambda word: word)
-
-    def _normalize(self, seglst: SegLST) -> SegLST:
-        return SegLST(
-            [SegLstSegment({**s, "words": self.normalizer(s["words"])}) for s in seglst]
-        )
-
-    def compute_components(
-        self,
-        reference: SegLST,
-        hypothesis: SegLST,
-    ) -> Details:
-        # check that reference is single session
-        reference_session_ids = set(s["session_id"] for s in reference)
-        assert (
-            len(reference_session_ids) == 1
-        ), "Reference must contain exactly one session"
-
-        # keep track of that session_id
-        session_id = reference_session_ids.pop()
-
-        # check that hypothesis is for that same single session
-        assert all(
-            s["session_id"] == session_id for s in hypothesis
-        ), f"All hypothesis segments must belong to session {session_id}"
-
-        # normalize both reference and hypothesis
-        normalized_reference: SegLST = self._normalize(reference)
-        normalized_hypothesis: SegLST = self._normalize(hypothesis)
-
-        ref_sorted = sorted(normalized_reference, key=lambda s: s["start_time"])
-        hyp_sorted = sorted(normalized_hypothesis, key=lambda s: s["start_time"])
-
-        # Build concatenated word sequences in time order
-        ref_txt = " ".join(s["words"] for s in ref_sorted)
-        hyp_txt = " ".join(s["words"] for s in hyp_sorted)
-
-        # Build reference and hypothesis dicts
-        ref = {
-            "words": ref_txt,
-        }
-
-        hyp = {
-            "words": hyp_txt,
-        }
-
-        result = meeteval.wer.siso_word_error_rate([ref], [hyp])
-
-        # keep track of components
-        return {
-            TOTAL: result.length,
-            INSERTION: result.insertions,
-            DELETION: result.deletions,
-            SUBSTITUTION: result.substitutions,
-        }
 
     def compute_metric(self, detail: Details) -> float:
         numerator = detail[INSERTION] + detail[SUBSTITUTION] + detail[DELETION]
@@ -108,7 +83,54 @@ class WordErrorRate(BaseMetric):
             return numerator / denominator
 
 
-class ConcatenatedMinimumPermutationWordErrorRate(BaseMetric):
+class WordErrorRate(BaseWordErrorRate):
+    """Word Error Rate"""
+
+    @classmethod
+    def metric_name(cls) -> str:
+        """Return the name of the metric."""
+        return "WER"
+
+    def __init__(self, **kwargs):
+        if not MEETEVAL_IS_AVAILABLE:
+            raise ImportError(
+                "WordErrorRate metric is not available. "
+                "Install `pyannote.metrics` with the `stt` extra to use it."
+            )
+
+        super().__init__(**kwargs)
+
+    def compute_components(
+        self,
+        reference: SegLST,
+        hypothesis: SegLST,
+    ) -> Details:
+        _ = self.validate(reference, hypothesis)
+
+        ref_txt = " ".join(
+            s["words"] for s in sorted(reference, key=lambda s: s["start_time"])
+        )
+        hyp_txt = " ".join(
+            s["words"] for s in sorted(hypothesis, key=lambda s: s["start_time"])
+        )
+
+        result = meeteval.wer.siso_word_error_rate(
+            [{"words": ref_txt}], [{"words": hyp_txt}]
+        )
+
+        # keep track of components
+        return {
+            TOTAL: result.length,
+            INSERTION: result.insertions,
+            DELETION: result.deletions,
+            SUBSTITUTION: result.substitutions,
+        }
+
+
+WER = WordErrorRate
+
+
+class ConcatenatedMinimumPermutationWordErrorRate(BaseWordErrorRate):
     """Concatenated minimum-Permutation Word Error Rate (cpWER)."""
 
     @classmethod
@@ -116,52 +138,26 @@ class ConcatenatedMinimumPermutationWordErrorRate(BaseMetric):
         """Return the name of the metric."""
         return "Concatenated minimum-Permutation Word Error Rate"
 
-    @classmethod
-    def metric_components(cls) -> MetricComponents:
-        """Return the list of metric components."""
-        return [
-            TOTAL,
-            INSERTION,
-            DELETION,
-            SUBSTITUTION,
-        ]
+    def __init__(self, **kwargs):
+        if not MEETEVAL_IS_AVAILABLE:
+            raise ImportError(
+                "ConcatenatedMinimumPermutationWordErrorRate metric is not available. "
+                "Install `pyannote.metrics` with the `stt` extra to use it."
+            )
 
-    def __init__(self, normalizer: Callable | None = None, **kwargs):
         super().__init__(**kwargs)
-        self.normalizer = normalizer or (lambda word: word)
-
-    def _normalize(self, seglst: SegLST) -> SegLST:
-        return SegLST(
-            [SegLstSegment({**s, "words": self.normalizer(s["words"])}) for s in seglst]
-        )
 
     def compute_components(
         self,
         reference: SegLST,
         hypothesis: SegLST,
     ) -> Details:
-        # check that reference is single session
-        reference_session_ids = set(s["session_id"] for s in reference)
-        if len(reference_session_ids) != 1:
-            raise ValueError("Reference must contain exactly one session")
-
-        # keep track of that session_id
-        session_id = reference_session_ids.pop()
-
-        # check that hypothesis is for that same single session
-        if not all(s["session_id"] == session_id for s in hypothesis):
-            raise ValueError(
-                "All session_id values in hypothesis must match the reference session_id."
-            )
-
-        # normalize both reference and hypothesis
-        normalized_reference: SegLST = self._normalize(reference)
-        normalized_hypothesis: SegLST = self._normalize(hypothesis)
+        session_id = self.validate(reference, hypothesis)
 
         # compute concatenated minimum-permutation WER
         result: CPErrorRate = meeteval.wer.cpwer(
-            normalized_reference,
-            normalized_hypothesis,
+            reference,
+            hypothesis,
         )[session_id]
 
         # keep track of components
@@ -172,19 +168,8 @@ class ConcatenatedMinimumPermutationWordErrorRate(BaseMetric):
             SUBSTITUTION: result.substitutions,
         }
 
-    def compute_metric(self, detail: Details) -> float:
-        numerator = detail[INSERTION] + detail[SUBSTITUTION] + detail[DELETION]
-        denominator = detail[TOTAL]
-        if denominator == 0.0:
-            if numerator == 0:
-                return 0.0
-            else:
-                return 1.0
-        else:
-            return numerator / denominator
 
-
-class TimeConstrainedMinimumPermutationWordErrorRate(BaseMetric):
+class TimeConstrainedMinimumPermutationWordErrorRate(BaseWordErrorRate):
     """Time-Constrained minimum-Permutation Word Error Rate (tcpWER).
 
     Parameters
@@ -199,54 +184,26 @@ class TimeConstrainedMinimumPermutationWordErrorRate(BaseMetric):
         """Return the name of the metric."""
         return "Time-Constrained minimum-Permutation Word Error Rate"
 
-    @classmethod
-    def metric_components(cls) -> MetricComponents:
-        """Return the list of metric components."""
-        return [
-            TOTAL,
-            INSERTION,
-            DELETION,
-            SUBSTITUTION,
-        ]
+    def __init__(self, collar: float = 5.0, **kwargs):
+        if not MEETEVAL_IS_AVAILABLE:
+            raise ImportError(
+                "TimeConstrainedMinimumPermutationWordErrorRate metric is not available. "
+                "Install `pyannote.metrics` with the `stt` extra to use it."
+            )
 
-    def __init__(
-        self, normalizer: Callable | None = None, collar: float = 5.0, **kwargs
-    ):
         super().__init__(**kwargs)
         self.collar = collar
-        self.normalizer = normalizer or (lambda word: word)
-
-    def _normalize(self, seglst: SegLST) -> SegLST:
-        return SegLST(
-            [SegLstSegment({**s, "words": self.normalizer(s["words"])}) for s in seglst]
-        )
 
     def compute_components(
         self,
         reference: SegLST,
         hypothesis: SegLST,
     ) -> Details:
-        # check that reference is single session
-        reference_session_ids = set(s["session_id"] for s in reference)
-        if len(reference_session_ids) != 1:
-            raise ValueError("Reference must contain exactly one session")
-
-        # keep track of that session_id
-        session_id = reference_session_ids.pop()
-
-        # check that hypothesis is for that same single session
-        if not all(s["session_id"] == session_id for s in hypothesis):
-            raise ValueError(
-                "All session_id values in hypothesis must match the reference session_id."
-            )
-
-        # normalize both reference and hypothesis
-        normalized_reference: SegLST = self._normalize(reference)
-        normalized_hypothesis: SegLST = self._normalize(hypothesis)
+        session_id = self.validate(reference, hypothesis)
 
         # compute time-constrained minimum-permutation WER
         result: CPErrorRate = meeteval.wer.tcpwer(
-            normalized_reference, normalized_hypothesis, collar=self.collar
+            reference, hypothesis, collar=self.collar
         )[session_id]
 
         # keep track of components
@@ -257,20 +214,9 @@ class TimeConstrainedMinimumPermutationWordErrorRate(BaseMetric):
             SUBSTITUTION: result.substitutions,
         }
 
-    def compute_metric(self, detail: Details) -> float:
-        numerator = detail[INSERTION] + detail[SUBSTITUTION] + detail[DELETION]
-        denominator = detail[TOTAL]
-        if denominator == 0.0:
-            if numerator == 0:
-                return 0.0
-            else:
-                return 1.0
-        else:
-            return numerator / denominator
 
-
-class TimeConstrainedOptimalReferenceCombinationWordErrorRate(BaseMetric):
-    """Time-Constrained Optimal Reference Combination Word Error Rate (tcORCWER)
+class TimeConstrainedOptimalReferenceCombinationWordErrorRate(BaseWordErrorRate):
+    """Time-Constrained Optimal Reference Combination Word Error Rate (tcorcWER)
 
     Parameters
     ----------
@@ -281,52 +227,28 @@ class TimeConstrainedOptimalReferenceCombinationWordErrorRate(BaseMetric):
 
     @classmethod
     def metric_name(cls) -> str:
-        return "tc-orcWER"
+        return "tcorcWER"
 
-    @classmethod
-    def metric_components(cls) -> MetricComponents:
-        return [
-            TOTAL,
-            INSERTION,
-            DELETION,
-            SUBSTITUTION,
-        ]
+    def __init__(self, collar: float = 5.0, **kwargs):
+        if not MEETEVAL_IS_AVAILABLE:
+            raise ImportError(
+                "TimeConstrainedOptimalReferenceCombinationWordErrorRate metric is not available. "
+                "Install `pyannote.metrics` with the `stt` extra to use it."
+            )
 
-    def __init__(
-        self, normalizer: Callable | None = None, collar: float = 5.0, **kwargs
-    ):
         super().__init__(**kwargs)
-        self.normalizer = normalizer or (lambda word: word)
         self.collar = collar
-
-    def _normalize(self, seglst: SegLST) -> SegLST:
-        return SegLST(
-            [SegLstSegment({**s, "words": self.normalizer(s["words"])}) for s in seglst]
-        )
 
     def compute_components(
         self,
         reference: SegLST,
         hypothesis: SegLST,
-        uem: str | None = None,
     ) -> Details:
-        # check that reference is single session
-        reference_session_ids = set(s["session_id"] for s in reference)
-        assert len(reference_session_ids) == 1
-
-        # keep track of that session_id
-        session_id = reference_session_ids.pop()
-
-        # check that hypothesis is for that same single session
-        assert all(s["session_id"] == session_id for s in hypothesis)
-
-        # normalize both reference and hypothesis
-        normalized_reference: SegLST = self._normalize(reference)
-        normalized_hypothesis: SegLST = self._normalize(hypothesis)
+        session_id = self.validate(reference, hypothesis)
 
         # compute time-constrained minimum-permutation WER
         result: OrcErrorRate = meeteval.wer.tcorcwer(
-            normalized_reference, normalized_hypothesis, collar=self.collar, uem=uem
+            reference, hypothesis, collar=self.collar
         )[session_id]
 
         # keep track of components
@@ -336,14 +258,3 @@ class TimeConstrainedOptimalReferenceCombinationWordErrorRate(BaseMetric):
             DELETION: result.deletions,
             SUBSTITUTION: result.substitutions,
         }
-
-    def compute_metric(self, detail: Details) -> float:
-        numerator = detail[INSERTION] + detail[SUBSTITUTION] + detail[DELETION]
-        denominator = detail[TOTAL]
-        if denominator == 0.0:
-            if numerator == 0:
-                return 0.0
-            else:
-                return 1.0
-        else:
-            return numerator / denominator
