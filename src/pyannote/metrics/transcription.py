@@ -162,7 +162,7 @@ class ConcatenatedMinimumPermutationWordErrorRate(BaseWordErrorRate):
     @classmethod
     def metric_name(cls) -> str:
         """Return the name of the metric."""
-        return "Concatenated minimum-Permutation Word Error Rate"
+        return "cpWER"
 
     def __init__(self, **kwargs):
         if not MEETEVAL_IS_AVAILABLE:
@@ -208,7 +208,7 @@ class TimeConstrainedMinimumPermutationWordErrorRate(BaseWordErrorRate):
     @classmethod
     def metric_name(cls) -> str:
         """Return the name of the metric."""
-        return "Time-Constrained minimum-Permutation Word Error Rate"
+        return "tcpWER"
 
     def __init__(self, collar: float = 5.0, **kwargs):
         if not MEETEVAL_IS_AVAILABLE:
