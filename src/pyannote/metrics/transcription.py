@@ -95,7 +95,7 @@ class WordErrorRate(BaseWordErrorRate):
         if not MEETEVAL_IS_AVAILABLE:
             raise ImportError(
                 "WordErrorRate metric is not available. "
-                "Install `pyannote.metrics` with the `stt` extra to use it."
+                "Install `pyannote.metrics` with the `transcription` extra to use it."
             )
 
         super().__init__(**kwargs)
@@ -142,7 +142,7 @@ class ConcatenatedMinimumPermutationWordErrorRate(BaseWordErrorRate):
         if not MEETEVAL_IS_AVAILABLE:
             raise ImportError(
                 "ConcatenatedMinimumPermutationWordErrorRate metric is not available. "
-                "Install `pyannote.metrics` with the `stt` extra to use it."
+                "Install `pyannote.metrics` with the `transcription` extra to use it."
             )
 
         super().__init__(**kwargs)
@@ -188,7 +188,7 @@ class TimeConstrainedMinimumPermutationWordErrorRate(BaseWordErrorRate):
         if not MEETEVAL_IS_AVAILABLE:
             raise ImportError(
                 "TimeConstrainedMinimumPermutationWordErrorRate metric is not available. "
-                "Install `pyannote.metrics` with the `stt` extra to use it."
+                "Install `pyannote.metrics` with the `transcription` extra to use it."
             )
 
         super().__init__(**kwargs)
@@ -233,7 +233,7 @@ class TimeConstrainedOptimalReferenceCombinationWordErrorRate(BaseWordErrorRate)
         if not MEETEVAL_IS_AVAILABLE:
             raise ImportError(
                 "TimeConstrainedOptimalReferenceCombinationWordErrorRate metric is not available. "
-                "Install `pyannote.metrics` with the `stt` extra to use it."
+                "Install `pyannote.metrics` with the `transcription` extra to use it."
             )
 
         super().__init__(**kwargs)
