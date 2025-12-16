@@ -17,10 +17,10 @@ Here is a typical speaker diarization pipeline:
 The first step is usually dedicated to speech activity detection, where the objective is to get rid of all non-speech regions.
 Then, speaker change detection aims at segmenting speech regions into homogeneous segments.
 The subsequent clustering step tries to group those speech segments according to the identity of the speaker.
-Finally, an optional supervised classification step may be applied to actually identity every speaker cluster in a supervised way.
+Finally, an optional supervised classification step may be applied to actually identify every speaker cluster in a supervised way.
 
 Looking at the final performance of the system is usually not enough for diagnostic purposes.
-In particular, it is often necessary to evaluate the performance of each module separately to identify their strenght and weakness, or to estimate the influence of their errors on the complete pipeline.
+In particular, it is often necessary to evaluate the performance of each module separately to identify their strengths and weaknesses, or to estimate the influence of their errors on the complete pipeline.
 
 Here, we provide the list of metrics that were implemented in `pyannote.metrics` with that very goal in mind.
 
@@ -51,7 +51,7 @@ Alternately, speech activity module output may be evaluated in terms of detectio
 
 where :math:`\text{false alarm rate}` is the proportion of non-speech incorrectly classified as speech and :math:`\text{miss rate}` is the proportion of speech incorrectly classified as non-speech.
 
-Additionally, detection may be evaluated in terms of accuracy (proportion of the input signal correctly classified), precision (proportion of detected speech that is speech), and recall (proporton of speech that is detected).
+Additionally, detection may be evaluated in terms of accuracy (proportion of the input signal correctly classified), precision (proportion of detected speech that is speech), and recall (proportion of speech that is detected).
 
 .. automodule:: pyannote.metrics.detection
    :members:
@@ -83,7 +83,7 @@ The final values are duration-weighted average over each segment.
 Diarization
 -----------
 
-Diarization error rate (DER) is the \emph{de facto} standard metric for evaluating and comparing speaker diarization systems.
+Diarization error rate (DER) is the de facto standard metric for evaluating and comparing speaker diarization systems.
 It is defined as follows:
 
 .. math::
@@ -100,14 +100,14 @@ Optimal vs. greedy
 
 Two implementations of the diarization error rate are available (optimal and greedy), depending on how the one-to-one mapping between reference and hypothesized speakers is computed.
 
-The `optimal` version uses the Hungarian algorithm to compute the mapping that minimize the confusion term, while the `greedy` version operates in a greedy manner, mapping reference and hypothesized speakers iteratively, by decreasing value of their cooccurrence duration.
+The `optimal` version uses the Hungarian algorithm to compute the mapping that minimize the confusion term, while the `greedy` version operates in a greedy manner, mapping reference and hypothesized speakers iteratively, by decreasing value of their co-occurrence duration.
 
 In practice, the `greedy` version is much faster than the `optimal` one, especially for files with a large number of speakers -- though it may slightly over-estimate the value of the diarization error rate.
 
 Purity and coverage
 *******************
 
-While the diarization error rate provides a convenient way to compare different diarization approaches, it is usually not enough to understand the type of errors commited by the system.
+While the diarization error rate provides a convenient way to compare different diarization approaches, it is usually not enough to understand the type of errors committed by the system.
 
 Purity and coverage are two dual evaluation metrics that provide additional insight on the behavior of the system.
 
