@@ -2,6 +2,11 @@
 Changelog
 #########
 
+Version 4.1.0 
+~~~~~~~~~~~~~
+
+- feat: add transcription metrics
+
 Version 4.0.0 (2025-09-09)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

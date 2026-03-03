@@ -1,6 +1,9 @@
 from typing import Dict, List
 
-from typing_extensions import Literal
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 MetricComponent = str
 CalibrationMethod = Literal["isotonic", "sigmoid"]

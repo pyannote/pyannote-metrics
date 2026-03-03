@@ -42,6 +42,9 @@ cli = [
 plot = [
     "matplotlib>=3.10.0",
 ]
+transcription = [
+    "meeteval>=0.4.3",
+]
 
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
