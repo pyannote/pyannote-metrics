@@ -330,6 +330,299 @@ class BaseMetric:
             return scipy.stats.bayes_mvs(values, alpha=alpha)[0]
 
 
+
+
+class MetricCollection(BaseMetric):
+    """
+    :class:`BaseMetric` is the base class for most pyannote evaluation metrics.
+
+    Attributes
+    ----------
+    name : str
+        Human-readable name of the metric (eg. 'diarization error rate')
+    """
+
+    @classmethod
+    def metric_name(cls) -> str:
+        return "Collection"
+
+    @classmethod
+    def metric_components(cls) -> MetricComponents:
+        raise NotImplementedError(
+            cls.__name__ + " is missing a 'metric_components' class method. "
+                           "It should return the list of names of metric components."
+        )
+
+    def __init__(self, **kwargs):
+        super(BaseMetric, self).__init__()
+        self.metric_name_ = self.__class__.metric_name()
+        self.components_: Set[str] = set(self.__class__.metric_components())
+        self.reset()
+
+    def init_components(self):
+        return {value: 0.0 for value in self.components_}
+
+    def reset(self):
+        """Reset accumulated components and metric values"""
+        self.accumulated_: Details = dict()
+        self.results_: List = list()
+        for value in self.components_:
+            self.accumulated_[value] = 0.0
+
+    @property
+    def name(self):
+        """Metric name."""
+        return self.metric_name()
+
+    # TODO: use joblib/locky to allow parallel processing?
+    # TODO: signature could be something like __call__(self, reference_iterator, hypothesis_iterator, ...)
+
+    def __call__(self, reference: Union[Timeline, Annotation],
+                 hypothesis: Union[Timeline, Annotation],
+                 detailed: bool = False, uri: Optional[str] = None, **kwargs):
+        """Compute metric value and accumulate components
+
+        Parameters
+        ----------
+        reference : type depends on the metric
+            Manual `reference`
+        hypothesis : type depends on the metric
+            Evaluated `hypothesis`
+        uri : optional
+            Override uri.
+        detailed : bool, optional
+            By default (False), return metric value only.
+            Set `detailed` to True to return dictionary where keys are
+            components names and values are component values
+
+        Returns
+        -------
+        value : float (if `detailed` is False)
+            Metric value
+        components : dict (if `detailed` is True)
+            `components` updated with metric value
+        """
+
+        # compute metric components
+        components = self.compute_components(reference, hypothesis, **kwargs)
+
+        # compute rate based on components
+        components[self.metric_name_] = self.compute_metric(components)
+
+        # keep track of this computation
+        uri = uri or getattr(reference, "uri", "NA")
+        self.results_.append((uri, components))
+
+        # accumulate components
+        for name in self.components_:
+            self.accumulated_[name] += components[name]
+
+        if detailed:
+            return components
+
+        return components[self.metric_name_]
+
+    def report(self, display: bool = False) -> pd.DataFrame:
+        """Evaluation report
+
+        Parameters
+        ----------
+        display : bool, optional
+            Set to True to print the report to stdout.
+
+        Returns
+        -------
+        report : pandas.DataFrame
+            Dataframe with one column per metric component, one row per
+            evaluated item, and one final row for accumulated results.
+        """
+
+        report = []
+        uris = []
+
+        percent = "total" in self.metric_components()
+
+        for uri, components in self.results_:
+            row = {}
+            if percent:
+                total = components["total"]
+            for key, value in components.items():
+                if key == self.name:
+                    row[key, "%"] = 100 * value
+                elif key == "total":
+                    row[key, ""] = value
+                else:
+                    row[key, ""] = value
+                    if percent:
+                        if total > 0:
+                            row[key, "%"] = 100 * value / total
+                        else:
+                            row[key, "%"] = np.nan
+
+            report.append(row)
+            uris.append(uri)
+
+        row = {}
+        components = self.accumulated_
+
+        if percent:
+            total = components["total"]
+
+        for key, value in components.items():
+            if key == self.name:
+                row[key, "%"] = 100 * value
+            elif key == "total":
+                row[key, ""] = value
+            else:
+                row[key, ""] = value
+                if percent:
+                    if total > 0:
+                        row[key, "%"] = 100 * value / total
+                    else:
+                        row[key, "%"] = np.nan
+
+        row[self.name, "%"] = 100 * abs(self)
+        report.append(row)
+        uris.append("TOTAL")
+
+        df = pd.DataFrame(report)
+
+        df["item"] = uris
+        df = df.set_index("item")
+
+        df.columns = pd.MultiIndex.from_tuples(df.columns)
+
+        df = df[[self.name] + self.metric_components()]
+
+        if display:
+            print(
+                df.to_string(
+                    index=True,
+                    sparsify=False,
+                    justify="right",
+                    float_format=lambda f: "{0:.2f}".format(f),
+                )
+            )
+
+        return df
+
+    def __str__(self):
+        report = self.report(display=False)
+        return report.to_string(
+            sparsify=False, float_format=lambda f: "{0:.2f}".format(f)
+        )
+
+    def __abs__(self):
+        """Compute metric value from accumulated components"""
+        return self.compute_metric(self.accumulated_)
+
+    def __getitem__(self, component: str) -> Union[float, Details]:
+        """Get value of accumulated `component`.
+
+        Parameters
+        ----------
+        component : str
+            Name of `component`
+
+        Returns
+        -------
+        value : type depends on the metric
+            Value of accumulated `component`
+
+        """
+        if component == slice(None, None, None):
+            return dict(self.accumulated_)
+        else:
+            return self.accumulated_[component]
+
+    def __iter__(self):
+        """Iterator over the accumulated (uri, value)"""
+        for uri, component in self.results_:
+            yield uri, component
+
+    def compute_components(self,
+                           reference: Union[Timeline, Annotation],
+                           hypothesis: Union[Timeline, Annotation],
+                           **kwargs) -> Details:
+        """Compute metric components
+
+        Parameters
+        ----------
+        reference : type depends on the metric
+            Manual `reference`
+        hypothesis : same as `reference`
+            Evaluated `hypothesis`
+
+        Returns
+        -------
+        components : dict
+            Dictionary where keys are component names and values are component
+            values
+
+        """
+        raise NotImplementedError(
+            self.__class__.__name__ + " is missing a 'compute_components' method."
+                                      "It should return a dictionary where keys are component names "
+                                      "and values are component values."
+        )
+
+    def compute_metric(self, components: Details):
+        """Compute metric value from computed `components`
+
+        Parameters
+        ----------
+        components : dict
+            Dictionary where keys are components names and values are component
+            values
+
+        Returns
+        -------
+        value : type depends on the metric
+            Metric value
+        """
+        raise NotImplementedError(
+            self.__class__.__name__ + " is missing a 'compute_metric' method. "
+                                      "It should return the actual value of the metric based "
+                                      "on the precomputed component dictionary given as input."
+        )
+
+    def confidence_interval(self, alpha: float = 0.9) \
+            -> Tuple[float, Tuple[float, float]]:
+        """Compute confidence interval on accumulated metric values
+
+        Parameters
+        ----------
+        alpha : float, optional
+            Probability that the returned confidence interval contains
+            the true metric value.
+
+        Returns
+        -------
+        (center, (lower, upper))
+            with center the mean of the conditional pdf of the metric value
+            and (lower, upper) is a confidence interval centered on the median,
+            containing the estimate to a probability alpha.
+
+        See Also:
+        ---------
+        scipy.stats.bayes_mvs
+
+        """
+
+        values = [r[self.metric_name_] for _, r in self.results_]
+
+        if len(values) == 0:
+            raise ValueError("Please evaluate a bunch of files before computing confidence interval.")
+        
+        elif len(values) == 1:
+            warnings.warn("Cannot compute a reliable confidence interval out of just one file.")
+            center = lower = upper = values[0]
+            return center, (lower, upper)
+        
+        else:
+            return scipy.stats.bayes_mvs(values, alpha=alpha)[0]
+
+
 PRECISION_NAME = "precision"
 PRECISION_RETRIEVED = "# retrieved"
 PRECISION_RELEVANT_RETRIEVED = "# relevant retrieved"
@@ -417,3 +710,6 @@ def f_measure(precision: float, recall: float, beta=1.0) -> float:
     if precision + recall == 0.0:
         return 0
     return (1 + beta * beta) * precision * recall / (beta * beta * precision + recall)
+
+
+
