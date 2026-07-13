@@ -1,81 +1,78 @@
+"""
+Metrics computation for temporal error analysis.
+
+This module bins a time-varying signal (e.g. SNR,
+clustering confidence) against diarization/identification error types
+(correct, confusion, missed detection, false alarm) and accumulate durations,
+overlay-signal means, and speaker-count breakdowns per bin.
+
+See temporal_error_plots.py for visualizing the resulting '.metrics' /
+'.bin_ranges'.
+
+
+---------------------------------------------------------------------------
+Example usage
+---------------------------------------------------------------------------
+from temporal_error_analysis import TemporalErrorAnalysis
+
+One shared 'files' list. Each file dict carries every model's hypothesis
+under its own key, e.g.:
+
+
+files = [
+    {
+        "uri":       "DH_EVAL_0001",
+        "annotation": <pyannote Annotation>,
+        "hypothesis": <pyannote Annotation>,
+        "duration":  123.4,
+        "snr":       np.array([...]),   # shape (n_frames,)
+        "clustering_confidence": np.array([...]),  # shape (n_turns, n_speakers)
+    },
+    ...
+]
+
+note: 'files' doesn't change per model, only the 'hypothesis=' key passed
+to TemporalErrorAnalysis changes. There only need to be at least one hypothesis and one signal.
+
+--- Basic use: compute and read the metrics dict directly ---
+
+analysis = TemporalErrorAnalysis(
+    files=files,
+    reference="annotation",
+    hypothesis="hypothesis",
+    durations="duration",
+    signal="snr",
+    overlay_signal="clustering_confidence",
+    signal_transforms={"clustering_confidence": ["max", "scale_percentage_up"]},
+)
+
+# bin_ranges = (-20,80,10) will produce bins from -20 to 80 by steps of 10
+# bin_ranges = None will auto-pick nice bin edges from the signal
+
+analysis.compute_metrics(bin_ranges=(-20,80,10))   
+
+analysis.metrics       # {"lo_hi": {"correct": {...}, "confusion": {...}, ...}, ...}
+analysis.bin_ranges     # [(lo, hi), (lo, hi), ...] -- same bins as analysis.metrics.keys()
+
+--- Previewing bins before locking them in (e.g. to share across models) ---
+
+preview_bins = analysis.compute_bin_ranges()   # peeks at the signal range, no error accumulation yet
+print(preview_bins)                            # inspect before deciding on a fixed (min, max, interval)
+
+SHARED_BINS = (-15, 25, 5)
+analysis.compute_metrics(bin_ranges=SHARED_BINS)   # now locked to bins every model can share
+
+--- Extracting plain arrays for anything other than plotting ---
+
+correct_pct = analysis.extract_binned_signal(error_type="correct", metric="percentage")
+confusion_seconds = analysis.extract_binned_signal(error_type="confusion", metric="duration")
+"""
+
 from pyannote.metrics.errors.identification import IdentificationErrorAnalysis
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from tqdm import tqdm
-import hashlib
-import json
 
-CORRECT_SPEAKER_COLORS = {
-    1: "#042C53",
-    2: "#185FA5",
-    3: "#378ADD",
-    4: "#85B7EB",
-    5: "#B5D4F4",
-}
-
-MD_SPEAKER_COLORS = {
-    1: "#7A3D00",
-    2: "#C45E00",
-    3: "#F77F00",
-    4: "#FFB05C",
-    5: "#FFD4A8",
-}
-
-FA_SPEAKER_COLORS = {
-    1: "#7A5A00",
-    2: "#C49000",
-    3: "#FCBF49",
-    4: "#FFD98A",
-    5: "#FFECBF",
-}
-
-CONFUSION_SPEAKER_COLORS = {
-    1: "#5A0000",
-    2: "#9A0F0F",
-    3: "#D62828",
-    4: "#E87070",
-    5: "#F5B3B3",
-}
-
-ALL_SPEAKER_COLORS = {
-    1: "#1A1A2E",
-    2: "#3D3D6B",
-    3: "#6B6BAE",
-    4: "#A3A3D1",
-    5: "#D1D1ED",
-}
-
-_PALETTE_BY_ERROR_TYPE = {
-    "correct":         CORRECT_SPEAKER_COLORS,
-    "missed detection": MD_SPEAKER_COLORS,
-    "false alarm":     FA_SPEAKER_COLORS,
-    "confusion":       CONFUSION_SPEAKER_COLORS,
-    None:              ALL_SPEAKER_COLORS,
-} 
-
-DEFAULT_LABELS = {
-    "x_label": "Signal Value Range",
-    "overlay_label": "Average Signal Value",
-}
-
-def plot_signal(data, duration):
-    """
-    Visualize the signal over time
-
-    data: npy array representing signal, not just snr
-    duration: float, audio duration in s
-    """
-    fps = data.shape[0] / duration
-
-    time = np.arange(len(data)) / fps
-    
-    plt.plot(time, data)
-    plt.xlabel("Time (s)")
-    plt.ylabel("Value")
-    plt.title("Signal")
-    plt.tight_layout()
-    plt.show()
 
 def interpolate(arr_1, arr_2, audio_duration):
     """
@@ -118,6 +115,7 @@ def interpolate(arr_1, arr_2, audio_duration):
 
     return arr_1, arr_2, fps, n_frames
 
+
 def get_stair_curve(prediction, scores, target, view_type="entropy", uri=None):
     """
     Reshape a turn-based 2D array and return a frame-based 1D array. Assumes scores corresponds to the turns in the prediction file.
@@ -125,8 +123,8 @@ def get_stair_curve(prediction, scores, target, view_type="entropy", uri=None):
     prediction: annotation object for the prediction file
     scores: npy array (turns, speakers)
     target: (n_frames float, duration float) n_frames comes from the longest length of the signal and overlay_signal
-    view_type: "entropy" (overall entropy at a time) 
-                "max" (score for most likely speaker at a time) 
+    view_type: "entropy" (overall entropy at a time)
+                "max" (score for most likely speaker at a time)
                 "difference" (difference between top two scores)
                 None (confidence scores as speakers x frames)
     """
@@ -157,7 +155,7 @@ def get_stair_curve(prediction, scores, target, view_type="entropy", uri=None):
         probs = np.where(row_sums > 0, stair_curve_clipped / np.where(row_sums > 0, row_sums, 1), 0)
 
         # entropy is undefined/zero for 1 speaker
-        if n_speakers <= 1: 
+        if n_speakers <= 1:
             return np.zeros(n_frames)
 
         max_entropy = np.log(n_speakers)
@@ -180,7 +178,27 @@ def get_stair_curve(prediction, scores, target, view_type="entropy", uri=None):
     else:
         return stair_curve
 
+
 class TemporalErrorAnalysis:
+    """
+    Computes, per signal-value bin, the duration/overlay/speaker-count breakdown
+    of each DER error type (correct, confusion, missed detection,
+    false alarm) across a set of files.
+
+      - compute_metrics(bin_ranges=None) -> populates self.metrics, self.bin_ranges
+      - self.metrics: dict keyed by "lo_hi" bin label -> per-error-type dict of
+        {"duration", "overlay", "mean_overlay", "n_speakers"} plus a
+        "band_mean_overlay" entry per bin.
+      - self.bin_ranges: list[(lo, hi)] float tuples, same bins as self.metrics keys.
+      - extract_binned_signal(error_type, metric) -> np.array of one value per bin,
+        for cumulative-layer comparisons (used by the plotting module's
+        plot_comparison, but usable standalone for any custom analysis/export).
+
+    Callers should compute once and reuse
+    self.metrics/self.bin_ranges — including from the plotting module, which
+    only ever reads these attributes and never triggers a recompute.
+    """
+
     SIGNAL_TRANSFORMS = {
         "entropy":     lambda signal, hyp, target, uri: get_stair_curve(hyp, signal, target, "entropy", uri),
         "max":         lambda signal, hyp, target, uri: get_stair_curve(hyp, signal, target, "max", uri),
@@ -226,7 +244,7 @@ class TemporalErrorAnalysis:
             ...
         ]
 
-        viz = TemporalErrorAnalysis(
+        analysis = TemporalErrorAnalysis(
             files=files,
             reference="annotation",
             hypothesis="precision",
@@ -235,17 +253,9 @@ class TemporalErrorAnalysis:
             overlay_signal="clustering_confidence",
             signal_transforms={"clustering_confidence": ["max", "scale_percentage_up"]},
         )
+        analysis.compute_metrics()
 
-        viz.plot(view="full",
-                 show_values=True,
-                 show_speaker_breakdown=False,
-                 show_overlay=True,
-                 title="Error Analysis by SNR",
-                 x_label="SNR (dB)",
-                 overlay_label="Average Maximum Clustering Confidence",
-                 duration_pos="upper right",
-                 percentage_pos="upper right",
-                 bin_ranges=None)
+        # to visualize these metrics, refer to temporal_error_plots.py
         """
         self.files = files
 
@@ -258,22 +268,16 @@ class TemporalErrorAnalysis:
 
         self.metrics = None
         self.bin_ranges = None
-        self._metrics_cache_key = None
 
-    def compute_metrics(self, bin_ranges=None, force=False):
+    def compute_metrics(self, bin_ranges=None):
         """
-        Set self.metrics and the current cache key.
-        Determines whether recomputation is needed, defines bin_ranges and metrics dictionary, and accumulates values across the files.
+        Computes self.metrics and self.bin_ranges by accumulating error/duration/
+        speaker-count/overlay values across all files. 
+        Call this once and store/reuse the result.
 
-        bin_ranges: (min, max, interval)
-        force: boolean whether to recalculate metrics and override the cache key check
+        bin_ranges: (min, max, interval), or None to auto-compute nice bin edges
+                    from the signal's value range.
         """
-        cache_key = self._compute_metrics_cache_key(bin_ranges)
-        
-        if not force and self.metrics is not None and cache_key == self._metrics_cache_key:
-            print("Using cached metrics. Use force=True to recalculate.")
-            return
-        
         if bin_ranges is not None:
             min_val = bin_ranges[0]
             max_val = bin_ranges[1]
@@ -282,7 +286,7 @@ class TemporalErrorAnalysis:
             self.bin_ranges = [(float(a), float(b)) for a, b in zip(bin_edges[:-1], bin_edges[1:])]
         else:
             self.bin_ranges = self.compute_bin_ranges()
-            
+
         durations_dist = {
             f"{lo}_{hi}": {
                 error_type: {
@@ -294,7 +298,7 @@ class TemporalErrorAnalysis:
             }
             for lo, hi in self.bin_ranges
         }
-        
+
         for file in tqdm(self.files, desc="Processing files"):
             uri = file["uri"]
             ref = file[self.reference]
@@ -302,14 +306,13 @@ class TemporalErrorAnalysis:
             duration = file[self.durations]
             signal = file[self.signal]
             overlay_signal = file[self.overlay_signal] if self.overlay_signal else None
-            
-            analyzer = IdentificationErrorAnalysis()
-            errors = analyzer.difference(ref, hyp) 
 
-            metrics = self._accumulate_file_metrics(signal=signal, overlay_signal=overlay_signal, duration=duration, 
+            analyzer = IdentificationErrorAnalysis()
+            errors = analyzer.difference(ref, hyp)
+
+            metrics = self._accumulate_file_metrics(signal=signal, overlay_signal=overlay_signal, duration=duration,
                                                     errors=errors, reference=ref, hypothesis=hyp, durations_dist=durations_dist, uri=uri)
         self.metrics = metrics
-        self._metrics_cache_key = cache_key
 
     def compute_bin_ranges(self):
         """
@@ -353,271 +356,52 @@ class TemporalErrorAnalysis:
         self.bin_ranges = [(float(a), float(b)) for a, b in zip(bin_edges[:-1], bin_edges[1:])]
         return self.bin_ranges
 
-    def plot(self, view="full", show_values=True, show_speaker_breakdown=False,
-             show_overlay=False, title=None, x_label=None, overlay_label=None,
-             duration_pos="upper right", percentage_pos="upper right", bin_ranges=None, force=False):
+    def extract_binned_signal(self, error_type="correct", metric="percentage"):
         """
-        Computes metrics if not already cached, then plots.
-        
-        Calculates the error analysis with the given bin ranges (or computes them automatically)
-        Then plots the duration, percentage, or both error analyses according to the specified view.
+        Returns a 1D np.array with one value per bin (in self.metrics' bin order),
+        for the cumulative set of error layers up to and including 'error_type'
+        (using the fixed layer order: correct, confusion, missed detection, false alarm).
 
-        view: "duration" for view according to absolute duration
-              "percentage" for view according to percentage relative to each bin
-              "full" for both duration and percentage side-by-side
-        show_values: boolean for displaying the exact value labels
-        show_speaker_breakdown: boolean for displaying the speaker count distribution within correct areas
-        show_overlay: boolean for displaying the overlay signal in the percentage plot
-        title: user-specified title above the plot
-        x_label: user-specified x-axis label, or a default one if None
-        overlay_label: user-specified legend label for the overlay signal, or a default one if None
-        duration_pos: upper/lower right/left position of the duration plot legend
-        percentage_pos: upper/lower right/left position of the percentage plot legend
-        bin_ranges: (min,max,interval) tuple of ints specifying the bin sizes and range.
-                    Calculates them automatically if None
-        force: override the metrics caching check and force a recalculating of the error analysis metrics
+        error_type: "correct", "confusion", "missed detection", or "false alarm"
+                    This is the topmost layer to include in the cumulative sum.
+        metric: "percentage" (cumulative duration / total duration * 100),
+                "duration" (cumulative duration in seconds),
+                or "mean_overlay" (mean_overlay of error_type's own bucket, not cumulative).
         """
-        
-        self.compute_metrics(bin_ranges=bin_ranges, force=force)
+        LAYER_ORDER = ["correct", "confusion", "missed detection", "false alarm"]
 
-        if x_label is None:
-            x_label = DEFAULT_LABELS["x_label"]
-        if overlay_label is None:
-            overlay_label = DEFAULT_LABELS["overlay_label"]
+        if self.metrics is None:
+            raise RuntimeError("Call compute_metrics() first.")
 
-        if view == "full":
-            fig, axes = plt.subplots(1, 2, figsize=(20, 5))
-            self._plot_signal_and_errors(axes[0], by_percentage=False, 
-                                        show_values=show_values, show_speaker_breakdown=show_speaker_breakdown, show_overlay=show_overlay,
-                                        x_label=x_label, overlay_label=overlay_label,
-                                        percentage_pos=percentage_pos, duration_pos=duration_pos)
-            self._plot_signal_and_errors(axes[1], by_percentage=True,
-                                        show_values=show_values, show_speaker_breakdown=show_speaker_breakdown, show_overlay=show_overlay,
-                                        x_label=x_label, overlay_label=overlay_label,
-                                        percentage_pos=percentage_pos, duration_pos=duration_pos)
-            fig.suptitle(title)
-            plt.tight_layout()
-            plt.show()
-        elif view == "duration":
-            fig, ax = plt.subplots(figsize=(10, 5))
-            self._plot_signal_and_errors(
-                ax=ax, by_percentage=False,
-                show_values=show_values, show_speaker_breakdown=show_speaker_breakdown,
-                show_overlay=show_overlay, x_label=x_label, overlay_label=overlay_label,
-                percentage_pos=percentage_pos, duration_pos=duration_pos,
-            )
-            fig.suptitle(title)
-            plt.tight_layout()
-            plt.show()
-        else:  # view == "percentage"
-            fig, ax = plt.subplots(figsize=(10, 5))
-            self._plot_signal_and_errors(
-                ax=ax, by_percentage=True,
-                show_values=show_values, show_speaker_breakdown=show_speaker_breakdown,
-                show_overlay=show_overlay, x_label=x_label, overlay_label=overlay_label,
-                percentage_pos=percentage_pos, duration_pos=duration_pos,
-            )
-            fig.suptitle(title)
-            plt.tight_layout()
-            plt.show()
-
-    def _plot_signal_and_errors(self, ax, by_percentage, show_values=False, show_speaker_breakdown=False, show_overlay=False,
-                                 x_label=None, overlay_label=None,
-                                 duration_pos="upper right", percentage_pos="upper right"):
-        """
-        Plots the error analysis
-        ax: plot axis for side-by-side comparisons
-        show_values: whether to show labels for the values
-        show_speaker_breakdown: whether to show the speaker count distribution within correct segments
-        show_overlay: whether to show the overlay signal
-        x_label: user-defined label for the x-axis
-        overlay_label: user-defined label for the overlay signal
-        duration_pos: upper/lower right/left position of the legend in the duration plot
-        percentage_pos upper/lower right/left position of the legend in the percentage plot
-        """
-        if show_overlay and self.overlay_signal is None:
-            print("show_overlay=True has no effect: no overlay_signal was provided at init.")
-            show_overlay = False
-            
-        metrics_dist = self.metrics
-        bins = list(metrics_dist.keys()) # To turn into labels on x-axis
-        bin_ranges_split = [tuple(float(x) for x in s.split('_')) for s in bins]
-
-        def get_segments(b):
-            entry = metrics_dist[b]
-            segs = {}
-            for key in ("confusion", "missed detection", "false alarm"):
-                segs[key] = entry.get(key, {}).get("duration", 0)
-            correct = entry.get("correct", {})
-            n_spk_counts = correct.get("n_speakers", {})
-            # Filter out 0-speaker seconds
-            n_spk_counts = {n: s for n, s in n_spk_counts.items() if n > 0}
-            for n, spk_duration in sorted(n_spk_counts.items()):
-                bucket = min(n, 5)
-                key = f"correct_{bucket}"
-                segs[key] = segs.get(key, 0) + spk_duration  # already in seconds, no scaling needed
-            return segs
-
-        raw_data = {b: get_segments(b) for b in bins}
-
-        true_max_speakers = max(
-            (n for b in metrics_dist
-            for n, s in metrics_dist[b].get("correct", {}).get("n_speakers", {}).items()
-            if n > 0 and s > 0),
-            default=1
-        )
-        max_bucket = min(true_max_speakers, 5)
-
-        if by_percentage:
-            totals = {b: sum(raw_data[b].values()) for b in bins}
-            data = {
-                b: {k: (v / totals[b] * 100 if totals[b] > 0 else 0)
-                    for k, v in raw_data[b].items()}
-                for b in bins
-            }
+        if error_type == "false alarm":
+            layers_below = LAYER_ORDER[:LAYER_ORDER.index(error_type)]
         else:
-            data = raw_data
+            layers_below = LAYER_ORDER[:LAYER_ORDER.index(error_type) + 1]
 
-        correct_speaker_counts = [n for n in range(1, max_bucket + 1)]
-
-        error_layers = [
-            ("confusion",        "#d62828"),
-            ("missed detection", "#f77f00"),
-            ("false alarm",      "#fcbf49"),
-        ]
-        text_colors_map = {
-            "confusion":        "#ffffff",
-            "missed detection": "#ffffff",
-            "false alarm":      "#003049",
-        }
-
-        if bin_ranges_split is not None:
-            bin_widths = np.array([hi - lo + 1 for lo, hi in bin_ranges_split], dtype=float)
-            total_range = bin_widths.sum()
-            norm_widths = bin_widths / total_range * len(bins)
-            bar_centres = np.cumsum(norm_widths) - norm_widths / 2
-            tick_labels = [f"{lo:.1f}–{hi:.1f}" for lo, hi in bin_ranges_split]
-        else:
-            norm_widths = np.ones(len(bins))
-            bar_centres = np.arange(len(bins), dtype=float)
-            tick_labels = bins
-
-        bottoms = np.zeros(len(bins))
-
-        if show_values:
-            y_max = max(sum(data[b].values()) for b in bins) or 1
-            label_threshold = y_max * 0.05
-
-        if show_speaker_breakdown:
-            for n in correct_speaker_counts:
-                key = f"correct_{n}"
-                label = f"{n}+ spk (correct)" if n == max_bucket == 5 else f"{n} spk (correct)"
-                color = self._get_speaker_color(n, "correct")
-                vals = np.array([data[b].get(key, 0) for b in bins])
-                bars = ax.bar(
-                    bar_centres, vals, width=norm_widths * 0.9,
-                    label=label, color=color, bottom=bottoms, align="center"
+        out = []
+        for bin_label, bin_data in self.metrics.items():
+            if metric == "percentage":
+                total = sum(
+                    b.get("duration", 0)
+                    for b in bin_data.values()
+                    if isinstance(b, dict)
                 )
-                if show_values:
-                    for bar, val, bot in zip(bars, vals, bottoms):
-                        if val < label_threshold:
-                            continue
-                        fmt = f"{val:.1f}{'%' if by_percentage else 's'}"
-                        ax.text(
-                            bar.get_x() + bar.get_width() / 2,
-                            bot + val / 2,
-                            fmt,
-                            ha="center", va="center",
-                            fontsize=7, fontweight="bold",
-                            color="#ffffff",
-                        )
-                bottoms += vals
-        else:
-            # Aggregate all correct buckets into a single bar
-            total_correct = np.zeros(len(bins))
-            for n in correct_speaker_counts:
-                total_correct += np.array([data[b].get(f"correct_{n}", 0) for b in bins])
-            bars = ax.bar(
-                bar_centres, total_correct, width=norm_widths * 0.9,
-                label="Correct", color=self._get_speaker_color(1, "correct"), bottom=bottoms, align="center"
-            )
-            if show_values:
-                for bar, val, bot in zip(bars, total_correct, bottoms):
-                    if val < label_threshold:
-                        continue
-                    fmt = f"{val:.1f}{'%' if by_percentage else 's'}"
-                    ax.text(
-                        bar.get_x() + bar.get_width() / 2,
-                        bot + val / 2,
-                        fmt,
-                        ha="center", va="center",
-                        fontsize=7, fontweight="bold",
-                        color="#ffffff",
-                    )
-            bottoms += total_correct
+                dur = sum(bin_data.get(layer, {}).get("duration", 0) for layer in layers_below)
+                val = (dur / total * 100) if total > 0 else 0.0
+            elif metric == "duration":
+                val = sum(bin_data.get(layer, {}).get("duration", 0) for layer in layers_below)
+            elif metric == "mean_overlay":
+                val = bin_data.get(error_type, {}).get("mean_overlay", 0.0)
+            else:
+                raise ValueError(f"Unknown metric '{metric}'. Choose: percentage, duration, mean_overlay")
+            out.append(val)
 
-        for key, color in error_layers:
-            vals = np.array([data[b].get(key, 0) for b in bins])
-            bars = ax.bar(
-                bar_centres, vals, width=norm_widths * 0.9,
-                label=key.title(), color=color, bottom=bottoms, align="center"
-            )
-            if show_values:
-                for bar, val, bot in zip(bars, vals, bottoms):
-                    if val < label_threshold:
-                        continue
-                    fmt = f"{val:.1f}{'%' if by_percentage else 's'}"
-                    ax.text(
-                        bar.get_x() + bar.get_width() / 2,
-                        bot + val / 2,
-                        fmt,
-                        ha="center", va="center",
-                        fontsize=7, fontweight="bold",
-                        color=text_colors_map[key],
-                    )
-            bottoms += vals
-
-        ax.yaxis.set_major_locator(plt.MultipleLocator(20) if by_percentage else plt.MultipleLocator(5000))
-        ax.yaxis.set_minor_locator(plt.MultipleLocator(10) if by_percentage else plt.MultipleLocator(2500))
-        
-        ax.grid(axis='y', which='major', linestyle='-', linewidth=0.5, alpha=0.7, zorder=0)
-        ax.grid(axis='y', which='minor', linestyle='--', linewidth=0.3, alpha=0.7, zorder=0)
-
-        ax.set_xticks(bar_centres)
-        ax.set_xticklabels(tick_labels, rotation=45, ha="right")
-        ax.set_xlabel(x_label)
-        ax.set_ylabel("Duration (%)" if by_percentage else "Duration (s)")
-        ax.set_title("Percentage" if by_percentage else "Absolute Duration")
-
-        handles, labels = ax.get_legend_handles_labels()
-
-        if by_percentage and show_overlay:
-            confidence_vals = [float(metrics_dist[b].get("band_mean_overlay", 0)) for b in bins]
-
-            ax.plot(
-                bar_centres, confidence_vals,
-                color="white", linewidth=1.5, linestyle="--",
-                marker="o", markersize=4, label=overlay_label,
-                zorder=5,
-            )
-
-        if by_percentage:
-            ax.set_ylim(0, 100)
-        else:
-            ax.set_ylim(bottom=0)
-
-        handles, labels = ax.get_legend_handles_labels()
-        if by_percentage:
-            if percentage_pos is not None:
-                ax.legend(handles[::-1], labels[::-1], title='Error Type', loc=percentage_pos)
-        else:
-            if duration_pos is not None:
-                ax.legend(handles[::-1], labels[::-1], title='Error Type', loc=duration_pos)
+        return np.array(out)
 
     def _accumulate_file_metrics(self, signal, overlay_signal, duration, errors, reference, hypothesis, durations_dist, uri=None):
         """
         First prepare the signals by making them the same shape and applying any transforms.
-        For each SNR bin, calculate the duration of the signal, overlay signal, and each error type. 
+        For each SNR bin, calculate the duration of the signal, overlay signal, and each error type.
         Within each error type within each bin, calculate:
         - The duration that error is active
         - The duration of the overlay signal
@@ -625,7 +409,7 @@ class TemporalErrorAnalysis:
         This works on one file at a time and accumulates the values in durations_dist.
         Returns the metrics dictionary thus far.
         """
-        
+
         if overlay_signal is not None:
             _, _, fps, n_frames = interpolate(overlay_signal, signal, duration)
             signal = self._prepare_signal(signal, self.signal, hypothesis, (n_frames,duration), uri)
@@ -642,7 +426,7 @@ class TemporalErrorAnalysis:
         speaker_counts = reference.discretize(resolution=seconds_per_frame, duration=duration).data.sum(axis=1)
         frame_error_types = errors.discretize(resolution=seconds_per_frame, duration=duration)
 
-        error_matrix = frame_error_types.data       
+        error_matrix = frame_error_types.data
         error_labels = [label[0] for label in frame_error_types.labels]    # (n_labels,)
 
         error_masks = {}
@@ -660,14 +444,14 @@ class TemporalErrorAnalysis:
 
         for i, (lo, hi) in enumerate(self.bin_ranges): # O(10)
             bin_label = f"{lo}_{hi}"
-            
+
             if i == len(self.bin_ranges) - 1:
                 bin_mask = (signal >= lo) & (signal <= hi) # include right edge for last bin
             else:
                 bin_mask = (signal >= lo) & (signal < hi) # (n_frames,)
-            
+
             for error_type, error_mask in error_masks.items(): # O(4)
-                active_mask = bin_mask & error_mask  # (n_frames,) 
+                active_mask = bin_mask & error_mask  # (n_frames,)
 
                 if not active_mask.any():
                     continue
@@ -686,10 +470,10 @@ class TemporalErrorAnalysis:
                 for spk, count in zip(unique_spk, counts):
                     spk = int(spk)
                     bucket["n_speakers"][spk] = bucket["n_speakers"].get(spk, 0) + count * seconds_per_frame
-                    
+
         durations_dist = self._mean_overlay_per_bin(durations_dist)
         return durations_dist
-        
+
     @staticmethod
     def _mean_overlay_per_bin(metrics):
         """
@@ -714,7 +498,7 @@ class TemporalErrorAnalysis:
                 )
 
         return metrics
-    
+
     def _prepare_signal(self, signal, field_name, hypothesis, target, uri):
         """
         Applies every specified transform to the given signal and tells the user how to fix transform errors.
@@ -727,7 +511,7 @@ class TemporalErrorAnalysis:
         uri: uri of the current file
         """
         transform_spec = self.signal_transforms.get(field_name) if self.signal_transforms else None
-        
+
         if signal.ndim == 1 and transform_spec is None:
             return signal  # nothing to do
 
@@ -751,25 +535,3 @@ class TemporalErrorAnalysis:
             signal = transform(signal, hyp=hypothesis, target=target, uri=uri)
 
         return signal
-    
-    def _get_speaker_color(self, n_speakers, error_type=None):
-        """
-        Gets color for given number of speakers and error type for plotting functions
-        n_speakers: int number of speakers active
-        error_type: string error type, one of "correct", "missed detection", "false alarm", "confusion" or None for all
-        """
-        palette = _PALETTE_BY_ERROR_TYPE.get(error_type, ALL_SPEAKER_COLORS)
-        return palette.get(n_speakers, palette[5])
-
-    def _compute_metrics_cache_key(self, bin_ranges):
-        """
-        Compute hash key based on files, signal types, transforms and bin ranges to determine if cached metrics can be reused
-        """
-        key = {
-            "bin_ranges": bin_ranges,
-            "signal": self.signal,
-            "overlay_signal": self.overlay_signal,
-            "signal_transforms": self.signal_transforms,
-            "files": [f["uri"] for f in self.files],
-        }
-        return hashlib.md5(json.dumps(key, sort_keys=True).encode()).hexdigest()
