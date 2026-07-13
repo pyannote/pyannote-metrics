@@ -11,7 +11,7 @@ public 'extract_binned_signal()' metrics API) but never calls
 Example usage
 ---------------------------------------------------------------------------
 
-from temporal_error_analysis import TemporalErrorAnalysis
+from temporal_metrics import TemporalErrorAnalysis
 
 One shared 'files' list. Each file dict carries every model's hypothesis
 under its own key, e.g.:
