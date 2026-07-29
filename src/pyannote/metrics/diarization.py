@@ -456,7 +456,9 @@ class JaccardErrorRate(DiarizationErrorRate):
         return detail
 
     def compute_metric(self, detail: Details) -> float:
-        return detail[JER_SPEAKER_ERROR] / detail[JER_SPEAKER_COUNT]
+        if detail[JER_SPEAKER_COUNT] > 0.0:
+            return detail[JER_SPEAKER_ERROR] / detail[JER_SPEAKER_COUNT]
+        return 1.0
 
 
 PURITY_NAME = "purity"
