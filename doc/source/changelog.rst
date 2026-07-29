@@ -2,6 +2,11 @@
 Changelog
 #########
 
+Next
+~~~~
+
+- fix: fix metrics for empty references (@Atishyy27)
+
 Version 4.1.0 (2026-05-06)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
