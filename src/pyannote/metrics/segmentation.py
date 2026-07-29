@@ -307,8 +307,8 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
         n_matches = 0.  # make sure it is a float (for later ratio)
 
         # number of boundaries in reference and hypothesis
-        N = len(reference) - 1
-        M = len(hypothesis) - 1
+        N = max(0, len(reference) - 1)
+        M = max(0, len(hypothesis) - 1)
 
         # number of boundaries in hypothesis
         detail[PR_BOUNDARIES] = M
