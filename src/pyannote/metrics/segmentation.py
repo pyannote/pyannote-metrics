@@ -126,7 +126,9 @@ class SegmentationCoverage(BaseMetric):
         # cooccurrence matrix
         K = reference * hypothesis
         detail[PTY_CVG_TOTAL] = np.sum(K).item()
-        detail[PTY_CVG_INTER] = np.sum(np.max(K, axis=1)).item()
+        # np.max has no identity on an empty matrix, which happens when either
+        # annotation is empty. Nothing is covered in that case.
+        detail[PTY_CVG_INTER] = np.sum(np.max(K, axis=1)).item() if K.size else 0.
 
         return detail
 
@@ -144,6 +146,8 @@ class SegmentationCoverage(BaseMetric):
         return self._process(reference, hypothesis)
 
     def compute_metric(self, detail: Details) -> float:
+        if detail[PTY_CVG_TOTAL] == 0.:
+            return 1.
         return detail[PTY_CVG_INTER] / detail[PTY_CVG_TOTAL]
 
 
@@ -206,11 +210,11 @@ class SegmentationPurityCoverageFMeasure(SegmentationCoverage):
         # cooccurrence matrix coverage
         K = reference * hypothesis
         detail[CVG_TOTAL] = np.sum(K).item()
-        detail[CVG_INTER] = np.sum(np.max(K, axis=1)).item()
+        detail[CVG_INTER] = np.sum(np.max(K, axis=1)).item() if K.size else 0.
 
         # cooccurrence matrix purity
         detail[PTY_TOTAL] = detail[CVG_TOTAL]
-        detail[PTY_INTER] = np.sum(np.max(K, axis=0)).item()
+        detail[PTY_INTER] = np.sum(np.max(K, axis=0)).item() if K.size else 0.
 
         return detail
 
