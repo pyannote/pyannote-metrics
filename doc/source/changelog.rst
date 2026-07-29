@@ -5,7 +5,7 @@ Changelog
 Next
 ~~~~
 
-- fix(segmentation): fix segmentation metrics for empty references
+- fix: fix metrics for empty references (@Atishyy27)
 
 Version 4.1.0 (2026-05-06)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -113,3 +113,12 @@ def test_bug_16():
     metric = DiarizationErrorRate(collar=0)
     total = metric(reference, hypothesis, detailed=True)["total"]
     npt.assert_almost_equal(total, 10, decimal=3)
+
+
+def test_jaccard_error_rate_empty_reference():
+    from pyannote.metrics.diarization import JaccardErrorRate
+
+    hypothesis = Annotation()
+    hypothesis[Segment(0, 10)] = "spk"
+    # empty reference -> zero speaker count -> must not ZeroDivisionError
+    assert JaccardErrorRate()(Annotation(), hypothesis) == 1.0
