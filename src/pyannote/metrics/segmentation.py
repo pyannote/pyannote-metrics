@@ -33,6 +33,7 @@ from typing import Tuple, Union, Optional
 import numpy as np
 from pyannote.core import Segment, Timeline, Annotation
 from pyannote.core.utils.generators import pairwise
+from scipy.optimize import linear_sum_assignment
 
 from .base import BaseMetric, f_measure
 from .types import MetricComponents, Details
@@ -328,30 +329,21 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
             for h, hypBoundary in enumerate(hyp_boundaries):
                 delta[r, h] = abs(refBoundary - hypBoundary)
 
-        # make sure boundaries too far apart from each other cannot be matched
-        # (this is what np.inf is used for)
-        delta[np.where(delta > self.tolerance)] = np.inf
+        # pair boundaries so that the number of matches is maximum, using the
+        # same optimal assignment as `pyannote.metrics.matcher`. matching them
+        # greedily (closest pair first) is not optimal: a close pair may use up
+        # the only in-tolerance partner of another boundary, which then goes
+        # unmatched. boundaries too far apart are given a prohibitive cost, so
+        # they are only ever paired when nothing in tolerance is left -- such
+        # pairs are discarded below. min(N, M) * tolerance is the largest total
+        # cost an all-in-tolerance assignment can reach, so a prohibitive cost
+        # above it can never be preferred over an in-tolerance match.
+        prohibitive = min(N, M) * self.tolerance + 1.
+        cost = np.where(delta > self.tolerance, prohibitive, delta)
 
-        # h always contains the minimum value in delta matrix
-        # h == np.inf means that no boundary can be matched
-        h = np.amin(delta)
-
-        # while there are still boundaries to match
-        while h < np.inf:
-            # increment match count
-            n_matches += 1
-
-            # find boundaries to match
-            k = np.argmin(delta)
-            i = k // M
-            j = k % M
-
-            # make sure they cannot be matched again
-            delta[i, :] = np.inf
-            delta[:, j] = np.inf
-
-            # update minimum value in delta
-            h = np.amin(delta)
+        for r, h in zip(*linear_sum_assignment(cost)):
+            if delta[r, h] <= self.tolerance:
+                n_matches += 1
 
         detail[PR_MATCHES] = n_matches
         return detail
