@@ -13,7 +13,7 @@ See temporal_error_plots.py for visualizing the resulting '.metrics' /
 ---------------------------------------------------------------------------
 Example usage
 ---------------------------------------------------------------------------
-from temporal_metrics import TemporalErrorAnalysis
+from temporal_error_analysis import TemporalErrorAnalysis
 
 One shared 'files' list. Each file dict carries every model's hypothesis
 under its own key, e.g.:
@@ -69,6 +69,7 @@ confusion_seconds = analysis.extract_binned_signal(error_type="confusion", metri
 """
 
 from pyannote.metrics.errors.identification import IdentificationErrorAnalysis
+from pyannote.metrics.diarization import DiarizationErrorRate
 import numpy as np
 from scipy.interpolate import interp1d
 from tqdm import tqdm
@@ -306,6 +307,10 @@ class TemporalErrorAnalysis:
             duration = file[self.durations]
             signal = file[self.signal]
             overlay_signal = file[self.overlay_signal] if self.overlay_signal else None
+
+            der = DiarizationErrorRate()
+            mapping = der.optimal_mapping(ref, hyp)
+            hyp = hyp.rename_labels(mapping=mapping)
 
             analyzer = IdentificationErrorAnalysis()
             errors = analyzer.difference(ref, hyp)
