@@ -35,11 +35,13 @@ from pyannote.core import Timeline, Segment, Annotation
 class UEMSupportMixin:
     """Provides 'uemify' method with optional (à la NIST) collar"""
 
-    def extrude(self,
-                uem: Timeline,
-                reference: Annotation,
-                collar: float = 0.0,
-                skip_overlap: bool = False) -> Timeline:
+    def extrude(
+        self,
+        uem: Timeline,
+        reference: Annotation,
+        collar: float = 0.0,
+        skip_overlap: bool = False,
+    ) -> Timeline:
         """Extrude reference boundary collars from uem
 
         reference     |----|     |--------------|       |-------------|
@@ -65,22 +67,22 @@ class UEMSupportMixin:
         extruded_uem : Timeline
         """
 
-        if collar == 0. and not skip_overlap:
+        if collar == 0.0 and not skip_overlap:
             return uem
 
         collars, overlap_regions = [], []
 
         # build list of collars if needed
-        if collar > 0.:
+        if collar > 0.0:
             # iterate over all segments in reference
             for segment in reference.itersegments():
                 # add collar centered on start time
                 t = segment.start
-                collars.append(Segment(t - .5 * collar, t + .5 * collar))
+                collars.append(Segment(t - 0.5 * collar, t + 0.5 * collar))
 
                 # add collar centered on end time
                 t = segment.end
-                collars.append(Segment(t - .5 * collar, t + .5 * collar))
+                collars.append(Segment(t - 0.5 * collar, t + 0.5 * collar))
 
         # build list of overlap regions if needed
         if skip_overlap:
@@ -95,8 +97,9 @@ class UEMSupportMixin:
 
         return Timeline(segments=segments).support().gaps(support=uem)
 
-    def common_timeline(self, reference: Annotation, hypothesis: Annotation) \
-            -> Timeline:
+    def common_timeline(
+        self, reference: Annotation, hypothesis: Annotation
+    ) -> Timeline:
         """Return timeline common to both reference and hypothesis
 
         reference   |--------|    |------------|     |---------|         |----|
@@ -144,19 +147,20 @@ class UEMSupportMixin:
                 projection[segment, track] = annotation[segment_, track_]
         return projection
 
-    def uemify(self,
-               reference: Annotation,
-               hypothesis: Annotation,
-               uem: Optional[Timeline] = None,
-               collar: float = 0.,
-               skip_overlap: bool = False,
-               returns_uem: bool = False,
-               returns_timeline: bool = False) \
-            -> Union[
-                Tuple[Annotation, Annotation],
-                Tuple[Annotation, Annotation, Timeline],
-                Tuple[Annotation, Annotation, Timeline, Timeline],
-            ]:
+    def uemify(
+        self,
+        reference: Annotation,
+        hypothesis: Annotation,
+        uem: Optional[Timeline] = None,
+        collar: float = 0.0,
+        skip_overlap: bool = False,
+        returns_uem: bool = False,
+        returns_timeline: bool = False,
+    ) -> Union[
+        Tuple[Annotation, Annotation],
+        Tuple[Annotation, Annotation, Timeline],
+        Tuple[Annotation, Annotation, Timeline, Timeline],
+    ]:
         """Crop 'reference' and 'hypothesis' to 'uem' support
 
         Parameters
@@ -195,19 +199,18 @@ class UEMSupportMixin:
             r_extent = reference.get_timeline().extent()
             h_extent = hypothesis.get_timeline().extent()
             extent = r_extent | h_extent
-            uem = Timeline(segments=[extent] if extent else [],
-                           uri=reference.uri)
+            uem = Timeline(segments=[extent] if extent else [], uri=reference.uri)
             warnings.warn(
                 "'uem' was approximated by the union of 'reference' "
-                "and 'hypothesis' extents.")
+                "and 'hypothesis' extents."
+            )
 
         # extrude collars (and overlap regions) from uem
-        uem = self.extrude(uem, reference, collar=collar,
-                           skip_overlap=skip_overlap)
+        uem = self.extrude(uem, reference, collar=collar, skip_overlap=skip_overlap)
 
         # extrude regions outside of uem
-        reference = reference.crop(uem, mode='intersection')
-        hypothesis = hypothesis.crop(uem, mode='intersection')
+        reference = reference.crop(uem, mode="intersection")
+        hypothesis = hypothesis.crop(uem, mode="intersection")
 
         # project reference and hypothesis on common timeline
         if returns_timeline:

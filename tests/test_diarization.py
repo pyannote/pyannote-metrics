@@ -1,3 +1,4 @@
+from calendar import c
 import pytest
 
 import pyannote.core
@@ -7,8 +8,16 @@ from pyannote.core import Timeline
 from pyannote.metrics.diarization import DiarizationErrorRate
 from pyannote.metrics.diarization import DiarizationPurity
 from pyannote.metrics.diarization import DiarizationCoverage
+from pyannote.metrics.diarization import (
+    OverlappedDiarizationErrorRate,
+    OVLDER_PREFIX_NONOVL,
+    OVLDER_PREFIX_OVL,
+)
 
 import numpy.testing as npt
+
+from pyannote.metrics.matcher import MATCH_TOTAL
+from pyannote.metrics.types import Details
 
 
 @pytest.fixture
@@ -40,6 +49,53 @@ def hypothesis():
     hypothesis[Segment(22, 38)] = "c"
     hypothesis[Segment(38, 40)] = "d"
     return hypothesis
+
+
+@pytest.fixture
+def hypothesis_overlap():
+    hypothesis = Annotation()
+    hypothesis[Segment(2, 13)] = "a"
+    hypothesis[Segment(10, 14)] = "d"
+    hypothesis[Segment(14, 24)] = "b"
+    hypothesis[Segment(22, 38)] = "c"
+    hypothesis[Segment(36, 40)] = "d"
+    return hypothesis
+
+
+def test_ovl_der(reference_with_overlap, hypothesis_overlap: Annotation):
+    der_ovl = OverlappedDiarizationErrorRate()
+    der_regular = DiarizationErrorRate()
+
+    error_rate_ovl = der_ovl(reference_with_overlap, hypothesis_overlap)
+    error_rate_regular = der_regular(reference_with_overlap, hypothesis_overlap)
+
+    npt.assert_almost_equal(error_rate_ovl, error_rate_regular, decimal=7)
+
+
+def test_ovl_der_components(reference_with_overlap, hypothesis_overlap):
+    for collar in [0.0, 0.1, 0.5]:
+        der_ovl = OverlappedDiarizationErrorRate(collar=collar)
+        der_regular = DiarizationErrorRate(collar=collar)
+
+        comp_ovl: Details = der_ovl(
+            reference_with_overlap, hypothesis_overlap, detailed=True
+        )
+        comp_regular: Details = der_regular(
+            reference_with_overlap, hypothesis_overlap, detailed=True
+        )
+
+        print(comp_ovl)
+        print(comp_regular)
+
+        # test that for each component, the sum of non-overlapped and overlapped components is equal to the regular component
+        # eg check that ovl confusion+nonovl confusion = confusion
+        for component in der_regular.metric_components():
+            ovl_compsum = comp_ovl["nonovl " + component] + comp_ovl["ovl " + component]
+            reg_compsum = comp_regular[component]
+            npt.assert_almost_equal(ovl_compsum, reg_compsum, decimal=7)
+        # check there is overlapped and nonoverlapped speech
+        assert comp_ovl[f"{OVLDER_PREFIX_NONOVL} {MATCH_TOTAL}"] > 0.0
+        assert comp_ovl[f"{OVLDER_PREFIX_OVL} {MATCH_TOTAL}"] > 0.0
 
 
 def test_error_rate(reference, hypothesis):

@@ -50,14 +50,14 @@ class BaseMetric:
     def metric_name(cls) -> str:
         raise NotImplementedError(
             cls.__name__ + " is missing a 'metric_name' class method. "
-                           "It should return the name of the metric as string."
+            "It should return the name of the metric as string."
         )
 
     @classmethod
     def metric_components(cls) -> MetricComponents:
         raise NotImplementedError(
             cls.__name__ + " is missing a 'metric_components' class method. "
-                           "It should return the list of names of metric components."
+            "It should return the list of names of metric components."
         )
 
     def __init__(self, **kwargs):
@@ -84,9 +84,14 @@ class BaseMetric:
     # TODO: use joblib/locky to allow parallel processing?
     # TODO: signature could be something like __call__(self, reference_iterator, hypothesis_iterator, ...)
 
-    def __call__(self, reference: Union[Timeline, Annotation],
-                 hypothesis: Union[Timeline, Annotation],
-                 detailed: bool = False, uri: Optional[str] = None, **kwargs):
+    def __call__(
+        self,
+        reference: Union[Timeline, Annotation],
+        hypothesis: Union[Timeline, Annotation],
+        detailed: bool = False,
+        uri: Optional[str] = None,
+        **kwargs,
+    ):
         """Compute metric value and accumulate components
 
         Parameters
@@ -247,10 +252,12 @@ class BaseMetric:
         for uri, component in self.results_:
             yield uri, component
 
-    def compute_components(self,
-                           reference: Union[Timeline, Annotation],
-                           hypothesis: Union[Timeline, Annotation],
-                           **kwargs) -> Details:
+    def compute_components(
+        self,
+        reference: Union[Timeline, Annotation],
+        hypothesis: Union[Timeline, Annotation],
+        **kwargs,
+    ) -> Details:
         """Compute metric components
 
         Parameters
@@ -269,8 +276,8 @@ class BaseMetric:
         """
         raise NotImplementedError(
             self.__class__.__name__ + " is missing a 'compute_components' method."
-                                      "It should return a dictionary where keys are component names "
-                                      "and values are component values."
+            "It should return a dictionary where keys are component names "
+            "and values are component values."
         )
 
     def compute_metric(self, components: Details):
@@ -289,12 +296,13 @@ class BaseMetric:
         """
         raise NotImplementedError(
             self.__class__.__name__ + " is missing a 'compute_metric' method. "
-                                      "It should return the actual value of the metric based "
-                                      "on the precomputed component dictionary given as input."
+            "It should return the actual value of the metric based "
+            "on the precomputed component dictionary given as input."
         )
 
-    def confidence_interval(self, alpha: float = 0.9) \
-            -> Tuple[float, Tuple[float, float]]:
+    def confidence_interval(
+        self, alpha: float = 0.9
+    ) -> Tuple[float, Tuple[float, float]]:
         """Compute confidence interval on accumulated metric values
 
         Parameters
@@ -319,13 +327,17 @@ class BaseMetric:
         values = [r[self.metric_name_] for _, r in self.results_]
 
         if len(values) == 0:
-            raise ValueError("Please evaluate a bunch of files before computing confidence interval.")
-        
+            raise ValueError(
+                "Please evaluate a bunch of files before computing confidence interval."
+            )
+
         elif len(values) == 1:
-            warnings.warn("Cannot compute a reliable confidence interval out of just one file.")
+            warnings.warn(
+                "Cannot compute a reliable confidence interval out of just one file."
+            )
             center = lower = upper = values[0]
             return center, (lower, upper)
-        
+
         else:
             return scipy.stats.bayes_mvs(values, alpha=alpha)[0]
 

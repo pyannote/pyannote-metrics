@@ -97,10 +97,12 @@ import warnings
 
 import numpy as np
 import pandas as pd
+
 # command line parsing
 from docopt import docopt
 from pyannote.core import Annotation
 from pyannote.core import Timeline
+
 # evaluation protocols
 from pyannote.database import get_protocol
 from pyannote.database.util import get_annotated

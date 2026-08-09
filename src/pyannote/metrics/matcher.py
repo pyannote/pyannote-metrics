@@ -34,11 +34,11 @@ from scipy.optimize import linear_sum_assignment
 if TYPE_CHECKING:
     from pyannote.core.utils.types import Label
 
-MATCH_CORRECT = 'correct'
-MATCH_CONFUSION = 'confusion'
-MATCH_MISSED_DETECTION = 'missed detection'
-MATCH_FALSE_ALARM = 'false alarm'
-MATCH_TOTAL = 'total'
+MATCH_CORRECT = "correct"
+MATCH_CONFUSION = "confusion"
+MATCH_MISSED_DETECTION = "missed detection"
+MATCH_FALSE_ALARM = "false alarm"
+MATCH_TOTAL = "total"
 
 
 class LabelMatcher:
@@ -50,7 +50,7 @@ class LabelMatcher:
     otherwise.
     """
 
-    def match(self, rlabel: 'Label', hlabel: 'Label') -> bool:
+    def match(self, rlabel: "Label", hlabel: "Label") -> bool:
         """
         Parameters
         ----------
@@ -68,9 +68,9 @@ class LabelMatcher:
         # Two IDs match if they are equal to each other
         return rlabel == hlabel
 
-    def __call__(self, rlabels: Iterable['Label'], hlabels: Iterable['Label']) \
-            -> Tuple[Dict[str, int],
-                     Dict[str, List['Label']]]:
+    def __call__(
+        self, rlabels: Iterable["Label"], hlabels: Iterable["Label"]
+    ) -> Tuple[Dict[str, int], Dict[str, List["Label"]]]:
         """
 
         Parameters
@@ -91,14 +91,14 @@ class LabelMatcher:
             MATCH_CONFUSION: 0,
             MATCH_MISSED_DETECTION: 0,
             MATCH_FALSE_ALARM: 0,
-            MATCH_TOTAL: 0
+            MATCH_TOTAL: 0,
         }
 
         details = {
             MATCH_CORRECT: [],
             MATCH_CONFUSION: [],
             MATCH_MISSED_DETECTION: [],
-            MATCH_FALSE_ALARM: []
+            MATCH_FALSE_ALARM: [],
         }
         # this is to make sure rlabels and hlabels are lists
         # as we will access them later by index
@@ -156,7 +156,7 @@ class LabelMatcher:
 
 class HungarianMapper:
 
-    def __call__(self, A: Annotation, B: Annotation) -> Dict['Label', 'Label']:
+    def __call__(self, A: Annotation, B: Annotation) -> Dict["Label", "Label"]:
         mapping = {}
 
         cooccurrence = A * B
@@ -171,7 +171,7 @@ class HungarianMapper:
 
 class GreedyMapper:
 
-    def __call__(self, A: Annotation, B: Annotation) -> Dict['Label', 'Label']:
+    def __call__(self, A: Annotation, B: Annotation) -> Dict["Label", "Label"]:
         mapping = {}
 
         cooccurrence = A * B
@@ -183,8 +183,8 @@ class GreedyMapper:
 
             if cooccurrence[a, b] > 0:
                 mapping[a_labels[a]] = b_labels[b]
-                cooccurrence[a, :] = 0.
-                cooccurrence[:, b] = 0.
+                cooccurrence[a, :] = 0.0
+                cooccurrence[:, b] = 0.0
                 continue
 
             break
