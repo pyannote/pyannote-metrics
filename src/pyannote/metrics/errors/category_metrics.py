@@ -5,14 +5,12 @@ Two classes:
   - CategoryStats: reference-only stats (speech duration per category label).
   - CategoryErrorAnalysis: DER breakdown per category label.
 
-This module has no plotting dependency (no matplotlib/seaborn import). See
-category_plots.py for visualizing the resulting durations / error-distribution
-attributes.
+This module has no plotting dependency. See category_plots.py for visualizing
+the resulting durations / error-distribution attributes.
 
 ---------------------------------------------------------------------------
 Example usage
 ---------------------------------------------------------------------------
-from category_metrics import CategoryErrorAnalysis
 
 files = [
     {
@@ -26,7 +24,9 @@ files = [
 
 --- CategoryStats: reference-only stats, independent of any hypothesis ---
 
-stats = CategoryStats(files=files, speaker_annotation="reference", category_annotation="gender")
+stats = CategoryStats(files=files, speaker_annotation="reference",
+                       speaker_category_map_key="speaker_category_map",
+                       category_annotation="gender")
 
 stats.compute_durations(overlap=True)      # populates stats.durations, stats.durations_overlap
 stats.durations                             # {'male': 120.3, 'female': 98.7, 'TOTAL': 219.0}
@@ -40,16 +40,64 @@ stats.compute_durations(overlap=False, uris=["DH_EVAL_0001"])   # recompute for 
 stats.get_missing_speaker_labels(verbose=True)   # diagnostic: speakers with no category mapping
 stats.get_category_classifier_accuracy()         # prints MD/FA of the category labels themselves
 
+--- Per-file pre-computed speaker to category mapping ---
+
+Sometimes you already know the category of every speaker in a file (e.g.
+from a diarization-independent classifier, manual labels, or metadata) and
+want to skip the overlap-based 'map_speaker_to_category' step for that file
+entirely. Each file dict may carry its own optional key holding that file's {speaker_label: category_label}
+mapping. For example:
+
+files = [
+    {
+        "uri": "DH_EVAL_0001",
+        "reference": ann1,
+        "speaker_category_map": {"spk1": "male", "spk2": "female"},
+        # no "gender" key needed -- this file is fully covered by its own map
+    },
+    {
+        "uri": "DH_EVAL_0002",
+        "reference": ann2,
+        "gender": gender_ann2,
+        # no "speaker_category_map" key -- falls back to computing map from gender annotation
+    },
+]
+
+stats = CategoryStats(files=files, speaker_annotation="reference",
+                       category_annotation="gender", speaker_category_map_key="speaker_category_map")
+
+If a file's dict contains a speaker category map, that mapping is
+used as-is for that file. Otherwise the file requires an annotation.
+
+Everything downstream (compute_durations, print_summary, merge_labels,
+exclude_labels, and CategoryErrorAnalysis's error breakdowns) works
+identically regardless of whether a given file's mapping came from overlap
+or was supplied directly.
+
 --- CategoryErrorAnalysis: hypothesis-vs-reference error breakdown per category ---
 
 analysis = CategoryErrorAnalysis(files=files, speaker_annotation="reference",
-                                  hypothesis_annotation="hypothesis", category_annotation="gender")
+                                  hypothesis_annotation="hypothesis",
+                                  speaker_category_map_key="speaker_category_map",
+                                  category_annotation="gender")
 
 analysis.compute_distributions(normalized=True)   # populates the four error category attributes
 analysis.error_distribution         # {'md': {...}, 'fa': {...}, 'confusion': {...}, 'correct': {...}}
 analysis.confusion_durations        # {'male+female': 0.03, 'female+male': 0.02, ...}
 analysis.overlap_error_distribution # {'md': {...}, 'fa': {...}, 'confusion': {...}, 'correct': {...}}
 analysis.overlap_confusion_durations # {'male+female': 0.01, 'female+male': 0.01, ...}
+
+# category_annotation is only skippable if EVERY file supplies its own map --
+# it's still "one source or the other per file", never "neither". Here both
+# files carry their own precomputed map, so no annotation key is needed at all:
+files_fully_precomputed = [
+    {"uri": "DH_EVAL_0001", "reference": ann1, "hypothesis": hyp1,
+     "speaker_category_map": {"spk1": "male", "spk2": "female"}},
+    {"uri": "DH_EVAL_0002", "reference": ann2, "hypothesis": hyp2,
+     "speaker_category_map": {"spk1": "female", "spk2": "female", "spk3": "male"}},
+]
+analysis = CategoryErrorAnalysis(files=files_fully_precomputed, speaker_annotation="reference",
+                                  hypothesis_annotation="hypothesis", speaker_category_map_key="speaker_category_map")
 
 --- Comparing two models' distributions ---
 
@@ -84,47 +132,79 @@ class CategoryStats:
     categorical attributes of the speakers (e.g. gender, age bracket, accent
     distribution).
 
-    Each file is represented as a plain dict with at least three keys:
+    Each file is represented as a plain dict with at least these keys:
       - uri key        : a string identifying the audio file
       - speaker key    : a pyannote Annotation with ground-truth speaker-identity labels
-      - category key   : a pyannote Annotation with attribute labels (gender, age bracket, …)
 
-    Label sets are discovered automatically from the data.
+    Category resolution happens per file, using one of two sources:
+      - category key   : a pyannote Annotation with attribute labels (gender, age
+                          bracket, …). Used via temporal overlap with the speaker
+                          annotation when the file has no pre-computed map (see below).
+      - map key         : an optional {speaker_label: category_label} dict. When present on a file, it is used
+                          as-is for that file and no overlap computation is performed.
+
+    Every file must be resolvable by at least one of these two sources. A file
+    with neither is a construction-time error.
+
+    Label sets are discovered automatically from the data (from category
+    annotations and/or pre-computed maps, depending on what each file has).
     merge_labels and exclude_labels are applied during discovery.
 
     Public API surface:
       - compute_speaker_category_map(uris=None) -> populates self.speaker_category_map
+        (per file: from its own pre-computed map if present, else derived from
+        temporal overlap with category_annotation)
       - compute_durations(overlap=True, uris=None, verbose=True) -> populates
         self.durations ({label: seconds, …, 'TOTAL': seconds}) and self.durations_overlap
       - label_duration / all_durations / label_percentage / all_percentages /
         label_ratio / print_summary: read self.durations (call compute_durations() first)
       - get_missing_speaker_labels(uris=None, verbose=False): diagnostic, always fresh
-      - get_category_classifier_accuracy(uris=None): diagnostic, prints, not cached
+      - get_category_classifier_accuracy(uris=None): diagnostic, prints, not cached;
+        requires an actual category_annotation for every requested uri (raises for
+        any uri that only has a pre-computed map)
     """
 
     def __init__(
         self,
         files,
         speaker_annotation,
-        category_annotation,
+        speaker_category_map_key,
+        category_annotation=None,
         uri_key='uri',
         merge_labels=None,
         exclude_labels=None,
     ):
         """
-        files                : list of dicts, one per audio file
-        speaker_annotation   : str — key in each dict for the speaker diarization Annotation
-        category_annotation  : str — key in each dict for the attribute/category Annotation
-        uri_key              : str — key in each dict for the audio URI (default: 'uri')
-        merge_labels         : dict {new_label: (old_label, …)} or None to either merge or rename labels
-        exclude_labels       : list of str or None — labels to drop from analysis
+        files                     : list of dicts, one per audio file
+        speaker_annotation        : str — key in each dict for the speaker diarization Annotation
+        speaker_category_map_key  : str — key under which an individual file dict may optionally
+                                     carry a pre-computed {speaker_label: category_label} mapping.
+                                     When a file has this key, that mapping is used as-is (after
+                                     merge/exclude resolution) for that file, instead of computing
+                                     overlap between speaker_annotation and category_annotation.
+                                     A file without this key falls back to overlap and therefore
+                                     must carry category_annotation. Required (no default) so that
+                                     the key name is always explicit at the call site, since it's
+                                     read from arbitrary user file dicts.
+        category_annotation       : str or None — key in each dict for the attribute/category
+                                     Annotation. Only required for files that don't carry their
+                                     own pre-computed map.
+        uri_key                   : str — key in each dict for the audio URI (default: 'uri')
+        merge_labels              : dict {new_label: (old_label, …)} or None to either merge or rename labels
+        exclude_labels            : list of str or None — labels to drop from analysis
 
         Example
         -------
         stats = CategoryStats(files=files, speaker_annotation="reference",
+                               speaker_category_map_key="speaker_category_map",
                                category_annotation="gender")
         stats.compute_durations(overlap=True)
         stats.print_summary()
+
+        # Or, with some files carrying their own pre-computed mapping:
+        # files = [{"uri": "A", "reference": ann, "speaker_category_map": {"spk1": "male"}}, ...]
+        stats = CategoryStats(files=files, speaker_annotation="reference",
+                               speaker_category_map_key="speaker_category_map")
         """
         self.files = files
         self.speaker_annotation_key = speaker_annotation
@@ -132,15 +212,47 @@ class CategoryStats:
         self.uri_key = uri_key
         self.merge_labels = merge_labels or {}
         self.exclude_labels = set(exclude_labels or [])
+        self.speaker_category_map_key = speaker_category_map_key
 
-        # Build convenience look-ups so the rest of the class can access
-        # annotations by URI without iterating self.files every time.
+        # Convenience look-ups so the rest of the class can access annotations
+        # by URI without iterating self.files every time.
         self._speaker = {f[uri_key]: f[speaker_annotation] for f in files}
-        self._category = {f[uri_key]: f[category_annotation] for f in files}
+
+        # Category annotation is only collected for files that actually carry
+        # it -- some files may rely entirely on a pre-computed map instead.
+        self._category = {
+            f[uri_key]: f[category_annotation]
+            for f in files
+            if category_annotation is not None and category_annotation in f
+        }
+
+        # Pre-computed per-file mapping, in canonical form
+        # {uri: {speaker_label: raw_category_label}}. Only present for files
+        # that actually carry the key (with a non-None value).
+        self._precomputed_map = {
+            f[uri_key]: dict(f[speaker_category_map_key])
+            for f in files
+            if speaker_category_map_key in f and f[speaker_category_map_key] is not None
+        }
+
+        # Every file must be resolvable via one source or the other.
+        unresolved = [
+            uri for uri in self._speaker
+            if uri not in self._precomputed_map and uri not in self._category
+        ]
+        if unresolved:
+            raise ValueError(
+                f"{len(unresolved)} file(s) have neither a '{speaker_category_map_key}' "
+                f"entry nor a usable '{category_annotation}' category_annotation to fall "
+                f"back on: {sorted(unresolved)}"
+            )
 
         # Labels are discovered from the data; merge/exclude applied in place.
         self.labels = self._discover_labels()
 
+        # Overlap-coverage warning only makes sense for files whose category
+        # comes from an actual temporal category annotation; files with a
+        # pre-computed map are skipped inside this method.
         self._warn_unknown_category_labels()
 
         # Populated by compute_speaker_category_map() / compute_durations().
@@ -154,15 +266,23 @@ class CategoryStats:
 
     def _discover_labels(self):
         """
-        Collects every label that appears in the category annotations,
-        applies exclusions, then renames according to merge_labels.
-        Returns a deduplicated, ordered list.
+        Collects every label that appears in the data, per file: from that
+        file's pre-computed map values if it has one, otherwise from its
+        category annotation's track labels. Applies exclusions, then renames
+        according to merge_labels. Returns a deduplicated, ordered list.
         """
         seen = []
         seen_set = set()
 
-        for uri, annotation in self._category.items():
-            for _, _, label in annotation.itertracks(yield_label=True):
+        for uri in self._speaker:
+            if uri in self._precomputed_map:
+                label_source = self._precomputed_map[uri].values()
+            else:
+                label_source = (
+                    label
+                    for _, _, label in self._category[uri].itertracks(yield_label=True)
+                )
+            for label in label_source:
                 if label not in seen_set:
                     seen.append(label)
                     seen_set.add(label)
@@ -208,10 +328,17 @@ class CategoryStats:
         any label. These speakers will be skipped during duration
         and error computations, but their duration can be found in the
         inter/intra category confusion distribution under "UNKNOWN".
+
+        Files with a pre-computed map are skipped entirely here: overlap
+        coverage is only a meaningful diagnostic for files whose category
+        comes from an actual temporal category annotation.
         """
         unmapped = defaultdict(set)
 
         for uri in self._speaker:
+            if uri in self._precomputed_map:
+                continue
+
             speaker_ann  = self._speaker[uri]
             category_ann = self._category[uri]
 
@@ -271,9 +398,21 @@ class CategoryStats:
         Prints missed detections and false alarms of the category classifier
         against the speaker reference.
 
+        Requires an actual category_annotation for every requested uri (this
+        compares the reference speaker timeline against the category timeline
+        itself, which has no meaning for a file that only has a pre-computed
+        speaker_category_map).
+
         uris : list of URI strings to restrict analysis, or None for all
         """
-        keys = uris if uris is not None else self._speaker.keys()
+        keys = uris if uris is not None else list(self._speaker.keys())
+        missing = [k for k in keys if k not in self._category]
+        if missing:
+            raise RuntimeError(
+                "get_category_classifier_accuracy() requires an actual category "
+                f"annotation; these file(s) only have a pre-computed map (or "
+                f"neither): {sorted(missing)}"
+            )
         metric = DiarizationErrorRate()
         for key in keys:
             metric(self._speaker[key], self._category[key], detailed=True)
@@ -288,7 +427,11 @@ class CategoryStats:
         """
         Maps every speaker to their most likely category label and stores the
         result on self.speaker_category_map. Always recomputes (no caching)
-        -- call once per `uris` subset you need.
+        -- call once per 'uris' subset you need.
+
+        Resolution is per file: a file's own pre-computed map is used directly
+        (after merge/exclude resolution) if present; otherwise the mapping is
+        derived from temporal overlap with that file's category_annotation.
 
         Returns {uri: {speaker_label: category_label}}
 
@@ -296,11 +439,15 @@ class CategoryStats:
         """
         keys = uris if uris is not None else self._speaker.keys()
         mapping = {}
+
         for key in keys:
-            raw_map = self.map_speaker_to_category(
-                self._speaker[key], self._category[key]
-            )
-            # Apply merge/exclude to the mapped category labels
+            if key in self._precomputed_map:
+                raw_map = self._precomputed_map[key]
+            else:
+                raw_map = self.map_speaker_to_category(
+                    self._speaker[key], self._category[key]
+                )
+
             resolved = {}
             for speaker, raw_label in raw_map.items():
                 canonical = self._resolve_category_label(raw_label)
@@ -314,9 +461,12 @@ class CategoryStats:
     def get_missing_speaker_labels(self, uris=None, verbose=False):
         """
         Returns speakers that could not be mapped to any category label.
-        Always recomputes the mapping fresh for the requested `uris` (this is
+        Always recomputes the mapping fresh for the requested 'uris' (this is
         a diagnostic helper, not part of the compute_durations() flow, so it
         doesn't touch self.speaker_category_map's other cached use).
+
+        Works identically whether a given file's mapping comes from temporal
+        overlap or from its own pre-computed map.
 
         Output: {uri: set of unmapped speaker label strings}
 
@@ -367,7 +517,7 @@ class CategoryStats:
         per (overlap, uris) combination you need.
 
         Note: the speaker->category mapping used here is always computed over
-        ALL files (not restricted to `uris`), even when `uris` restricts which
+        ALL files (not restricted to 'uris'), even when 'uris' restricts which
         files' durations get summed into the result.
 
         Returns {label: float, …, 'TOTAL': float}
@@ -447,7 +597,7 @@ class CategoryStats:
         return self.durations
 
     def label_percentage(self, label):
-        """Returns the fraction of total time attributed to `label`."""
+        """Returns the fraction of total time attributed to 'label'."""
         self._require_durations()
         d = self.durations
         return 0.0 if d['TOTAL'] == 0 else d[label] / d['TOTAL']
@@ -491,10 +641,13 @@ class CategoryErrorAnalysis:
       - uri key        : string identifying the audio file
       - reference key  : pyannote Annotation with ground-truth speaker-identity labels
       - hypothesis key : pyannote Annotation with predicted speaker labels
-      - category key   : pyannote Annotation with attribute labels (gender, age bracket, …)
 
-    Label sets are discovered automatically from the category annotations (via CategoryStats).
-    merge_labels and exclude_labels are applied at construction time and propagated to it.
+    Category resolution (per file) is delegated to an internal CategoryStats
+    instance: a file uses its own pre-computed speaker_category_map if it has
+    one, otherwise falls back to temporal overlap with category_annotation.
+    See CategoryStats for full details. Label sets are discovered
+    automatically from that data. merge_labels and exclude_labels are applied
+    at construction time and propagated to it.
 
     Public API surface:
       - compute_distributions(normalized=True, verbose=True, uris=None) ->
@@ -513,27 +666,44 @@ class CategoryErrorAnalysis:
         files,
         speaker_annotation,
         hypothesis_annotation,
-        category_annotation,
+        speaker_category_map_key,
+        category_annotation=None,
         uri_key='uri',
         merge_labels=None,
         exclude_labels=None,
     ):
         """
-        files                  : list of dicts, one per audio file
-        speaker_annotation     : str — key for the ground-truth speaker Annotation
-        hypothesis_annotation  : str — key for a speaker diarization hypothesis Annotation
-        category_annotation    : str — key for the attribute/category Annotation
-        uri_key                : str — key for the audio URI/ID (default: 'uri')
-        merge_labels           : dict {new_label: (old_label, …)} or None
-        exclude_labels         : list of str or None
+        files                      : list of dicts, one per audio file
+        speaker_annotation         : str — key for the ground-truth speaker Annotation
+        hypothesis_annotation      : str — key for a speaker diarization hypothesis Annotation
+        speaker_category_map_key   : str — key under which an individual file dict may
+                                      optionally carry a pre-computed
+                                      {speaker_label: category_label} mapping. Forwarded
+                                      to the internal CategoryStats; see CategoryStats for
+                                      the per-file resolution rules. Required (no default)
+                                      so the key name is always explicit at the call site.
+        category_annotation        : str or None — key for the attribute/category Annotation.
+                                      Only required for files that don't carry their own
+                                      pre-computed map (see speaker_category_map_key).
+        uri_key                    : str — key for the audio URI/ID (default: 'uri')
+        merge_labels               : dict {new_label: (old_label, …)} or None
+        exclude_labels              : list of str or None
 
         Example
         -------
         analysis = CategoryErrorAnalysis(files=files, speaker_annotation="reference",
                                           hypothesis_annotation="precision",
+                                          speaker_category_map_key="speaker_category_map",
                                           category_annotation="gender")
         analysis.compute_distributions()
         analysis.error_distribution        # {'md': {...}, 'fa': {...}, 'confusion': {...}, 'correct': {...}}
+
+        # Or with some files carrying their own pre-computed mapping and others
+        # falling back to overlap with "gender":
+        analysis = CategoryErrorAnalysis(files=files, speaker_annotation="reference",
+                                          hypothesis_annotation="precision",
+                                          speaker_category_map_key="speaker_category_map",
+                                          category_annotation="gender")
         """
         self.files = files
         self.speaker_annotation_key    = speaker_annotation
@@ -542,11 +712,13 @@ class CategoryErrorAnalysis:
         self.uri_key         = uri_key
         self.merge_labels    = merge_labels or {}
         self.exclude_labels  = set(exclude_labels or [])
+        self.speaker_category_map_key = speaker_category_map_key
 
         # Internal CategoryStats shares the same file list and label config
         self.category_stats = CategoryStats(
             files=self.files,
             speaker_annotation=speaker_annotation,
+            speaker_category_map_key=speaker_category_map_key,
             category_annotation=category_annotation,
             uri_key=uri_key,
             merge_labels=merge_labels,
@@ -555,7 +727,7 @@ class CategoryErrorAnalysis:
 
         # Reuse the dicts CategoryStats already built — no second/third iteration
         self._reference  = self.category_stats._speaker   # CategoryStats calls this _speaker
-        self._category   = self.category_stats._category  # identical key/value structure
+        self._category   = self.category_stats._category  # identical key/value structure ({} if unused)
         # Hypothesis is the only dict that needs its own pass
         self._hypothesis = {f[uri_key]: f[hypothesis_annotation] for f in self.files}
 
@@ -588,12 +760,13 @@ class CategoryErrorAnalysis:
         }
 
     def _reset(self):
-        """Clears computed distributions and the per-file diff cache."""
+        """Clears computed distributions and the per-file diff/mapping caches."""
         self.error_distribution          = None
         self.overlap_error_distribution  = None
         self.confusion_durations         = None
         self.overlap_confusion_durations = None
         self._diff_cache = {}
+        self._mapping_cache = {}
 
     # ------------------------------------------------------------------
     # Setters — rebuild look-ups and clear stale results
@@ -614,15 +787,40 @@ class CategoryErrorAnalysis:
         self._category = {f[self.uri_key]: f[category_annotation_key] for f in self.files}
         self._reset()
 
+    def _get_or_compute_mapped_hypothesis(self, key):
+        """
+        Returns this file's hypothesis Annotation with speaker labels renamed
+        to their best-matching reference label, via an optimal one-to-one
+        mapping (Hungarian algorithm on total overlap duration).
+
+        This is required because hypotheses will not always match reference
+        labels literally, and naming conventions vary across different
+        speaker diarization systems. This is unconditional and independent
+        of any category (e.g. gender) mapping -- even for files that carry
+        their own pre-computed speaker_category_map for categorization,
+        hypothesis-to-reference speaker *identity* still needs to be resolved
+        here before any error type (md/fa/confusion) can be computed.
+
+        Cached per URI; invalidated by _reset() (called by any set_*()).
+        """
+        if key not in self._mapping_cache:
+            ref_ann = self._reference[key]
+            hyp_ann = self._hypothesis[key]
+            mapping = HungarianMapper()(hyp_ann, ref_ann)  # {hyp_label: ref_label}
+            self._mapping_cache[key] = hyp_ann.rename_labels(mapping=mapping)
+        return self._mapping_cache[key]
+
     def _get_or_compute_diff(self, key):
         """
         Returns the cached IdentificationErrorAnalysis difference annotation
         for a single file URI, computing and storing it on first access.
+        Uses the Hungarian-mapped hypothesis for best possible speaker alignment rather than raw label equality.
         """
         if key not in self._diff_cache:
             analyzer = IdentificationErrorAnalysis()
+            mapped_hypothesis = self._get_or_compute_mapped_hypothesis(key)
             self._diff_cache[key] = analyzer.difference(
-                self._reference[key], self._hypothesis[key]
+                self._reference[key], mapped_hypothesis
             )
         return self._diff_cache[key]
 
@@ -658,7 +856,7 @@ class CategoryErrorAnalysis:
 
         for key in keys:
             ref_ann  = self._reference[key]
-            hyp_ann  = self._hypothesis[key]
+            hyp_ann  = self._get_or_compute_mapped_hypothesis(key)
             cat_map  = mapping[key]
 
             # ── all-speech errors (diff cached per file) ───────────────────────
@@ -724,7 +922,7 @@ class CategoryErrorAnalysis:
     def _accumulate_totals(self, errors, hyp_ann, ref_ann, cat_map,
                            totals, for_overlap, verbose):
         """
-        Accumulates per-error-type category durations into `totals` for one file.
+        Accumulates per-error-type category durations into 'totals' for one file.
         Handles the overlap FA specially (get_overlap_fa) vs standard FA.
         """
         subsets = {
