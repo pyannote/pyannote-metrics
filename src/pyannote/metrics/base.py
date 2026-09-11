@@ -27,6 +27,7 @@
 # Hervé BREDIN - http://herve.niderb.fr
 from typing import List, Union, Optional, Set, Tuple
 
+import copy
 import warnings
 import numpy as np
 import pandas as pd
@@ -80,9 +81,6 @@ class BaseMetric:
     def name(self):
         """Metric name."""
         return self.metric_name()
-
-    # TODO: use joblib/locky to allow parallel processing?
-    # TODO: signature could be something like __call__(self, reference_iterator, hypothesis_iterator, ...)
 
     def __call__(self, reference: Union[Timeline, Annotation],
                  hypothesis: Union[Timeline, Annotation],
@@ -246,6 +244,71 @@ class BaseMetric:
         """Iterator over the accumulated (uri, value)"""
         for uri, component in self.results_:
             yield uri, component
+
+    def clone(self) -> "BaseMetric":
+        """Construct a new empty metric with the same parameters as `self`.
+
+        Clone does a deep copy of the metric without actually copying any
+        results or accumulators. It returns a new metric (with the same
+        parameters) that has not yet been used to evaluate any data.
+        """
+        metric = self.__class__.__new__(self.__class__)
+        for name, value in vars(self).items():
+            if name not in ("accumulated_", "results_"):
+                setattr(metric, name, copy.deepcopy(value))
+        metric.reset()
+        return metric
+
+    def _options(self) -> dict:
+        # options (e.g. `collar`) are plain attributes, while anything set up
+        # at init or accumulated during evaluation ends with an underscore
+        return {
+            name: value for name, value in vars(self).items() if not name.endswith("_")
+        }
+
+    def __add__(self, other) -> "BaseMetric":
+        """Combine metrics that evaluated different files
+
+        This allows evaluating files in parallel: each worker evaluates its
+        own files with its own metric, and the metrics are then added.
+        ``abs(a + b)`` is the value a single metric would have after
+        evaluating the files of both ``a`` and ``b``.
+
+        Raises
+        ------
+        TypeError
+            If metrics are not instances of the same class.
+        ValueError
+            If metrics were not initialized with the same options.
+        """
+        if not isinstance(other, BaseMetric):
+            return NotImplemented
+
+        if type(other) is not type(self):
+            raise TypeError(
+                f"Cannot add {type(self).__name__} and {type(other).__name__}."
+            )
+
+        options, other_options = self._options(), other._options()
+        for name in sorted(set(options) | set(other_options)):
+            if not np.array_equal(options.get(name), other_options.get(name)):
+                raise ValueError(
+                    f"Cannot add metrics with different options: "
+                    f"{name}={options.get(name)!r} and {name}={other_options.get(name)!r}."
+                )
+
+        metric = self.clone()
+        metric.results_ = self.results_ + other.results_
+        for name in self.components_:
+            metric.accumulated_[name] = self.accumulated_[name] + other.accumulated_[name]
+        return metric
+
+    def __radd__(self, other) -> "BaseMetric":
+        # the built-in sum() starts from 0 (its `start` argument), so 0 acts as
+        # an empty metric: sum([a, b]) is (0 + a) + b, which is a + b
+        if isinstance(other, (int, float)) and other == 0:
+            return self.clone() + self
+        return NotImplemented
 
     def compute_components(self,
                            reference: Union[Timeline, Annotation],
