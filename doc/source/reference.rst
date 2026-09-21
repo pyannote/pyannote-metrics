@@ -136,6 +136,15 @@ Viterbi resegmentation addresses this limitation and greatly improves cluster pu
 Finally, CLR clustering brings an additional +5% coverage improvement.
 
 
+Speaker count can be evaluated independently of speaker identities and speech
+durations. :class:`~pyannote.metrics.diarization.DiarizationSpeakerCountAccuracy`
+returns 1 for a file when the predicted and reference speaker counts match,
+and 0 otherwise.
+:class:`~pyannote.metrics.diarization.DiarizationSpeakerCountError` returns the
+absolute difference between these counts, in speakers. Both count distinct
+labels within the optional evaluation map (``uem``), and ``abs(metric)``
+averages scores equally across files. Empty annotations contain zero speakers.
+
 .. automodule:: pyannote.metrics.diarization
    :members:
 
