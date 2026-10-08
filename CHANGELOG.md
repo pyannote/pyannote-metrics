@@ -1,5 +1,9 @@
 # Changelog
 
+## Next version
+
+- fix: fix `JaccardErrorRate` to use the mapping that minimizes the Jaccard error rate (@antonsoo)
+
 ## Version 4.2.0 (2026-10-16)
 
 - BREAKING: require Python 3.11 or newer; Python 3.10 is no longer supported
