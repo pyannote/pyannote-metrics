@@ -7,6 +7,7 @@ Next
 
 - feat: add diarization speaker count metrics
 - fix: fix metrics for empty references (@Atishyy27)
+- fix: fix `JaccardErrorRate` to use the mapping that minimizes the Jaccard error rate (@antonsoo)
 
 Version 4.1.0 (2026-05-06)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
