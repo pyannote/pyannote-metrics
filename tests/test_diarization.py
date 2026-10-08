@@ -188,3 +188,20 @@ def test_jaccard_error_rate_empty_reference():
     hypothesis[Segment(0, 10)] = "spk"
     # empty reference -> zero speaker count -> must not ZeroDivisionError
     assert JaccardErrorRate()(Annotation(), hypothesis) == 1.0
+
+
+def test_jaccard_error_rate_mapping_minimizes_jer():
+    from pyannote.metrics.diarization import JaccardErrorRate
+
+    reference = Annotation()
+    reference[Segment(4, 9)] = "B"
+    reference[Segment(7, 8)] = "A"
+    hypothesis = Annotation()
+    hypothesis[Segment(3, 4)] = "y"
+    hypothesis[Segment(7, 9)] = "x"
+    uem = Timeline([Segment(0, 10)])
+
+    # mapping "x" to "B" maximizes co-occurrence (2s against 1s) but mapping
+    # "x" to "A" minimizes the Jaccard error rate: ((1 - 1/2) + 1) / 2 = 0.75
+    # (instead of (1 + (1 - 2/5)) / 2 = 0.8), as in the DIHARD scoring tool
+    npt.assert_almost_equal(JaccardErrorRate()(reference, hypothesis, uem=uem), 0.75)

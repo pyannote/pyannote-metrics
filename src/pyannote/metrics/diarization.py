@@ -31,6 +31,7 @@
 from typing import Optional, Dict, TYPE_CHECKING
 
 import numpy as np
+from scipy.optimize import linear_sum_assignment
 from pyannote.core import Annotation, Timeline
 from pyannote.core.utils.types import Label
 
@@ -504,46 +505,38 @@ class JaccardErrorRate(DiarizationErrorRate):
         # make sure hypothesis only contains integer labels (1, 2, ...)
         hypothesis = hypothesis.rename_labels(generator="int")
 
-        # optimal (str --> int) mapping
-        mapping = self.optimal_mapping(hypothesis, reference)
-
         detail = self.init_components()
 
-        for ref_speaker in reference.labels():
-            hyp_speaker = mapping.get(ref_speaker, None)
+        # speaker-specific Jaccard error rate of every (reference, hypothesis)
+        # pair of speakers: (fa + miss) / total = 1 - intersection / union
+        ref_labels = reference.labels()
+        hyp_labels = hypothesis.labels()
+        ref_timelines = [
+            reference.label_timeline(label).support() for label in ref_labels
+        ]
+        hyp_timelines = [
+            hypothesis.label_timeline(label).support() for label in hyp_labels
+        ]
+        jer = np.ones((len(ref_labels), len(hyp_labels)))
+        for i, r in enumerate(ref_timelines):
+            for j, h in enumerate(hyp_timelines):
+                intersection = sum((s & t).duration for s, t in r.co_iter(h))
+                union = r.duration() + h.duration() - intersection
+                jer[i, j] = 1.0 - intersection / union
 
-            if hyp_speaker is None:
-                # if the reference speaker was not paired with a system speaker
-                # [total] is the duration of all reference speaker segments
+        # optimal mapping: the one that minimizes the sum of speaker-specific
+        # Jaccard error rates (and not the one that maximizes the duration of
+        # co-occurrence, which is optimal for DER but not for JER)
+        rows, cols = linear_sum_assignment(jer) if jer.size else ([], [])
+        mapped = dict(zip(rows, cols))
 
-                # if the reference speaker was not paired with a system speaker
-                # [fa] is 0
-
-                # if the reference speaker was not paired with a system speaker
-                # [miss] is equal to total
-
-                # overall: jer = (fa + miss) / total = (0 + total) / total = 1
-                jer = 1.0
-
-            else:
-                # total is the duration of the union of reference and system
-                # speaker segments
-                r = reference.label_timeline(ref_speaker)
-                h = hypothesis.label_timeline(hyp_speaker)
-                total = r.union(h).support().duration()
-
-                # fa is the total system speaker time not attributed to the
-                # reference speaker
-                fa = h.duration() - h.crop(r).duration()
-
-                # miss is the total reference speaker time not attributed to
-                # the system speaker
-                miss = r.duration() - r.crop(h).duration()
-
-                jer = (fa + miss) / total
-
+        for i in range(len(ref_labels)):
+            # if the reference speaker was not paired with a system speaker,
+            # (fa + miss) / total = (0 + total) / total = 1
             detail[JER_SPEAKER_COUNT] += 1
-            detail[JER_SPEAKER_ERROR] += jer
+            detail[JER_SPEAKER_ERROR] += (
+                float(jer[i, mapped[i]]) if i in mapped else 1.0
+            )
 
         return detail
 
