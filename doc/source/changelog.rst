@@ -7,6 +7,7 @@ Next
 
 - feat: add diarization speaker count metrics
 - fix: fix metrics for empty references (@Atishyy27)
+- fix: fix `precision_recall_curve` and `Calibration` with recent versions of scikit-learn (@antonsoo)
 
 Version 4.1.0 (2026-05-06)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

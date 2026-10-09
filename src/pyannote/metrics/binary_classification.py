@@ -32,7 +32,7 @@ from typing import Tuple
 import numpy as np
 import sklearn.metrics
 from numpy.typing import ArrayLike
-from sklearn.base import BaseEstimator
+from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.model_selection._split import _CVIterableWrapper
 
@@ -121,13 +121,16 @@ def precision_recall_curve(
     if distances:
         thresholds = -thresholds
 
-    auc = sklearn.metrics.auc(precision, recall, reorder=True)
+    # area under the curve plotted with recall as x-axis and precision as y-axis
+    auc = sklearn.metrics.auc(recall, precision)
 
     return precision, recall, thresholds, auc
 
 
-class _Passthrough(BaseEstimator):
+class _Passthrough(ClassifierMixin, BaseEstimator):
     """Dummy binary classifier used by score Calibration class"""
+
+    # Calibration uses classifier tags even though the scores are precomputed.
 
     def __init__(self):
         super().__init__()
@@ -213,11 +216,12 @@ class Calibration:
             cv = _CVIterableWrapper(cv)
 
         # to estimate priors from the data itself, use the whole set
+        # (_Passthrough is not trained, so calibrate on all scores at once)
         else:
-            cv = "prefit"
+            cv = _CVIterableWrapper([([], np.arange(len(y_true)))])
 
         self.calibration_ = CalibratedClassifierCV(
-            base_estimator=_Passthrough(), method=self.method, cv=cv
+            estimator=_Passthrough(), method=self.method, cv=cv
         )
         self.calibration_.fit(scores.reshape(-1, 1), y_true)
 
