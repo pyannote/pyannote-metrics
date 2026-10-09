@@ -14,12 +14,11 @@ def test_precision_recall_curve_perfect_scores():
 
 
 def test_precision_recall_curve_auc():
-    # precision/recall points: (r=1, p=2/3), (r=1, p=1), (r=0.5, p=1), (r=0, p=1)
+    # The two nonzero-width trapezoids have areas 1/2 and 7/24.
     y_true = np.array([True, False, True, False])
     scores = np.array([0.9, 0.8, 0.7, 0.1])
     precision, recall, _, auc = precision_recall_curve(y_true, scores)
-    expected = np.trapezoid(precision[::-1], recall[::-1])
-    assert auc == pytest.approx(expected)
+    assert auc == pytest.approx(19 / 24)
 
 
 def test_precision_recall_curve_distances():
@@ -30,17 +29,18 @@ def test_precision_recall_curve_distances():
 
 
 @pytest.mark.parametrize("equal_priors", [False, True])
-def test_calibration(equal_priors):
+@pytest.mark.parametrize("method", ["isotonic", "sigmoid"])
+def test_calibration(equal_priors, method):
     rng = np.random.RandomState(0)
     y_true = rng.rand(200) < 0.3
     scores = rng.randn(200) + 2 * y_true
-    calibration = Calibration(equal_priors=equal_priors).fit(scores, y_true)
-    probabilities = calibration.transform(scores)
-    assert probabilities.shape == scores.shape
+    calibration = Calibration(equal_priors=equal_priors, method=method).fit(scores, y_true)
+    test_scores = np.linspace(-3.0, 5.0, 101)
+    probabilities = calibration.transform(test_scores)
+    assert probabilities.shape == test_scores.shape
     assert np.all((probabilities >= 0) & (probabilities <= 1))
     # probabilities increase with scores
-    order = np.argsort(scores)
-    assert np.all(np.diff(probabilities[order]) >= -1e-12)
+    assert np.all(np.diff(probabilities) >= -1e-12)
 
 
 def test_calibration_isotonic_matches_isotonic_regression():
@@ -51,6 +51,7 @@ def test_calibration_isotonic_matches_isotonic_regression():
     expected = IsotonicRegression(y_min=0.0, y_max=1.0, out_of_bounds="clip").fit(
         scores, y_true
     )
+    test_scores = np.linspace(-3.0, 5.0, 101)
     np.testing.assert_allclose(
-        calibration.transform(scores), expected.predict(scores), atol=1e-8
+        calibration.transform(test_scores), expected.predict(test_scores), atol=1e-8
     )
