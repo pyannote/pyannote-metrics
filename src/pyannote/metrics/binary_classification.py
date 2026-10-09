@@ -130,7 +130,7 @@ def precision_recall_curve(
 class _Passthrough(ClassifierMixin, BaseEstimator):
     """Dummy binary classifier used by score Calibration class"""
 
-    # ClassifierMixin: scikit-learn 1.6 to 1.8 refuse to calibrate a regressor
+    # Calibration uses classifier tags even though the scores are precomputed.
 
     def __init__(self):
         super().__init__()
