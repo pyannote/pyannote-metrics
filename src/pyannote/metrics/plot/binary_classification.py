@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 # The MIT License (MIT)
 
 # Copyright (c) 2016 CNRS
@@ -28,14 +25,12 @@
 
 
 import warnings
-from typing import Optional, Tuple
 
 import matplotlib
 import numpy as np
 from numpy.typing import ArrayLike
 
-from pyannote.metrics.binary_classification import det_curve
-from pyannote.metrics.binary_classification import precision_recall_curve
+from pyannote.metrics.binary_classification import det_curve, precision_recall_curve
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
@@ -47,7 +42,7 @@ def plot_distributions(
     y_true: ArrayLike,
     scores: ArrayLike,
     save_to: str,
-    xlim: Optional[Tuple[float, float]] = None,
+    xlim: tuple[float, float] | None = None,
     nbins: int = 100,
     ymax: float = 3.0,
     dpi: int = 150,
@@ -74,8 +69,8 @@ def plot_distributions(
         xlim = (np.min(scores), np.max(scores))
 
     bins = np.linspace(xlim[0], xlim[1], nbins)
-    plt.hist(scores[y_true], bins=bins, color="g", alpha=0.5, normed=True)
-    plt.hist(scores[~y_true], bins=bins, color="r", alpha=0.5, normed=True)
+    plt.hist(scores[y_true], bins=bins, color="g", alpha=0.5, density=True)
+    plt.hist(scores[~y_true], bins=bins, color="r", alpha=0.5, density=True)
 
     # TODO heuristic to estimate ymax from nbins and xlim
     plt.ylim(0, ymax)
@@ -140,8 +135,10 @@ def plot_det_curve(
     txt = save_to + ".det.txt"
     line = "{t:.6f} {fp:.6f} {fn:.6f}\n"
     with open(txt, "w") as f:
-        for i, (t, fp, fn) in enumerate(zip(thresholds, fpr, fnr)):
-            f.write(line.format(t=t, fp=fp, fn=fn))
+        f.writelines(
+            line.format(t=t, fp=fp, fn=fn)
+            for i, (t, fp, fn) in enumerate(zip(thresholds, fpr, fnr))
+        )
 
     return eer
 
@@ -199,7 +196,9 @@ def plot_precision_recall_curve(
     txt = save_to + ".precision_recall.txt"
     line = "{t:.6f} {p:.6f} {r:.6f}\n"
     with open(txt, "w") as f:
-        for i, (t, p, r) in enumerate(zip(thresholds, precision, recall)):
-            f.write(line.format(t=t, p=p, r=r))
+        f.writelines(
+            line.format(t=t, p=p, r=r)
+            for i, (t, p, r) in enumerate(zip(thresholds, precision, recall))
+        )
 
     return auc

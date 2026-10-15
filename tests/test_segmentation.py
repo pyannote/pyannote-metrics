@@ -60,6 +60,6 @@ def test_imperfect_segmentation(reference, hypothesis):
     """Guarding the empty case must not change the values for real input."""
     assert SegmentationPurity()(reference, hypothesis) == pytest.approx(0.875)
     assert SegmentationCoverage()(reference, hypothesis) == pytest.approx(0.75)
-    assert SegmentationPurityCoverageFMeasure()(
-        reference, hypothesis
-    ) == pytest.approx(0.8076923076923077)
+    assert SegmentationPurityCoverageFMeasure()(reference, hypothesis) == pytest.approx(
+        0.8076923076923077
+    )

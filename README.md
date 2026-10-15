@@ -1,8 +1,8 @@
-# pyannote.metrics
+![pyannote.metrics](https://raw.githubusercontent.com/pyannote/pyannote-metrics/main/.github/social-preview.png)
 
 > a toolkit for reproducible evaluation, diagnostic, and error analysis of speaker diarization systems
 
-An overview of `pyannote.metrics` is available as an [InterSpeech 2017 paper](doc/pyannote-metrics.pdf): it is recommended to read it first, to quickly get an idea whether this tool is for you.
+An overview of `pyannote.metrics` is available as an [InterSpeech 2017 paper](https://github.com/pyannote/pyannote-metrics/blob/main/doc/pyannote-metrics.pdf): it is recommended to read it first, to quickly get an idea whether this tool is for you.
 
 ## Installation
 
@@ -14,7 +14,7 @@ $ pip install pyannote.metrics
 
 The documentation is available at [http://pyannote.github.io/pyannote-metrics](http://pyannote.github.io/pyannote-metrics).
 
-Sample notebooks are available [here](http://nbviewer.ipython.org/github/pyannote/pyannote-metrics/blob/master/notebooks/index.ipynb).
+Sample notebooks are available [here](http://nbviewer.ipython.org/github/pyannote/pyannote-metrics/blob/main/notebooks/index.ipynb).
 
 ## Citation
 

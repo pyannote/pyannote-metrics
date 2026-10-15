@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 # The MIT License (MIT)
 
 # Copyright (c) 2012-2017 CNRS
@@ -25,18 +22,17 @@
 
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
-from typing import Union
 
 from pyannote.core import Annotation, Timeline
 
 
 class SegmentationErrorAnalysis:
-
     def __init__(self):
         super().__init__()
 
-    def __call__(self, reference: Union[Timeline, Annotation],
-                 hypothesis: Union[Timeline, Annotation]) -> Annotation:
+    def __call__(
+        self, reference: Timeline | Annotation, hypothesis: Timeline | Annotation
+    ) -> Annotation:
 
         if isinstance(reference, Annotation):
             reference = reference.get_timeline()
@@ -49,7 +45,6 @@ class SegmentationErrorAnalysis:
         prev_r = reference[0]
         intersection = []
         for r, h in reference.co_iter(hypothesis):
-
             if r != prev_r:
                 intersection = sorted(intersection)
                 for _, segment in intersection[:-1]:
@@ -69,7 +64,6 @@ class SegmentationErrorAnalysis:
         prev_h = hypothesis[0]
         intersection = []
         for h, r in hypothesis.co_iter(reference):
-
             if h != prev_h:
                 intersection = sorted(intersection)
                 for _, segment in intersection[:-1]:
@@ -100,10 +94,10 @@ class SegmentationErrorAnalysis:
 
         status = Annotation(uri=reference.uri)
         for segment in frontier:
-            status[segment, '_'] = 'shift'
+            status[segment, "_"] = "shift"
         for segment in only_over:
-            status[segment, '_'] = 'over-segmentation'
+            status[segment, "_"] = "over-segmentation"
         for segment in only_under:
-            status[segment, '_'] = 'under-segmentation'
+            status[segment, "_"] = "under-segmentation"
 
         return status.support()

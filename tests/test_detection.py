@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 # The MIT License (MIT)
 
 # Copyright (c) 2020 CNRS
@@ -27,21 +24,18 @@
 # Hervé BREDIN - http://herve.niderb.fr
 
 
-import pytest
-
-import pyannote.core
-from pyannote.core import Annotation
-from pyannote.core import Segment
-from pyannote.core import Timeline
-from pyannote.metrics.detection import DetectionCostFunction
-from pyannote.metrics.detection import DetectionErrorRate
-from pyannote.metrics.detection import DetectionPrecision
-from pyannote.metrics.detection import DetectionRecall
-from pyannote.metrics.detection import DetectionAccuracy
-from pyannote.metrics.detection import DetectionPrecisionRecallFMeasure
-
-
 import numpy.testing as npt
+import pytest
+from pyannote.core import Annotation, Segment, Timeline
+
+from pyannote.metrics.detection import (
+    DetectionAccuracy,
+    DetectionCostFunction,
+    DetectionErrorRate,
+    DetectionPrecision,
+    DetectionPrecisionRecallFMeasure,
+    DetectionRecall,
+)
 
 # Time        0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
 # Reference   |--------------|  |-----------|     |-----|  |--------------|
@@ -53,24 +47,25 @@ import numpy.testing as npt
 # Time        0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
 # UEM            |--------------------------------------|
 
+
 @pytest.fixture
 def reference():
     reference = Annotation()
-    reference[Segment(0, 5)] = 'A'
-    reference[Segment(6, 10)] = 'B'
-    reference[Segment(12, 14)] = 'A'
-    reference[Segment(15, 20)] = 'C'
+    reference[Segment(0, 5)] = "A"
+    reference[Segment(6, 10)] = "B"
+    reference[Segment(12, 14)] = "A"
+    reference[Segment(15, 20)] = "C"
     return reference
 
 
 @pytest.fixture
 def hypothesis():
     hypothesis = Annotation()
-    hypothesis[Segment(1, 7)] = 'A'
-    hypothesis[Segment(7, 9)] = 'D'
-    hypothesis[Segment(7, 10)] = 'B'
-    hypothesis[Segment(11, 17)] = 'C'
-    hypothesis[Segment(18, 20)] = 'D'
+    hypothesis[Segment(1, 7)] = "A"
+    hypothesis[Segment(7, 9)] = "D"
+    hypothesis[Segment(7, 10)] = "B"
+    hypothesis[Segment(11, 17)] = "C"
+    hypothesis[Segment(18, 20)] = "D"
     return hypothesis
 
 
@@ -89,16 +84,16 @@ def test_detailed(reference, hypothesis):
     detectionErrorRate = DetectionErrorRate()
     details = detectionErrorRate(reference, hypothesis, detailed=True)
 
-    rate = details['detection error rate']
+    rate = details["detection error rate"]
     npt.assert_almost_equal(rate, 0.3125, decimal=7)
 
-    false_alarm = details['false alarm']
+    false_alarm = details["false alarm"]
     npt.assert_almost_equal(false_alarm, 3.0, decimal=7)
 
-    missed_detection = details['miss']
+    missed_detection = details["miss"]
     npt.assert_almost_equal(missed_detection, 2.0, decimal=7)
 
-    total = details['total']
+    total = details["total"]
     npt.assert_almost_equal(total, 16.0, decimal=7)
 
 
@@ -141,7 +136,7 @@ def test_decision_cost_function(reference, hypothesis, uem):
     npt.assert_almost_equal(actual, expected, decimal=7)
 
     # UEM.
-    expected = 1/6.
+    expected = 1 / 6.0
     dcf = DetectionCostFunction(fa_weight=0.25, miss_weight=0.75)
     actual = dcf(reference, hypothesis, uem=uem)
     npt.assert_almost_equal(actual, expected, decimal=7)

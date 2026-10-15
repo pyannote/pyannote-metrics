@@ -5,7 +5,7 @@ readme = "README.md"
 authors = [
     { name = "Hervé BREDIN", email = "herve@pyannote.ai" }
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 
 dynamic = [
   "version",
@@ -47,7 +47,7 @@ transcription = [
 ]
 
 [build-system]
-requires = ["hatchling", "hatch-vcs"]
+requires = ["hatchling==1.32.0", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]

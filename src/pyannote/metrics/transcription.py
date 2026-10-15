@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 # The MIT License (MIT)
 
 # Copyright (c) 2025- pyannoteAI
@@ -23,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
+from __future__ import annotations
 
 try:
     import meeteval
@@ -62,7 +61,7 @@ class BaseWordErrorRate(BaseMetric):
         """
 
         # check that reference is single session
-        reference_session_ids = set(s["session_id"] for s in reference)
+        reference_session_ids = {s["session_id"] for s in reference}
         if len(reference_session_ids) != 1:
             raise ValueError(
                 "Reference must contain exactly one session. "
@@ -70,7 +69,7 @@ class BaseWordErrorRate(BaseMetric):
             )
 
         # check that hypothesis is single session
-        hypothesis_session_ids = set(s["session_id"] for s in hypothesis)
+        hypothesis_session_ids = {s["session_id"] for s in hypothesis}
         if len(hypothesis_session_ids) != 1:
             raise ValueError(
                 "Hypothesis must contain exactly one session. "

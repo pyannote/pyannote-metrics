@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # pyannote.core documentation build configuration file, created by
 # sphinx-quickstart on Tue Jan 24 15:45:55 2017.

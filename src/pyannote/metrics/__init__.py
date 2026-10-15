@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 # The MIT License (MIT)
 
 # Copyright (c) 2012-2021 CNRS
@@ -26,9 +23,10 @@
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
 
+import importlib.metadata
+
 from .base import f_measure
 
-import importlib.metadata
 __version__ = importlib.metadata.version("pyannote-metrics")
 
 __all__ = ["f_measure"]
