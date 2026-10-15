@@ -1,7 +1,4 @@
-try:
-    from typing import Literal
-except ImportError:
-    from typing import Literal
+from typing import Literal
 
 MetricComponent = str
 CalibrationMethod = Literal["isotonic", "sigmoid"]
