@@ -171,13 +171,13 @@ Error analysis
 **************
 
 Segmentation
-============
+------------
 
 .. automodule:: pyannote.metrics.errors.segmentation
    :members:
 
 Identification
-==============
+--------------
 
 .. automodule:: pyannote.metrics.errors.identification
   :members:
@@ -187,7 +187,7 @@ Plots
 *****
 
 Binary classification
-=====================
+---------------------
 
 .. automodule:: pyannote.metrics.plot.binary_classification
   :members:
