@@ -241,13 +241,12 @@ def detection(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
         "recall": DetectionRecall(**options),
     }
 
-    # Evaluate the protocol to populate each metric before generating reports.
-    get_reports(protocol, subset, hypotheses, metrics)
+    reports = get_reports(protocol, subset, hypotheses, metrics)
 
-    report = metrics["error"].report(display=False)
-    accuracy = metrics["accuracy"].report(display=False)
-    precision = metrics["precision"].report(display=False)
-    recall = metrics["recall"].report(display=False)
+    report = reports["error"]
+    accuracy = reports["accuracy"]
+    precision = reports["precision"]
+    recall = reports["recall"]
 
     report["accuracy", "%"] = accuracy[metrics["accuracy"].name, "%"]
     report["precision", "%"] = precision[metrics["precision"].name, "%"]
@@ -293,13 +292,12 @@ def segmentation(protocol, subset, hypotheses, tolerance=0.5):
         "recall": SegmentationRecall(**options),
     }
 
-    # Evaluate the protocol to populate each metric before generating reports.
-    get_reports(protocol, subset, hypotheses, metrics)
+    reports = get_reports(protocol, subset, hypotheses, metrics)
 
-    coverage = metrics["coverage"].report(display=False)
-    purity = metrics["purity"].report(display=False)
-    precision = metrics["precision"].report(display=False)
-    recall = metrics["recall"].report(display=False)
+    coverage = reports["coverage"]
+    purity = reports["purity"]
+    precision = reports["precision"]
+    recall = reports["recall"]
 
     coverage = coverage[metrics["coverage"].name]
     purity = purity[metrics["purity"].name]
@@ -346,12 +344,11 @@ def diarization(
     else:
         metrics["error"] = DiarizationErrorRate(**options)
 
-    # Evaluate the protocol to populate each metric before generating reports.
-    get_reports(protocol, subset, hypotheses, metrics)
+    reports = get_reports(protocol, subset, hypotheses, metrics)
 
-    report = metrics["error"].report(display=False)
-    purity = metrics["purity"].report(display=False)
-    coverage = metrics["coverage"].report(display=False)
+    report = reports["error"]
+    purity = reports["purity"]
+    coverage = reports["coverage"]
 
     report["purity", "%"] = purity[metrics["purity"].name, "%"]
     report["coverage", "%"] = coverage[metrics["coverage"].name, "%"]
@@ -397,12 +394,11 @@ def identification(protocol, subset, hypotheses, collar=0.0, skip_overlap=False)
         "recall": IdentificationRecall(**options),
     }
 
-    # Evaluate the protocol to populate each metric before generating reports.
-    get_reports(protocol, subset, hypotheses, metrics)
+    reports = get_reports(protocol, subset, hypotheses, metrics)
 
-    report = metrics["error"].report(display=False)
-    precision = metrics["precision"].report(display=False)
-    recall = metrics["recall"].report(display=False)
+    report = reports["error"]
+    precision = reports["precision"]
+    recall = reports["recall"]
 
     report["precision", "%"] = precision[metrics["precision"].name, "%"]
     report["recall", "%"] = recall[metrics["recall"].name, "%"]
@@ -446,9 +442,7 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix, filter_func
     trials = getattr(protocol, f"{subset}_trial")()
     for i, (current_trial, hypothesis) in enumerate(zip(trials, hypotheses)):
         # check trial/hypothesis target consistency
-        try:
-            assert current_trial["model_id"] == hypothesis["model_id"]
-        except AssertionError:
+        if current_trial["model_id"] != hypothesis["model_id"]:
             msg = (
                 "target mismatch in trial #{i} (found: {found}, should be: {should_be})"
             )
@@ -461,18 +455,14 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix, filter_func
             )
 
         # check trial/hypothesis file consistency
-        try:
-            assert current_trial["uri"] == hypothesis["uri"]
-        except AssertionError:
+        if current_trial["uri"] != hypothesis["uri"]:
             msg = "file mismatch in trial #{i} (found: {found}, should be: {should_be})"
             raise ValueError(
                 msg.format(i=i, found=hypothesis["uri"], should_be=current_trial["uri"])
             )
 
         # check at least one score is provided
-        try:
-            assert len(hypothesis["scores"]) > 0
-        except AssertionError:
+        if not hypothesis["scores"]:
             msg = "empty list of scores in trial #{i}."
             raise ValueError(msg.format(i=i))
 
@@ -483,9 +473,7 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix, filter_func
 
         # check trial/hypothesis timerange consistency
         try_with = current_trial["try_with"]
-        try:
-            assert min(timestamps) >= try_with.start
-        except AssertionError:
+        if not min(timestamps) >= try_with.start:
             msg = (
                 "incorrect timestamp in trial #{i} "
                 "(found: {found:g}, should be: >= {should_be:g})"
