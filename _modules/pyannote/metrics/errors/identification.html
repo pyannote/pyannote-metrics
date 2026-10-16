@@ -5,17 +5,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyannote.metrics.errors.identification &mdash; pyannote.metrics 4.1 documentation</title>
+  <title>pyannote.metrics.errors.identification &mdash; pyannote.metrics 4.0.0rc3.dev12+gb416e1377 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
 
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=3b2dd2c4"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/documentation_options.js?v=1fc0940e"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -46,7 +46,7 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../reference.html">Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pyannote/pyannote-metrics/blob/main/CHANGELOG.md">Changelog</a></li>
 </ul>
 
         </div>
@@ -74,15 +74,12 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pyannote.metrics.errors.identification</h1><div class="highlight"><pre>
-<span></span><span class="ch">#!/usr/bin/env python</span>
-<span class="c1"># encoding: utf-8</span>
-
-<span class="c1"># The MIT License (MIT)</span>
+<span></span><span class="c1"># The MIT License (MIT)</span>
 
 <span class="c1"># Copyright (c) 2012-2019 CNRS</span>
 
 <span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
-<span class="c1"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
+<span class="c1"># of this software and associated documentation files (the "Software"), to deal</span>
 <span class="c1"># in the Software without restriction, including without limitation the rights</span>
 <span class="c1"># to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</span>
 <span class="c1"># copies of the Software, and to permit persons to whom the Software is</span>
@@ -91,7 +88,7 @@
 <span class="c1"># The above copyright notice and this permission notice shall be included in</span>
 <span class="c1"># all copies or substantial portions of the Software.</span>
 
-<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
 <span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
 <span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</span>
 <span class="c1"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
@@ -102,33 +99,37 @@
 <span class="c1"># AUTHORS</span>
 <span class="c1"># Hervé BREDIN - http://herve.niderb.fr</span>
 <span class="c1"># Benjamin MAURICE - maurice@limsi.fr</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyannote.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">Timeline</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">linear_sum_assignment</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..identification</span><span class="w"> </span><span class="kn">import</span> <span class="n">UEMSupportMixin</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..matcher</span><span class="w"> </span><span class="kn">import</span> <span class="n">LabelMatcher</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..matcher</span><span class="w"> </span><span class="kn">import</span> <span class="n">MATCH_CORRECT</span><span class="p">,</span> <span class="n">MATCH_CONFUSION</span><span class="p">,</span> \
-    <span class="n">MATCH_MISSED_DETECTION</span><span class="p">,</span> <span class="n">MATCH_FALSE_ALARM</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..matcher</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MATCH_CONFUSION</span><span class="p">,</span>
+    <span class="n">MATCH_CORRECT</span><span class="p">,</span>
+    <span class="n">MATCH_FALSE_ALARM</span><span class="p">,</span>
+    <span class="n">MATCH_MISSED_DETECTION</span><span class="p">,</span>
+    <span class="n">LabelMatcher</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataArray</span>
 
-<span class="n">REFERENCE_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;reference&#39;</span>
-<span class="n">HYPOTHESIS_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;hypothesis&#39;</span>
+<span class="n">REFERENCE_TOTAL</span> <span class="o">=</span> <span class="s2">"reference"</span>
+<span class="n">HYPOTHESIS_TOTAL</span> <span class="o">=</span> <span class="s2">"hypothesis"</span>
 
-<span class="n">REGRESSION</span> <span class="o">=</span> <span class="s1">&#39;regression&#39;</span>
-<span class="n">IMPROVEMENT</span> <span class="o">=</span> <span class="s1">&#39;improvement&#39;</span>
-<span class="n">BOTH_CORRECT</span> <span class="o">=</span> <span class="s1">&#39;both_correct&#39;</span>
-<span class="n">BOTH_INCORRECT</span> <span class="o">=</span> <span class="s1">&#39;both_incorrect&#39;</span>
+<span class="n">REGRESSION</span> <span class="o">=</span> <span class="s2">"regression"</span>
+<span class="n">IMPROVEMENT</span> <span class="o">=</span> <span class="s2">"improvement"</span>
+<span class="n">BOTH_CORRECT</span> <span class="o">=</span> <span class="s2">"both_correct"</span>
+<span class="n">BOTH_INCORRECT</span> <span class="o">=</span> <span class="s2">"both_incorrect"</span>
 
 
 <div class="viewcode-block" id="IdentificationErrorAnalysis">
 <a class="viewcode-back" href="../../../../reference.html#pyannote.metrics.errors.identification.IdentificationErrorAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">IdentificationErrorAnalysis</span><span class="p">(</span><span class="n">UEMSupportMixin</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -138,9 +139,9 @@
 <span class="sd">    skip_overlap : bool, optional</span>
 <span class="sd">        Set to True to not evaluate overlap regions.</span>
 <span class="sd">        Defaults to False (i.e. keep overlap regions).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collar</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">matcher</span> <span class="o">=</span> <span class="n">LabelMatcher</span><span class="p">()</span>
@@ -149,41 +150,46 @@
 
 <div class="viewcode-block" id="IdentificationErrorAnalysis.difference">
 <a class="viewcode-back" href="../../../../reference.html#pyannote.metrics.errors.identification.IdentificationErrorAnalysis.difference">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">difference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                   <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
-                   <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
-                   <span class="n">uem</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Timeline</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                   <span class="n">uemified</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get error analysis as `Annotation`</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">difference</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">uem</span><span class="p">:</span> <span class="n">Timeline</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">uemified</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get error analysis as `Annotation`</span>
 
 <span class="sd">        Labels are (status, reference_label, hypothesis_label) tuples.</span>
-<span class="sd">        `status` is either &#39;correct&#39;, &#39;confusion&#39;, &#39;missed detection&#39; or</span>
-<span class="sd">        &#39;false alarm&#39;.</span>
-<span class="sd">        `reference_label` is None in case of &#39;false alarm&#39;.</span>
-<span class="sd">        `hypothesis_label` is None in case of &#39;missed detection&#39;.</span>
+<span class="sd">        `status` is either 'correct', 'confusion', 'missed detection' or</span>
+<span class="sd">        'false alarm'.</span>
+<span class="sd">        `reference_label` is None in case of 'false alarm'.</span>
+<span class="sd">        `hypothesis_label` is None in case of 'missed detection'.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        uemified : bool, optional</span>
-<span class="sd">            Returns &quot;uemified&quot; version of reference and hypothesis.</span>
+<span class="sd">            Returns "uemified" version of reference and hypothesis.</span>
 <span class="sd">            Defaults to False.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        errors : `Annotation`</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">R</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">common_timeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uemify</span><span class="p">(</span>
-            <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
-            <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span> <span class="n">skip_overlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span><span class="p">,</span>
-            <span class="n">returns_timeline</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">reference</span><span class="p">,</span>
+            <span class="n">hypothesis</span><span class="p">,</span>
+            <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span>
+            <span class="n">collar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">collar</span><span class="p">,</span>
+            <span class="n">skip_overlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_overlap</span><span class="p">,</span>
+            <span class="n">returns_timeline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="n">errors</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="n">reference</span><span class="o">.</span><span class="n">uri</span><span class="p">,</span> <span class="n">modality</span><span class="o">=</span><span class="n">reference</span><span class="o">.</span><span class="n">modality</span><span class="p">)</span>
 
         <span class="c1"># loop on all segments</span>
         <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">common_timeline</span><span class="p">:</span>
-
             <span class="c1"># list of labels in reference segment</span>
             <span class="n">rlabels</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">get_labels</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
@@ -201,8 +207,7 @@
                 <span class="n">errors</span><span class="p">[</span><span class="n">segment</span><span class="p">,</span> <span class="n">track</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">MATCH_CONFUSION</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">details</span><span class="p">[</span><span class="n">MATCH_MISSED_DETECTION</span><span class="p">]:</span>
-                <span class="n">track</span> <span class="o">=</span> <span class="n">errors</span><span class="o">.</span><span class="n">new_track</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span>
-                                         <span class="n">prefix</span><span class="o">=</span><span class="n">MATCH_MISSED_DETECTION</span><span class="p">)</span>
+                <span class="n">track</span> <span class="o">=</span> <span class="n">errors</span><span class="o">.</span><span class="n">new_track</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">MATCH_MISSED_DETECTION</span><span class="p">)</span>
                 <span class="n">errors</span><span class="p">[</span><span class="n">segment</span><span class="p">,</span> <span class="n">track</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">MATCH_MISSED_DETECTION</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">details</span><span class="p">[</span><span class="n">MATCH_FALSE_ALARM</span><span class="p">]:</span>
@@ -221,34 +226,38 @@
         <span class="k">return</span> <span class="p">(</span><span class="n">b_ref</span> <span class="o">==</span> <span class="n">a_ref</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">b_type</span> <span class="o">==</span> <span class="n">a_type</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">b_hyp</span> <span class="o">==</span> <span class="n">a_hyp</span><span class="p">))</span>
 
     <span class="c1"># TODO : return type</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">regression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                   <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
-                   <span class="n">before</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
-                   <span class="n">after</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
-                   <span class="n">uem</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Timeline</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                   <span class="n">uemified</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">regression</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">before</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">after</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
+        <span class="n">uem</span><span class="p">:</span> <span class="n">Timeline</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">uemified</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
 
         <span class="n">_</span><span class="p">,</span> <span class="n">before</span><span class="p">,</span> <span class="n">errors_before</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span>
-            <span class="n">reference</span><span class="p">,</span> <span class="n">before</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span> <span class="n">uemified</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">reference</span><span class="p">,</span> <span class="n">before</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span> <span class="n">uemified</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
 
         <span class="n">reference</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">errors_after</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span>
-            <span class="n">reference</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span> <span class="n">uemified</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">reference</span><span class="p">,</span> <span class="n">after</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span> <span class="n">uemified</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
 
         <span class="n">behaviors</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="n">reference</span><span class="o">.</span><span class="n">uri</span><span class="p">,</span> <span class="n">modality</span><span class="o">=</span><span class="n">reference</span><span class="o">.</span><span class="n">modality</span><span class="p">)</span>
 
         <span class="c1"># common (up-sampled) timeline</span>
         <span class="n">common_timeline</span> <span class="o">=</span> <span class="n">errors_after</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">()</span><span class="o">.</span><span class="n">union</span><span class="p">(</span>
-            <span class="n">errors_before</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">())</span>
+            <span class="n">errors_before</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">()</span>
+        <span class="p">)</span>
         <span class="n">common_timeline</span> <span class="o">=</span> <span class="n">common_timeline</span><span class="o">.</span><span class="n">segmentation</span><span class="p">()</span>
 
-        <span class="c1"># align &#39;before&#39; errors on common timeline</span>
+        <span class="c1"># align 'before' errors on common timeline</span>
         <span class="n">B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tagger</span><span class="p">(</span><span class="n">errors_before</span><span class="p">,</span> <span class="n">common_timeline</span><span class="p">)</span>
 
-        <span class="c1"># align &#39;after&#39; errors on common timeline</span>
+        <span class="c1"># align 'after' errors on common timeline</span>
         <span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tagger</span><span class="p">(</span><span class="n">errors_after</span><span class="p">,</span> <span class="n">common_timeline</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">common_timeline</span><span class="p">:</span>
-
             <span class="n">old_errors</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">get_labels</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">new_errors</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">get_labels</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
@@ -262,52 +271,59 @@
                     <span class="k">match</span><span class="p">[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_errors</span><span class="p">(</span><span class="n">e1</span><span class="p">,</span> <span class="n">e2</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">i1</span><span class="p">,</span> <span class="n">i2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">linear_sum_assignment</span><span class="p">(</span><span class="o">-</span><span class="n">match</span><span class="p">)):</span>
-
                 <span class="k">if</span> <span class="n">i1</span> <span class="o">&gt;=</span> <span class="n">n1</span><span class="p">:</span>
-                    <span class="n">track</span> <span class="o">=</span> <span class="n">behaviors</span><span class="o">.</span><span class="n">new_track</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span>
-                                                <span class="n">candidate</span><span class="o">=</span><span class="n">REGRESSION</span><span class="p">,</span>
-                                                <span class="n">prefix</span><span class="o">=</span><span class="n">REGRESSION</span><span class="p">)</span>
-                    <span class="n">behaviors</span><span class="p">[</span><span class="n">segment</span><span class="p">,</span> <span class="n">track</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">REGRESSION</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">new_errors</span><span class="p">[</span><span class="n">i2</span><span class="p">])</span>
+                    <span class="n">track</span> <span class="o">=</span> <span class="n">behaviors</span><span class="o">.</span><span class="n">new_track</span><span class="p">(</span>
+                        <span class="n">segment</span><span class="p">,</span> <span class="n">candidate</span><span class="o">=</span><span class="n">REGRESSION</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">REGRESSION</span>
+                    <span class="p">)</span>
+                    <span class="n">behaviors</span><span class="p">[</span><span class="n">segment</span><span class="p">,</span> <span class="n">track</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">REGRESSION</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">new_errors</span><span class="p">[</span><span class="n">i2</span><span class="p">])</span>
 
                 <span class="k">elif</span> <span class="n">i2</span> <span class="o">&gt;=</span> <span class="n">n2</span><span class="p">:</span>
-                    <span class="n">track</span> <span class="o">=</span> <span class="n">behaviors</span><span class="o">.</span><span class="n">new_track</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span>
-                                                <span class="n">candidate</span><span class="o">=</span><span class="n">IMPROVEMENT</span><span class="p">,</span>
-                                                <span class="n">prefix</span><span class="o">=</span><span class="n">IMPROVEMENT</span><span class="p">)</span>
-                    <span class="n">behaviors</span><span class="p">[</span><span class="n">segment</span><span class="p">,</span> <span class="n">track</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">IMPROVEMENT</span><span class="p">,</span> <span class="n">old_errors</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="n">track</span> <span class="o">=</span> <span class="n">behaviors</span><span class="o">.</span><span class="n">new_track</span><span class="p">(</span>
+                        <span class="n">segment</span><span class="p">,</span> <span class="n">candidate</span><span class="o">=</span><span class="n">IMPROVEMENT</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">IMPROVEMENT</span>
+                    <span class="p">)</span>
+                    <span class="n">behaviors</span><span class="p">[</span><span class="n">segment</span><span class="p">,</span> <span class="n">track</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">IMPROVEMENT</span><span class="p">,</span> <span class="n">old_errors</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>
 
                 <span class="k">elif</span> <span class="n">old_errors</span><span class="p">[</span><span class="n">i1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">MATCH_CORRECT</span><span class="p">:</span>
-
                     <span class="k">if</span> <span class="n">new_errors</span><span class="p">[</span><span class="n">i2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">MATCH_CORRECT</span><span class="p">:</span>
-                        <span class="n">track</span> <span class="o">=</span> <span class="n">behaviors</span><span class="o">.</span><span class="n">new_track</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span>
-                                                    <span class="n">candidate</span><span class="o">=</span><span class="n">BOTH_CORRECT</span><span class="p">,</span>
-                                                    <span class="n">prefix</span><span class="o">=</span><span class="n">BOTH_CORRECT</span><span class="p">)</span>
+                        <span class="n">track</span> <span class="o">=</span> <span class="n">behaviors</span><span class="o">.</span><span class="n">new_track</span><span class="p">(</span>
+                            <span class="n">segment</span><span class="p">,</span> <span class="n">candidate</span><span class="o">=</span><span class="n">BOTH_CORRECT</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">BOTH_CORRECT</span>
+                        <span class="p">)</span>
                         <span class="n">behaviors</span><span class="p">[</span><span class="n">segment</span><span class="p">,</span> <span class="n">track</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                            <span class="n">BOTH_CORRECT</span><span class="p">,</span> <span class="n">old_errors</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span> <span class="n">new_errors</span><span class="p">[</span><span class="n">i2</span><span class="p">])</span>
+                            <span class="n">BOTH_CORRECT</span><span class="p">,</span>
+                            <span class="n">old_errors</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span>
+                            <span class="n">new_errors</span><span class="p">[</span><span class="n">i2</span><span class="p">],</span>
+                        <span class="p">)</span>
 
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">track</span> <span class="o">=</span> <span class="n">behaviors</span><span class="o">.</span><span class="n">new_track</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span>
-                                                    <span class="n">candidate</span><span class="o">=</span><span class="n">REGRESSION</span><span class="p">,</span>
-                                                    <span class="n">prefix</span><span class="o">=</span><span class="n">REGRESSION</span><span class="p">)</span>
+                        <span class="n">track</span> <span class="o">=</span> <span class="n">behaviors</span><span class="o">.</span><span class="n">new_track</span><span class="p">(</span>
+                            <span class="n">segment</span><span class="p">,</span> <span class="n">candidate</span><span class="o">=</span><span class="n">REGRESSION</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">REGRESSION</span>
+                        <span class="p">)</span>
                         <span class="n">behaviors</span><span class="p">[</span><span class="n">segment</span><span class="p">,</span> <span class="n">track</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                            <span class="n">REGRESSION</span><span class="p">,</span> <span class="n">old_errors</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span> <span class="n">new_errors</span><span class="p">[</span><span class="n">i2</span><span class="p">])</span>
+                            <span class="n">REGRESSION</span><span class="p">,</span>
+                            <span class="n">old_errors</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span>
+                            <span class="n">new_errors</span><span class="p">[</span><span class="n">i2</span><span class="p">],</span>
+                        <span class="p">)</span>
 
                 <span class="k">else</span><span class="p">:</span>
-
                     <span class="k">if</span> <span class="n">new_errors</span><span class="p">[</span><span class="n">i2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">MATCH_CORRECT</span><span class="p">:</span>
-                        <span class="n">track</span> <span class="o">=</span> <span class="n">behaviors</span><span class="o">.</span><span class="n">new_track</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span>
-                                                    <span class="n">candidate</span><span class="o">=</span><span class="n">IMPROVEMENT</span><span class="p">,</span>
-                                                    <span class="n">prefix</span><span class="o">=</span><span class="n">IMPROVEMENT</span><span class="p">)</span>
+                        <span class="n">track</span> <span class="o">=</span> <span class="n">behaviors</span><span class="o">.</span><span class="n">new_track</span><span class="p">(</span>
+                            <span class="n">segment</span><span class="p">,</span> <span class="n">candidate</span><span class="o">=</span><span class="n">IMPROVEMENT</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">IMPROVEMENT</span>
+                        <span class="p">)</span>
                         <span class="n">behaviors</span><span class="p">[</span><span class="n">segment</span><span class="p">,</span> <span class="n">track</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                            <span class="n">IMPROVEMENT</span><span class="p">,</span> <span class="n">old_errors</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span> <span class="n">new_errors</span><span class="p">[</span><span class="n">i2</span><span class="p">])</span>
+                            <span class="n">IMPROVEMENT</span><span class="p">,</span>
+                            <span class="n">old_errors</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span>
+                            <span class="n">new_errors</span><span class="p">[</span><span class="n">i2</span><span class="p">],</span>
+                        <span class="p">)</span>
 
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">track</span> <span class="o">=</span> <span class="n">behaviors</span><span class="o">.</span><span class="n">new_track</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span>
-                                                    <span class="n">candidate</span><span class="o">=</span><span class="n">BOTH_INCORRECT</span><span class="p">,</span>
-                                                    <span class="n">prefix</span><span class="o">=</span><span class="n">BOTH_INCORRECT</span><span class="p">)</span>
+                        <span class="n">track</span> <span class="o">=</span> <span class="n">behaviors</span><span class="o">.</span><span class="n">new_track</span><span class="p">(</span>
+                            <span class="n">segment</span><span class="p">,</span> <span class="n">candidate</span><span class="o">=</span><span class="n">BOTH_INCORRECT</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">BOTH_INCORRECT</span>
+                        <span class="p">)</span>
                         <span class="n">behaviors</span><span class="p">[</span><span class="n">segment</span><span class="p">,</span> <span class="n">track</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                            <span class="n">BOTH_INCORRECT</span><span class="p">,</span> <span class="n">old_errors</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span> <span class="n">new_errors</span><span class="p">[</span><span class="n">i2</span><span class="p">])</span>
+                            <span class="n">BOTH_INCORRECT</span><span class="p">,</span>
+                            <span class="n">old_errors</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span>
+                            <span class="n">new_errors</span><span class="p">[</span><span class="n">i2</span><span class="p">],</span>
+                        <span class="p">)</span>
 
         <span class="n">behaviors</span> <span class="o">=</span> <span class="n">behaviors</span><span class="o">.</span><span class="n">support</span><span class="p">()</span>
 
@@ -316,13 +332,13 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">behaviors</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-               <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
-               <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
-               <span class="n">uem</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Timeline</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;DataArray&#39;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">matrix</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">uem</span><span class="p">:</span> <span class="n">Timeline</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"DataArray"</span><span class="p">:</span>
 
         <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">errors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span>
-            <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span> <span class="n">uemified</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">uem</span><span class="o">=</span><span class="n">uem</span><span class="p">,</span> <span class="n">uemified</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
 
         <span class="n">chart</span> <span class="o">=</span> <span class="n">errors</span><span class="o">.</span><span class="n">chart</span><span class="p">()</span>
 
@@ -341,17 +357,19 @@
         <span class="n">rLabels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">rLabels</span><span class="p">,</span> <span class="n">cmp</span><span class="o">=</span><span class="n">cmp_func</span><span class="p">)</span>
         <span class="n">hLabels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">hLabels</span><span class="p">,</span> <span class="n">cmp</span><span class="o">=</span><span class="n">cmp_func</span><span class="p">)</span>
 
-        <span class="c1"># append false alarm labels as last &#39;reference&#39; labels</span>
+        <span class="c1"># append false alarm labels as last 'reference' labels</span>
         <span class="c1"># (make sure to mark them as such)</span>
-        <span class="n">rLabels</span> <span class="o">=</span> <span class="n">rLabels</span> <span class="o">+</span> <span class="p">[(</span><span class="n">MATCH_FALSE_ALARM</span><span class="p">,</span> <span class="n">hLabel</span><span class="p">)</span>
-                             <span class="k">for</span> <span class="n">hLabel</span> <span class="ow">in</span> <span class="n">falseAlarmLabels</span><span class="p">]</span>
+        <span class="n">rLabels</span> <span class="o">=</span> <span class="n">rLabels</span> <span class="o">+</span> <span class="p">[(</span><span class="n">MATCH_FALSE_ALARM</span><span class="p">,</span> <span class="n">hLabel</span><span class="p">)</span> <span class="k">for</span> <span class="n">hLabel</span> <span class="ow">in</span> <span class="n">falseAlarmLabels</span><span class="p">]</span>
 
         <span class="c1"># prepend duration columns before the detailed confusion matrix</span>
         <span class="n">hLabels</span> <span class="o">=</span> <span class="p">[</span>
-                      <span class="n">REFERENCE_TOTAL</span><span class="p">,</span> <span class="n">HYPOTHESIS_TOTAL</span><span class="p">,</span>
-                      <span class="n">MATCH_CORRECT</span><span class="p">,</span> <span class="n">MATCH_CONFUSION</span><span class="p">,</span>
-                      <span class="n">MATCH_FALSE_ALARM</span><span class="p">,</span> <span class="n">MATCH_MISSED_DETECTION</span>
-                  <span class="p">]</span> <span class="o">+</span> <span class="n">hLabels</span>
+            <span class="n">REFERENCE_TOTAL</span><span class="p">,</span>
+            <span class="n">HYPOTHESIS_TOTAL</span><span class="p">,</span>
+            <span class="n">MATCH_CORRECT</span><span class="p">,</span>
+            <span class="n">MATCH_CONFUSION</span><span class="p">,</span>
+            <span class="n">MATCH_FALSE_ALARM</span><span class="p">,</span>
+            <span class="n">MATCH_MISSED_DETECTION</span><span class="p">,</span>
+        <span class="p">]</span> <span class="o">+</span> <span class="n">hLabels</span>
 
         <span class="c1"># initialize empty matrix</span>
 
@@ -359,18 +377,18 @@
             <span class="kn">from</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataArray</span>
         <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s2">&quot;Please install xarray dependency to use class &quot;</span>
-                <span class="s2">&quot;&#39;IdentificationErrorAnalysis&#39;.&quot;</span>
+                <span class="s2">"Please install xarray dependency to use class "</span>
+                <span class="s2">"'IdentificationErrorAnalysis'."</span>
             <span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="n">matrix</span> <span class="o">=</span> <span class="n">DataArray</span><span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">rLabels</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">hLabels</span><span class="p">))),</span>
-            <span class="n">coords</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;reference&#39;</span><span class="p">,</span> <span class="n">rLabels</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;hypothesis&#39;</span><span class="p">,</span> <span class="n">hLabels</span><span class="p">)])</span>
+            <span class="n">coords</span><span class="o">=</span><span class="p">[(</span><span class="s2">"reference"</span><span class="p">,</span> <span class="n">rLabels</span><span class="p">),</span> <span class="p">(</span><span class="s2">"hypothesis"</span><span class="p">,</span> <span class="n">hLabels</span><span class="p">)],</span>
+        <span class="p">)</span>
 
         <span class="c1"># loop on chart</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">rLabel</span><span class="p">,</span> <span class="n">hLabel</span><span class="p">),</span> <span class="n">duration</span> <span class="ow">in</span> <span class="n">chart</span><span class="p">:</span>
-
             <span class="c1"># increment correct</span>
             <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="n">MATCH_CORRECT</span><span class="p">:</span>
                 <span class="n">matrix</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">rLabel</span><span class="p">,</span> <span class="n">hLabel</span><span class="p">]</span> <span class="o">+=</span> <span class="n">duration</span>
@@ -390,7 +408,9 @@
             <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="n">MATCH_FALSE_ALARM</span><span class="p">:</span>
                 <span class="c1"># hLabel is also a reference label</span>
                 <span class="k">if</span> <span class="n">hLabel</span> <span class="ow">in</span> <span class="n">falseAlarmLabels</span><span class="p">:</span>
-                    <span class="n">matrix</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">MATCH_FALSE_ALARM</span><span class="p">,</span> <span class="n">hLabel</span><span class="p">),</span> <span class="n">MATCH_FALSE_ALARM</span><span class="p">]</span> <span class="o">+=</span> <span class="n">duration</span>
+                    <span class="n">matrix</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">MATCH_FALSE_ALARM</span><span class="p">,</span> <span class="n">hLabel</span><span class="p">),</span> <span class="n">MATCH_FALSE_ALARM</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span>
+                        <span class="n">duration</span>
+                    <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">matrix</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">hLabel</span><span class="p">,</span> <span class="n">MATCH_FALSE_ALARM</span><span class="p">]</span> <span class="o">+=</span> <span class="n">duration</span>
 
@@ -399,9 +419,8 @@
 
         <span class="c1"># total reference and hypothesis duration</span>
         <span class="k">for</span> <span class="n">rLabel</span> <span class="ow">in</span> <span class="n">rLabels</span><span class="p">:</span>
-
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rLabel</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="n">rLabel</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">MATCH_FALSE_ALARM</span><span class="p">:</span>
-                <span class="n">r</span> <span class="o">=</span> <span class="mf">0.</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="mf">0.0</span>
                 <span class="n">h</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">label_duration</span><span class="p">(</span><span class="n">rLabel</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">r</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">label_duration</span><span class="p">(</span><span class="n">rLabel</span><span class="p">)</span>

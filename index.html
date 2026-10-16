@@ -6,18 +6,17 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyannote.metrics &mdash; pyannote.metrics 4.1 documentation</title>
+  <title>pyannote.metrics &mdash; pyannote.metrics 4.0.0rc3.dev12+gb416e1377 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=3b2dd2c4"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="_static/documentation_options.js?v=1fc0940e"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -49,7 +48,7 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pyannote/pyannote-metrics/blob/main/CHANGELOG.md">Changelog</a></li>
 </ul>
 
         </div>
@@ -91,7 +90,7 @@
 <h3>Citation<a class="headerlink" href="#citation" title="Link to this heading"></a></h3>
 <p>If you use <cite>pyannote.metrics</cite> in your research, please use the following citation:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@inproceedings</span><span class="p">{</span><span class="n">pyannote</span><span class="o">.</span><span class="n">metrics</span><span class="p">,</span>
-  <span class="n">author</span> <span class="o">=</span> <span class="p">{</span><span class="n">Herv</span>\<span class="s1">&#39;e Bredin},</span>
+  <span class="n">author</span> <span class="o">=</span> <span class="p">{</span><span class="n">Herv</span>\<span class="s1">'e Bredin},</span>
   <span class="n">title</span> <span class="o">=</span> <span class="p">{{</span><span class="n">pyannote</span><span class="o">.</span><span class="n">metrics</span><span class="p">:</span> <span class="n">a</span> <span class="n">toolkit</span> <span class="k">for</span> <span class="n">reproducible</span> <span class="n">evaluation</span><span class="p">,</span> <span class="n">diagnostic</span><span class="p">,</span> <span class="ow">and</span> <span class="n">error</span> <span class="n">analysis</span> <span class="n">of</span> <span class="n">speaker</span> <span class="n">diarization</span> <span class="n">systems</span><span class="p">}},</span>
   <span class="n">booktitle</span> <span class="o">=</span> <span class="p">{{</span><span class="n">Interspeech</span> <span class="mi">2017</span><span class="p">,</span> <span class="mi">18</span><span class="n">th</span> <span class="n">Annual</span> <span class="n">Conference</span> <span class="n">of</span> <span class="n">the</span> <span class="n">International</span> <span class="n">Speech</span> <span class="n">Communication</span> <span class="n">Association</span><span class="p">}},</span>
   <span class="n">year</span> <span class="o">=</span> <span class="p">{</span><span class="mi">2017</span><span class="p">},</span>
@@ -139,69 +138,17 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="reference.html#error-analysis">Error analysis</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="reference.html#pyannote.metrics.errors.identification.IdentificationErrorAnalysis"><code class="docutils literal notranslate"><span class="pre">IdentificationErrorAnalysis</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#id2">Segmentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#module-pyannote.metrics.errors.segmentation">Identification</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="reference.html#plots">Plots</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="reference.html#pyannote.metrics.plot.binary_classification.plot_det_curve"><code class="docutils literal notranslate"><span class="pre">plot_det_curve()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="reference.html#pyannote.metrics.plot.binary_classification.plot_distributions"><code class="docutils literal notranslate"><span class="pre">plot_distributions()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="reference.html#pyannote.metrics.plot.binary_classification.plot_precision_recall_curve"><code class="docutils literal notranslate"><span class="pre">plot_precision_recall_curve()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#module-pyannote.metrics.plot.binary_classification">Binary classification</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-4-1-0-2026-05-06">Version 4.1.0 (2026-05-06)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-4-0-0-2025-09-09">Version 4.0.0 (2025-09-09)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-3-3-0-2025-01-12">Version 3.3.0 (2025-01-12)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-3-2-1-2022-06-20">Version 3.2.1 (2022-06-20)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-3-2-2022-01-12">Version 3.2 (2022-01-12)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-3-1-2021-09-27">Version 3.1 (2021-09-27)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-3-0-1-2020-07-02">Version 3.0.1 (2020-07-02)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-3-0-2020-06-15">Version 3.0 (2020-06-15)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-2-3-2020-02-26">Version 2.3 (2020-02-26)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-2-2-2019-12-13">Version 2.2 (2019-12-13)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-2-1-2019-06-24">Version 2.1 (2019-06-24)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-2-0-2-2019-04-15">Version 2.0.2 (2019-04-15)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-2-0-1-2019-03-20">Version 2.0.1 (2019-03-20)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-1-8-1-2018-11-19">Version 1.8.1 (2018-11-19)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-1-8-2018-09-03">Version 1.8 (2018-09-03)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-1-7-1-2018-09-03">Version 1.7.1 (2018-09-03)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-1-7-2018-03-17">Version 1.7 (2018-03-17)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-1-6-1-2018-02-05">Version 1.6.1 (2018-02-05)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-1-5-2017-10-20">Version 1.5 (2017-10-20)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-1-4-3-2017-10-17">Version 1.4.3 (2017-10-17)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-1-4-2-2017-10-13">Version 1.4.2 (2017-10-13)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-1-4-1-2017-10-02">Version 1.4.1 (2017-10-02)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-1-3-2017-09-19">Version 1.3 (2017-09-19)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-1-2-2017-07-21">Version 1.2 (2017-07-21)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-1-1-2017-07-20">Version 1.1 (2017-07-20)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-1-0-2017-07-04">Version 1.0 (2017-07-04)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-14-4-2017-03-27">Version 0.14.4 (2017-03-27)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-14-3-2017-03-27">Version 0.14.3 (2017-03-27)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-14-2-2017-03-21">Version 0.14.2 (2017-03-21)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-14-1-2017-03-16">Version 0.14.1 (2017-03-16)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-14-2017-02-06">Version 0.14 (2017-02-06)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-13-2-2017-01-30">Version 0.13.2 (2017-01-30)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-12-1-2017-01-27">Version 0.12.1 (2017-01-27)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-11-2016-12-13">Version 0.11 (2016-12-13)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-10-3-2016-11-28">Version 0.10.3 (2016-11-28)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-10-2-2016-11-10">Version 0.10.2 (2016-11-10)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-10-1-2016-11-05">Version 0.10.1 (2016-11-05)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-9-2016-09-23">Version 0.9 (2016-09-23)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-8-2016-08-25">Version 0.8 (2016-08-25)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-7-1-2016-06-24">Version 0.7.1 (2016-06-24)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-7-2016-04-04">Version 0.7 (2016-04-04)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-6-0-2016-03-29">Version 0.6.0 (2016-03-29)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-5-1-2016-02-19">Version 0.5.1 (2016-02-19)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-4-1-2014-11-20">Version 0.4.1 (2014-11-20)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-4-2014-10-31">Version 0.4 (2014-10-31)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-3-2014-10-01">Version 0.3 (2014-10-01)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-2-2014-08-05">Version 0.2 (2014-08-05)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-1-2014-06-27">Version 0.1 (2014-06-27)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-0-1-2014-06-04">Version 0.0.1 (2014-06-04)</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pyannote/pyannote-metrics/blob/main/CHANGELOG.md">Changelog</a></li>
 </ul>
 </div>
 </section>

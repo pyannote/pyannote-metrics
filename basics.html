@@ -6,17 +6,17 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Principles &mdash; pyannote.metrics 4.1 documentation</title>
+  <title>Principles &mdash; pyannote.metrics 4.0.0rc3.dev12+gb416e1377 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=3b2dd2c4"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/documentation_options.js?v=1fc0940e"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -59,7 +59,7 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pyannote/pyannote-metrics/blob/main/CHANGELOG.md">Changelog</a></li>
 </ul>
 
         </div>
@@ -92,23 +92,26 @@
 <p><cite>pyannote.metrics</cite> provides a set of classes to compare the output of speaker diarization (hereafter called <cite>hypothesis</cite>) systems to manual annotations (<cite>reference</cite>). Let us first instantiate a sample <cite>reference</cite> and <cite>hypothesis</cite>.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span><span class="w"> </span><span class="nn">pyannote.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Segment</span><span class="p">,</span> <span class="n">Timeline</span><span class="p">,</span> <span class="n">Annotation</span>
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">reference</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="s1">&#39;file1&#39;</span><span class="p">)</span>
-   <span class="o">...</span><span class="p">:</span> <span class="n">reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;A&#39;</span>
-   <span class="o">...</span><span class="p">:</span> <span class="n">reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">20</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;B&#39;</span>
-   <span class="o">...</span><span class="p">:</span> <span class="n">reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">27</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;A&#39;</span>
-   <span class="o">...</span><span class="p">:</span> <span class="n">reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;C&#39;</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">reference</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="s1">'file1'</span><span class="p">)</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'A'</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">20</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'B'</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">27</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'A'</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'C'</span>
    <span class="o">...</span><span class="p">:</span> 
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="s1">&#39;file1&#39;</span><span class="p">)</span>
-   <span class="o">...</span><span class="p">:</span> <span class="n">hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span>
-   <span class="o">...</span><span class="p">:</span> <span class="n">hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;d&#39;</span>
-   <span class="o">...</span><span class="p">:</span> <span class="n">hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">20</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
-   <span class="o">...</span><span class="p">:</span> <span class="n">hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">38</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;c&#39;</span>
-   <span class="o">...</span><span class="p">:</span> <span class="n">hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">38</span><span class="p">,</span> <span class="mi">40</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;d&#39;</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">hypothesis</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="s1">'file1'</span><span class="p">)</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'a'</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'d'</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">20</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'b'</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">38</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'c'</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">38</span><span class="p">,</span> <span class="mi">40</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'d'</span>
    <span class="o">...</span><span class="p">:</span> 
 </pre></div>
 </div>
-<p>(<a class="reference download internal" download="" href="_downloads/1991325ffea62f458b35efd8c823b43e/tutorial.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>)</p>
+<p>(<a class="reference download internal" download="" href="_downloads/319c2ce07f2ae45d1153d789a8cd86f4/tutorial.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/19d2525aac0ac901ba70a4242aa28e41/tutorial.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/46ec658b8e1db797d91ef47b23ce5a43/tutorial.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/89b97390f40187f1955acda068ab1c55/tutorial.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="_images/tutorial.png" class="plot-directive" src="_images/tutorial.png" />
+</figure>
 <p>This basically tells us that, according to the manual annotation, speaker <cite>A</cite> speaks in timeranges [0s, 10s] and [24s, 27s].</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -129,19 +132,19 @@ As such, they share a common set of methods.</p>
 <section id="accumulation-reporting">
 <h2>Accumulation &amp; reporting<a class="headerlink" href="#accumulation-reporting" title="Link to this heading"></a></h2>
 <p>The same metric instance can be used to evaluate multiple files.</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">7</span><span class="p">]:</span> <span class="n">other_reference</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="s1">&#39;file2&#39;</span><span class="p">)</span>
-   <span class="o">...</span><span class="p">:</span> <span class="n">other_reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;A&#39;</span>
-   <span class="o">...</span><span class="p">:</span> <span class="n">other_reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;B&#39;</span>
-   <span class="o">...</span><span class="p">:</span> <span class="n">other_reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;B&#39;</span>
-   <span class="o">...</span><span class="p">:</span> <span class="n">other_reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;A&#39;</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">7</span><span class="p">]:</span> <span class="n">other_reference</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="s1">'file2'</span><span class="p">)</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">other_reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'A'</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">other_reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'B'</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">other_reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'B'</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">other_reference</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'A'</span>
    <span class="o">...</span><span class="p">:</span> 
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">8</span><span class="p">]:</span> <span class="n">other_hypothesis</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="s1">&#39;file2&#39;</span><span class="p">)</span>
-   <span class="o">...</span><span class="p">:</span> <span class="n">other_hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span>
-   <span class="o">...</span><span class="p">:</span> <span class="n">other_hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
-   <span class="o">...</span><span class="p">:</span> <span class="n">other_hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;c&#39;</span>
-   <span class="o">...</span><span class="p">:</span> <span class="n">other_hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">19</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
-   <span class="o">...</span><span class="p">:</span> <span class="n">other_hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">19</span><span class="p">,</span> <span class="mi">20</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">8</span><span class="p">]:</span> <span class="n">other_hypothesis</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="s1">'file2'</span><span class="p">)</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">other_hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'a'</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">other_hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'b'</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">other_hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'c'</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">other_hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">19</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'b'</span>
+   <span class="o">...</span><span class="p">:</span> <span class="n">other_hypothesis</span><span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mi">19</span><span class="p">,</span> <span class="mi">20</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'a'</span>
    <span class="o">...</span><span class="p">:</span> 
 
 <span class="n">In</span> <span class="p">[</span><span class="mi">9</span><span class="p">]:</span> <span class="n">metric</span> <span class="o">=</span> <span class="n">DiarizationErrorRate</span><span class="p">()</span>
@@ -192,28 +195,28 @@ For instance, the diarization error rate is the combination of false alarm (non-
 <p>Using <code class="docutils literal notranslate"><span class="pre">detailed=True</span></code> will return the value of each component:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">17</span><span class="p">]:</span> <span class="n">metric</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">Out</span><span class="p">[</span><span class="mi">17</span><span class="p">]:</span> 
-<span class="p">{</span><span class="s1">&#39;correct&#39;</span><span class="p">:</span> <span class="mf">22.0</span><span class="p">,</span>
- <span class="s1">&#39;false alarm&#39;</span><span class="p">:</span> <span class="mf">7.0</span><span class="p">,</span>
- <span class="s1">&#39;confusion&#39;</span><span class="p">:</span> <span class="mf">7.0</span><span class="p">,</span>
- <span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="mf">31.0</span><span class="p">,</span>
- <span class="s1">&#39;missed detection&#39;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
- <span class="s1">&#39;diarization error rate&#39;</span><span class="p">:</span> <span class="mf">0.5161290322580645</span><span class="p">}</span>
+<span class="p">{</span><span class="s1">'correct'</span><span class="p">:</span> <span class="mf">22.0</span><span class="p">,</span>
+ <span class="s1">'total'</span><span class="p">:</span> <span class="mf">31.0</span><span class="p">,</span>
+ <span class="s1">'missed detection'</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+ <span class="s1">'confusion'</span><span class="p">:</span> <span class="mf">7.0</span><span class="p">,</span>
+ <span class="s1">'false alarm'</span><span class="p">:</span> <span class="mf">7.0</span><span class="p">,</span>
+ <span class="s1">'diarization error rate'</span><span class="p">:</span> <span class="mf">0.5161290322580645</span><span class="p">}</span>
 </pre></div>
 </div>
 <p>The accumulated value of each component can also be obtained using the overriden <code class="xref py py-func docutils literal notranslate"><span class="pre">__getitem__()</span></code> operator:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">18</span><span class="p">]:</span> <span class="n">metric</span><span class="p">(</span><span class="n">other_reference</span><span class="p">,</span> <span class="n">other_hypothesis</span><span class="p">)</span>
 <span class="n">Out</span><span class="p">[</span><span class="mi">18</span><span class="p">]:</span> <span class="mf">0.7333333333333333</span>
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">19</span><span class="p">]:</span> <span class="n">metric</span><span class="p">[</span><span class="s1">&#39;confusion&#39;</span><span class="p">]</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">19</span><span class="p">]:</span> <span class="n">metric</span><span class="p">[</span><span class="s1">'confusion'</span><span class="p">]</span>
 <span class="n">Out</span><span class="p">[</span><span class="mi">19</span><span class="p">]:</span> <span class="mf">13.0</span>
 
 <span class="n">In</span> <span class="p">[</span><span class="mi">20</span><span class="p">]:</span> <span class="n">metric</span><span class="p">[:]</span>
 <span class="n">Out</span><span class="p">[</span><span class="mi">20</span><span class="p">]:</span> 
-<span class="p">{</span><span class="s1">&#39;correct&#39;</span><span class="p">:</span> <span class="mf">43.0</span><span class="p">,</span>
- <span class="s1">&#39;false alarm&#39;</span><span class="p">:</span> <span class="mf">11.0</span><span class="p">,</span>
- <span class="s1">&#39;confusion&#39;</span><span class="p">:</span> <span class="mf">13.0</span><span class="p">,</span>
- <span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="mf">61.0</span><span class="p">,</span>
- <span class="s1">&#39;missed detection&#39;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">}</span>
+<span class="p">{</span><span class="s1">'correct'</span><span class="p">:</span> <span class="mf">43.0</span><span class="p">,</span>
+ <span class="s1">'total'</span><span class="p">:</span> <span class="mf">61.0</span><span class="p">,</span>
+ <span class="s1">'missed detection'</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span>
+ <span class="s1">'confusion'</span><span class="p">:</span> <span class="mf">13.0</span><span class="p">,</span>
+ <span class="s1">'false alarm'</span><span class="p">:</span> <span class="mf">11.0</span><span class="p">}</span>
 </pre></div>
 </div>
 </section>
@@ -234,31 +237,31 @@ For instance, the diarization error rate is the combination of false alarm (non-
     <span class="k">def</span><span class="w"> </span><span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="c1"># Return human-readable name of the metric</span>
 
-        <span class="k">return</span> <span class="s1">&#39;male / female ratio&#39;</span>
+        <span class="k">return</span> <span class="s1">'male / female ratio'</span>
 
     <span class="nd">@classmethod</span><span class="p">:</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="c1"># Return component names from which the metric is computed</span>
 
-        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;male&#39;</span><span class="p">,</span> <span class="s1">&#39;female&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">'male'</span><span class="p">,</span> <span class="s1">'female'</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># Actually compute the value of each component</span>
 
-        <span class="n">components</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;male&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;female&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">}</span>
+        <span class="n">components</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'male'</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span> <span class="s1">'female'</span><span class="p">:</span> <span class="mf">0.</span><span class="p">}</span>
 
         <span class="k">for</span> <span class="n">segment</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">speaker_name</span> <span class="ow">in</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">itertracks</span><span class="p">(</span><span class="n">yield_label</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">is_male</span><span class="p">(</span><span class="n">speaker_name</span><span class="p">):</span>
-                <span class="n">components</span><span class="p">[</span><span class="s1">&#39;male&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">segment</span><span class="o">.</span><span class="n">duration</span>
+                <span class="n">components</span><span class="p">[</span><span class="s1">'male'</span><span class="p">]</span> <span class="o">+=</span> <span class="n">segment</span><span class="o">.</span><span class="n">duration</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">components</span><span class="p">[</span><span class="s1">&#39;female&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">segment</span><span class="o">.</span><span class="n">duration</span>
+                <span class="n">components</span><span class="p">[</span><span class="s1">'female'</span><span class="p">]</span> <span class="o">+=</span> <span class="n">segment</span><span class="o">.</span><span class="n">duration</span>
 
         <span class="k">return</span> <span class="n">components</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">components</span><span class="p">):</span>
         <span class="c1"># Actually compute the metric based on the component values</span>
 
-        <span class="k">return</span> <span class="n">components</span><span class="p">[</span><span class="s1">&#39;male&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">components</span><span class="p">[</span><span class="s1">&#39;female&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">components</span><span class="p">[</span><span class="s1">'male'</span><span class="p">]</span> <span class="o">/</span> <span class="n">components</span><span class="p">[</span><span class="s1">'female'</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>See <code class="xref py py-class docutils literal notranslate"><span class="pre">pyannote.metrics.base.BaseMetric</span></code> for more details.</p>

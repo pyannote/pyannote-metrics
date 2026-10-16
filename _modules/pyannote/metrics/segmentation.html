@@ -5,17 +5,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyannote.metrics.segmentation &mdash; pyannote.metrics 4.1 documentation</title>
+  <title>pyannote.metrics.segmentation &mdash; pyannote.metrics 4.0.0rc3.dev12+gb416e1377 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=3b2dd2c4"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/documentation_options.js?v=1fc0940e"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -46,7 +46,7 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../reference.html">Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pyannote/pyannote-metrics/blob/main/CHANGELOG.md">Changelog</a></li>
 </ul>
 
         </div>
@@ -74,15 +74,12 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pyannote.metrics.segmentation</h1><div class="highlight"><pre>
-<span></span><span class="ch">#!/usr/bin/env python</span>
-<span class="c1"># encoding: utf-8</span>
-
-<span class="c1"># The MIT License (MIT)</span>
+<span></span><span class="c1"># The MIT License (MIT)</span>
 
 <span class="c1"># Copyright (c) 2012-2019 CNRS</span>
 
 <span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
-<span class="c1"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
+<span class="c1"># of this software and associated documentation files (the "Software"), to deal</span>
 <span class="c1"># in the Software without restriction, including without limitation the rights</span>
 <span class="c1"># to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</span>
 <span class="c1"># copies of the Software, and to permit persons to whom the Software is</span>
@@ -91,7 +88,7 @@
 <span class="c1"># The above copyright notice and this permission notice shall be included in</span>
 <span class="c1"># all copies or substantial portions of the Software.</span>
 
-<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
 <span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
 <span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</span>
 <span class="c1"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
@@ -104,39 +101,38 @@
 <span class="c1"># Camille Guinaudeau - https://sites.google.com/site/cguinaudeau/</span>
 <span class="c1"># Mamadou Doumbia</span>
 <span class="c1"># Diego Fustes diego.fustes at toptal.com</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pyannote.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Segment</span><span class="p">,</span> <span class="n">Timeline</span><span class="p">,</span> <span class="n">Annotation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyannote.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">Segment</span><span class="p">,</span> <span class="n">Timeline</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyannote.core.utils.generators</span><span class="w"> </span><span class="kn">import</span> <span class="n">pairwise</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetric</span><span class="p">,</span> <span class="n">f_measure</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricComponents</span><span class="p">,</span> <span class="n">Details</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Details</span><span class="p">,</span> <span class="n">MetricComponents</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">UEMSupportMixin</span>
 
-<span class="c1">#  TODO: can&#39;t we put these as class attributes?</span>
-<span class="n">PURITY_NAME</span> <span class="o">=</span> <span class="s1">&#39;segmentation purity&#39;</span>
-<span class="n">COVERAGE_NAME</span> <span class="o">=</span> <span class="s1">&#39;segmentation coverage&#39;</span>
-<span class="n">PURITY_COVERAGE_NAME</span> <span class="o">=</span> <span class="s1">&#39;segmentation F[purity|coverage]&#39;</span>
-<span class="n">PTY_CVG_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;total duration&#39;</span>
-<span class="n">PTY_CVG_INTER</span> <span class="o">=</span> <span class="s1">&#39;intersection duration&#39;</span>
+<span class="c1">#  TODO: can't we put these as class attributes?</span>
+<span class="n">PURITY_NAME</span> <span class="o">=</span> <span class="s2">"segmentation purity"</span>
+<span class="n">COVERAGE_NAME</span> <span class="o">=</span> <span class="s2">"segmentation coverage"</span>
+<span class="n">PURITY_COVERAGE_NAME</span> <span class="o">=</span> <span class="s2">"segmentation F[purity|coverage]"</span>
+<span class="n">PTY_CVG_TOTAL</span> <span class="o">=</span> <span class="s2">"total duration"</span>
+<span class="n">PTY_CVG_INTER</span> <span class="o">=</span> <span class="s2">"intersection duration"</span>
 
-<span class="n">PTY_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;pty total duration&#39;</span>
-<span class="n">PTY_INTER</span> <span class="o">=</span> <span class="s1">&#39;pty intersection duration&#39;</span>
-<span class="n">CVG_TOTAL</span> <span class="o">=</span> <span class="s1">&#39;cvg total duration&#39;</span>
-<span class="n">CVG_INTER</span> <span class="o">=</span> <span class="s1">&#39;cvg intersection duration&#39;</span>
+<span class="n">PTY_TOTAL</span> <span class="o">=</span> <span class="s2">"pty total duration"</span>
+<span class="n">PTY_INTER</span> <span class="o">=</span> <span class="s2">"pty intersection duration"</span>
+<span class="n">CVG_TOTAL</span> <span class="o">=</span> <span class="s2">"cvg total duration"</span>
+<span class="n">CVG_INTER</span> <span class="o">=</span> <span class="s2">"cvg intersection duration"</span>
 
-<span class="n">PRECISION_NAME</span> <span class="o">=</span> <span class="s1">&#39;segmentation precision&#39;</span>
-<span class="n">RECALL_NAME</span> <span class="o">=</span> <span class="s1">&#39;segmentation recall&#39;</span>
+<span class="n">PRECISION_NAME</span> <span class="o">=</span> <span class="s2">"segmentation precision"</span>
+<span class="n">RECALL_NAME</span> <span class="o">=</span> <span class="s2">"segmentation recall"</span>
 
-<span class="n">PR_BOUNDARIES</span> <span class="o">=</span> <span class="s1">&#39;number of boundaries&#39;</span>
-<span class="n">PR_MATCHES</span> <span class="o">=</span> <span class="s1">&#39;number of matches&#39;</span>
+<span class="n">PR_BOUNDARIES</span> <span class="o">=</span> <span class="s2">"number of boundaries"</span>
+<span class="n">PR_MATCHES</span> <span class="o">=</span> <span class="s2">"number of matches"</span>
 
 
 <div class="viewcode-block" id="SegmentationCoverage">
 <a class="viewcode-back" href="../../../reference.html#pyannote.metrics.segmentation.SegmentationCoverage">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SegmentationCoverage</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Segmentation coverage</span>
+<span class="w">    </span><span class="sd">"""Segmentation coverage</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -144,18 +140,16 @@
 <span class="sd">        When provided, preprocess reference by filling intra-label gaps shorter</span>
 <span class="sd">        than `tolerance` (in seconds).</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.500</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">=</span> <span class="n">tolerance</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_partition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                   <span class="n">timeline</span><span class="p">:</span> <span class="n">Timeline</span><span class="p">,</span>
-                   <span class="n">coverage</span><span class="p">:</span> <span class="n">Timeline</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Annotation</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_partition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">Timeline</span><span class="p">,</span> <span class="n">coverage</span><span class="p">:</span> <span class="n">Timeline</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Annotation</span><span class="p">:</span>
 
         <span class="c1"># boundaries (as set of timestamps)</span>
-        <span class="n">boundaries</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([])</span>
+        <span class="n">boundaries</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">timeline</span><span class="p">:</span>
             <span class="n">boundaries</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
             <span class="n">boundaries</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
@@ -164,16 +158,16 @@
         <span class="n">partition</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">pairwise</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">boundaries</span><span class="p">)):</span>
             <span class="n">segment</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-            <span class="n">partition</span><span class="p">[</span><span class="n">segment</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span>
+            <span class="n">partition</span><span class="p">[</span><span class="n">segment</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"_"</span>
 
-        <span class="k">return</span> <span class="n">partition</span><span class="o">.</span><span class="n">crop</span><span class="p">(</span><span class="n">coverage</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;intersection&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">relabel_tracks</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">partition</span><span class="o">.</span><span class="n">crop</span><span class="p">(</span><span class="n">coverage</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"intersection"</span><span class="p">)</span><span class="o">.</span><span class="n">relabel_tracks</span><span class="p">()</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
-                    <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Annotation</span><span class="p">,</span> <span class="n">Timeline</span><span class="p">])</span> \
-            <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Annotation</span><span class="p">,</span> <span class="n">Annotation</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_preprocess</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span> <span class="o">|</span> <span class="n">Timeline</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Annotation</span><span class="p">,</span> <span class="n">Annotation</span><span class="p">]:</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">Annotation</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;reference must be an instance of `Annotation`&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"reference must be an instance of `Annotation`"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">,</span> <span class="n">Annotation</span><span class="p">):</span>
             <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Timeline</span> <span class="o">=</span> <span class="n">hypothesis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">()</span>
@@ -204,7 +198,9 @@
         <span class="c1"># cooccurrence matrix</span>
         <span class="n">K</span> <span class="o">=</span> <span class="n">reference</span> <span class="o">*</span> <span class="n">hypothesis</span>
         <span class="n">detail</span><span class="p">[</span><span class="n">PTY_CVG_TOTAL</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-        <span class="n">detail</span><span class="p">[</span><span class="n">PTY_CVG_INTER</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="c1"># np.max has no identity on an empty matrix, which happens when either</span>
+        <span class="c1"># annotation is empty. Nothing is covered in that case.</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">PTY_CVG_INTER</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">if</span> <span class="n">K</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="mf">0.0</span>
 
         <span class="k">return</span> <span class="n">detail</span>
 
@@ -218,8 +214,9 @@
 
 <div class="viewcode-block" id="SegmentationCoverage.compute_components">
 <a class="viewcode-back" href="../../../reference.html#pyannote.metrics.segmentation.SegmentationCoverage.compute_components">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
-                           <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Annotation</span><span class="p">,</span> <span class="n">Timeline</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_components</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span> <span class="o">|</span> <span class="n">Timeline</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
         <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span></div>
 
@@ -227,6 +224,8 @@
 <div class="viewcode-block" id="SegmentationCoverage.compute_metric">
 <a class="viewcode-back" href="../../../reference.html#pyannote.metrics.segmentation.SegmentationCoverage.compute_metric">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">:</span> <span class="n">Details</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">detail</span><span class="p">[</span><span class="n">PTY_CVG_TOTAL</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.0</span>
         <span class="k">return</span> <span class="n">detail</span><span class="p">[</span><span class="n">PTY_CVG_INTER</span><span class="p">]</span> <span class="o">/</span> <span class="n">detail</span><span class="p">[</span><span class="n">PTY_CVG_TOTAL</span><span class="p">]</span></div>
 </div>
 
@@ -235,7 +234,7 @@
 <div class="viewcode-block" id="SegmentationPurity">
 <a class="viewcode-back" href="../../../reference.html#pyannote.metrics.segmentation.SegmentationPurity">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SegmentationPurity</span><span class="p">(</span><span class="n">SegmentationCoverage</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Segmentation purity</span>
+<span class="w">    </span><span class="sd">"""Segmentation purity</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -243,7 +242,7 @@
 <span class="sd">        When provided, preprocess reference by filling intra-label gaps shorter</span>
 <span class="sd">        than `tolerance` (in seconds).</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -252,9 +251,9 @@
     <span class="c1"># TODO : Use type from parent class</span>
 <div class="viewcode-block" id="SegmentationPurity.compute_components">
 <a class="viewcode-back" href="../../../reference.html#pyannote.metrics.segmentation.SegmentationPurity.compute_components">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
-                           <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Annotation</span><span class="p">,</span> <span class="n">Timeline</span><span class="p">],</span>
-                           <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Details</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_components</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span> <span class="o">|</span> <span class="n">Timeline</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Details</span><span class="p">:</span>
         <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">,</span> <span class="n">reference</span><span class="p">)</span></div>
 </div>
@@ -264,7 +263,7 @@
 <div class="viewcode-block" id="SegmentationPurityCoverageFMeasure">
 <a class="viewcode-back" href="../../../reference.html#pyannote.metrics.segmentation.SegmentationPurityCoverageFMeasure">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SegmentationPurityCoverageFMeasure</span><span class="p">(</span><span class="n">SegmentationCoverage</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Compute segmentation purity and coverage, and return their F-score.</span>
 
 
@@ -284,14 +283,15 @@
 <span class="sd">    pyannote.metrics.segmentation.SegmentationPurity</span>
 <span class="sd">    pyannote.metrics.segmentation.SegmentationCoverage</span>
 <span class="sd">    pyannote.metrics.base.f_measure</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.500</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SegmentationPurityCoverageFMeasure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">beta</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
-                 <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Annotation</span><span class="p">,</span> <span class="n">Timeline</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Details</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span> <span class="o">|</span> <span class="n">Timeline</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Details</span><span class="p">:</span>
         <span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span>
 
         <span class="n">detail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_components</span><span class="p">()</span>
@@ -299,19 +299,19 @@
         <span class="c1"># cooccurrence matrix coverage</span>
         <span class="n">K</span> <span class="o">=</span> <span class="n">reference</span> <span class="o">*</span> <span class="n">hypothesis</span>
         <span class="n">detail</span><span class="p">[</span><span class="n">CVG_TOTAL</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-        <span class="n">detail</span><span class="p">[</span><span class="n">CVG_INTER</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">CVG_INTER</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">if</span> <span class="n">K</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="mf">0.0</span>
 
         <span class="c1"># cooccurrence matrix purity</span>
         <span class="n">detail</span><span class="p">[</span><span class="n">PTY_TOTAL</span><span class="p">]</span> <span class="o">=</span> <span class="n">detail</span><span class="p">[</span><span class="n">CVG_TOTAL</span><span class="p">]</span>
-        <span class="n">detail</span><span class="p">[</span><span class="n">PTY_INTER</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="n">detail</span><span class="p">[</span><span class="n">PTY_INTER</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">if</span> <span class="n">K</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="mf">0.0</span>
 
         <span class="k">return</span> <span class="n">detail</span>
 
 <div class="viewcode-block" id="SegmentationPurityCoverageFMeasure.compute_components">
 <a class="viewcode-back" href="../../../reference.html#pyannote.metrics.segmentation.SegmentationPurityCoverageFMeasure.compute_components">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span>
-                           <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Annotation</span><span class="p">,</span> <span class="n">Timeline</span><span class="p">],</span>
-                           <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Details</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_components</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span> <span class="o">|</span> <span class="n">Timeline</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Details</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">hypothesis</span><span class="p">)</span></div>
 
 
@@ -322,17 +322,18 @@
         <span class="k">return</span> <span class="n">value</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">compute_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Details</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> \
-            <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_metrics</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">detail</span><span class="p">:</span> <span class="n">Details</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
         <span class="n">detail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">accumulated_</span> <span class="k">if</span> <span class="n">detail</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">detail</span>
 
-        <span class="n">purity</span> <span class="o">=</span> \
-            <span class="mf">1.</span> <span class="k">if</span> <span class="n">detail</span><span class="p">[</span><span class="n">PTY_TOTAL</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.</span> \
-                <span class="k">else</span> <span class="n">detail</span><span class="p">[</span><span class="n">PTY_INTER</span><span class="p">]</span> <span class="o">/</span> <span class="n">detail</span><span class="p">[</span><span class="n">PTY_TOTAL</span><span class="p">]</span>
+        <span class="n">purity</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mf">1.0</span> <span class="k">if</span> <span class="n">detail</span><span class="p">[</span><span class="n">PTY_TOTAL</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="n">detail</span><span class="p">[</span><span class="n">PTY_INTER</span><span class="p">]</span> <span class="o">/</span> <span class="n">detail</span><span class="p">[</span><span class="n">PTY_TOTAL</span><span class="p">]</span>
+        <span class="p">)</span>
 
-        <span class="n">coverage</span> <span class="o">=</span> \
-            <span class="mf">1.</span> <span class="k">if</span> <span class="n">detail</span><span class="p">[</span><span class="n">CVG_TOTAL</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.</span> \
-                <span class="k">else</span> <span class="n">detail</span><span class="p">[</span><span class="n">CVG_INTER</span><span class="p">]</span> <span class="o">/</span> <span class="n">detail</span><span class="p">[</span><span class="n">CVG_TOTAL</span><span class="p">]</span>
+        <span class="n">coverage</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mf">1.0</span> <span class="k">if</span> <span class="n">detail</span><span class="p">[</span><span class="n">CVG_TOTAL</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="n">detail</span><span class="p">[</span><span class="n">CVG_INTER</span><span class="p">]</span> <span class="o">/</span> <span class="n">detail</span><span class="p">[</span><span class="n">CVG_TOTAL</span><span class="p">]</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">purity</span><span class="p">,</span> <span class="n">coverage</span><span class="p">,</span> <span class="n">f_measure</span><span class="p">(</span><span class="n">purity</span><span class="p">,</span> <span class="n">coverage</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">)</span>
 
@@ -349,7 +350,7 @@
 <div class="viewcode-block" id="SegmentationPrecision">
 <a class="viewcode-back" href="../../../reference.html#pyannote.metrics.segmentation.SegmentationPrecision">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SegmentationPrecision</span><span class="p">(</span><span class="n">UEMSupportMixin</span><span class="p">,</span> <span class="n">BaseMetric</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Segmentation precision</span>
+<span class="w">    </span><span class="sd">"""Segmentation precision</span>
 
 <span class="sd">    &gt;&gt;&gt; from pyannote.core import Timeline, Segment</span>
 <span class="sd">    &gt;&gt;&gt; from pyannote.metrics.segmentation import SegmentationPrecision</span>
@@ -373,7 +374,7 @@
 <span class="sd">    &gt;&gt;&gt; precision(reference, hypothesis)</span>
 <span class="sd">    1.0</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
@@ -383,17 +384,19 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">metric_components</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">PR_MATCHES</span><span class="p">,</span> <span class="n">PR_BOUNDARIES</span><span class="p">]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">=</span> <span class="n">tolerance</span>
 
 <div class="viewcode-block" id="SegmentationPrecision.compute_components">
 <a class="viewcode-back" href="../../../reference.html#pyannote.metrics.segmentation.SegmentationPrecision.compute_components">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                           <span class="n">reference</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Annotation</span><span class="p">,</span> <span class="n">Timeline</span><span class="p">],</span>
-                           <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Annotation</span><span class="p">,</span> <span class="n">Timeline</span><span class="p">],</span>
-                           <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Details</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_components</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span> <span class="o">|</span> <span class="n">Timeline</span><span class="p">,</span>
+        <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span> <span class="o">|</span> <span class="n">Timeline</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Details</span><span class="p">:</span>
 
         <span class="c1"># extract timeline if needed</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">Annotation</span><span class="p">):</span>
@@ -404,18 +407,18 @@
         <span class="n">detail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_components</span><span class="p">()</span>
 
         <span class="c1"># number of matches so far...</span>
-        <span class="n">n_matches</span> <span class="o">=</span> <span class="mf">0.</span>  <span class="c1"># make sure it is a float (for later ratio)</span>
+        <span class="n">n_matches</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># make sure it is a float (for later ratio)</span>
 
         <span class="c1"># number of boundaries in reference and hypothesis</span>
-        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">reference</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
-        <span class="n">M</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">reference</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="c1"># number of boundaries in hypothesis</span>
         <span class="n">detail</span><span class="p">[</span><span class="n">PR_BOUNDARIES</span><span class="p">]</span> <span class="o">=</span> <span class="n">M</span>
 
         <span class="c1"># corner case (no boundary in hypothesis or in reference)</span>
         <span class="k">if</span> <span class="n">M</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">N</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">detail</span><span class="p">[</span><span class="n">PR_MATCHES</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">detail</span><span class="p">[</span><span class="n">PR_MATCHES</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
             <span class="k">return</span> <span class="n">detail</span>
 
         <span class="c1"># reference and hypothesis boundaries</span>
@@ -464,11 +467,11 @@
         <span class="n">numerator</span> <span class="o">=</span> <span class="n">detail</span><span class="p">[</span><span class="n">PR_MATCHES</span><span class="p">]</span>
         <span class="n">denominator</span> <span class="o">=</span> <span class="n">detail</span><span class="p">[</span><span class="n">PR_BOUNDARIES</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">denominator</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">denominator</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">numerator</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">return</span> <span class="mf">1.</span>
+                <span class="k">return</span> <span class="mf">1.0</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">numerator</span> <span class="o">/</span> <span class="n">denominator</span></div>
 </div>
@@ -478,7 +481,7 @@
 <div class="viewcode-block" id="SegmentationRecall">
 <a class="viewcode-back" href="../../../reference.html#pyannote.metrics.segmentation.SegmentationRecall">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SegmentationRecall</span><span class="p">(</span><span class="n">SegmentationPrecision</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Segmentation recall</span>
+<span class="w">    </span><span class="sd">"""Segmentation recall</span>
 
 <span class="sd">    &gt;&gt;&gt; from pyannote.core import Timeline, Segment</span>
 <span class="sd">    &gt;&gt;&gt; from pyannote.metrics.segmentation import SegmentationRecall</span>
@@ -502,7 +505,7 @@
 <span class="sd">    &gt;&gt;&gt; recall(reference, hypothesis)</span>
 <span class="sd">    0.0</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">metric_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
@@ -510,11 +513,13 @@
 
 <div class="viewcode-block" id="SegmentationRecall.compute_components">
 <a class="viewcode-back" href="../../../reference.html#pyannote.metrics.segmentation.SegmentationRecall.compute_components">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">compute_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Annotation</span><span class="p">,</span> <span class="n">Timeline</span><span class="p">],</span>
-                           <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Annotation</span><span class="p">,</span> <span class="n">Timeline</span><span class="p">],</span>
-                           <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Details</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SegmentationRecall</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">compute_components</span><span class="p">(</span>
-            <span class="n">hypothesis</span><span class="p">,</span> <span class="n">reference</span><span class="p">)</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_components</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reference</span><span class="p">:</span> <span class="n">Annotation</span> <span class="o">|</span> <span class="n">Timeline</span><span class="p">,</span>
+        <span class="n">hypothesis</span><span class="p">:</span> <span class="n">Annotation</span> <span class="o">|</span> <span class="n">Timeline</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Details</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">compute_components</span><span class="p">(</span><span class="n">hypothesis</span><span class="p">,</span> <span class="n">reference</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

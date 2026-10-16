@@ -5,17 +5,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; pyannote.metrics 4.1 documentation</title>
+  <title>Index &mdash; pyannote.metrics 4.0.0rc3.dev12+gb416e1377 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=3b2dd2c4"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/documentation_options.js?v=1fc0940e"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -46,7 +46,7 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pyannote/pyannote-metrics/blob/main/CHANGELOG.md">Changelog</a></li>
 </ul>
 
         </div>
@@ -85,6 +85,7 @@
  | <a href="#M"><strong>M</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  
 </div>
@@ -113,6 +114,10 @@
         <li><a href="reference.html#pyannote.metrics.diarization.DiarizationHomogeneity.compute_components">(pyannote.metrics.diarization.DiarizationHomogeneity method)</a>
 </li>
         <li><a href="reference.html#pyannote.metrics.diarization.DiarizationPurity.compute_components">(pyannote.metrics.diarization.DiarizationPurity method)</a>
+</li>
+        <li><a href="reference.html#pyannote.metrics.diarization.DiarizationSpeakerCountAccuracy.compute_components">(pyannote.metrics.diarization.DiarizationSpeakerCountAccuracy method)</a>
+</li>
+        <li><a href="reference.html#pyannote.metrics.diarization.DiarizationSpeakerCountError.compute_components">(pyannote.metrics.diarization.DiarizationSpeakerCountError method)</a>
 </li>
         <li><a href="reference.html#pyannote.metrics.diarization.GreedyDiarizationErrorRate.compute_components">(pyannote.metrics.diarization.GreedyDiarizationErrorRate method)</a>
 </li>
@@ -154,6 +159,10 @@
 </li>
         <li><a href="reference.html#pyannote.metrics.diarization.DiarizationPurity.compute_metric">(pyannote.metrics.diarization.DiarizationPurity method)</a>
 </li>
+        <li><a href="reference.html#pyannote.metrics.diarization.DiarizationSpeakerCountAccuracy.compute_metric">(pyannote.metrics.diarization.DiarizationSpeakerCountAccuracy method)</a>
+</li>
+        <li><a href="reference.html#pyannote.metrics.diarization.DiarizationSpeakerCountError.compute_metric">(pyannote.metrics.diarization.DiarizationSpeakerCountError method)</a>
+</li>
         <li><a href="reference.html#pyannote.metrics.diarization.JaccardErrorRate.compute_metric">(pyannote.metrics.diarization.JaccardErrorRate method)</a>
 </li>
         <li><a href="reference.html#pyannote.metrics.identification.IdentificationErrorRate.compute_metric">(pyannote.metrics.identification.IdentificationErrorRate method)</a>
@@ -183,10 +192,10 @@
 </li>
       <li><a href="reference.html#pyannote.metrics.detection.DetectionRecall">DetectionRecall (class in pyannote.metrics.detection)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#pyannote.metrics.diarization.DiarizationCompleteness">DiarizationCompleteness (class in pyannote.metrics.diarization)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#pyannote.metrics.diarization.DiarizationCoverage">DiarizationCoverage (class in pyannote.metrics.diarization)</a>
 </li>
       <li><a href="reference.html#pyannote.metrics.diarization.DiarizationErrorRate">DiarizationErrorRate (class in pyannote.metrics.diarization)</a>
@@ -194,6 +203,10 @@
       <li><a href="reference.html#pyannote.metrics.diarization.DiarizationHomogeneity">DiarizationHomogeneity (class in pyannote.metrics.diarization)</a>
 </li>
       <li><a href="reference.html#pyannote.metrics.diarization.DiarizationPurity">DiarizationPurity (class in pyannote.metrics.diarization)</a>
+</li>
+      <li><a href="reference.html#pyannote.metrics.diarization.DiarizationSpeakerCountAccuracy">DiarizationSpeakerCountAccuracy (class in pyannote.metrics.diarization)</a>
+</li>
+      <li><a href="reference.html#pyannote.metrics.diarization.DiarizationSpeakerCountError">DiarizationSpeakerCountError (class in pyannote.metrics.diarization)</a>
 </li>
       <li><a href="reference.html#pyannote.metrics.errors.identification.IdentificationErrorAnalysis.difference">difference() (pyannote.metrics.errors.identification.IdentificationErrorAnalysis method)</a>
 </li>
@@ -348,6 +361,14 @@
         <li><a href="reference.html#module-pyannote.metrics.segmentation">module</a>
 </li>
       </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference.html#pyannote.metrics.diarization.DiarizationSpeakerCountError.report">report() (pyannote.metrics.diarization.DiarizationSpeakerCountError method)</a>
+</li>
   </ul></td>
 </tr></table>
 
