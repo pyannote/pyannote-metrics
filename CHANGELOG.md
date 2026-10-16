@@ -1,14 +1,13 @@
 # Changelog
 
-## Next version
+## Version 4.2.0 (2026-10-16)
 
 - BREAKING: require Python 3.11 or newer; Python 3.10 is no longer supported
-- fix: restore score-distribution plots with current Matplotlib versions
-- fix: validate speaker spotting inputs even when Python optimization is enabled
-- fix: report a helpful installation error when transcription metrics are used
-  without the optional `transcription` dependencies
 - feat: add diarization speaker count metrics
 - fix: fix metrics for empty references (@Atishyy27)
+- fix: restore score-distribution plots with current Matplotlib versions
+- fix: report a helpful installation error when transcription metrics are used
+  without the optional `transcription` dependencies
 
 ## Version 4.1.0 (2026-05-06)
 
