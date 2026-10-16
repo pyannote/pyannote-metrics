@@ -26,9 +26,9 @@
 """Metrics for diarization"""
 
 import numpy as np
-from scipy.optimize import linear_sum_assignment
 from pyannote.core import Annotation, Timeline
 from pyannote.core.utils.types import Label
+from scipy.optimize import linear_sum_assignment
 
 from .base import BaseMetric
 from .identification import IdentificationErrorRate
