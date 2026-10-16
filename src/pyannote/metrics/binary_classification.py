@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 # The MIT License (MIT)
 
 # Copyright (c) 2016-2017 CNRS
@@ -27,7 +24,6 @@
 # Hervé BREDIN - http://herve.niderb.fr
 
 from collections import Counter
-from typing import Tuple
 
 import numpy as np
 import sklearn.metrics
@@ -41,7 +37,7 @@ from .types import CalibrationMethod
 
 def det_curve(
     y_true: ArrayLike, scores: ArrayLike, distances: bool = False
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, float]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, float]:
     """DET curve
 
     Parameters
@@ -86,7 +82,7 @@ def det_curve(
 
 def precision_recall_curve(
     y_true: ArrayLike, scores: ArrayLike, distances: bool = False
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, float]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, float]:
     """Precision-recall curve
 
     Parameters

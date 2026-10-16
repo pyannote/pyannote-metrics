@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 # The MIT License (MIT)
 
 # Copyright (c) 2017-2020 CNRS
@@ -97,31 +94,39 @@ import warnings
 
 import numpy as np
 import pandas as pd
+
 # command line parsing
 from docopt import docopt
-from pyannote.core import Annotation
-from pyannote.core import Timeline
+from pyannote.core import Annotation, Timeline
+
 # evaluation protocols
 from pyannote.database import get_protocol
-from pyannote.database.util import get_annotated
-from pyannote.database.util import load_rttm
+from pyannote.database.util import get_annotated, load_rttm
 from tabulate import tabulate
 
-from pyannote.metrics.detection import DetectionAccuracy
-from pyannote.metrics.detection import DetectionErrorRate
-from pyannote.metrics.detection import DetectionPrecision
-from pyannote.metrics.detection import DetectionRecall
-from pyannote.metrics.diarization import DiarizationCoverage
-from pyannote.metrics.diarization import DiarizationErrorRate
-from pyannote.metrics.diarization import DiarizationPurity
-from pyannote.metrics.diarization import GreedyDiarizationErrorRate
-from pyannote.metrics.identification import IdentificationErrorRate
-from pyannote.metrics.identification import IdentificationPrecision
-from pyannote.metrics.identification import IdentificationRecall
-from pyannote.metrics.segmentation import SegmentationCoverage
-from pyannote.metrics.segmentation import SegmentationPrecision
-from pyannote.metrics.segmentation import SegmentationPurity
-from pyannote.metrics.segmentation import SegmentationRecall
+from pyannote.metrics.detection import (
+    DetectionAccuracy,
+    DetectionErrorRate,
+    DetectionPrecision,
+    DetectionRecall,
+)
+from pyannote.metrics.diarization import (
+    DiarizationCoverage,
+    DiarizationErrorRate,
+    DiarizationPurity,
+    GreedyDiarizationErrorRate,
+)
+from pyannote.metrics.identification import (
+    IdentificationErrorRate,
+    IdentificationPrecision,
+    IdentificationRecall,
+)
+from pyannote.metrics.segmentation import (
+    SegmentationCoverage,
+    SegmentationPrecision,
+    SegmentationPurity,
+    SegmentationRecall,
+)
 from pyannote.metrics.spotting import LowLatencySpeakerSpotting
 
 showwarning_orig = warnings.showwarning
@@ -238,10 +243,10 @@ def detection(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
 
     reports = get_reports(protocol, subset, hypotheses, metrics)
 
-    report = metrics["error"].report(display=False)
-    accuracy = metrics["accuracy"].report(display=False)
-    precision = metrics["precision"].report(display=False)
-    recall = metrics["recall"].report(display=False)
+    report = reports["error"]
+    accuracy = reports["accuracy"]
+    precision = reports["precision"]
+    recall = reports["recall"]
 
     report["accuracy", "%"] = accuracy[metrics["accuracy"].name, "%"]
     report["precision", "%"] = precision[metrics["precision"].name, "%"]
@@ -252,7 +257,7 @@ def detection(protocol, subset, hypotheses, collar=0.0, skip_overlap=False):
     columns = list(report.columns)
     report = report[[columns[0]] + columns[-3:] + columns[1:-3]]
 
-    summary = "Detection (collar = {0:g} ms{1})".format(
+    summary = "Detection (collar = {:g} ms{})".format(
         1000 * collar, ", no overlap" if skip_overlap else ""
     )
 
@@ -289,10 +294,10 @@ def segmentation(protocol, subset, hypotheses, tolerance=0.5):
 
     reports = get_reports(protocol, subset, hypotheses, metrics)
 
-    coverage = metrics["coverage"].report(display=False)
-    purity = metrics["purity"].report(display=False)
-    precision = metrics["precision"].report(display=False)
-    recall = metrics["recall"].report(display=False)
+    coverage = reports["coverage"]
+    purity = reports["purity"]
+    precision = reports["precision"]
+    recall = reports["recall"]
 
     coverage = coverage[metrics["coverage"].name]
     purity = purity[metrics["purity"].name]
@@ -303,7 +308,7 @@ def segmentation(protocol, subset, hypotheses, tolerance=0.5):
     report = reindex(report)
 
     headers = [
-        "Segmentation (tolerance = {0:g} ms)".format(1000 * tolerance),
+        f"Segmentation (tolerance = {1000 * tolerance:g} ms)",
         "coverage",
         "purity",
         "precision",
@@ -341,9 +346,9 @@ def diarization(
 
     reports = get_reports(protocol, subset, hypotheses, metrics)
 
-    report = metrics["error"].report(display=False)
-    purity = metrics["purity"].report(display=False)
-    coverage = metrics["coverage"].report(display=False)
+    report = reports["error"]
+    purity = reports["purity"]
+    coverage = reports["coverage"]
 
     report["purity", "%"] = purity[metrics["purity"].name, "%"]
     report["coverage", "%"] = coverage[metrics["coverage"].name, "%"]
@@ -353,7 +358,7 @@ def diarization(
 
     report = reindex(report)
 
-    summary = "Diarization ({0:s}collar = {1:g} ms{2})".format(
+    summary = "Diarization ({:s}collar = {:g} ms{})".format(
         "greedy, " if greedy else "",
         1000 * collar,
         ", no overlap" if skip_overlap else "",
@@ -391,9 +396,9 @@ def identification(protocol, subset, hypotheses, collar=0.0, skip_overlap=False)
 
     reports = get_reports(protocol, subset, hypotheses, metrics)
 
-    report = metrics["error"].report(display=False)
-    precision = metrics["precision"].report(display=False)
-    recall = metrics["recall"].report(display=False)
+    report = reports["error"]
+    precision = reports["precision"]
+    recall = reports["recall"]
 
     report["precision", "%"] = precision[metrics["precision"].name, "%"]
     report["recall", "%"] = recall[metrics["recall"].name, "%"]
@@ -403,7 +408,7 @@ def identification(protocol, subset, hypotheses, collar=0.0, skip_overlap=False)
 
     report = reindex(report)
 
-    summary = "Identification (collar = {0:g} ms{1})".format(
+    summary = "Identification (collar = {:g} ms{})".format(
         1000 * collar, ", no overlap" if skip_overlap else ""
     )
 
@@ -434,16 +439,12 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix, filter_func
 
     protocol.diarization = False
 
-    trials = getattr(protocol, "{subset}_trial".format(subset=subset))()
+    trials = getattr(protocol, f"{subset}_trial")()
     for i, (current_trial, hypothesis) in enumerate(zip(trials, hypotheses)):
-
         # check trial/hypothesis target consistency
-        try:
-            assert current_trial["model_id"] == hypothesis["model_id"]
-        except AssertionError as e:
+        if current_trial["model_id"] != hypothesis["model_id"]:
             msg = (
-                "target mismatch in trial #{i} "
-                "(found: {found}, should be: {should_be})"
+                "target mismatch in trial #{i} (found: {found}, should be: {should_be})"
             )
             raise ValueError(
                 msg.format(
@@ -454,21 +455,14 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix, filter_func
             )
 
         # check trial/hypothesis file consistency
-        try:
-            assert current_trial["uri"] == hypothesis["uri"]
-        except AssertionError as e:
-            msg = (
-                "file mismatch in trial #{i} "
-                "(found: {found}, should be: {should_be})"
-            )
+        if current_trial["uri"] != hypothesis["uri"]:
+            msg = "file mismatch in trial #{i} (found: {found}, should be: {should_be})"
             raise ValueError(
                 msg.format(i=i, found=hypothesis["uri"], should_be=current_trial["uri"])
             )
 
         # check at least one score is provided
-        try:
-            assert len(hypothesis["scores"]) > 0
-        except AssertionError as e:
+        if not hypothesis["scores"]:
             msg = "empty list of scores in trial #{i}."
             raise ValueError(msg.format(i=i))
 
@@ -479,9 +473,7 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix, filter_func
 
         # check trial/hypothesis timerange consistency
         try_with = current_trial["try_with"]
-        try:
-            assert min(timestamps) >= try_with.start
-        except AssertionError as e:
+        if not min(timestamps) >= try_with.start:
             msg = (
                 "incorrect timestamp in trial #{i} "
                 "(found: {found:g}, should be: >= {should_be:g})"
@@ -507,9 +499,8 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix, filter_func
     else:
         metric = LowLatencySpeakerSpotting(latencies=latencies)
 
-    trials = getattr(protocol, "{subset}_trial".format(subset=subset))()
+    trials = getattr(protocol, f"{subset}_trial")()
     for i, (current_trial, hypothesis) in enumerate(zip(trials, hypotheses)):
-
         if filter_func is not None:
             speech = current_trial["reference"].duration()
             target_trial = speech > 0
@@ -520,11 +511,10 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix, filter_func
         metric(reference, hypothesis["scores"])
 
     if not latencies:
-
         thresholds, fpr, fnr, eer, _ = metric.det_curve(return_latency=False)
 
         # save DET curve to hypothesis.det.txt
-        det_path = "{output_prefix}.det.txt".format(output_prefix=output_prefix)
+        det_path = f"{output_prefix}.det.txt"
         det_tmpl = "{t:.9f} {p:.9f} {n:.9f}\n"
         with open(det_path, mode="w") as fp:
             fp.write("# threshold false_positive_rate false_negative_rate\n")
@@ -532,14 +522,14 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix, filter_func
                 line = det_tmpl.format(t=t, p=p, n=n)
                 fp.write(line)
 
-        print("> {det_path}".format(det_path=det_path))
+        print(f"> {det_path}")
 
         thresholds, fpr, fnr, _, _, speaker_lcy, absolute_lcy = metric.det_curve(
             return_latency=True
         )
 
         # save DET curve to hypothesis.det.txt
-        lcy_path = "{output_prefix}.lcy.txt".format(output_prefix=output_prefix)
+        lcy_path = f"{output_prefix}.lcy.txt"
         lcy_tmpl = "{t:.9f} {p:.9f} {n:.9f} {s:.6f} {a:.6f}\n"
         with open(lcy_path, mode="w") as fp:
             fp.write(
@@ -553,17 +543,15 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix, filter_func
                 line = lcy_tmpl.format(t=t, p=p, n=n, s=s, a=a)
                 fp.write(line)
 
-        print("> {lcy_path}".format(lcy_path=lcy_path))
+        print(f"> {lcy_path}")
 
         print()
-        print("EER% = {eer:.2f}".format(eer=100 * eer))
+        print(f"EER% = {100 * eer:.2f}")
 
     else:
-
         results = metric.det_curve()
         logs = []
         for key in sorted(results):
-
             result = results[key]
             log = {"latency": key}
             for latency in latencies:
@@ -572,9 +560,7 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix, filter_func
                 #                                             eer=100 * eer))
                 log[latency] = eer
                 # save DET curve to hypothesis.det.{lcy}s.txt
-                det_path = "{output_prefix}.det.{key}.{latency:g}s.txt".format(
-                    output_prefix=output_prefix, key=key, latency=latency
-                )
+                det_path = f"{output_prefix}.det.{key}.{latency:g}s.txt"
                 det_tmpl = "{t:.9f} {p:.9f} {n:.9f}\n"
                 with open(det_path, mode="w") as fp:
                     fp.write("# threshold false_positive_rate false_negative_rate\n")
@@ -582,10 +568,8 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix, filter_func
                         line = det_tmpl.format(t=t, p=p, n=n)
                         fp.write(line)
             logs.append(log)
-            det_path = "{output_prefix}.det.{key}.XXs.txt".format(
-                output_prefix=output_prefix, key=key
-            )
-            print("> {det_path}".format(det_path=det_path))
+            det_path = f"{output_prefix}.det.{key}.XXs.txt"
+            print(f"> {det_path}")
 
         print()
         df = 100 * pd.DataFrame.from_dict(logs).set_index("latency")[latencies]
@@ -593,7 +577,7 @@ def spotting(protocol, subset, latencies, hypotheses, output_prefix, filter_func
             tabulate(
                 df,
                 tablefmt="simple",
-                headers=["latency"] + ["EER% @ {l:g}s".format(l=l) for l in latencies],
+                headers=["latency"] + [f"EER% @ {l:g}s" for l in latencies],
                 floatfmt=".2f",
                 numalign="decimal",
                 stralign="left",
@@ -614,7 +598,7 @@ def main():
     # protocol
     protocol_name = arguments["<database.task.protocol>"]
 
-    preprocessors = dict()
+    preprocessors = {}
     if arguments["overlap"]:
         if skip_overlap:
             msg = (
@@ -630,7 +614,6 @@ def main():
     subset = arguments["--subset"]
 
     if arguments["spotting"]:
-
         hypothesis_json = arguments["<hypothesis.json>"]
         with open(hypothesis_json, mode="r") as fp:
             hypotheses = json.load(fp)
@@ -641,7 +624,7 @@ def main():
 
         filters = arguments["--filter"]
         if filters:
-            from sympy import sympify, lambdify, symbols
+            from sympy import lambdify, symbols, sympify
 
             speech = symbols("speech")
             filter_funcs = []
@@ -672,7 +655,7 @@ def main():
         msg = f"Could not find file {hypothesis_rttm}."
         sys.exit(msg)
 
-    except:
+    except (OSError, ValueError, KeyError, IndexError):
         msg = (
             f"Failed to load {hypothesis_rttm}, please check its format "
             f"(only RTTM files are supported)."

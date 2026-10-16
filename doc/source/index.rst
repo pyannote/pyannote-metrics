@@ -54,7 +54,7 @@ API documentation
    :maxdepth: 3
 
    reference
-   changelog
+   Changelog <https://github.com/pyannote/pyannote-metrics/blob/main/CHANGELOG.md>
 
 
 Indices and tables

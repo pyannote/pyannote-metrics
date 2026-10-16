@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 # The MIT License (MIT)
 
 # Copyright (c) 2012-2019 CNRS
@@ -26,27 +23,31 @@
 # AUTHORS
 # Hervé BREDIN - http://herve.niderb.fr
 # Benjamin MAURICE - maurice@limsi.fr
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 import numpy as np
 from pyannote.core import Annotation, Timeline
 from scipy.optimize import linear_sum_assignment
 
 from ..identification import UEMSupportMixin
-from ..matcher import LabelMatcher
-from ..matcher import MATCH_CORRECT, MATCH_CONFUSION, \
-    MATCH_MISSED_DETECTION, MATCH_FALSE_ALARM
+from ..matcher import (
+    MATCH_CONFUSION,
+    MATCH_CORRECT,
+    MATCH_FALSE_ALARM,
+    MATCH_MISSED_DETECTION,
+    LabelMatcher,
+)
 
 if TYPE_CHECKING:
     from xarray import DataArray
 
-REFERENCE_TOTAL = 'reference'
-HYPOTHESIS_TOTAL = 'hypothesis'
+REFERENCE_TOTAL = "reference"
+HYPOTHESIS_TOTAL = "hypothesis"
 
-REGRESSION = 'regression'
-IMPROVEMENT = 'improvement'
-BOTH_CORRECT = 'both_correct'
-BOTH_INCORRECT = 'both_incorrect'
+REGRESSION = "regression"
+IMPROVEMENT = "improvement"
+BOTH_CORRECT = "both_correct"
+BOTH_INCORRECT = "both_incorrect"
 
 
 class IdentificationErrorAnalysis(UEMSupportMixin):
@@ -62,18 +63,20 @@ class IdentificationErrorAnalysis(UEMSupportMixin):
         Defaults to False (i.e. keep overlap regions).
     """
 
-    def __init__(self, collar: float = 0., skip_overlap: bool = False):
+    def __init__(self, collar: float = 0.0, skip_overlap: bool = False):
 
         super().__init__()
         self.matcher = LabelMatcher()
         self.collar = collar
         self.skip_overlap = skip_overlap
 
-    def difference(self,
-                   reference: Annotation,
-                   hypothesis: Annotation,
-                   uem: Optional[Timeline] = None,
-                   uemified: bool = False):
+    def difference(
+        self,
+        reference: Annotation,
+        hypothesis: Annotation,
+        uem: Timeline | None = None,
+        uemified: bool = False,
+    ):
         """Get error analysis as `Annotation`
 
         Labels are (status, reference_label, hypothesis_label) tuples.
@@ -95,15 +98,18 @@ class IdentificationErrorAnalysis(UEMSupportMixin):
         """
 
         R, H, common_timeline = self.uemify(
-            reference, hypothesis, uem=uem,
-            collar=self.collar, skip_overlap=self.skip_overlap,
-            returns_timeline=True)
+            reference,
+            hypothesis,
+            uem=uem,
+            collar=self.collar,
+            skip_overlap=self.skip_overlap,
+            returns_timeline=True,
+        )
 
         errors = Annotation(uri=reference.uri, modality=reference.modality)
 
         # loop on all segments
         for segment in common_timeline:
-
             # list of labels in reference segment
             rlabels = R.get_labels(segment, unique=False)
 
@@ -121,8 +127,7 @@ class IdentificationErrorAnalysis(UEMSupportMixin):
                 errors[segment, track] = (MATCH_CONFUSION, r, h)
 
             for r in details[MATCH_MISSED_DETECTION]:
-                track = errors.new_track(segment,
-                                         prefix=MATCH_MISSED_DETECTION)
+                track = errors.new_track(segment, prefix=MATCH_MISSED_DETECTION)
                 errors[segment, track] = (MATCH_MISSED_DETECTION, r, None)
 
             for h in details[MATCH_FALSE_ALARM]:
@@ -140,24 +145,29 @@ class IdentificationErrorAnalysis(UEMSupportMixin):
         return (b_ref == a_ref) * (1 + (b_type == a_type) + (b_hyp == a_hyp))
 
     # TODO : return type
-    def regression(self,
-                   reference: Annotation,
-                   before: Annotation,
-                   after: Annotation,
-                   uem: Optional[Timeline] = None,
-                   uemified: bool = False):
+    def regression(
+        self,
+        reference: Annotation,
+        before: Annotation,
+        after: Annotation,
+        uem: Timeline | None = None,
+        uemified: bool = False,
+    ):
 
         _, before, errors_before = self.difference(
-            reference, before, uem=uem, uemified=True)
+            reference, before, uem=uem, uemified=True
+        )
 
         reference, after, errors_after = self.difference(
-            reference, after, uem=uem, uemified=True)
+            reference, after, uem=uem, uemified=True
+        )
 
         behaviors = Annotation(uri=reference.uri, modality=reference.modality)
 
         # common (up-sampled) timeline
         common_timeline = errors_after.get_timeline().union(
-            errors_before.get_timeline())
+            errors_before.get_timeline()
+        )
         common_timeline = common_timeline.segmentation()
 
         # align 'before' errors on common timeline
@@ -167,7 +177,6 @@ class IdentificationErrorAnalysis(UEMSupportMixin):
         A = self._tagger(errors_after, common_timeline)
 
         for segment in common_timeline:
-
             old_errors = B.get_labels(segment, unique=False)
             new_errors = A.get_labels(segment, unique=False)
 
@@ -181,52 +190,59 @@ class IdentificationErrorAnalysis(UEMSupportMixin):
                     match[i1, i2] = self._match_errors(e1, e2)
 
             for i1, i2 in zip(*linear_sum_assignment(-match)):
-
                 if i1 >= n1:
-                    track = behaviors.new_track(segment,
-                                                candidate=REGRESSION,
-                                                prefix=REGRESSION)
-                    behaviors[segment, track] = (
-                        REGRESSION, None, new_errors[i2])
+                    track = behaviors.new_track(
+                        segment, candidate=REGRESSION, prefix=REGRESSION
+                    )
+                    behaviors[segment, track] = (REGRESSION, None, new_errors[i2])
 
                 elif i2 >= n2:
-                    track = behaviors.new_track(segment,
-                                                candidate=IMPROVEMENT,
-                                                prefix=IMPROVEMENT)
-                    behaviors[segment, track] = (
-                        IMPROVEMENT, old_errors[i1], None)
+                    track = behaviors.new_track(
+                        segment, candidate=IMPROVEMENT, prefix=IMPROVEMENT
+                    )
+                    behaviors[segment, track] = (IMPROVEMENT, old_errors[i1], None)
 
                 elif old_errors[i1][0] == MATCH_CORRECT:
-
                     if new_errors[i2][0] == MATCH_CORRECT:
-                        track = behaviors.new_track(segment,
-                                                    candidate=BOTH_CORRECT,
-                                                    prefix=BOTH_CORRECT)
+                        track = behaviors.new_track(
+                            segment, candidate=BOTH_CORRECT, prefix=BOTH_CORRECT
+                        )
                         behaviors[segment, track] = (
-                            BOTH_CORRECT, old_errors[i1], new_errors[i2])
+                            BOTH_CORRECT,
+                            old_errors[i1],
+                            new_errors[i2],
+                        )
 
                     else:
-                        track = behaviors.new_track(segment,
-                                                    candidate=REGRESSION,
-                                                    prefix=REGRESSION)
+                        track = behaviors.new_track(
+                            segment, candidate=REGRESSION, prefix=REGRESSION
+                        )
                         behaviors[segment, track] = (
-                            REGRESSION, old_errors[i1], new_errors[i2])
+                            REGRESSION,
+                            old_errors[i1],
+                            new_errors[i2],
+                        )
 
                 else:
-
                     if new_errors[i2][0] == MATCH_CORRECT:
-                        track = behaviors.new_track(segment,
-                                                    candidate=IMPROVEMENT,
-                                                    prefix=IMPROVEMENT)
+                        track = behaviors.new_track(
+                            segment, candidate=IMPROVEMENT, prefix=IMPROVEMENT
+                        )
                         behaviors[segment, track] = (
-                            IMPROVEMENT, old_errors[i1], new_errors[i2])
+                            IMPROVEMENT,
+                            old_errors[i1],
+                            new_errors[i2],
+                        )
 
                     else:
-                        track = behaviors.new_track(segment,
-                                                    candidate=BOTH_INCORRECT,
-                                                    prefix=BOTH_INCORRECT)
+                        track = behaviors.new_track(
+                            segment, candidate=BOTH_INCORRECT, prefix=BOTH_INCORRECT
+                        )
                         behaviors[segment, track] = (
-                            BOTH_INCORRECT, old_errors[i1], new_errors[i2])
+                            BOTH_INCORRECT,
+                            old_errors[i1],
+                            new_errors[i2],
+                        )
 
         behaviors = behaviors.support()
 
@@ -235,13 +251,13 @@ class IdentificationErrorAnalysis(UEMSupportMixin):
         else:
             return behaviors
 
-    def matrix(self,
-               reference: Annotation,
-               hypothesis: Annotation,
-               uem: Optional[Timeline] = None) -> 'DataArray':
+    def matrix(
+        self, reference: Annotation, hypothesis: Annotation, uem: Timeline | None = None
+    ) -> "DataArray":
 
         reference, hypothesis, errors = self.difference(
-            reference, hypothesis, uem=uem, uemified=True)
+            reference, hypothesis, uem=uem, uemified=True
+        )
 
         chart = errors.chart()
 
@@ -262,15 +278,17 @@ class IdentificationErrorAnalysis(UEMSupportMixin):
 
         # append false alarm labels as last 'reference' labels
         # (make sure to mark them as such)
-        rLabels = rLabels + [(MATCH_FALSE_ALARM, hLabel)
-                             for hLabel in falseAlarmLabels]
+        rLabels = rLabels + [(MATCH_FALSE_ALARM, hLabel) for hLabel in falseAlarmLabels]
 
         # prepend duration columns before the detailed confusion matrix
         hLabels = [
-                      REFERENCE_TOTAL, HYPOTHESIS_TOTAL,
-                      MATCH_CORRECT, MATCH_CONFUSION,
-                      MATCH_FALSE_ALARM, MATCH_MISSED_DETECTION
-                  ] + hLabels
+            REFERENCE_TOTAL,
+            HYPOTHESIS_TOTAL,
+            MATCH_CORRECT,
+            MATCH_CONFUSION,
+            MATCH_FALSE_ALARM,
+            MATCH_MISSED_DETECTION,
+        ] + hLabels
 
         # initialize empty matrix
 
@@ -285,11 +303,11 @@ class IdentificationErrorAnalysis(UEMSupportMixin):
 
         matrix = DataArray(
             np.zeros((len(rLabels), len(hLabels))),
-            coords=[('reference', rLabels), ('hypothesis', hLabels)])
+            coords=[("reference", rLabels), ("hypothesis", hLabels)],
+        )
 
         # loop on chart
         for (status, rLabel, hLabel), duration in chart:
-
             # increment correct
             if status == MATCH_CORRECT:
                 matrix.loc[rLabel, hLabel] += duration
@@ -309,7 +327,9 @@ class IdentificationErrorAnalysis(UEMSupportMixin):
             if status == MATCH_FALSE_ALARM:
                 # hLabel is also a reference label
                 if hLabel in falseAlarmLabels:
-                    matrix.loc[(MATCH_FALSE_ALARM, hLabel), MATCH_FALSE_ALARM] += duration
+                    matrix.loc[(MATCH_FALSE_ALARM, hLabel), MATCH_FALSE_ALARM] += (
+                        duration
+                    )
                 else:
                     matrix.loc[hLabel, MATCH_FALSE_ALARM] += duration
 
@@ -318,9 +338,8 @@ class IdentificationErrorAnalysis(UEMSupportMixin):
 
         # total reference and hypothesis duration
         for rLabel in rLabels:
-
             if isinstance(rLabel, tuple) and rLabel[0] == MATCH_FALSE_ALARM:
-                r = 0.
+                r = 0.0
                 h = hypothesis.label_duration(rLabel[1])
             else:
                 r = reference.label_duration(rLabel)

@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 # The MIT License (MIT)
 
 # Copyright (c) 2017-2019 CNRS
@@ -27,20 +24,20 @@
 # Hervé BREDIN - http://herve.niderb.fr
 
 import sys
-from typing import Union, Iterable, Optional, Tuple, List, Dict
+from collections.abc import Iterable
 
 import numpy as np
 from numpy.typing import ArrayLike
-from pyannote.core import Segment, Annotation, SlidingWindowFeature, Timeline
+from pyannote.core import Annotation, Segment, SlidingWindowFeature, Timeline
 
 from .base import BaseMetric
 from .binary_classification import det_curve
-from .types import MetricComponents, Details
+from .types import Details, MetricComponents
 
 SPOTTING_TARGET = "target"
-SPOTTING_SPK_LATENCY = 'speaker_latency'
-SPOTTING_SPK_SCORE = 'spk_score'
-SPOTTING_ABS_LATENCY = 'absolute_latency'
+SPOTTING_SPK_LATENCY = "speaker_latency"
+SPOTTING_SPK_SCORE = "spk_score"
+SPOTTING_ABS_LATENCY = "absolute_latency"
 SPOTTING_ABS_SCORE = "abs_score"
 SPOTTING_SCORE = "score"
 
@@ -77,20 +74,19 @@ class LowLatencySpeakerSpotting(BaseMetric):
     def metric_name(cls) -> str:
         return "Low-latency speaker spotting"
 
-    def metric_components(self) -> Dict[str, float]:
-        return {'target': 0.}
+    def metric_components(self) -> dict[str, float]:
+        return {"target": 0.0}
 
-    def __init__(self,
-                 thresholds: Optional[ArrayLike] = None,
-                 latencies: Optional[ArrayLike] = None):
+    def __init__(
+        self, thresholds: ArrayLike | None = None, latencies: ArrayLike | None = None
+    ):
         super().__init__()
 
         if thresholds is None and latencies is None:
             latencies = [1, 5, 10, 30, 60]
 
         if thresholds is not None and latencies is not None:
-            raise ValueError(
-                'One must choose between fixed and variable latency.')
+            raise ValueError("One must choose between fixed and variable latency.")
 
         if thresholds is not None:
             self.thresholds = np.sort(thresholds)
@@ -103,8 +99,9 @@ class LowLatencySpeakerSpotting(BaseMetric):
     def compute_metric(self, detail: MetricComponents):
         return None
 
-    def _fixed_latency(self, reference: Timeline,
-                       timestamps: List[float], scores: List[float]) -> Details:
+    def _fixed_latency(
+        self, reference: Timeline, timestamps: list[float], scores: list[float]
+    ) -> Details:
 
         if not reference:
             target_trial = False
@@ -123,9 +120,9 @@ class LowLatencySpeakerSpotting(BaseMetric):
             abs_score = []
 
             # index of speech turn when given latency is reached
-            for i, latency in zip(np.searchsorted(total, self.latencies),
-                                  self.latencies):
-
+            for i, latency in zip(
+                np.searchsorted(total, self.latencies), self.latencies
+            ):
                 # maximum score in timerange [0, t]
                 # where t is when latency is reached
                 try:
@@ -161,9 +158,13 @@ class LowLatencySpeakerSpotting(BaseMetric):
             SPOTTING_ABS_SCORE: abs_score,
         }
 
-    def _variable_latency(self, reference: Union[Timeline, Annotation],
-                          timestamps: List[float], scores: List[float],
-                          **kwargs) -> Details:
+    def _variable_latency(
+        self,
+        reference: Timeline | Annotation,
+        timestamps: list[float],
+        scores: list[float],
+        **kwargs,
+    ) -> Details:
 
         # pre-compute latencies
         speaker_latency = np.nan * np.ones((len(timestamps), 1))
@@ -181,15 +182,18 @@ class LowLatencySpeakerSpotting(BaseMetric):
         # for every threshold, compute when (if ever) alarm is triggered
         maxcum = (np.maximum.accumulate(scores)).reshape((-1, 1))
         triggered = maxcum > self.thresholds
-        indices = np.array([np.searchsorted(triggered[:, i], True)
-                            for i, _ in enumerate(self.thresholds)])
+        indices = np.array(
+            [
+                np.searchsorted(triggered[:, i], True)
+                for i, _ in enumerate(self.thresholds)
+            ]
+        )
 
         if reference:
-
             target_trial = True
 
-            absolute_latency = np.take(absolute_latency, indices, mode='clip')
-            speaker_latency = np.take(speaker_latency, indices, mode='clip')
+            absolute_latency = np.take(absolute_latency, indices, mode="clip")
+            speaker_latency = np.take(speaker_latency, indices, mode="clip")
 
             # is alarm triggered at all?
             positive = triggered[-1, :]
@@ -202,7 +206,6 @@ class LowLatencySpeakerSpotting(BaseMetric):
             speaker_latency[~positive] = reference.duration()
 
         else:
-
             target_trial = False
 
             # the notion of "latency" is not applicable to non-target trials
@@ -213,13 +216,15 @@ class LowLatencySpeakerSpotting(BaseMetric):
             SPOTTING_TARGET: target_trial,
             SPOTTING_ABS_LATENCY: absolute_latency,
             SPOTTING_SPK_LATENCY: speaker_latency,
-            SPOTTING_SCORE: np.max(scores)
+            SPOTTING_SCORE: np.max(scores),
         }
 
-    def compute_components(self, reference: Union[Timeline, Annotation],
-                           hypothesis: Union[SlidingWindowFeature,
-                                             Iterable[Tuple[float, float]]],
-                           **kwargs) -> Details:
+    def compute_components(
+        self,
+        reference: Timeline | Annotation,
+        hypothesis: SlidingWindowFeature | Iterable[tuple[float, float]],
+        **kwargs,
+    ) -> Details:
         """
 
         Parameters
@@ -240,22 +245,26 @@ class LowLatencySpeakerSpotting(BaseMetric):
 
     @property
     def absolute_latency(self):
-        latencies = [trial[SPOTTING_ABS_LATENCY] for _, trial in self
-                     if trial[SPOTTING_TARGET]]
+        latencies = [
+            trial[SPOTTING_ABS_LATENCY] for _, trial in self if trial[SPOTTING_TARGET]
+        ]
         return np.nanmean(latencies, axis=0)
 
     @property
     def speaker_latency(self):
-        latencies = [trial[SPOTTING_SPK_LATENCY] for _, trial in self
-                     if trial[SPOTTING_TARGET]]
+        latencies = [
+            trial[SPOTTING_SPK_LATENCY] for _, trial in self if trial[SPOTTING_TARGET]
+        ]
         return np.nanmean(latencies, axis=0)
 
     # TODO : figure out return type
-    def det_curve(self,
-                  cost_miss: float = 100,
-                  cost_fa: float = 1,
-                  prior_target: float = 0.01,
-                  return_latency: bool = False):
+    def det_curve(
+        self,
+        cost_miss: float = 100,
+        cost_fa: float = 1,
+        prior_target: float = 0.01,
+        return_latency: bool = False,
+    ):
         """DET curve
 
         Parameters
@@ -288,47 +297,51 @@ class LowLatencySpeakerSpotting(BaseMetric):
         """
 
         if self.latencies is None:
-
             y_true = np.array([trial[SPOTTING_TARGET] for _, trial in self])
             scores = np.array([trial[SPOTTING_SCORE] for _, trial in self])
             fpr, fnr, thresholds, eer = det_curve(y_true, scores, distances=False)
             fpr, fnr, thresholds = fpr[::-1], fnr[::-1], thresholds[::-1]
-            cdet = cost_miss * fnr * prior_target + \
-                   cost_fa * fpr * (1. - prior_target)
+            cdet = cost_miss * fnr * prior_target + cost_fa * fpr * (1.0 - prior_target)
 
             if return_latency:
                 # needed to align the thresholds used in the DET curve
                 # with (self.)thresholds used to compute latencies.
-                indices = np.searchsorted(thresholds, self.thresholds, side='left')
+                indices = np.searchsorted(thresholds, self.thresholds, side="left")
 
-                thresholds = np.take(thresholds, indices, mode='clip')
-                fpr = np.take(fpr, indices, mode='clip')
-                fnr = np.take(fnr, indices, mode='clip')
-                cdet = np.take(cdet, indices, mode='clip')
-                return thresholds, fpr, fnr, eer, cdet, \
-                       self.speaker_latency, self.absolute_latency
+                thresholds = np.take(thresholds, indices, mode="clip")
+                fpr = np.take(fpr, indices, mode="clip")
+                fnr = np.take(fnr, indices, mode="clip")
+                cdet = np.take(cdet, indices, mode="clip")
+                return (
+                    thresholds,
+                    fpr,
+                    fnr,
+                    eer,
+                    cdet,
+                    self.speaker_latency,
+                    self.absolute_latency,
+                )
 
             else:
                 return thresholds, fpr, fnr, eer, cdet
 
         else:
-
             y_true = np.array([trial[SPOTTING_TARGET] for _, trial in self])
             spk_scores = np.array([trial[SPOTTING_SPK_SCORE] for _, trial in self])
             abs_scores = np.array([trial[SPOTTING_ABS_SCORE] for _, trial in self])
 
             result = {}
-            for key, scores in {'speaker': spk_scores,
-                                'absolute': abs_scores}.items():
-
+            for key, scores in {"speaker": spk_scores, "absolute": abs_scores}.items():
                 result[key] = {}
 
                 for i, latency in enumerate(self.latencies):
-                    fpr, fnr, theta, eer = det_curve(y_true, scores[:, i],
-                                                     distances=False)
+                    fpr, fnr, theta, eer = det_curve(
+                        y_true, scores[:, i], distances=False
+                    )
                     fpr, fnr, theta = fpr[::-1], fnr[::-1], theta[::-1]
-                    cdet = cost_miss * fnr * prior_target + \
-                           cost_fa * fpr * (1. - prior_target)
+                    cdet = cost_miss * fnr * prior_target + cost_fa * fpr * (
+                        1.0 - prior_target
+                    )
                     result[key][latency] = theta, fpr, fnr, eer, cdet
 
             return result

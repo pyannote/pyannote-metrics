@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 # The MIT License (MIT)
 
 # Copyright (c) 2012- CNRS
@@ -28,21 +25,15 @@
 
 """Metrics for diarization"""
 
-from typing import Optional, Dict, TYPE_CHECKING
-
 import numpy as np
 from pyannote.core import Annotation, Timeline
 from pyannote.core.utils.types import Label
 
-from .base import BaseMetric, f_measure
+from .base import BaseMetric
 from .identification import IdentificationErrorRate
-from .matcher import GreedyMapper
-from .matcher import HungarianMapper
+from .matcher import GreedyMapper, HungarianMapper
 from .types import Details, MetricComponents
 from .utils import UEMSupportMixin
-
-if TYPE_CHECKING:
-    pass
 
 # TODO: can't we put these as class attributes?
 DER_NAME = "diarization error rate"
@@ -73,7 +64,7 @@ class DiarizationSpeakerCountAccuracy(UEMSupportMixin, BaseMetric):
         self,
         reference: Annotation,
         hypothesis: Annotation,
-        uem: Optional[Timeline] = None,
+        uem: Timeline | None = None,
         **kwargs,
     ) -> Details:
         reference, hypothesis = self.uemify(reference, hypothesis, uem=uem)
@@ -114,7 +105,7 @@ class DiarizationSpeakerCountError(UEMSupportMixin, BaseMetric):
         self,
         reference: Annotation,
         hypothesis: Annotation,
-        uem: Optional[Timeline] = None,
+        uem: Timeline | None = None,
         **kwargs,
     ) -> Details:
         reference, hypothesis = self.uemify(reference, hypothesis, uem=uem)
@@ -202,8 +193,8 @@ class DiarizationErrorRate(IdentificationErrorRate):
         self,
         reference: Annotation,
         hypothesis: Annotation,
-        uem: Optional[Timeline] = None,
-    ) -> Dict[Label, Label]:
+        uem: Timeline | None = None,
+    ) -> dict[Label, Label]:
         """Optimal label mapping
 
         Parameters
@@ -233,7 +224,7 @@ class DiarizationErrorRate(IdentificationErrorRate):
         self,
         reference: Annotation,
         hypothesis: Annotation,
-        uem: Optional[Timeline] = None,
+        uem: Timeline | None = None,
         **kwargs,
     ) -> Details:
         # crop reference and hypothesis to evaluated regions (uem)
@@ -263,7 +254,7 @@ class DiarizationErrorRate(IdentificationErrorRate):
         # NOTE that collar is set to 0.0 because 'uemify' has already
         # been applied (same reason for setting skip_overlap to False)
         mapped = hypothesis.rename_labels(mapping=mapping)
-        return super(DiarizationErrorRate, self).compute_components(
+        return super().compute_components(
             reference, mapped, uem=uem, collar=0.0, skip_overlap=False, **kwargs
         )
 
@@ -322,17 +313,15 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
         return DER_NAME
 
     def __init__(self, collar: float = 0.0, skip_overlap: bool = False, **kwargs):
-        super(GreedyDiarizationErrorRate, self).__init__(
-            collar=collar, skip_overlap=skip_overlap, **kwargs
-        )
+        super().__init__(collar=collar, skip_overlap=skip_overlap, **kwargs)
         self.mapper_ = GreedyMapper()
 
     def greedy_mapping(
         self,
         reference: Annotation,
         hypothesis: Annotation,
-        uem: Optional[Timeline] = None,
-    ) -> Dict[Label, Label]:
+        uem: Timeline | None = None,
+    ) -> dict[Label, Label]:
         """Greedy label mapping
 
         Parameters
@@ -356,7 +345,7 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
         self,
         reference: Annotation,
         hypothesis: Annotation,
-        uem: Optional[Timeline] = None,
+        uem: Timeline | None = None,
         **kwargs,
     ) -> Details:
         # crop reference and hypothesis to evaluated regions (uem)
@@ -386,7 +375,7 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
         # NOTE that collar is set to 0.0 because 'uemify' has already
         # been applied (same reason for setting skip_overlap to False)
         mapped = hypothesis.rename_labels(mapping=mapping)
-        return super(GreedyDiarizationErrorRate, self).compute_components(
+        return super().compute_components(
             reference, mapped, uem=uem, collar=0.0, skip_overlap=False, **kwargs
         )
 
@@ -481,7 +470,7 @@ class JaccardErrorRate(DiarizationErrorRate):
         self,
         reference: Annotation,
         hypothesis: Annotation,
-        uem: Optional[Timeline] = None,
+        uem: Timeline | None = None,
         **kwargs,
     ) -> Details:
         # crop reference and hypothesis to evaluated regions (uem)
@@ -577,7 +566,7 @@ class DiarizationPurity(UEMSupportMixin, BaseMetric):
         self,
         reference: Annotation,
         hypothesis: Annotation,
-        uem: Optional[Timeline] = None,
+        uem: Timeline | None = None,
         **kwargs,
     ) -> Details:
         detail = self.init_components()
@@ -620,12 +609,10 @@ class DiarizationCoverage(DiarizationPurity):
         self,
         reference: Annotation,
         hypothesis: Annotation,
-        uem: Optional[Timeline] = None,
+        uem: Timeline | None = None,
         **kwargs,
     ) -> Details:
-        return super(DiarizationCoverage, self).compute_components(
-            hypothesis, reference, uem=uem, **kwargs
-        )
+        return super().compute_components(hypothesis, reference, uem=uem, **kwargs)
 
 
 HOMOGENEITY_NAME = "homogeneity"
@@ -656,7 +643,7 @@ class DiarizationHomogeneity(UEMSupportMixin, BaseMetric):
         return [HOMOGENEITY_ENTROPY, HOMOGENEITY_CROSS_ENTROPY]
 
     def __init__(self, collar: float = 0.0, skip_overlap: bool = False, **kwargs):
-        super(DiarizationHomogeneity, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.collar = collar
         self.skip_overlap = skip_overlap
 
@@ -664,7 +651,7 @@ class DiarizationHomogeneity(UEMSupportMixin, BaseMetric):
         self,
         reference: Annotation,
         hypothesis: Annotation,
-        uem: Optional[Timeline] = None,
+        uem: Timeline | None = None,
         **kwargs,
     ) -> Details:
         detail = self.init_components()
@@ -734,9 +721,7 @@ class DiarizationCompleteness(DiarizationHomogeneity):
         self,
         reference: Annotation,
         hypothesis: Annotation,
-        uem: Optional[Timeline] = None,
+        uem: Timeline | None = None,
         **kwargs,
     ) -> Details:
-        return super(DiarizationCompleteness, self).compute_components(
-            hypothesis, reference, uem=uem, **kwargs
-        )
+        return super().compute_components(hypothesis, reference, uem=uem, **kwargs)
