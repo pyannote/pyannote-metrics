@@ -96,6 +96,34 @@ The internal accumulator can be reset using the :func:`~pyannote.metrics.base.Ba
    In [12]: metric.reset()
 
 
+Parallel processing
+-------------------
+
+Metrics can be added together, which makes it possible to evaluate files in parallel.
+Evaluate each file with its own metric (for instance in a `joblib` worker), then add the metrics.
+The sum holds the results and accumulated components of every file, so ``abs`` and :func:`~pyannote.metrics.base.BaseMetric.report` behave as if a single metric had evaluated all of them.
+
+.. code-block:: python
+
+    from joblib import Parallel, delayed
+    from pyannote.metrics.diarization import DiarizationErrorRate
+
+    def evaluate(reference, hypothesis, uem):
+        metric = DiarizationErrorRate()
+        metric(reference, hypothesis, uem=uem)
+        return metric
+
+    metrics = Parallel(n_jobs=8)(
+        delayed(evaluate)(references[uri], hypotheses[uri], uems[uri])
+        for uri in uris
+    )
+    metric = sum(metrics)
+    report = metric.report(display=True)
+
+Only metrics of the same class, initialized with the same options (e.g. ``skip_overlap``), can be added.
+:func:`~pyannote.metrics.base.BaseMetric.clone` returns a new, empty metric with the same options as an existing one.
+
+
 Evaluation map
 --------------
 

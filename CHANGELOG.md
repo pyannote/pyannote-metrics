@@ -4,6 +4,7 @@
 
 - BREAKING: require Python 3.11 or newer; Python 3.10 is no longer supported
 - feat: add diarization speaker count metrics
+- feat: add support for adding metrics together, to evaluate files in parallel (@nryant, @Atishyy27)
 - fix: fix metrics for empty references (@Atishyy27)
 - fix: restore score-distribution plots with current Matplotlib versions
 - fix: report a helpful installation error when transcription metrics are used
