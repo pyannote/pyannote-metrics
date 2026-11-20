@@ -291,6 +291,7 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
         self,
         reference: Annotation | Timeline,
         hypothesis: Annotation | Timeline,
+        uem: Timeline | None = None,
         **kwargs,
     ) -> Details:
 
@@ -305,9 +306,22 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
         # number of matches so far...
         n_matches = 0.0  # make sure it is a float (for later ratio)
 
+        # reference and hypothesis boundaries
+        ref_boundaries = [segment.end for segment in reference][:-1]
+        hyp_boundaries = [segment.end for segment in hypothesis][:-1]
+
+        # only evaluate boundaries strictly inside the evaluation map
+        if uem is not None:
+            ref_boundaries = [
+                b for b in ref_boundaries if any(s.start < b < s.end for s in uem)
+            ]
+            hyp_boundaries = [
+                b for b in hyp_boundaries if any(s.start < b < s.end for s in uem)
+            ]
+
         # number of boundaries in reference and hypothesis
-        N = max(0, len(reference) - 1)
-        M = max(0, len(hypothesis) - 1)
+        N = len(ref_boundaries)
+        M = len(hyp_boundaries)
 
         # number of boundaries in hypothesis
         detail[PR_BOUNDARIES] = M
@@ -316,10 +330,6 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
         if M == 0 or N == 0:
             detail[PR_MATCHES] = 0.0
             return detail
-
-        # reference and hypothesis boundaries
-        ref_boundaries = [segment.end for segment in reference][:-1]
-        hyp_boundaries = [segment.end for segment in hypothesis][:-1]
 
         # temporal delta between all pairs of boundaries
         delta = np.zeros((N, M))
@@ -406,4 +416,4 @@ class SegmentationRecall(SegmentationPrecision):
         hypothesis: Annotation | Timeline,
         **kwargs,
     ) -> Details:
-        return super().compute_components(hypothesis, reference)
+        return super().compute_components(hypothesis, reference, **kwargs)
