@@ -291,6 +291,7 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
         self,
         reference: Annotation | Timeline,
         hypothesis: Annotation | Timeline,
+        uem: Timeline | None = None,
         **kwargs,
     ) -> Details:
 
@@ -300,27 +301,30 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
         if isinstance(hypothesis, Annotation):
             hypothesis = hypothesis.get_timeline()
 
-        detail = self.init_components()
-
-        # number of matches so far...
-        n_matches = 0.0  # make sure it is a float (for later ratio)
-
-        # number of boundaries in reference and hypothesis
-        N = max(0, len(reference) - 1)
-        M = max(0, len(hypothesis) - 1)
-
-        # number of boundaries in hypothesis
-        detail[PR_BOUNDARIES] = M
-
-        # corner case (no boundary in hypothesis or in reference)
-        if M == 0 or N == 0:
-            detail[PR_MATCHES] = 0.0
-            return detail
-
-        # reference and hypothesis boundaries
         ref_boundaries = [segment.end for segment in reference][:-1]
         hyp_boundaries = [segment.end for segment in hypothesis][:-1]
 
+        detail = self.init_components()
+        if uem is None:
+            detail[PR_BOUNDARIES] = len(hyp_boundaries)
+            detail[PR_MATCHES] = self._count_matches(ref_boundaries, hyp_boundaries)
+        else:
+            # Only a boundary strictly inside a scored region separates two
+            # scored segments. Match each region independently, even when the
+            # tolerance is wider than the gap between regions.
+            for region in uem.support():
+                ref = [t for t in ref_boundaries if region.start < t < region.end]
+                hyp = [t for t in hyp_boundaries if region.start < t < region.end]
+                detail[PR_BOUNDARIES] += len(hyp)
+                detail[PR_MATCHES] += self._count_matches(ref, hyp)
+        return detail
+
+    def _count_matches(self, ref_boundaries, hyp_boundaries):
+        N, M = len(ref_boundaries), len(hyp_boundaries)
+        if M == 0 or N == 0:
+            return 0
+
+        n_matches = 0
         # temporal delta between all pairs of boundaries
         delta = np.zeros((N, M))
         for r, refBoundary in enumerate(ref_boundaries):
@@ -352,8 +356,7 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
             # update minimum value in delta
             h = np.amin(delta)
 
-        detail[PR_MATCHES] = n_matches
-        return detail
+        return n_matches
 
     def compute_metric(self, detail: Details) -> float:
 
@@ -404,6 +407,7 @@ class SegmentationRecall(SegmentationPrecision):
         self,
         reference: Annotation | Timeline,
         hypothesis: Annotation | Timeline,
+        uem: Timeline | None = None,
         **kwargs,
     ) -> Details:
-        return super().compute_components(hypothesis, reference)
+        return super().compute_components(hypothesis, reference, uem=uem, **kwargs)
