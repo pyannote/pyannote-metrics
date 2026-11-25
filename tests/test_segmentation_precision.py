@@ -36,6 +36,9 @@ def test_segmentation_does_not_match_across_unscored_gap():
     ref = Timeline([Segment(0, 0.9), Segment(0.9, 2)])
     hyp = Timeline([Segment(0, 1.1), Segment(1.1, 2)])
     uem = Timeline([Segment(0, 0.95), Segment(1.05, 2)])
-    for metric in (SegmentationPrecision(tolerance=0.3), SegmentationRecall(tolerance=0.3)):
+    for metric in (
+        SegmentationPrecision(tolerance=0.3),
+        SegmentationRecall(tolerance=0.3),
+    ):
         assert metric(ref, hyp) == 1.0
         assert metric(ref, hyp, uem=uem) == 0.0
